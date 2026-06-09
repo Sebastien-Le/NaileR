@@ -4,51 +4,29 @@
 \alias{dist_mat_llm}
 \title{LLM distance matrix}
 \usage{
-dist_mat_llm(ppt, n, per_miss = 0)
+dist_mat_llm(ppt, n, per_miss = 0, model = "llama3", max_attempts = 3, ...)
 }
 \arguments{
-\item{ppt}{an LLM prompt.}
+\item{ppt}{An LLM prompt.}
 
-\item{n}{the number of responses to be generated.}
+\item{n}{The number of responses to be generated.}
 
-\item{per_miss}{the proportion of missing values in the final matrix (between 0 and 1; 0 by default).}
+\item{per_miss}{The probability of leaving a pairwise distance missing.}
+
+\item{model}{Ollama model name.}
+
+\item{max_attempts}{Maximum number of attempts used to obtain valid similarity scores.}
+
+\item{...}{Additional arguments passed to \code{ollamar::generate}.}
 }
 \value{
-A list containing:
-\itemize{
-\item a list of the LLM results for each iteration;
-\item a distance matrix.
-}
+A list containing the generated LLM responses and a distance matrix.
 }
 \description{
 Compute a distance matrix between randomly-generated responses to an LLM prompt.
 }
-\details{
-The final percentage of missing values might differ from the per_miss parameter value; rather than a percentage of values being turned to NA, each value has a per_miss probability of being NA.
-}
 \examples{
 \dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
-data(iris)
-
-intro_iris <- "A study measured various parts of iris flowers
-from 3 different species: setosa, versicolor and virginica.
-I will give you the results from this study.
-You will have to identify what sets these flowers apart."
-intro_iris <- gsub('\n', ' ', intro_iris) |>
-stringr::str_squish()
-
-req_iris <- "Please explain what makes each species distinct.
-Also, tell me which species has the biggest flowers,
-and which species has the smallest."
-req_iris <- gsub('\n', ' ', req_iris) |>
-stringr::str_squish()
-
-res_iris <- nail_catdes(iris, num.var = 5,
-introduction = intro_iris, request = req_iris)
-
-dist_mat_llm(res_iris$prompt, n = 5, per_miss = 0)
+dist_mat_llm("Explain iris species differences", n = 5, per_miss = 0)
 }
 }

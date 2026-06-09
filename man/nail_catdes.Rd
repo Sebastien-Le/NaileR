@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_catdes.R
 \name{nail_catdes}
 \alias{nail_catdes}
-\title{Interpret a categorical latent variable}
+\title{Interpret a categorical variable}
 \usage{
 nail_catdes(
   dataset,
@@ -10,12 +10,15 @@ nail_catdes(
   introduction = NULL,
   request = NULL,
   model = "llama3",
+  provider = c("ollama", "gemini"),
   isolate.groups = FALSE,
   quali.sample = 1,
   quanti.sample = 1,
   drop.negative = FALSE,
   proba = 0.05,
   row.w = NULL,
+  interpretation_mode = c("standard", "latent"),
+  prompt_style = c("detailed", "compact"),
   generate = FALSE,
   ...
 )
@@ -29,7 +32,9 @@ nail_catdes(
 
 \item{request}{the request made to the LLM.}
 
-\item{model}{the model name for Ollama (e.g., 'llama3').}
+\item{model}{the model name for the selected provider (e.g., 'llama3' for Ollama or 'gemini-2.5-flash' for Gemini).}
+
+\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
 \item{isolate.groups}{a boolean that indicates whether to give the LLM a single prompt, or one prompt per category. Recommended with long catdes results.}
 
@@ -43,19 +48,23 @@ nail_catdes(
 
 \item{row.w}{a vector of integers corresponding to an optional row weights (by default, a vector of 1 for uniform row weights)}
 
+\item{interpretation_mode}{either "standard" or "latent".}
+
+\item{prompt_style}{either "detailed" or "compact".}
+
 \item{generate}{a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.}
 
-\item{...}{Additional arguments passed to 'ollamar::generate'
+\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend
 (e.g., \code{temperature}, \code{seed}).}
 }
 \value{
 A data frame, or a list of data frames, containing the LLM's prompt and response (if generate = TRUE).
 }
 \description{
-Generate an LLM response to analyze a categorical latent variable.
+Generate an LLM response to analyze a categorical variable.
 }
 \details{
-This function (when generate=TRUE) sends a prompt to an Ollama LLM.
+This function (when generate=TRUE) sends a prompt to the selected LLM backend.
 }
 \examples{
 \dontrun{

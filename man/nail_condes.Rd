@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_condes.R
 \name{nail_condes}
 \alias{nail_condes}
-\title{Interpret a continuous latent variable}
+\title{Interpret a continuous variable}
 \usage{
 nail_condes(
   dataset,
@@ -10,12 +10,17 @@ nail_condes(
   introduction = NULL,
   request = NULL,
   model = "llama3",
-  quanti.threshold = 0,
-  quanti.cat = c("Significantly above average", "Significantly below average", "Average"),
+  provider = c("ollama", "gemini"),
+  quanti.threshold = 1,
+  quanti.cat = c("High score", "Low score", "Intermediate score"),
   sample.pct = 1,
   weights = NULL,
   proba = 0.05,
   generate = FALSE,
+  interpretation_mode = c("standard", "latent"),
+  prompt_style = c("detailed", "compact"),
+  target_concept = "the target concept",
+  target_label = NULL,
   ...
 )
 }
@@ -28,11 +33,13 @@ nail_condes(
 
 \item{request}{the request made to the LLM.}
 
-\item{model}{the model name (e.g., 'llama3').}
+\item{model}{the model name for the selected provider (e.g., 'llama3' for Ollama or 'gemini-2.5-flash' for Gemini).}
 
-\item{quanti.threshold}{the threshold above (resp. below) which a scaled variable is considered significantly above (resp.below) the average. Used when converting continuous variables to categorical ones.}
+\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
-\item{quanti.cat}{a vector of the 3 possible categories for continuous variables converted to categorical ones according to the threshold. Default is "Significantly above average", "Significantly below average", "Average".}
+\item{quanti.threshold}{the threshold above (resp. below) which a scaled variable is considered significantly above (resp. below) the average. Used when converting continuous variables to categorical ones.}
+
+\item{quanti.cat}{a vector of the 3 possible technical categories used after discretizing continuous variables according to the threshold. Default is "High score", "Low score", "Intermediate score".}
 
 \item{sample.pct}{the proportion of features to be sampled.}
 
@@ -42,17 +49,24 @@ nail_condes(
 
 \item{generate}{a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.}
 
-\item{...}{Additional arguments passed to 'ollamar::generate'
-(e.g., \code{temperature}, \code{seed}).}
+\item{interpretation_mode}{either "standard" or "latent".}
+
+\item{prompt_style}{either "detailed" or "compact".}
+
+\item{target_concept}{generic concept used in the prompt to describe what the scale refers to.}
+
+\item{target_label}{optional label for the target variable. If NULL, uses the name of the variable indexed by \code{num.var}.}
+
+\item{...}{additional provider-specific generation arguments passed to the selected LLM backend (e.g., \code{temperature}, \code{seed}).}
 }
 \value{
 A data frame containing the LLM's prompt and response (if generate = TRUE).
 }
 \description{
-Generate an LLM response to analyze a continuous latent variable.
+Generate an LLM response to analyze a continuous variable.
 }
 \details{
-This function (when generate=TRUE) sends a prompt to an Ollama LLM.
+This function (when generate = TRUE) sends a prompt to the selected LLM backend.
 }
 \examples{
 \dontrun{

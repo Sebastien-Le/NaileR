@@ -10,11 +10,15 @@ nail_descfreq(
   request = NULL,
   conclusion = NULL,
   model = "llama3",
+  provider = c("ollama", "gemini"),
   isolate.groups = FALSE,
   sample.pct = 1,
   drop.negative = FALSE,
   by.quali = NULL,
   proba = 0.05,
+  interpretation_mode = c("description", "comparison"),
+  rows_are_ordered = FALSE,
+  explicit_row_labels = FALSE,
   generate = FALSE,
   ...
 )
@@ -28,7 +32,9 @@ nail_descfreq(
 
 \item{conclusion}{the conclusion for the LLM prompt.}
 
-\item{model}{the model name ('llama3' by default).}
+\item{model}{the model name for the selected provider ('llama3' by default for Ollama).}
+
+\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
 \item{isolate.groups}{a boolean that indicates whether to give the LLM a single prompt, or one prompt per row. Recommended if the contingency table has a great number of rows.}
 
@@ -40,9 +46,15 @@ nail_descfreq(
 
 \item{proba}{the significance threshold considered to characterize the category (by default 0.05).}
 
+\item{interpretation_mode}{either "description" or "comparison".}
+
+\item{rows_are_ordered}{logical; if TRUE, the prompt encourages the LLM to look for a gradient across rows.}
+
+\item{explicit_row_labels}{logical; if TRUE, the prompt tells the LLM not to rename the rows.}
+
 \item{generate}{a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.}
 
-\item{...}{Additional arguments passed to 'ollamar::generate'
+\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend
 (e.g., \code{temperature}, \code{seed}).}
 }
 \value{
@@ -135,7 +147,7 @@ intro_children <- 'The data used here is a contingency table
 that summarizes the answers
 given by different categories of people to the following question:
 "according to you, what are the reasons that can make
-a woman of a couple hesitate to have children?".
+a woman or a couple hesitate to have children?".
 Each row corresponds to a level of education, and columns are reasons.'
 intro_children <- gsub('\n', ' ', intro_children) |>
 stringr::str_squish()

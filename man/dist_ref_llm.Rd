@@ -4,48 +4,30 @@
 \alias{dist_ref_llm}
 \title{LLM response consistency}
 \usage{
-dist_ref_llm(ppt, ref, n)
+dist_ref_llm(ppt, ref, n, model = "llama3", max_attempts = 3, ...)
 }
 \arguments{
-\item{ppt}{an LLM prompt.}
+\item{ppt}{An LLM prompt.}
 
-\item{ref}{the reference response.}
+\item{ref}{The reference response.}
 
-\item{n}{the number of new responses to be generated.}
+\item{n}{The number of new responses to be generated.}
+
+\item{model}{Ollama model name.}
+
+\item{max_attempts}{Maximum number of attempts used to obtain valid similarity scores.}
+
+\item{...}{Additional arguments passed to \code{ollamar::generate}.}
 }
 \value{
-A list containing:
-\itemize{
-\item a list with the newly-generated prompts;
-\item a vector of distances to the reference response.
-}
+A list containing generated responses and distances to the reference.
 }
 \description{
-Compute distances between an LLM response of interest and some other responses to the same prompt.
+Compute distances between an LLM response of interest and new responses to
+the same prompt.
 }
 \examples{
 \dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
-data(iris)
-
-intro_iris <- "A study measured various parts of iris flowers
-from 3 different species: setosa, versicolor and virginica.
-I will give you the results from this study.
-You will have to identify what sets these flowers apart."
-intro_iris <- gsub('\n', ' ', intro_iris) |>
-stringr::str_squish()
-
-req_iris <- "Please explain what makes each species distinct.
-Also, tell me which species has the biggest flowers,
-and which species has the smallest."
-req_iris <- gsub('\n', ' ', req_iris) |>
-stringr::str_squish()
-
-res_iris <- nail_catdes(iris, num.var = 5,
-introduction = intro_iris, request = req_iris)
-
-dist_ref_llm(res_iris$prompt, res_iris$response, n = 5)
+dist_ref_llm("Explain iris species differences", "Reference response", n = 5)
 }
 }

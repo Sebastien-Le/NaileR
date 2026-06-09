@@ -13,16 +13,22 @@ nail_qda(
   request = NULL,
   conclusion = NULL,
   model = "llama3",
+  provider = c("ollama", "gemini"),
   isolate.groups = FALSE,
   drop.negative = FALSE,
   proba = 0.05,
-  generate = FALSE
+  sample.pct = 1,
+  prompt_style = c("detailed", "compact"),
+  product_knowledge = c("known", "unknown"),
+  generate = FALSE,
+  ...
 )
 }
 \arguments{
-\item{dataset}{a data frame made up of at least two categorical variables (product, panelist) and a set of quantitative variables (sensory attributes).}
+\item{dataset}{a data frame made up of at least two categorical variables
+(product, panelist) and a set of quantitative variables (sensory attributes).}
 
-\item{formul}{the analyis of variance model to be evaluated for each sensory attribute.}
+\item{formul}{the analysis of variance model to be evaluated for each sensory attribute.}
 
 \item{firstvar}{the index of the first sensory attribute.}
 
@@ -34,92 +40,34 @@ nail_qda(
 
 \item{conclusion}{the conclusion for the LLM prompt.}
 
-\item{model}{the model name ('llama3' by default).}
+\item{model}{the model name for the selected provider ('llama3' by default for Ollama).}
 
-\item{isolate.groups}{a boolean that indicates whether to give the LLM a single prompt, or one prompt per product.}
+\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
-\item{drop.negative}{a boolean that indicates whether to drop negative v.test values for interpretation (keeping only positive v.tests).}
+\item{isolate.groups}{a boolean that indicates whether to give the LLM
+a single prompt, or one prompt per product.}
 
-\item{proba}{the significance threshold considered to characterize the products (by default 0.05).}
+\item{drop.negative}{a boolean that indicates whether to drop negative
+v.test values for interpretation.}
 
-\item{generate}{a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.}
+\item{proba}{the significance threshold used to retain results for interpretation.}
+
+\item{sample.pct}{proportion of retained attributes to keep in the prompt.}
+
+\item{prompt_style}{either "detailed" or "compact".}
+
+\item{product_knowledge}{either "known" or "unknown".}
+
+\item{generate}{a boolean that indicates whether to generate the LLM response.
+If FALSE, the function only returns the prompt.}
+
+\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend
+(e.g., \code{temperature}, \code{seed}).}
 }
 \value{
-A data frame, or a list of data frames, containing the LLM's prompt and response (if generate = TRUE).
+If \code{generate = FALSE}, a prompt string or a named list of prompt strings.
+If \code{generate = TRUE}, a data frame or named list of data frames.
 }
 \description{
 Generate an LLM response to analyze QDA data.
-}
-\details{
-This function directly sends a prompt to an LLM. Therefore, to get a consistent answer, we highly recommend to customize the parameters introduction and request and add all relevant information on your data for the LLM. We also recommend renaming the columns with clear, unshortened and unambiguous names.
-
-Additionally, if isolate.groups = TRUE, you will need an introduction and a request that take into account the fact that only one group is analyzed at a time.
-}
-\examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
-### Example 1: QDA data on chocolates with isolate.groups = FALSE ###
-library(NaileR)
-library(SensoMineR)
-data(chocolates)
-
-intro_sensochoc <- "Six chocolates were measured according
-to sensory attributes by a trained panel.
-I will give you the results from this study.
-You will have to identify what sets these chocolates apart."
-intro_sensochoc <- gsub('\n', ' ', intro_sensochoc) |>
-stringr::str_squish()
-
-req_sensochoc <- "Please explain what makes each chocolate different
-and provide a sensory profile of each chocolate, as well as a name."
-req_sensochoc <- gsub('\n', ' ', req_sensochoc) |>
-stringr::str_squish()
-
-res_nail_qda <- nail_qda(sensochoc,
-                         formul="~Product+Panelist",
-                         firstvar = 5,
-                         introduction = intro_sensochoc,
-                         request = req_sensochoc,
-                         model = 'llama3',
-                         isolate.groups = FALSE,
-                         drop.negative = FALSE,
-                         proba = 0.05,
-                         generate = TRUE)
-
-cat(res_nail_qda$prompt)
-cat(res_nail_qda$response)
-
-### Example 2: QDA data on chocolates with isolate.groups = TRUE ###
-library(NaileR)
-library(SensoMineR)
-data(chocolates)
-
-intro_sensochoc <- "A chocolate was measured according
-to sensory attributes by a trained panel.
-I will give you the results from this study.
-You will have to identify the characteristics of this chocolate."
-intro_sensochoc <- gsub('\n', ' ', intro_sensochoc) |>
-stringr::str_squish()
-
-req_sensochoc <- "Please provide a detailed sensory profile for this chocolate,
-as well as a name."
-req_sensochoc <- gsub('\n', ' ', req_sensochoc) |>
-stringr::str_squish()
-
-res_nail_qda <- nail_qda(sensochoc,
-                         formul="~Product+Panelist",
-                         firstvar = 5,
-                         introduction = intro_sensochoc,
-                         request = req_sensochoc,
-                         model = 'llama3',
-                         isolate.groups = TRUE,
-                         drop.negative = FALSE,
-                         proba = 0.05,
-                         generate = TRUE)
-
-cat(res_nail_qda[[1]]$prompt)
-cat(res_nail_qda[[1]]$response)
-}
 }

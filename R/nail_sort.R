@@ -13,10 +13,12 @@ remove_punctuation <- function(text) {
 #' @param introduction the introduction to the LLM prompt.
 #' @param measure the type of measure used in the experiment.
 #' @param request the request of the LLM prompt.
-#' @param model the model name ('llama3.1' by default).
+#' @param model the model name for the selected provider ('llama3.1' by default for Ollama).
+#' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
 #' @param nb.clusters the maximum number of clusters the LLM can form per assessor.
 #' @param generate a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.
 #' @param max.attempts the maximum number of attempts for a column.
+#' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
 #'
 #' @return A list consisting of:
 #' * a list of prompts (one per assessor);
@@ -70,21 +72,42 @@ remove_punctuation <- function(text) {
 #' @importFrom jsonlite fromJSON
 
 nail_sort <- function(dataset, name_size = 3, stimulus_id = "individual",
-                      introduction = NULL, measure = NULL, request = NULL, model = "llama3.1",
-                      nb.clusters = 4, generate = FALSE, max.attempts = 5) {
+                      introduction = NULL, measure = NULL, request = NULL, model = "llama3.1", provider = c("ollama", "gemini"),
+                      nb.clusters = 4, generate = FALSE, max.attempts = 5, ...) {
 
-  ppt_llm <- vector("list", ncol(dataset))
-  res_llm <- vector("list", ncol(dataset))
-  dta_sort <- dataset[, FALSE] # Creates an empty data frame with same structure
+  provider <- match.arg(provider)
 
-  # Ensure introduction and measure are not NULL to avoid concatenation issues
-  introduction <- ifelse(is.null(introduction), "Individuals are described by free comments.", introduction)
-  measure <- ifelse(is.null(measure), "the description was", measure)
-  request <- ifelse(is.null(request), "Each group should contain individuals with similar descriptions and have a short, meaningful name.", request)
+  assert_data_frame(dataset, "dataset")
+  if (nrow(dataset) < 2 || ncol(dataset) < 1) {
+    stop("`dataset` must contain at least two rows and one column.", call. = FALSE)
+  }
+  assert_positive_integerish(name_size, "name_size")
+  assert_positive_integerish(nb.clusters, "nb.clusters")
+  assert_positive_integerish(max.attempts, "max.attempts")
+  assert_single_logical(generate, "generate")
+
+  if (nb.clusters < 2) {
+    stop("`nb.clusters` must be at least 2.", call. = FALSE)
+  }
+  if (nb.clusters > nrow(dataset)) {
+    stop("`nb.clusters` cannot exceed the number of rows in `dataset`.", call. = FALSE)
+  }
+
+  prompts <- vector("list", ncol(dataset))
+  responses <- vector("list", ncol(dataset))
+  sorted_groups <- dataset[, FALSE]
+
+  introduction <- if (is.null(introduction)) "Individuals are described by free comments." else introduction
+  measure <- if (is.null(measure)) "the description was" else measure
+  request <- if (is.null(request)) "Each group should contain individuals with similar descriptions and have a short, meaningful name." else request
+
+  extra_args <- list(...)
+  llm_api_options <- extra_args
 
   for (j in seq_len(ncol(dataset))) {
-    dta_j <- dataset[[j]]
-    liste <- character(nrow(dataset)) # Preallocate for efficiency
+    dta_j <- as.character(dataset[[j]])
+    dta_j[is.na(dta_j)] <- ""
+    liste <- character(nrow(dataset))
 
     for (i in seq_len(nrow(dataset))) {
       texte_j <- stringr::str_split_1(dta_j[i], pattern = ";") |>
@@ -94,130 +117,118 @@ nail_sort <- function(dataset, name_size = 3, stimulus_id = "individual",
 
     descr <- paste(liste, collapse = " ")
 
-    # --- MODIFICATION : Nouveau prompt demandant du JSON ---
-    ppt_q <- glue::glue(
-      "Please categorize the {nrow(dataset)} {stimulus_id}s into groups while strictly ensuring that the total number of groups is between **2 and {nb.clusters}**. ",
-      "This is a hard constraint: **DO NOT exceed {nb.clusters} groups** and **DO NOT use fewer than 2 groups**. ",
-      "DO NOT provide explanations, justifications, or any extra text. ",
-      "You MUST output **only** a valid JSON array of objects, with no other text before or after. ",
+    json_instruction <- glue::glue(
+      "Please categorize the {nrow(dataset)} {stimulus_id}s into groups while strictly ensuring that the total number of groups is between 2 and {nb.clusters}. ",
+      "This is a hard constraint: do not exceed {nb.clusters} groups and do not use fewer than 2 groups. ",
+      "Do not provide explanations, justifications, or any extra text. ",
+      "You must output only a valid JSON array of objects, with no other text before or after. ",
       "Each object in the array must represent one {stimulus_id} and have two keys: ",
-      "1. `stimulus_id`: The numeric ID of the {stimulus_id} (e.g., 1, 2, 3...). ",
-      "2. `group_name`: The short, meaningful name of the group (max {name_size} words). ",
-      "Ensure all {nrow(dataset)} {stimulus_id}s are present in the JSON array. ",
+      "`stimulus_id` (numeric ID from 1 to {nrow(dataset)}) and `group_name` (max {name_size} words). ",
+      "Ensure all {nrow(dataset)} {stimulus_id}s are present exactly once. ",
       "Example format:\n\n",
-      '[',
-      '  {{"stimulus_id": 1, "group_name": "Group Name A"}},',
-      '  {{"stimulus_id": 2, "group_name": "Group Name B"}},',
-      '  ...',
-      '  {{"stimulus_id": {nrow(dataset)}, "group_name": "Group Name A"}}',
-      ']',
-      "\n\n**Failure to follow the JSON format or group limit will result in an invalid response.**",
-      "\n\n**{request}** "
+      "[\n",
+      "  {{\"stimulus_id\": 1, \"group_name\": \"Group Name A\"}},\n",
+      "  {{\"stimulus_id\": 2, \"group_name\": \"Group Name B\"}}\n",
+      "]",
+      "\n\nUser request: {request}"
     )
-    # Les {{ et }} sont necessaires pour que glue::glue ignore les accolades du JSON
 
-    ppt <- paste(introduction, descr, ppt_q)
-    ppt_llm[[j]] <- ppt
+    prompt <- paste(introduction, descr, json_instruction)
+    prompts[[j]] <- prompt
 
-    grps <- NULL
-    max_attempts_reached <- FALSE # Flag to track if max attempts reached
+    grps <- rep(NA_character_, nrow(dataset))
 
     if (generate) {
-      counter <- 0
-      valid_response <- FALSE # Flag pour controler la boucle while
-
-      while (!valid_response) {
-        counter <- counter + 1
-        if (counter > max.attempts) {
-          message(glue::glue("Column {j}: Maximum attempts ({max.attempts}) reached. Moving to next column."))
-          grps <- rep(NA, nrow(dataset)) # Return NA values if unsuccessful
-          max_attempts_reached <- TRUE
-          break # Sortir de la boucle while
-        }
-
-        # --- MODIFICATION : Logique de generation et parsing ---
-
+      for (attempt in seq_len(max.attempts)) {
         response_raw <- tryCatch({
-          ollamar::generate(model, ppt, output = 'df')$response
+          res <- .call_llm_base(
+            provider = provider,
+            model = model,
+            prompt = prompt,
+            output = "df",
+            llm_api_options = llm_api_options
+          )
+          paste(res$response, collapse = "\n")
         }, error = function(e) {
-          message(glue::glue("Column {j}, Attempt {counter}: API call failed. Retrying..."))
-          return(NULL) # Retourne NULL en cas d'echec de l'API
+          message(glue::glue("Column {j}, attempt {attempt}: API call failed: {conditionMessage(e)}"))
+          NULL
         })
 
         if (is.null(response_raw)) {
-          res_llm[[j]] <- "API call failed"
-          next # Nouvelle tentative
+          responses[[j]] <- "API call failed"
+          next
         }
 
-        res_llm[[j]] <- response_raw # Stocker la reponse brute (pour debogage)
+        responses[[j]] <- response_raw
 
-        # Tenter de parser le JSON
-        parsed_data <- tryCatch({
-          jsonlite::fromJSON(response_raw, simplifyDataFrame = TRUE)
-        }, error = function(e) {
-          message(glue::glue("Column {j}, Attempt {counter}: Failed to parse JSON. Retrying..."))
-          return(NULL) # Retourne NULL en cas d'echec du parsing
-        })
+        parsed_data <- tryCatch(
+          .parse_json_response(response_raw, simplifyDataFrame = TRUE),
+          error = function(e) {
+            message(glue::glue("Column {j}, attempt {attempt}: failed to parse JSON. Retrying..."))
+            NULL
+          }
+        )
 
-        if (is.null(parsed_data)) next # Nouvelle tentative
+        if (is.null(parsed_data)) next
 
-        # --- DeBUT DES VALIDATIONS ---
-
-        # 1. Valider la structure du JSON
         if (!is.data.frame(parsed_data) || !all(c("stimulus_id", "group_name") %in% names(parsed_data))) {
-          message(glue::glue("Column {j}, Attempt {counter}: JSON structure incorrect (missing keys). Retrying..."))
+          message(glue::glue("Column {j}, attempt {attempt}: JSON structure incorrect. Retrying..."))
           next
         }
 
-        # 2. Valider le nombre de lignes
         if (nrow(parsed_data) != nrow(dataset)) {
-          message(glue::glue("Column {j}, Attempt {counter}: Incorrect number of items in JSON ({nrow(parsed_data)} found, {nrow(dataset)} expected). Retrying..."))
+          message(glue::glue("Column {j}, attempt {attempt}: incorrect number of items in JSON ({nrow(parsed_data)} found, {nrow(dataset)} expected). Retrying..."))
           next
         }
 
-        # 3. Assurer l'ordre et extraire les groupes
-        parsed_data$stimulus_id <- as.numeric(parsed_data$stimulus_id)
-        parsed_data <- parsed_data[order(parsed_data$stimulus_id), ]
+        parsed_data$stimulus_id <- suppressWarnings(as.numeric(parsed_data$stimulus_id))
+        parsed_data <- parsed_data[order(parsed_data$stimulus_id), , drop = FALSE]
 
-        # 4. Verifier que tous les IDs sont presents (de 1 a N)
-        if (!all(parsed_data$stimulus_id == 1:nrow(dataset))) {
-          message(glue::glue("Column {j}, Attempt {counter}: JSON missing or has duplicate stimulus_ids. Retrying..."))
+        if (!identical(parsed_data$stimulus_id, as.numeric(seq_len(nrow(dataset))))) {
+          message(glue::glue("Column {j}, attempt {attempt}: missing, duplicated, or invalid stimulus IDs. Retrying..."))
           next
         }
 
-        grps <- stringr::str_squish(as.character(parsed_data$group_name))
+        candidate_groups <- stringr::str_squish(as.character(parsed_data$group_name))
+        if (any(is.na(candidate_groups)) || any(!nzchar(candidate_groups))) {
+          message(glue::glue("Column {j}, attempt {attempt}: empty group name found. Retrying..."))
+          next
+        }
 
-        # 5. Valider le nombre de mots par nom de groupe
-        nb_words <- max(stringr::str_count(grps, "\\w+"), na.rm = TRUE)
+        nb_words <- max(stringr::str_count(candidate_groups, "\\w+"), na.rm = TRUE)
         if (nb_words > name_size) {
-          message(glue::glue("Column {j}, Attempt {counter}: Group name too long ({nb_words} words, max {name_size}). Retrying..."))
+          message(glue::glue("Column {j}, attempt {attempt}: group name too long ({nb_words} words, max {name_size}). Retrying..."))
           next
         }
 
-        # 6. Valider le nombre de groupes uniques (min et max)
-        nb_unique_grps <- length(unique(grps))
+        nb_unique_grps <- length(unique(candidate_groups))
         if (nb_unique_grps > nb.clusters || nb_unique_grps < 2) {
-          message(glue::glue("Column {j}, Attempt {counter}: Incorrect number of groups ({nb_unique_grps} found, expected 2-{nb.clusters}). Retrying..."))
+          message(glue::glue("Column {j}, attempt {attempt}: incorrect number of groups ({nb_unique_grps} found, expected 2-{nb.clusters}). Retrying..."))
           next
         }
 
-        # --- FIN DES VALIDATIONS ---
-
-        # Si on arrive ici, tout est valide
-        valid_response <- TRUE
-
-      } # Fin de la boucle while
-
-      dta_sort[, j] <- grps
-      colnames(dta_sort)[j] <- colnames(dataset)[j]
-
-      # Only print success message if max attempts were **NOT** reached
-      if (!max_attempts_reached) {
-        attempt_word <- ifelse(counter == 1, "attempt", "attempts")
-        message(glue::glue("Column {j} generated after {counter} {attempt_word}."))
+        grps <- candidate_groups
+        attempt_word <- ifelse(attempt == 1, "attempt", "attempts")
+        message(glue::glue("Column {j} generated after {attempt} {attempt_word}."))
+        break
       }
+
+      if (all(is.na(grps))) {
+        message(glue::glue("Column {j}: maximum attempts ({max.attempts}) reached. Returning NA values."))
+      }
+
+      sorted_groups[, j] <- grps
+      colnames(sorted_groups)[j] <- colnames(dataset)[j]
     }
   }
 
-  return(list(prompt_llm = ppt_llm, res_llm = res_llm, dta_sort = dta_sort))
+  out <- list(
+    prompts = prompts,
+    responses = responses,
+    sorted_groups = sorted_groups,
+    prompt_llm = prompts,
+    res_llm = responses,
+    dta_sort = sorted_groups
+  )
+  out
 }

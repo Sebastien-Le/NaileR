@@ -12,9 +12,11 @@ nail_sort(
   measure = NULL,
   request = NULL,
   model = "llama3.1",
+  provider = c("ollama", "gemini"),
   nb.clusters = 4,
   generate = FALSE,
-  max.attempts = 5
+  max.attempts = 5,
+  ...
 )
 }
 \arguments{
@@ -30,13 +32,17 @@ nail_sort(
 
 \item{request}{the request of the LLM prompt.}
 
-\item{model}{the model name ('llama3.1' by default).}
+\item{model}{the model name for the selected provider ('llama3.1' by default for Ollama).}
+
+\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
 \item{nb.clusters}{the maximum number of clusters the LLM can form per assessor.}
 
 \item{generate}{a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.}
 
 \item{max.attempts}{the maximum number of attempts for a column.}
+
+\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
 }
 \value{
 A list consisting of:
