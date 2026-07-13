@@ -489,7 +489,7 @@ get_prompt_descfreq <- function(res_df, introduction, request, conclusion,
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend
 #' (e.g., `temperature`, `seed`).
 #'
-#' @return A data frame, or a list of data frames, containing the LLM's prompt and response (if generate = TRUE).
+#' @return If `generate = FALSE`, a character prompt or a named list of prompts. If `generate = TRUE`, an object containing the generated interpretation and the underlying analytical result.
 #'
 #' @details This function directly sends a prompt to an LLM. Therefore, to get a consistent answer, we highly recommend to customize the parameters introduction and request and add all relevant information on your data for the LLM.
 #'

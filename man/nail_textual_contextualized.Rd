@@ -84,7 +84,7 @@ nail_textual_contextualized(
 \item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
 }
 \value{
-If \code{generate = FALSE}, a prompt string or a named list of prompts.
+When \code{generate = FALSE}, both \code{group_profile_prep} and \code{textual_prep} must be supplied as precomputed objects. Internal preparation from raw data requires LLM generation.
 If \code{generate = TRUE}, a data frame or a named list of data frames.
 
 Attributes:

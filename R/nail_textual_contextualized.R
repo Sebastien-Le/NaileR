@@ -745,7 +745,7 @@ get_prompt_textual_contextualized <- function(group_profile_summary,
 #' @param generate Logical; if FALSE, return prompt(s) only.
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
 #'
-#' @return If `generate = FALSE`, a prompt string or a named list of prompts.
+#' @return When `generate = FALSE`, both `group_profile_prep` and `textual_prep` must be supplied as precomputed objects. Internal preparation from raw data requires LLM generation.
 #' If `generate = TRUE`, a data frame or a named list of data frames.
 #'
 #' Attributes:

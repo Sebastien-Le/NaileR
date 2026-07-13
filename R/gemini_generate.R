@@ -11,7 +11,7 @@
 #' @param api_key Character scalar. API key. Defaults to env var
 #'   `GEMINI_API_KEY`.
 #' @param user_agent Character scalar for the HTTP User-Agent header.
-#'   Default: "EnTraineR/0.9.0 (https://github.com/Sebastien-Le/EnTraineR)".
+#'   Default: "NaileR/2.0.0 (https://github.com/Sebastien-Le/NaileR)".
 #' @param base_url Character scalar. API base URL.
 #'   Default: "https://generativelanguage.googleapis.com/v1beta".
 #' @param temperature Optional numeric, range 0 to 2. Sampling temperature.
@@ -52,9 +52,9 @@
 #' @export
 gemini_generate <- function(
     prompt,
-    model = "gemini-2.5-flash",
+    model = "gemini-3.5-flash",
     api_key = Sys.getenv("GEMINI_API_KEY"),
-    user_agent = "EnTraineR/0.9.0 (https://github.com/Sebastien-Le/EnTraineR)",
+    user_agent = "NaileR/2.0.0 (https://github.com/Sebastien-Le/NaileR)",
     base_url = "https://generativelanguage.googleapis.com/v1beta",
     temperature = NULL,
     top_p = NULL,

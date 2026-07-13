@@ -52,7 +52,7 @@
 #' @export
 gemini_generate <- function(
     prompt,
-    model = "gemini-2.5-flash",
+    model = "gemini-3.5-flash",
     api_key = Sys.getenv("GEMINI_API_KEY"),
     user_agent = "EnTraineR/0.9.0 (https://github.com/Sebastien-Le/EnTraineR)",
     base_url = "https://generativelanguage.googleapis.com/v1beta",

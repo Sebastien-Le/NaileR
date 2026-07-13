@@ -58,7 +58,7 @@ nail_descfreq(
 (e.g., \code{temperature}, \code{seed}).}
 }
 \value{
-A data frame, or a list of data frames, containing the LLM's prompt and response (if generate = TRUE).
+If \code{generate = FALSE}, a character prompt or a named list of prompts. If \code{generate = TRUE}, an object containing the generated interpretation and the underlying analytical result.
 }
 \description{
 Describes the rows of a contingency table. For each row, this description is based on the columns of the contingency table that are significantly related to it.

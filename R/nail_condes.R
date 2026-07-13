@@ -544,7 +544,7 @@ validate_condes_inputs <- function(dataset,
 #' @param generate a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.
 #' @param ... additional provider-specific generation arguments passed to the selected LLM backend (e.g., `temperature`, `seed`).
 #'
-#' @return A data frame containing the LLM's prompt and response (if generate = TRUE).
+#' @return If `generate = FALSE`, a character prompt or a named list of prompts. If `generate = TRUE`, an object containing the generated interpretation and the underlying analytical result.
 #'
 #' @details This function (when generate = TRUE) sends a prompt to the selected LLM backend.
 #'

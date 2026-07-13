@@ -662,7 +662,7 @@ validate_catdes_inputs <- function(dataset,
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend
 #' (e.g., `temperature`, `seed`).
 #'
-#' @return A data frame, or a list of data frames, containing the LLM's prompt and response (if generate = TRUE).
+#' @return If `generate = FALSE`, a character prompt or a named list of prompts. If `generate = TRUE`, an object containing the generated interpretation and the underlying analytical result.
 #'
 #' @details This function (when generate=TRUE) sends a prompt to the selected LLM backend.
 #'
