@@ -7,3 +7,6 @@
 inst/doc
 /doc/
 /Meta/
+
+# CRAN build artifacts
+cran/

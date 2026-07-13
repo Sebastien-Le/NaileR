@@ -1,6 +1,6 @@
 <br />
 <div align="center">
-  <a href="https://github.com/Nelhe/NaileR">
+  <a href="https://github.com/Sebastien-Le/NaileR">
     <img src="images/Nailer_final.png" alt="Logo" width="244" height="284">
   </a>
 
@@ -31,7 +31,7 @@ install.packages('devtools')
 
 2. Install and load the 'NaileR' package from GitHub.
 ``` r
-devtools::install_github('Nelhe/NaileR')
+devtools::install_github('Sebastien-Le/NaileR')
 library(NaileR)
 ```
 
@@ -67,7 +67,7 @@ library(NaileR)
 
 ## Example
 
-For complete case studies and a showcase of the main functions of the 'NaileR' package, see the [documentation](https://github.com/Nelhe/NaileR/tree/master/doc).
+For complete case studies and a showcase of the main functions of the 'NaileR' package, see the [documentation](https://github.com/Sebastien-Le/NaileR/tree/master/doc).
 
 Let's have a look at how we can interpret HCPC clusters:
 
@@ -121,7 +121,7 @@ This package is under the GPL (>= 2) License. Details can be found [here](https:
 
 Sébastien Lê - sebastien.le@institut-agro.fr
 
-Project link: [https://github.com/Nelhe/NaileR](https://github.com/Nelhe/NaileR)
+Project link: [https://github.com/Sebastien-Le/NaileR](https://github.com/Sebastien-Le/NaileR)
 
 ## Acknowledgements
 
