@@ -14,3 +14,7 @@
 ^NaileR-.*-audit\.zip$
 ^R_old$
 ^R_old_old$
+^cran(/.*)?$
+^R_old(/.*)?$
+^R_old_old(/.*)?$
+^NaileR-.*-audit\.zip$

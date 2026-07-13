@@ -597,7 +597,6 @@ get_prompt_descfreq <- function(res_df, introduction, request, conclusion,
 #'
 #' @importFrom FactoMineR descfreq
 #' @importFrom glue glue
-#' @export
 nail_descfreq <- function(dataset,
                           introduction = NULL,
                           request = NULL,

@@ -68,72 +68,138 @@ This function (when generate=TRUE) sends a prompt to the selected LLM backend.
 }
 \examples{
 \dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
+# These examples use a large language model and may therefore
+# take more than ten seconds to run.
+
+# All generated responses below explicitly use:
+# - the local Ollama backend;
+# - the llama3 model.
+
+# Ollama must be running locally and the llama3 model must be installed.
+# To use Gemini instead, set:
+# provider = "gemini"
+# model = "<a supported Gemini model>"
+# and define the GEMINI_API_KEY environment variable.
+
 
 ### Example 1: Fisher's iris ###
+
 library(NaileR)
 data(iris)
 
+# Describe the study context for the language model.
 intro_iris <- "A study measured various parts of iris flowers
 from 3 different species: setosa, versicolor and virginica.
 I will give you the results from this study.
 You will have to identify what sets these flowers apart."
-intro_iris <- gsub('\n', ' ', intro_iris) |>
-stringr::str_squish()
 
+intro_iris <- gsub("\n", " ", intro_iris) |>
+  stringr::str_squish()
+
+# Specify the interpretation expected from the language model.
 req_iris <- "Please explain what makes each species distinct.
 Also, tell me which species has the biggest flowers,
 and which species has the smallest."
-req_iris <- gsub('\n', ' ', req_iris) |>
-stringr::str_squish()
 
-res_iris <- nail_catdes(iris,
-                        num.var = 5,
-                        introduction = intro_iris,
-                        request = req_iris,
-                        generate = TRUE)
+req_iris <- gsub("\n", " ", req_iris) |>
+  stringr::str_squish()
 
+# Characterize the fifth variable, Species.
+#
+# Because generate = TRUE, the prompt produced from
+# FactoMineR::catdes() is sent to Ollama.
+# The response is generated locally with the llama3 model.
+res_iris <- nail_catdes(
+  dataset = iris,
+  num.var = 5,
+  introduction = intro_iris,
+  request = req_iris,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+
+# Display the generated interpretation.
 cat(res_iris$response)
+
 
 ### Example 2: food waste dataset ###
 
 library(FactoMineR)
-
 data(waste)
-waste <- waste[-14]    # no variability on this question
 
+# Remove a question with no variability.
+waste <- waste[-14]
+
+# Build a multiple correspondence analysis.
 set.seed(1)
-res_mca_waste <- MCA(waste, quali.sup = c(1,2,50:76),
-ncp = 35, level.ventil = 0.05, graph = FALSE)
-plot.MCA(res_mca_waste, choix = "ind",
-invisible = c("var", "quali.sup"), label = "none")
-res_hcpc_waste <- HCPC(res_mca_waste, nb.clust = 3, graph = FALSE)
-plot.HCPC(res_hcpc_waste, choice = "map", draw.tree = FALSE,
-ind.names = FALSE)
+
+res_mca_waste <- MCA(
+  waste,
+  quali.sup = c(1, 2, 50:76),
+  ncp = 35,
+  level.ventil = 0.05,
+  graph = FALSE
+)
+
+plot.MCA(
+  res_mca_waste,
+  choix = "ind",
+  invisible = c("var", "quali.sup"),
+  label = "none"
+)
+
+# Construct three groups of participants with HCPC.
+res_hcpc_waste <- HCPC(
+  res_mca_waste,
+  nb.clust = 3,
+  graph = FALSE
+)
+
+plot.HCPC(
+  res_hcpc_waste,
+  choice = "map",
+  draw.tree = FALSE,
+  ind.names = FALSE
+)
+
+# The final column contains the group membership produced by HCPC.
 don_clust_waste <- res_hcpc_waste$data.clust
 
-intro_waste <- 'These data were collected
+# Describe the context of the food-waste survey.
+intro_waste <- "These data were collected
 after a survey on food waste,
-with participants describing their habits.'
-intro_waste <- gsub('\n', ' ', intro_waste) |>
-stringr::str_squish()
+with participants describing their habits."
 
-req_waste <- 'Please summarize the characteristics of each group.
+intro_waste <- gsub("\n", " ", intro_waste) |>
+  stringr::str_squish()
+
+# Ask the language model to interpret and rename the groups.
+req_waste <- "Please summarize the characteristics of each group.
 Then, give each group a new name, based on your conclusions.
 Finally, give each group a grade between 0 and 10,
 based on how wasteful they are with food:
-0 being "not at all", 10 being "absolutely".'
-req_waste <- gsub('\n', ' ', req_waste) |>
-stringr::str_squish()
+0 being \"not at all\", 10 being \"absolutely\"."
 
-res_waste <- nail_catdes(don_clust_waste,
-                         num.var = ncol(don_clust_waste),
-                         introduction = intro_waste,
-                         request = req_waste,
-                         drop.negative = TRUE,
-                         generate = TRUE)
+req_waste <- gsub("\n", " ", req_waste) |>
+  stringr::str_squish()
 
+# Characterize the HCPC grouping variable.
+#
+# Negative v.test values are excluded from the prompt.
+# The response is generated locally by Ollama with llama3.
+res_waste <- nail_catdes(
+  dataset = don_clust_waste,
+  num.var = ncol(don_clust_waste),
+  introduction = intro_waste,
+  request = req_waste,
+  drop.negative = TRUE,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+
+# Display the generated interpretation of all groups.
 cat(res_waste$response)
 
 
@@ -141,46 +207,86 @@ cat(res_waste$response)
 
 data(local_food)
 
+# Build a multiple correspondence analysis.
 set.seed(1)
-res_mca_food <- MCA(local_food, quali.sup = 46:63,
-ncp = 100, level.ventil = 0.05, graph = FALSE)
-plot.MCA(res_mca_food, choix = "ind",
-invisible = c("var", "quali.sup"), label = "none")
-res_hcpc_food <- HCPC(res_mca_food, nb.clust = 3, graph = FALSE)
-plot.HCPC(res_hcpc_food, choice = "map", draw.tree = FALSE,
-ind.names = FALSE)
+
+res_mca_food <- MCA(
+  local_food,
+  quali.sup = 46:63,
+  ncp = 100,
+  level.ventil = 0.05,
+  graph = FALSE
+)
+
+plot.MCA(
+  res_mca_food,
+  choix = "ind",
+  invisible = c("var", "quali.sup"),
+  label = "none"
+)
+
+# Construct three groups of participants with HCPC.
+res_hcpc_food <- HCPC(
+  res_mca_food,
+  nb.clust = 3,
+  graph = FALSE
+)
+
+plot.HCPC(
+  res_hcpc_food,
+  choice = "map",
+  draw.tree = FALSE,
+  ind.names = FALSE
+)
+
+# The final column contains the group membership produced by HCPC.
 don_clust_food <- res_hcpc_food$data.clust
 
-intro_food <- 'A study on sustainable food systems
+# Describe the context of the sustainable-food study.
+intro_food <- "A study on sustainable food systems
 was led on several French participants.
 This study had 2 parts. In the first part,
 participants had to rate how acceptable
-"a food system that..." (e.g, "a food system that
-only uses renewable energy") was to them.
+\"a food system that...\" was to them,
+for example a food system that only uses renewable energy.
 In the second part, they had to say
-if they agreed or disagreed with some statements.'
-intro_food <- gsub('\n', ' ', intro_food) |>
-stringr::str_squish()
+whether they agreed or disagreed with several statements."
 
-req_food <- 'I will give you the answers from one group.
-Please explain who the individuals of this group are,
-what their beliefs are.
-Then, give this group a new name,
+intro_food <- gsub("\n", " ", intro_food) |>
+  stringr::str_squish()
+
+# The groups are interpreted separately because
+# isolate.groups = TRUE.
+req_food <- "I will give you the answers from one group.
+Please explain who the individuals of this group are
+and what their beliefs are.
+Then, give this group a new name
 and explain why you chose this name.
-Do not use 1st person ("I", "my"...) in your answer.'
-req_food <- gsub('\n', ' ', req_food) |>
-stringr::str_squish()
+Do not use the first person, such as \"I\" or \"my\",
+in your answer."
 
-res_food <- nail_catdes(don_clust_food,
-                        num.var = 64,
-                        introduction = intro_food,
-                        request = req_food,
-                        isolate.groups = TRUE,
-                        drop.negative = TRUE,
-                        generate = TRUE)
+req_food <- gsub("\n", " ", req_food) |>
+  stringr::str_squish()
 
-res_food[[1]]$response |> cat()
-res_food[[2]]$response |> cat()
-res_food[[3]]$response |> cat()
+# Characterize the HCPC grouping variable.
+#
+# One prompt is sent to Ollama for each group.
+# Each response is generated locally with llama3.
+res_food <- nail_catdes(
+  dataset = don_clust_food,
+  num.var = ncol(don_clust_food),
+  introduction = intro_food,
+  request = req_food,
+  isolate.groups = TRUE,
+  drop.negative = TRUE,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+
+# Display the response generated for each group.
+cat(res_food[[1]]$response)
+cat(res_food[[2]]$response)
+cat(res_food[[3]]$response)
 }
 }

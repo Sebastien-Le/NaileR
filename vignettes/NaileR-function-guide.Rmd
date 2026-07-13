@@ -1,0 +1,404 @@
+---
+title: "NaileR 2.0.0: A practical guide to the main functions"
+author: "Sébastien Lê"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{NaileR 2.0.0: A practical guide to the main functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+# Overview
+
+`NaileR` combines statistical summaries with large language models (LLMs). Its
+main functions first transform statistical or textual results into explicit,
+auditable prompts. Generation is optional.
+
+A useful development and teaching pattern is therefore:
+
+1. call a function with `generate = FALSE`;
+2. inspect the prompt and the attached statistical result;
+3. only then set `generate = TRUE` and choose an LLM provider.
+
+```{r}
+library(NaileR)
+```
+
+# Choosing a function
+
+| Data or objective | Main function | Statistical basis |
+|---|---|---|
+| Describe a categorical variable | `nail_catdes()` | `FactoMineR::catdes()` |
+| Describe a continuous variable | `nail_condes()` | `FactoMineR::condes()` |
+| Interpret rows of a contingency table | `nail_descfreq()` | `FactoMineR::descfreq()` |
+| Interpret grouped open-ended texts | `nail_textual()` | Grouped raw texts |
+| Prepare structured textual profiles | `nail_textual_prep()` | LLM-structured summaries |
+| Prepare structured statistical profiles | `nail_group_profile_prep()` | Group characterization |
+| Cross statistical and textual profiles | `nail_textual_contextualized()` | Prepared profile objects |
+| Interpret QDA product profiles | `nail_qda()` | `SensoMineR::decat()` |
+| Prepare product summaries for a sensory space | `nail_qda_spaceprep()` | QDA characterization |
+| Interpret dimensions of a sensory product space | `nail_qda_space()` | PCA of adjusted means |
+| Sort textual descriptions by similarity | `nail_sort()` | LLM-assisted grouping |
+
+# Prompt-only and generated modes
+
+All major interpretation functions use the same principle.
+
+```{r}
+prompt <- nail_catdes(
+  dataset = iris,
+  num.var = 5,
+  generate = FALSE
+)
+
+cat(prompt)
+```
+
+With `generate = FALSE`, no Ollama or Gemini request is made. The underlying
+statistical object remains available as an attribute.
+
+```{r}
+catdes_result <- attr(prompt, "catdes_result", exact = TRUE)
+names(catdes_result)
+```
+
+To generate a response locally with Ollama:
+
+```{r}
+result <- nail_catdes(
+  dataset = iris,
+  num.var = 5,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+```
+
+To use Gemini, store the API key in the environment rather than in source code.
+
+```{r}
+Sys.setenv(GEMINI_API_KEY = "your-key")
+
+result <- nail_catdes(
+  dataset = iris,
+  num.var = 5,
+  provider = "gemini",
+  model = "gemini-2.5-flash",
+  generate = TRUE
+)
+```
+
+# Categorical variables with `nail_catdes()`
+
+Use `nail_catdes()` when the target variable is categorical. The variable may
+be an explicit observed category or a class produced by clustering.
+
+```{r}
+prompt <- nail_catdes(
+  dataset = iris,
+  num.var = 5,
+  interpretation_mode = "standard",
+  prompt_style = "compact",
+  generate = FALSE
+)
+```
+
+For latent or constructed groups, use `interpretation_mode = "latent"`.
+
+```{r}
+prompt <- nail_catdes(
+  dataset = clustered_data,
+  num.var = ncol(clustered_data),
+  interpretation_mode = "latent",
+  isolate.groups = TRUE,
+  drop.negative = FALSE,
+  generate = FALSE
+)
+```
+
+When `isolate.groups = TRUE`, the result is a named list containing one prompt
+per group.
+
+# Continuous variables with `nail_condes()`
+
+Use `nail_condes()` when the target is numeric. The variable-level results are
+the main evidence; discretized low- and high-end profiles provide complementary
+illustrations.
+
+```{r}
+prompt <- nail_condes(
+  dataset = iris,
+  num.var = 1,
+  interpretation_mode = "standard",
+  target_label = "Sepal length",
+  generate = FALSE
+)
+```
+
+For a score interpreted as a latent continuum:
+
+```{r}
+prompt <- nail_condes(
+  dataset = score_data,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_concept = "food engagement",
+  generate = FALSE
+)
+```
+
+The original and profile-level `condes` results are stored as attributes.
+
+```{r}
+attr(prompt, "condes_result", exact = TRUE)
+attr(prompt, "condes_profile_result", exact = TRUE)
+```
+
+# Contingency tables with `nail_descfreq()`
+
+`nail_descfreq()` interprets each row through over-represented and
+under-represented column attributes.
+
+```{r}
+data(beard_cont, package = "NaileR")
+
+prompt <- nail_descfreq(
+  dataset = beard_cont,
+  interpretation_mode = "description",
+  explicit_row_labels = TRUE,
+  generate = FALSE
+)
+```
+
+Use `interpretation_mode = "comparison"` when the main objective is to compare
+rows. Set `rows_are_ordered = TRUE` only when the order has substantive meaning.
+
+```{r}
+prompt <- nail_descfreq(
+  dataset = ordered_table,
+  interpretation_mode = "comparison",
+  rows_are_ordered = TRUE,
+  generate = FALSE
+)
+```
+
+# Raw textual data with `nail_textual()`
+
+The input must contain a grouping variable and a text variable.
+
+```{r}
+text_data <- data.frame(
+  group = factor(c("A", "A", "B", "B")),
+  comment = c(
+    "Fresh, light and easy to eat.",
+    "Simple, floral and pleasant.",
+    "Dark, intense and slightly bitter.",
+    "Strong cocoa character and long persistence."
+  )
+)
+
+prompts <- nail_textual(
+  dataset = text_data,
+  num.var = 1,
+  num.text = 2,
+  isolate.groups = TRUE,
+  text_role = "comments",
+  generate = FALSE
+)
+```
+
+The prompts contain raw textual evidence. Sampling can be made reproducible
+with `sample.pct` and `seed`.
+
+```{r}
+prompts <- nail_textual(
+  dataset = text_data,
+  num.var = 1,
+  num.text = 2,
+  sample.pct = 0.75,
+  seed = 123,
+  generate = FALSE
+)
+```
+
+# Structured textual and statistical preparation
+
+`nail_textual_prep()` converts each group's texts into a short structured
+profile. Because the structured fields are produced by an LLM, a complete
+preparation object requires `generate = TRUE`.
+
+```{r}
+textual_prep <- nail_textual_prep(
+  dataset = text_data,
+  num.var = 1,
+  num.text = 2,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+
+names(textual_prep[[1]])
+```
+
+`nail_group_profile_prep()` performs the corresponding preparation from
+statistical group descriptors.
+
+```{r}
+profile_prep <- nail_group_profile_prep(
+  dataset = analysis_data,
+  num.var = group_column,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+```
+
+Each generated preparation contains a `parsed` component designed for reuse.
+
+```{r}
+textual_prep[[1]]$parsed
+profile_prep[[1]]$parsed
+```
+
+# Contextualized textual interpretation
+
+`nail_textual_contextualized()` crosses the prepared statistical profile and
+the prepared textual profile for common groups.
+
+```{r}
+contextualized_prompts <- nail_textual_contextualized(
+  group_profile_prep = profile_prep,
+  textual_prep = textual_prep,
+  interpretation_mode = "comparative",
+  include_verbatims = TRUE,
+  generate = FALSE
+)
+```
+
+In no-generation mode, both preparation objects must already exist. This
+ensures that `generate = FALSE` remains a strictly offline prompt-building
+mode.
+
+To produce the final interpretation:
+
+```{r}
+contextualized_result <- nail_textual_contextualized(
+  group_profile_prep = profile_prep,
+  textual_prep = textual_prep,
+  interpretation_mode = "comparative",
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+```
+
+# QDA and sensory workflows
+
+`nail_qda()` interprets product profiles obtained from a QDA design. The
+formula and sensory-variable indices follow the conventions of
+`SensoMineR::decat()`.
+
+```{r}
+qda_prompt <- nail_qda(
+  dataset = sensory_data,
+  formul = sensory_attribute ~ product + panelist,
+  firstvar = first_sensory_column,
+  lastvar = last_sensory_column,
+  product_knowledge = "known",
+  generate = FALSE
+)
+```
+
+Use `nail_qda_spaceprep()` to create structured product summaries before
+interpreting a multidimensional product space.
+
+```{r}
+product_prep <- nail_qda_spaceprep(
+  dataset = sensory_data,
+  formul = sensory_attribute ~ product + panelist,
+  firstvar = first_sensory_column,
+  lastvar = last_sensory_column,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+```
+
+`nail_qda_space()` performs a PCA of adjusted product means and prepares one
+prompt per retained dimension.
+
+```{r}
+space_prompts <- nail_qda_space(
+  x = product_prep,
+  ncp = 3,
+  min_inertia_pct = 10,
+  expertise_mode = "sensory",
+  generate = FALSE
+)
+```
+
+The multidimensional object is available through the `qda_space` attribute.
+
+```{r}
+space <- attr(space_prompts, "qda_space", exact = TRUE)
+space$eig
+space$retained_axes
+```
+
+# Additional textual utilities
+
+`nail_sort()` groups textual descriptions for each assessor or column. Unlike
+the prompt-only interpretation functions, the useful sorted result requires
+LLM generation.
+
+```{r}
+data(beard_wide, package = "NaileR")
+
+sorted <- nail_sort(
+  dataset = beard_wide[, 1:5],
+  stimulus_id = "beard",
+  nb.clusters = 4,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+```
+
+The similarity and distance helpers `sim_llm()`, `dist_mat_llm()` and
+`dist_ref_llm()` also require an LLM. They are intended for controlled
+interactive analyses rather than package checks or reproducible offline
+pipelines.
+
+# Recommended workflow
+
+For reproducible analyses:
+
+1. keep statistical preprocessing in R;
+2. start with `generate = FALSE` and archive the prompt;
+3. inspect the statistical attributes attached to the prompt;
+4. record the provider, model and generation options;
+5. keep generated interpretations together with their prompts;
+6. avoid placing API keys directly in scripts;
+7. distinguish statistical evidence from the LLM's narrative synthesis.
+
+# Further help
+
+Function-specific documentation is available through:
+
+```{r}
+help(package = "NaileR")
+?nail_catdes
+?nail_condes
+?nail_descfreq
+?nail_textual
+?nail_qda
+```
