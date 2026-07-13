@@ -6,3 +6,11 @@
 ^cran-comments\.md$
 ^doc$
 ^Meta$
+^cran$
+^NaileR-.*-audit\.zip$
+^R_old$
+^R_old_old$
+^cran$
+^NaileR-.*-audit\.zip$
+^R_old$
+^R_old_old$
