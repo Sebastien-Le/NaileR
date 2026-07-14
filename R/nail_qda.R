@@ -235,7 +235,8 @@ build_guide_qda <- function(proba = 0.05,
       ),
       "* **Adjust mean**: adjusted mean score for the item on the attribute.",
       "* **p.value**: smaller values indicate stronger evidence under the current analysis settings.",
-      "* **v.test**: positive = higher than the average profile; negative = lower than the average profile."
+      "* **v.test**: positive = higher than the average profile; negative = lower than the average profile.",
+      "* Positive and negative signs indicate statistical direction only; they do not indicate liking, quality, desirability, or an unfavorable or favorable perception."
     )
 
     if (product_knowledge == "known") {
@@ -263,6 +264,7 @@ build_guide_qda <- function(proba = 0.05,
     "* **Adjust mean**: adjusted mean score for this item on the attribute.",
     "* **p.value**: smaller values indicate stronger evidence under the current analysis settings.",
     "* **v.test**: positive means higher than the average profile, negative means lower than the average profile; larger absolute values indicate a stronger deviation from the average profile.",
+    "The directions above and below the average profile are descriptive sensory differences. They must not be interpreted as favorable or unfavorable evaluations.",
     "",
     paste0("Use the retained attributes to understand what characterizes each ", unit_singular, " relative to the others."),
     "Do not interpret the results as causal explanations."
@@ -591,37 +593,531 @@ get_prompt_qda <- function(res_cd, introduction, request, conclusion,
 # Main
 # ---------------------------------------------------------------------------
 
-#' Interpret QDA data
+#' Interpret quantitative descriptive analysis data
 #'
-#' Generate an LLM response to analyze QDA data.
+#' Characterizes the relative sensory profiles of products or stimuli using
+#' `SensoMineR::decat()`, formats the retained product-by-attribute results as
+#' an evidence-based prompt, and optionally sends this prompt to a large
+#' language model.
 #'
-#' @param dataset a data frame made up of at least two categorical variables
-#' (product, panelist) and a set of quantitative variables (sensory attributes).
-#' @param formul the analysis of variance model to be evaluated for each sensory attribute.
-#' @param firstvar the index of the first sensory attribute.
-#' @param lastvar the index of the last sensory attribute.
-#' @param introduction the introduction for the LLM prompt.
-#' @param request the request for the LLM prompt.
-#' @param conclusion the conclusion for the LLM prompt.
-#' @param model the model name for the selected provider ('llama3' by default for Ollama).
-#' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
-#' @param isolate.groups a boolean that indicates whether to give the LLM
-#' a single prompt, or one prompt per product.
-#' @param drop.negative a boolean that indicates whether to drop negative
-#' v.test values for interpretation.
-#' @param proba the significance threshold used to retain results for interpretation.
-#' @param sample.pct proportion of retained attributes to keep in the prompt.
-#' @param prompt_style either "detailed" or "compact".
-#' @param product_knowledge either "known" or "unknown".
-#' @param generate a boolean that indicates whether to generate the LLM response.
-#' If FALSE, the function only returns the prompt.
-#' @param ... Additional provider-specific generation arguments passed to the selected LLM backend
-#' (e.g., `temperature`, `seed`).
+#' For each product or stimulus, the function identifies sensory attributes
+#' whose adjusted means are significantly higher or lower than the overall
+#' average profile. The interpretation may be produced for all products
+#' together or separately for each product.
 #'
-#' @return If `generate = FALSE`, a prompt string or a named list of prompt strings.
-#' If `generate = TRUE`, a data frame or named list of data frames.
+#' @param dataset A data frame containing the sensory evaluations.
+#'
+#'   Rows generally correspond to individual evaluations of products by
+#'   panelists. The data frame must contain the categorical variables used in
+#'   `formul`, followed by the quantitative sensory attributes specified by
+#'   `firstvar` and `lastvar`.
+#'
+#'   In a standard quantitative descriptive analysis design, the categorical
+#'   variables usually include a product factor and a panelist factor, while
+#'   the quantitative variables contain the intensity scores assigned to the
+#'   sensory attributes.
+#' @param formul A one-sided analysis-of-variance formula describing the model
+#'   fitted separately to each sensory attribute.
+#'
+#'   It is typically supplied as a character string, for example
+#'   `"~Product+Panelist"` or
+#'   `"~Product+Panelist+Product:Panelist"`.
+#'
+#'   The first term on the right-hand side is treated as the categorical
+#'   variable of interest. It must therefore be the product or stimulus
+#'   variable to be characterized, and it must correspond to a column of
+#'   `dataset`.
+#'
+#'   For example, in `"~Product+Panelist"`, `Product` is characterized and
+#'   `Panelist` is included in the model to account for differences between
+#'   panelists.
+#' @param firstvar A single integer giving the column index of the first
+#'   quantitative sensory attribute to analyze.
+#' @param lastvar A single integer giving the column index of the last
+#'   quantitative sensory attribute to analyze. The default is the final
+#'   column of `dataset`.
+#' @param introduction An optional character string providing the study
+#'   context in the prompt.
+#'
+#'   A useful introduction should explain what was evaluated, who performed
+#'   the evaluations, how the evaluations were collected, and what the
+#'   sensory attributes represent.
+#'
+#'   If `NULL`, a generic introduction is created according to
+#'   `product_knowledge` and `isolate.groups`.
+#' @param request An optional character string describing the interpretation
+#'   expected from the language model.
+#'
+#'   If `NULL`, a default request is created according to `prompt_style`,
+#'   `product_knowledge`, and `isolate.groups`.
+#' @param conclusion An optional character string defining the expected final
+#'   synthesis or output structure.
+#'
+#'   If `NULL`, the function creates a default conclusion asking for either a
+#'   comparison of all products or a synthesis of the current product,
+#'   depending on `isolate.groups`.
+#' @param model Character string giving the model used by the selected
+#'   provider. The default is `"llama3"`, intended for the default Ollama
+#'   backend.
+#' @param provider LLM backend used when `generate = TRUE`. One of
+#'   `"ollama"` or `"gemini"`.
+#'
+#'   The default is `"ollama"`. Gemini requires a valid API key, typically
+#'   supplied through the `GEMINI_API_KEY` environment variable.
+#' @param isolate.groups Logical.
+#'
+#'   If `FALSE`, a single prompt containing the profiles of all products or
+#'   stimuli is created. This is generally the most appropriate setting when
+#'   the objective is to compare products and identify the main sensory
+#'   contrasts across the complete product set.
+#'
+#'   If `TRUE`, one prompt is created for each product or stimulus. Each
+#'   product is still interpreted relative to the overall product set, but
+#'   only its own statistical table is included in the corresponding prompt.
+#'
+#'   Isolated prompts may be useful when there are many products, when the
+#'   complete prompt would be too long, or when a separate detailed
+#'   description is required for every product.
+#' @param drop.negative Logical.
+#'
+#'   If `FALSE`, the prompt includes both attributes that are higher than the
+#'   overall average profile and attributes that are lower than the overall
+#'   average profile.
+#'
+#'   If `TRUE`, attributes associated with negative v-tests are removed, so
+#'   only attributes that are significantly higher than the average profile
+#'   are retained.
+#'
+#'   Keeping negative v-tests is generally recommended when the objective is
+#'   to produce a complete sensory profile, because an unusually low intensity
+#'   may be as informative as an unusually high intensity.
+#' @param proba A numeric value between 0 and 1 giving the significance
+#'   threshold passed to `SensoMineR::decat()`. The default is `0.05`.
+#'
+#'   Only product-by-attribute results retained under this threshold are
+#'   included in the prompt.
+#' @param sample.pct A numeric value between 0 and 1 giving the proportion of
+#'   retained sensory attributes included in the prompt.
+#'
+#'   The default is `1`, meaning that all retained attributes are included.
+#'   When `sample.pct < 1`, attributes are sampled across the distribution of
+#'   v-test values rather than being selected through unrestricted simple
+#'   random sampling. This helps preserve attributes with different strengths
+#'   and directions of association.
+#'
+#'   Use `set.seed()` before calling the function when reproducible sampling
+#'   is required.
+#'
+#'   Sampling affects only the content of the prompt. It does not alter the
+#'   complete analytical result stored in the `"decat_result"` attribute.
+#' @param prompt_style Character string controlling the amount of statistical
+#'   guidance and interpretive detail included in the prompt. One of
+#'   `"detailed"` or `"compact"`.
+#'
+#'   The `"detailed"` style explains the statistical indicators, separates
+#'   higher-than-average and lower-than-average attributes, and requests a
+#'   structured interpretation.
+#'
+#'   The `"compact"` style produces a shorter prompt while preserving the
+#'   principal interpretation rules.
+#'
+#'   This argument changes only the prompt. It does not modify the underlying
+#'   statistical analysis.
+#' @param product_knowledge Character string indicating how product labels
+#'   should be treated. One of `"known"` or `"unknown"`.
+#'
+#'   With `"known"`, the labels are considered meaningful identifiers that
+#'   must be preserved. The language model is instructed to describe the
+#'   sensory profiles without renaming the products.
+#'
+#'   With `"unknown"`, the labels are treated as anonymous stimulus codes. The
+#'   language model may propose descriptive names when the sensory evidence is
+#'   sufficiently clear.
+#'
+#'   This argument does not change the statistical analysis. It changes only
+#'   the terminology and naming instructions used in the prompt.
+#' @param generate Logical.
+#'
+#'   If `FALSE`, no language model is called and the function returns the
+#'   constructed prompt or prompts.
+#'
+#'   If `TRUE`, the prompt or prompts are sent to the selected LLM backend.
+#' @param ... Additional provider-specific generation arguments passed to the
+#'   selected LLM backend, such as `temperature`, `seed`, or other supported
+#'   options.
+#'
+#' @details
+#' ## Statistical analysis
+#'
+#' The function applies `SensoMineR::decat()` to each quantitative sensory
+#' attribute between `firstvar` and `lastvar`.
+#'
+#' The model supplied through `formul` is fitted separately to each sensory
+#' attribute. The first term on the right-hand side of the formula identifies
+#' the product or stimulus factor whose levels are to be characterized.
+#'
+#' For example:
+#'
+#' ```
+#' formul = "~Product+Panelist"
+#' ```
+#'
+#' asks the function to characterize the levels of `Product` while accounting
+#' for the panelist effect.
+#'
+#' The complete `decat()` result contains information about:
+#'
+#' - the global discriminatory effect of the product factor for each sensory
+#'   attribute;
+#' - the coefficients associated with individual products;
+#' - the adjusted means of the products;
+#' - product-specific p-values and v-tests.
+#'
+#' The prompt constructed by `nail_qda()` focuses on the product-specific
+#' results: it describes which sensory attributes characterize each product
+#' relative to the average sensory profile of the complete product set.
+#'
+#' ## Reading the product profiles
+#'
+#' The tables included in the prompt contain the following columns:
+#'
+#' - `Variable`: name of the sensory attribute;
+#' - `Coeff`: coefficient associated with the product in the fitted model;
+#' - `Adjust mean`: adjusted mean intensity for the product on that sensory
+#'   attribute;
+#' - `p.value`: statistical evidence associated with the product-specific
+#'   difference;
+#' - `v.test`: standardized direction and strength of the difference from the
+#'   average profile.
+#'
+#' A positive v-test indicates that the product has a higher intensity than
+#' the average product profile for the corresponding sensory attribute.
+#'
+#' A negative v-test indicates that the product has a lower intensity than the
+#' average product profile.
+#'
+#' Larger absolute v-test values indicate stronger departures from the
+#' average profile. Smaller p-values indicate stronger statistical evidence
+#' under the fitted model.
+#'
+#' The adjusted mean gives the estimated intensity of the attribute for the
+#' product. It should be interpreted together with the v-test and the meaning
+#' of the sensory scale.
+#'
+#' A product profile is therefore relative rather than absolute. For example,
+#' a product described as higher in bitterness is more bitter than the
+#' average profile of the products included in the current analysis; this
+#' statement does not necessarily mean that it would be perceived as highly
+#' bitter in a different product set.
+#'
+#' ## Higher and lower attributes
+#'
+#' When `drop.negative = FALSE`, both ends of the sensory profile are retained:
+#'
+#' - positive v-tests identify attributes with intensities above the average
+#'   product profile;
+#' - negative v-tests identify attributes with intensities below the average
+#'   product profile.
+#'
+#' This generally provides the most complete description of a product.
+#'
+#' When `drop.negative = TRUE`, only positive v-tests are included. This can
+#' be useful when the objective is restricted to identifying the dominant or
+#' most intense sensory characteristics, but it removes information about
+#' attributes that are unusually weak.
+#'
+#' ## Known and unknown products
+#'
+#' With `product_knowledge = "known"`, the product labels are treated as
+#' established names or identifiers. The model is asked to preserve them and
+#' to explain their relative sensory profiles.
+#'
+#' With `product_knowledge = "unknown"`, the product labels are treated as
+#' anonymous codes. The model may infer descriptive names from the retained
+#' sensory attributes. Such names are generated interpretations and do not
+#' replace the original factor levels in `dataset`.
+#'
+#' ## Combined and isolated prompts
+#'
+#' With `isolate.groups = FALSE`, all product profiles appear in one prompt.
+#' This gives the language model direct access to the complete set of
+#' contrasts and is preferable for comparative synthesis.
+#'
+#' With `isolate.groups = TRUE`, one prompt is created for each product. The
+#' statistical results are still computed from the complete dataset, so each
+#' isolated profile remains relative to the same overall product set.
+#'
+#' However, the language model sees only one product-specific table at a time.
+#' It can therefore describe that product relative to the overall average, but
+#' it has less direct information for making detailed pairwise comparisons
+#' with other products.
+#'
+#' ## Prompt construction and generation
+#'
+#' The final prompt combines:
+#'
+#' - the study introduction;
+#' - a statistical reading guide;
+#' - the requested interpretation task;
+#' - the retained product-by-attribute tables;
+#' - the expected final synthesis.
+#'
+#' By default, `generate = FALSE`, so the prompt can be inspected, edited, or
+#' sent to another model manually.
+#'
+#' When `generate = TRUE`, the default backend is Ollama and the default model
+#' is `"llama3"`. These defaults can be changed with `provider` and `model`.
+#'
+#' The generated interpretation should be treated as an assisted synthesis of
+#' the statistical evidence. It does not replace examination of the fitted
+#' model, the experimental design, panel performance, interactions, residuals,
+#' or other diagnostic results.
+#'
+#' The associations reported by the function are descriptive and should not
+#' be interpreted as causal effects.
+#'
+#' @return
+#' The returned object depends on `generate` and `isolate.groups`.
+#'
+#' When `generate = FALSE`:
+#'
+#' - if `isolate.groups = FALSE`, a character string containing one complete
+#'   prompt is returned;
+#' - if `isolate.groups = TRUE`, a named list of character prompts is returned,
+#'   with one element per product or stimulus.
+#'
+#' When `generate = TRUE`:
+#'
+#' - if `isolate.groups = FALSE`, a data frame containing the generated
+#'   response and the prompt sent to the selected backend is returned;
+#' - if `isolate.groups = TRUE`, a named list of generated results is returned,
+#'   with one element per product or stimulus.
+#'
+#' Two attributes are attached to the returned object:
+#'
+#' - `"decat_result"` contains the complete analytical result produced by
+#'   `SensoMineR::decat()`, after internal standardization of the names used by
+#'   NaileR;
+#' - `"profile_summary"` contains a compact structured summary for each
+#'   product, including the principal attributes above the average profile,
+#'   the principal attributes below the average profile when retained, the
+#'   number of significant attributes, and an internal indication of profile
+#'   strength.
+#'
+#' The `"decat_result"` attribute is not reduced by `sample.pct`.
+#'
+#' If no product-by-attribute results are retained under the current settings,
+#' the language model is not called and an informative result is returned.
+#'
+#' @seealso
+#' `SensoMineR::decat()`
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # These examples use the sensochoc data from SensoMineR.
+#' #
+#' # The dataset contains sensory evaluations of six chocolates.
+#' # The products were evaluated twice by 29 panelists according
+#' # to 14 sensory attributes.
+#' #
+#' # In sensochoc:
+#' # - Product is the factor to be characterized;
+#' # - Panelist is included in the ANOVA model;
+#' # - the sensory attributes begin in column 5.
+#'
+#' library(NaileR)
+#' library(SensoMineR)
+#'
+#' data("chocolates", package = "SensoMineR")
+#'
+#'
+#' ### Example 1: construct one detailed prompt for all chocolates ###
+#'
+#' intro_choc <- "Six chocolates were evaluated twice
+#' by a trained panel of 29 assessors.
+#' The panelists rated the intensity of 14 sensory attributes.
+#' The objective is to describe the relative sensory profile
+#' of each chocolate within this product set."
+#'
+#' intro_choc <- gsub("\n", " ", intro_choc) |>
+#'   stringr::str_squish()
+#'
+#' req_choc <- "Describe the relative sensory profile of each chocolate.
+#' For each one, distinguish attributes that are higher
+#' than the average profile from attributes that are lower.
+#' Then summarize the main sensory contrasts among the six chocolates.
+#' Do not rename the chocolates."
+#'
+#' req_choc <- gsub("\n", " ", req_choc) |>
+#'   stringr::str_squish()
+#'
+#' # Product is the first term in the model because it is
+#' # the factor whose levels must be characterized.
+#' #
+#' # Panelist is included to account for systematic differences
+#' # in the use of the sensory scales by the assessors.
+#' #
+#' # generate = FALSE constructs the prompt without calling an LLM.
+#' prompt_choc <- nail_qda(
+#'   dataset = sensochoc,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   lastvar = ncol(sensochoc),
+#'   introduction = intro_choc,
+#'   request = req_choc,
+#'   isolate.groups = FALSE,
+#'   drop.negative = FALSE,
+#'   proba = 0.05,
+#'   sample.pct = 1,
+#'   prompt_style = "detailed",
+#'   product_knowledge = "known",
+#'   generate = FALSE
+#' )
+#'
+#' # Display the complete prompt.
+#' cat(prompt_choc)
+#'
+#' # Inspect the underlying decat() result.
+#' decat_choc <- attr(prompt_choc, "decat_result")
+#'
+#' names(decat_choc)
+#'
+#' # Inspect the compact structured product summaries.
+#' profile_choc <- attr(prompt_choc, "profile_summary")
+#'
+#' profile_choc
+#'
+#'
+#' ### Example 2: construct one compact prompt per chocolate ###
+#'
+#' # sample.pct = 0.75 retains a reduced selection of attributes
+#' # in each prompt. set.seed() makes this selection reproducible.
+#' set.seed(123)
+#'
+#' prompts_choc <- nail_qda(
+#'   dataset = sensochoc,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   lastvar = ncol(sensochoc),
+#'   introduction = intro_choc,
+#'   isolate.groups = TRUE,
+#'   drop.negative = FALSE,
+#'   proba = 0.05,
+#'   sample.pct = 0.75,
+#'   prompt_style = "compact",
+#'   product_knowledge = "known",
+#'   generate = FALSE
+#' )
+#'
+#' # The result contains one prompt per chocolate.
+#' names(prompts_choc)
+#'
+#' # Display the prompt for the first chocolate.
+#' cat(prompts_choc[[1]])
+#'
+#' # A named element may also be accessed directly.
+#' cat(prompts_choc[["choc1"]])
+#'
+#'
+#' ### Example 3: generate a comparative interpretation with Ollama ###
+#'
+#' # This example calls a local language model.
+#' # Ollama must be running and the llama3 model must be installed.
+#' res_choc <- nail_qda(
+#'   dataset = sensochoc,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   lastvar = ncol(sensochoc),
+#'   introduction = intro_choc,
+#'   request = req_choc,
+#'   isolate.groups = FALSE,
+#'   drop.negative = FALSE,
+#'   proba = 0.05,
+#'   sample.pct = 1,
+#'   prompt_style = "detailed",
+#'   product_knowledge = "known",
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#'
+#' # Display the generated interpretation.
+#' cat(res_choc$response)
+#'
+#' # Display the exact prompt sent to Ollama.
+#' cat(res_choc$prompt)
+#'
+#' # Recover the statistical evidence attached to the result.
+#' decat_choc <- attr(res_choc, "decat_result")
+#' profile_choc <- attr(res_choc, "profile_summary")
+#'
+#'
+#' ### Example 4: interpret anonymous stimuli and allow naming ###
+#'
+#' # Create a copy in which the product levels are anonymous codes.
+#' sensochoc_blind <- sensochoc
+#'
+#' levels(sensochoc_blind$Product) <- paste0(
+#'   "Stimulus_",
+#'   seq_len(nlevels(sensochoc_blind$Product))
+#' )
+#'
+#' intro_blind <- "Six anonymous chocolate stimuli
+#' were evaluated twice by 29 trained panelists
+#' according to 14 sensory attributes.
+#' The stimulus codes do not convey information
+#' about the identity or composition of the chocolates."
+#'
+#' intro_blind <- gsub("\n", " ", intro_blind) |>
+#'   stringr::str_squish()
+#'
+#' # product_knowledge = "unknown" tells the language model
+#' # that the stimulus codes are identifiers only.
+#' #
+#' # The model may propose descriptive sensory names,
+#' # but it must base them on the retained statistical evidence.
+#' res_blind <- nail_qda(
+#'   dataset = sensochoc_blind,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   lastvar = ncol(sensochoc_blind),
+#'   introduction = intro_blind,
+#'   isolate.groups = FALSE,
+#'   drop.negative = FALSE,
+#'   proba = 0.05,
+#'   sample.pct = 1,
+#'   prompt_style = "detailed",
+#'   product_knowledge = "unknown",
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#'
+#' cat(res_blind$response)
+#'
+#'
+#' ### Example 5: retain only attributes above the average profile ###
+#'
+#' # drop.negative = TRUE removes attributes with negative v-tests.
+#' # This produces a more restricted description focused only
+#' # on sensory intensities above the average product profile.
+#' prompt_positive_choc <- nail_qda(
+#'   dataset = sensochoc,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   lastvar = ncol(sensochoc),
+#'   introduction = intro_choc,
+#'   isolate.groups = FALSE,
+#'   drop.negative = TRUE,
+#'   prompt_style = "compact",
+#'   product_knowledge = "known",
+#'   generate = FALSE
+#' )
+#'
+#' cat(prompt_positive_choc)
+#' }
 nail_qda <- function(dataset, formul, firstvar, lastvar = length(colnames(dataset)),
                      introduction = NULL, request = NULL, conclusion = NULL,
                      model = "llama3",

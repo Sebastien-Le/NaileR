@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_qda_spaceprep.R
 \name{nail_qda_spaceprep}
 \alias{nail_qda_spaceprep}
-\title{Prepare product-wise LLM summaries for later product-space interpretation}
+\title{Prepare optional product-level LLM summaries for product-space interpretation}
 \usage{
 nail_qda_spaceprep(
   dataset,
@@ -21,44 +21,596 @@ nail_qda_spaceprep(
 )
 }
 \arguments{
-\item{dataset}{QDA dataset.}
+\item{dataset}{A data frame containing the QDA sensory evaluations.
 
-\item{formul}{Formula passed to \code{nail_qda()}.}
+Rows generally correspond to evaluations of products by panelists. The
+data frame must contain the categorical variables used in \code{formul},
+followed by the quantitative sensory attributes specified by \code{firstvar}
+and \code{lastvar}.
 
-\item{firstvar}{Index of first sensory variable.}
+In a standard QDA design, the categorical variables usually include a
+product factor and a panelist factor, while the quantitative variables
+contain sensory intensity scores.}
 
-\item{lastvar}{Index of last sensory variable.}
+\item{formul}{A one-sided analysis-of-variance formula passed to
+\code{nail_qda()}.
 
-\item{model}{LLM model name for the selected provider.}
+It is typically supplied as a character string, for example:
 
-\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{"~Product+Panelist"
+}\if{html}{\out{</div>}}
 
-\item{proba}{Significance threshold forwarded to \code{nail_qda()}.}
+The first term on the right-hand side must identify the product or
+stimulus factor whose levels are to be summarized.
 
-\item{sample.pct}{Proportion of retained attributes kept in each prompt.}
+For example, in \code{"~Product+Panelist"}, \code{Product} is characterized and
+\code{Panelist} is included to account for systematic differences among
+panelists.}
 
-\item{drop.negative}{Whether to hide negative v.tests.}
+\item{firstvar}{A single integer giving the column index of the first
+quantitative sensory attribute to analyze.}
 
-\item{product_knowledge}{Either \code{"known"} or \code{"unknown"}.}
+\item{lastvar}{A single integer giving the column index of the last
+quantitative sensory attribute to analyze. The default is the last column
+of \code{dataset}.}
 
-\item{expertise_mode}{Either \code{"sensory"}, \code{"positioning"}, or \code{"hybrid"}.}
+\item{model}{Character string giving the language model used by the selected
+provider. The default is \code{"llama3"}, intended for the default Ollama
+backend.}
 
-\item{generate}{If FALSE, returns prompts only. If TRUE, returns prompts,
-raw responses, and parsed structured summaries.}
+\item{provider}{LLM backend used when \code{generate = TRUE}. One of
+\code{"ollama"} or \code{"gemini"}.
 
-\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
+The default is \code{"ollama"}, which uses a local Ollama installation.
+
+Gemini requires a valid API key, typically supplied through the
+\code{GEMINI_API_KEY} environment variable.}
+
+\item{proba}{A numeric value between 0 and 1 giving the significance
+threshold forwarded to \code{nail_qda()}. The default is \code{0.05}.
+
+Only product-by-attribute results retained under this threshold are
+available for inclusion in the individual product prompts.}
+
+\item{sample.pct}{A numeric value between 0 and 1 giving the proportion of
+retained sensory attributes included in each product prompt. The default
+is \code{1}, meaning that all retained attributes are included.
+
+Lower values may be useful when many sensory attributes characterize a
+product and shorter prompts are required.
+
+Sampling changes only the information included in the prompts. It does
+not alter the underlying QDA analysis.
+
+Use \code{set.seed()} before calling the function when reproducible sampling
+is required.}
+
+\item{drop.negative}{Logical indicating whether sensory attributes with
+negative v-tests should be excluded from the individual product prompts.
+The default is \code{FALSE}.
+
+With \code{drop.negative = FALSE}, the prompt may contain both:
+\itemize{
+\item attributes above the average product profile;
+\item attributes below the average product profile.
+}
+
+This generally provides the most complete relative description of each
+product.
+
+With \code{drop.negative = TRUE}, only attributes associated with positive
+v-tests are retained. The resulting summary focuses on sensory attributes
+that are more intense than in the average product profile.}
+
+\item{product_knowledge}{Character string indicating how the product labels
+should be treated. One of \code{"known"} or \code{"unknown"}.
+
+With \code{"known"}, the levels of the product factor are treated as meaningful
+product names or established identifiers.
+
+With \code{"unknown"}, the levels are treated as anonymous stimulus codes. The
+summaries may then describe the sensory style represented by the
+stimulus without assuming prior knowledge of its identity.
+
+This argument changes the terminology and interpretation instructions in
+the prompts. It does not change the statistical analysis.}
+
+\item{expertise_mode}{Character string controlling the vocabulary and the
+level of interpretation requested for each product. One of \code{"sensory"},
+\code{"positioning"}, or \code{"hybrid"}.
+
+With \code{"sensory"}, the response must remain closely anchored in sensory
+and perceptual vocabulary. Promotional, emotional, branding, and hedonic
+interpretations are discouraged.
+
+With \code{"positioning"}, the response may infer a broader product style,
+product pole, or positioning, provided that this interpretation remains
+grounded in the retained sensory attributes.
+
+With \code{"hybrid"}, the response first describes the sensory profile and may
+then infer a broader product style. The sensory evidence must remain
+primary.
+
+When the summaries are later supplied to \code{nail_qda_space()}, using the
+same \code{expertise_mode} in both functions generally produces the most
+coherent interpretation.}
+
+\item{generate}{Logical.
+
+If \code{FALSE}, no language model is called. The function returns one
+structured prompt per product.
+
+If \code{TRUE}, each product prompt is sent separately to the selected LLM
+backend. The function returns the prompt, raw response, and parsed
+structured summary for each product.
+
+Because one LLM request is made per product, processing time and API usage
+increase with the number of products.}
+
+\item{...}{Additional provider-specific generation arguments passed to the
+selected LLM backend, such as \code{temperature}, \code{seed}, or other supported
+options.}
 }
 \value{
-If \code{generate = FALSE}, a named list of prompts.
-If \code{generate = TRUE}, a named list where each element contains:
+The returned object depends on \code{generate}.
+
+When \code{generate = FALSE}, a named list of character prompts is returned, with
+one element per product or stimulus.
+
+The names of the list correspond to the product levels characterized by
+\code{nail_qda()}.
+
+When \code{generate = TRUE}, a named list is returned, with one element per
+product or stimulus. Each element contains:
 \itemize{
-\item prompt
-\item response
-\item parsed
+\item \code{prompt}: the exact character prompt sent to the selected LLM backend;
+\item \code{response}: the raw generated response, stored as a single character
+string;
+\item \code{parsed}: a named list containing the six structured fields extracted
+from the response.
 }
+
+The \code{parsed} component contains:
+\itemize{
+\item \code{core_profile};
+\item \code{above_average_traits};
+\item \code{below_average_traits};
+\item \code{positioning_cues};
+\item \code{profile_clarity};
+\item \code{injectable_summary}.
+}
+
+If a response cannot be parsed, the corresponding \code{parsed} component is
+returned with missing character fields and empty trait vectors rather than
+stopping the complete multi-product workflow.
 }
 \description{
-This function reuses \code{nail_qda()} in isolated mode with a dedicated prompt
-designed to create short, structured, reusable product summaries for a later
-multidimensional interpretation of the product space.
+Creates short, structured summaries of individual product profiles for
+optional use in a later interpretation of a multidimensional product
+space.
+}
+\details{
+The function reuses \code{nail_qda()} with one isolated prompt per product and
+requests a standardized six-field response describing:
+\itemize{
+\item the core sensory profile;
+\item the main attributes above the average product profile;
+\item the main attributes below the average product profile;
+\item the product's possible positioning within a broader product space;
+\item the clarity of the profile;
+\item a short summary suitable for later reuse.
+}
+
+These summaries do not contribute to the statistical construction of the
+product space. In particular, they do not modify the adjusted product
+means, the PCA, the eigenvalues, or the product coordinates computed by
+\code{nail_qda_space()}.
+
+This preparation step is optional. \code{nail_qda_space()} can be used directly
+on an object returned by \code{nail_qda()} without calling
+\code{nail_qda_spaceprep()}.
+\subsection{Purpose of the function}{
+
+\code{nail_qda_spaceprep()} prepares concise textual summaries of individual
+products before the interpretation of a multidimensional product space.
+
+It does not compute the product-space PCA. The PCA is computed later by
+\code{nail_qda_space()} from the adjusted product mean table returned by
+\code{SensoMineR::decat()}.
+
+The summaries created here are used only as optional product-level context.
+They can help explain how products located at the ends of a PCA dimension
+express the sensory opposition identified from the variables.
+
+The minimal workflow is therefore:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{qda_result <- nail_qda(...)
+space_prompts <- nail_qda_space(x = qda_result)
+}\if{html}{\out{</div>}}
+
+The optional enriched workflow is:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{qda_result <- nail_qda(...)
+
+product_summaries <- nail_qda_spaceprep(
+  ...,
+  generate = TRUE
+)
+
+space_prompts <- nail_qda_space(
+  x = qda_result,
+  llm_product_summaries = product_summaries
+)
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Relationship with \code{nail_qda()}}{
+
+Internally, the function calls \code{nail_qda()} with:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{isolate.groups = TRUE
+prompt_style = "compact"
+}\if{html}{\out{</div>}}
+
+This means that the statistical characterization is computed from the
+complete QDA dataset, but one separate prompt is constructed for each
+product.
+
+Each product remains characterized relative to the average profile of the
+complete product set. Isolating the prompts does not mean that the
+statistical analysis is performed separately for each product.
+
+The function uses a dedicated introduction, request, and conclusion. These
+instructions are intentionally standardized because the resulting summaries
+must follow a stable structure before they can be reused by
+\code{nail_qda_space()}.
+}
+
+\subsection{Requested response structure}{
+
+When \code{generate = TRUE}, the language model is instructed to return exactly
+six fields:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Core profile: ...
+Distinctive above-average traits: ...
+Distinctive below-average traits: ...
+Positioning cues: ...
+Profile clarity: ...
+Injectable summary: ...
+}\if{html}{\out{</div>}}
+
+Their intended meanings are:
+\itemize{
+\item \verb{Core profile}: one short sentence summarizing the relative product
+profile;
+\item \verb{Distinctive above-average traits}: three to five attributes clearly above the
+average product profile, separated by semicolons;
+\item \verb{Distinctive below-average traits}: three to five attributes clearly below the
+average profile, or \code{"none"} when no such attribute is available;
+\item \verb{Positioning cues}: one short sentence describing the sensory pole,
+broader product direction, or positioning suggested by the profile;
+\item \verb{Profile clarity}: one of \code{"strong"}, \code{"moderate"}, \code{"mixed"}, or
+\code{"weak"};
+\item \verb{Injectable summary}: one short sentence intended for later inclusion in
+the product-level evidence of \code{nail_qda_space()}.
+}
+
+The model is instructed not to add Markdown, bullets, introductory text, or
+additional sections.
+}
+
+\subsection{Parsing the LLM response}{
+
+The raw response is parsed automatically into a named list.
+
+The parser:
+\itemize{
+\item removes common Markdown code fences;
+\item removes introductory expressions such as \code{"Here is the output"};
+\item extracts the six expected fields;
+\item splits positive and negative traits at semicolons;
+\item converts \code{profile_clarity} to lower case.
+}
+
+The parsed object contains:
+\itemize{
+\item \code{core_profile}: a character string or \code{NA};
+\item \code{above_average_traits}: a character vector;
+\item \code{below_average_traits}: a character vector;
+\item \code{positioning_cues}: a character string or \code{NA};
+\item \code{profile_clarity}: a lower-case character string or \code{NA};
+\item \code{injectable_summary}: a character string or \code{NA}.
+}
+
+Language models do not always follow formatting instructions perfectly.
+Users should therefore inspect both the raw \code{response} and the \code{parsed}
+result before using the summaries in a final analysis.
+
+If parsing fails for one product, the complete workflow is not interrupted.
+The corresponding parsed result contains \code{NA} values and empty character
+vectors where appropriate.
+}
+
+\subsection{Sensory, positioning, and hybrid modes}{
+
+In \code{"sensory"} mode, the model is instructed to remain within sensory and
+perceptual vocabulary and to base every descriptor on the retained
+attributes.
+
+Depending on the variables present in the dataset, the interpretation may
+refer to appearance, odor or aroma, taste or flavor, texture or mouthfeel,
+trigeminal sensations, sound, or temporal perception. No sensory modality
+or descriptor is introduced unless it is supported by the retained
+attribute labels.
+
+Generic promotional expressions such as \code{"premium"}, \code{"luxurious"},
+\code{"indulgent"}, or \code{"treat"} are discouraged.
+
+In \code{"positioning"} mode, the model may infer the broader product style or
+pole represented by the item, but it must remain grounded in the retained
+QDA attributes.
+
+In \code{"hybrid"} mode, the sensory profile is described first. A broader
+product interpretation may then be proposed as a secondary conclusion.
+}
+
+\subsection{Positive and negative product traits}{
+
+The positive and negative traits refer to relative product profiles:
+\itemize{
+\item a positive trait is an attribute retained as higher than the average
+profile of the analyzed product set;
+\item a negative trait is an attribute retained as lower than the average
+profile.
+}
+
+These terms do not mean desirable and undesirable. A negative trait is not
+necessarily a defect; it only indicates a lower relative sensory intensity.
+
+For example, \code{"lower bitterness"} may be represented among the negative
+traits because bitterness is less intense than in the average product, even
+though this characteristic may be desirable for some consumers.
+}
+
+\subsection{Use in \code{nail_qda_space()}}{
+
+A valid result produced with \code{generate = TRUE} can be passed directly to:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{nail_qda_space(
+  x = qda_result,
+  llm_product_summaries = product_summaries
+)
+}\if{html}{\out{</div>}}
+
+For each extreme product, \code{nail_qda_space()} primarily uses:
+\itemize{
+\item \code{injectable_summary};
+\item \code{positioning_cues};
+\item \code{profile_clarity}.
+}
+
+When no valid \code{injectable_summary} is available, \code{nail_qda_space()} falls
+back to the deterministic product summary obtained from \code{nail_qda()}, when
+available.
+
+Results produced with \code{generate = FALSE} contain prompts only. They cannot
+provide parsed product summaries to \code{llm_product_summaries}.
+}
+
+\subsection{Generation considerations}{
+
+With \code{generate = TRUE}, one request is sent for every product. For a dataset
+containing six products, six independent LLM requests are therefore made.
+
+The summaries are generated interpretations of statistical results. They
+should be reviewed before being reused, particularly when product names,
+commercial claims, or broader positioning language are involved.
+
+They should not be interpreted as causal findings or as a substitute for
+examination of the original sensory data and QDA model.
+}
+}
+\examples{
+\dontrun{
+# These examples use the sensochoc dataset from SensoMineR.
+#
+# The first example constructs the product prompts without
+# calling a language model.
+#
+# The later examples use Ollama and may therefore take more
+# than ten seconds to run.
+
+library(NaileR)
+library(SensoMineR)
+
+data(chocolates, package = "SensoMineR")
+
+
+### Example 1: inspect one structured product prompt ###
+
+# Product is the first term in the model because it is
+# the factor whose levels must be summarized.
+#
+# Panelist is included to account for systematic differences
+# among assessors.
+#
+# generate = FALSE constructs one prompt per product
+# without calling an LLM.
+prep_prompts <- nail_qda_spaceprep(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  lastvar = ncol(sensochoc),
+  proba = 0.05,
+  sample.pct = 1,
+  drop.negative = FALSE,
+  product_knowledge = "known",
+  expertise_mode = "sensory",
+  generate = FALSE
+)
+
+# Display the products for which prompts were created.
+names(prep_prompts)
+
+# Display the complete prompt for the first product.
+cat(prep_prompts[[1]])
+
+# A prompt may also be accessed by product name.
+cat(prep_prompts[["choc1"]])
+
+
+### Example 2: generate and parse one summary per product ###
+
+# Ollama must be running locally and the llama3 model
+# must be installed.
+#
+# One LLM request is sent for each chocolate.
+product_summaries <- nail_qda_spaceprep(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  lastvar = ncol(sensochoc),
+  proba = 0.05,
+  sample.pct = 1,
+  drop.negative = FALSE,
+  product_knowledge = "known",
+  expertise_mode = "sensory",
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+
+# Display the products for which summaries were generated.
+names(product_summaries)
+
+# Inspect the exact prompt sent for the first product.
+cat(product_summaries[[1]]$prompt)
+
+# Inspect the unmodified LLM response.
+cat(product_summaries[[1]]$response)
+
+# Inspect the structured fields extracted from the response.
+product_summaries[[1]]$parsed
+
+
+### Example 3: inspect parsing quality across all products ###
+
+# Extract the profile clarity returned for each product.
+vapply(
+  product_summaries,
+  function(x) x$parsed$profile_clarity,
+  character(1)
+)
+
+# Display the injectable summary for each product.
+vapply(
+  product_summaries,
+  function(x) {
+    value <- x$parsed$injectable_summary
+    if (is.na(value)) "" else value
+  },
+  character(1)
+)
+
+# Identify products for which the injectable summary is missing.
+missing_summaries <- vapply(
+  product_summaries,
+  function(x) {
+    value <- x$parsed$injectable_summary
+    is.na(value) || !nzchar(trimws(value))
+  },
+  logical(1)
+)
+
+names(product_summaries)[missing_summaries]
+
+
+### Example 4: reuse the summaries in nail_qda_space() ###
+
+# First construct the usual nail_qda() result.
+# No LLM is required at this stage.
+qda_choc <- nail_qda(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  lastvar = ncol(sensochoc),
+  product_knowledge = "known",
+  generate = FALSE
+)
+
+# Build the product-space prompts and add the optional
+# structured LLM summaries for the extreme products.
+enriched_space_prompts <- nail_qda_space(
+  x = qda_choc,
+  llm_product_summaries = product_summaries,
+  ncp = 3,
+  scale.unit = TRUE,
+  min_inertia_pct = 10,
+  expertise_mode = "sensory",
+  generate = FALSE
+)
+
+# Display the enriched prompt for the first retained dimension.
+cat(enriched_space_prompts[[1]])
+
+
+### Example 5: prepare summaries for anonymous stimuli ###
+
+# Replace the original product levels with anonymous codes.
+sensochoc_blind <- sensochoc
+
+levels(sensochoc_blind$Product) <- paste0(
+  "Stimulus_",
+  seq_len(nlevels(sensochoc_blind$Product))
+)
+
+# product_knowledge = "unknown" indicates that the codes
+# should be treated only as stimulus identifiers.
+blind_prompts <- nail_qda_spaceprep(
+  dataset = sensochoc_blind,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  lastvar = ncol(sensochoc_blind),
+  product_knowledge = "unknown",
+  expertise_mode = "hybrid",
+  generate = FALSE
+)
+
+cat(blind_prompts[[1]])
+
+
+### Example 6: compare expertise modes without an LLM ###
+
+sensory_prompts <- nail_qda_spaceprep(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  expertise_mode = "sensory",
+  generate = FALSE
+)
+
+positioning_prompts <- nail_qda_spaceprep(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  expertise_mode = "positioning",
+  generate = FALSE
+)
+
+hybrid_prompts <- nail_qda_spaceprep(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  expertise_mode = "hybrid",
+  generate = FALSE
+)
+
+# Compare the task instructions used in the first product prompt.
+cat(sensory_prompts[[1]])
+cat(positioning_prompts[[1]])
+cat(hybrid_prompts[[1]])
+}
+}
+\seealso{
+\code{\link[=nail_qda]{nail_qda()}}, \code{\link[=nail_qda_space]{nail_qda_space()}}, \code{\link[SensoMineR:decat]{SensoMineR::decat()}}
 }

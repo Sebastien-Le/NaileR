@@ -272,12 +272,16 @@ build_guide_descfreq <- function(proba = 0.05,
     "Characteristic attributes are more frequent than expected given their global proportion.",
     "Uncharacteristic attributes are less frequent than expected given their global proportion.",
     "",
-    "Treat evidence as graded:",
-    "* very strong: p.value <= 0.01",
-    "* strong: 0.01 < p.value <= 0.05",
-    "* moderate: 0.05 < p.value <= 0.10",
-    paste0("* weak/tentative: 0.10 < p.value <= ", proba),
-    "Prioritize the strongest signals."
+    "Treat evidence as graded within the retained results:",
+    paste0(
+      "* all displayed attributes satisfy p.value <= ",
+      proba,
+      "."
+    ),
+    "* smaller p.values indicate stronger statistical evidence.",
+    "* larger absolute v.test values indicate stronger departures from the global proportion.",
+    "* interpret results with comparatively larger p.values more cautiously.",
+    "Prioritize the smallest p.values and the largest absolute v.test values."
   )
 
   if (interpretation_mode == "comparison") {
@@ -467,132 +471,419 @@ get_prompt_descfreq <- function(res_df, introduction, request, conclusion,
   prompts_list
 }
 
-#' Interpret the rows of a contingency table
+#' Interpret rows or groups of rows in a contingency table
 #'
-#' Describes the rows of a contingency table. For each row, this description is based on the columns of the contingency table that are significantly related to it.
+#' Characterizes the rows of a contingency table using
+#' `FactoMineR::descfreq()`, formats the retained over-represented and
+#' under-represented column attributes as an evidence-based prompt, and
+#' optionally sends this prompt to a large language model.
 #'
-#' @param dataset a data frame corresponding to a contingency table.
-#' @param introduction the introduction for the LLM prompt.
-#' @param request the request made to the LLM.
-#' @param conclusion the conclusion for the LLM prompt.
-#' @param model the model name for the selected provider ('llama3' by default for Ollama).
-#' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
-#' @param isolate.groups a boolean that indicates whether to give the LLM a single prompt, or one prompt per row. Recommended if the contingency table has a great number of rows.
-#' @param sample.pct from 0 to 1, the proportion of descriptive features that are randomly kept.
-#' @param drop.negative a boolean that indicates whether to drop negative v.test values for interpretation (keeping only positive v.tests).
-#' @param proba the significance threshold considered to characterize the category (by default 0.05).
-#' @param interpretation_mode either "description" or "comparison".
-#' @param rows_are_ordered logical; if TRUE, the prompt encourages the LLM to look for a gradient across rows.
-#' @param explicit_row_labels logical; if TRUE, the prompt tells the LLM not to rename the rows.
-#' @param by.quali a factor used to merge the data from different rows of the contingency table; by default NULL and each row is characterized.
-#' @param generate a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.
-#' @param ... Additional provider-specific generation arguments passed to the selected LLM backend
-#' (e.g., `temperature`, `seed`).
+#' Each row is interpreted as a relative profile. The function identifies the
+#' column attributes whose proportions within that row are unusually high or
+#' unusually low compared with their proportions in the complete contingency
+#' table.
 #'
-#' @return If `generate = FALSE`, a character prompt or a named list of prompts. If `generate = TRUE`, an object containing the generated interpretation and the underlying analytical result.
+#' Rows may be interpreted separately, compared with one another, treated as
+#' ordered levels, or merged into broader groups using `by.quali`.
 #'
-#' @details This function directly sends a prompt to an LLM. Therefore, to get a consistent answer, we highly recommend to customize the parameters introduction and request and add all relevant information on your data for the LLM.
+#' @param dataset A data frame representing a contingency table. Rows
+#'   correspond to the categories or objects to be characterized, columns
+#'   correspond to descriptive attributes, and cells contain frequencies.
+#'   The table should contain at least one row and two columns. Meaningful row
+#'   names and column names are strongly recommended because they are included
+#'   in the prompt and used by the language model during interpretation.
+#' @param introduction An optional character string providing the study
+#'   context in the prompt. It should explain what the rows, columns, and
+#'   frequencies represent. If `NULL`, a generic introduction describing the
+#'   table as a contingency table is created automatically.
+#' @param request An optional character string describing the interpretation
+#'   expected from the language model. If `NULL`, a default request is created
+#'   according to `interpretation_mode`, `isolate.groups`,
+#'   `rows_are_ordered`, and `explicit_row_labels`.
+#' @param conclusion An optional character string containing final
+#'   instructions about the expected synthesis and output format. If `NULL`,
+#'   a default conclusion is created according to `interpretation_mode`,
+#'   `isolate.groups`, `rows_are_ordered`, and `explicit_row_labels`.
+#' @param model Character string giving the model used by the selected
+#'   provider. The default is `"llama3"`, intended for the default Ollama
+#'   backend.
+#' @param provider LLM backend used when `generate = TRUE`. One of
+#'   `"ollama"` or `"gemini"`. The default is `"ollama"`. Gemini requires a
+#'   valid API key, typically supplied through the `GEMINI_API_KEY`
+#'   environment variable.
+#' @param isolate.groups Logical. If `FALSE`, a single prompt containing all
+#'   rows or row groups is created. If `TRUE`, one prompt is created for each
+#'   row or each group defined by `by.quali`.
 #'
-#' Additionally, if isolate.groups = TRUE, you will need an introduction and a request that take into account the fact that only one group is analyzed at a time.
+#'   Using `isolate.groups = TRUE` can be useful when the contingency table
+#'   contains many rows or when each profile should be interpreted
+#'   independently. However, a single combined prompt is generally preferable
+#'   when the objective is to compare rows directly.
+#' @param sample.pct A numeric value between 0 and 1 giving the proportion of
+#'   retained descriptive attributes included in the prompt. The default is
+#'   `1`, meaning that all attributes retained by
+#'   `FactoMineR::descfreq()` are included.
+#'
+#'   When `sample.pct < 1`, a stratified sample is selected across the
+#'   distribution of v-test values so that the prompt retains attributes with
+#'   different levels and directions of association. Use `set.seed()` before
+#'   calling the function when reproducible sampling is required.
+#' @param drop.negative Logical. If `FALSE`, both over-represented attributes
+#'   with positive v-tests and under-represented attributes with negative
+#'   v-tests are included. If `TRUE`, attributes with negative v-tests are
+#'   omitted and only over-represented attributes are presented.
+#'
+#'   Keeping the negative v-tests is generally recommended for a complete
+#'   interpretation because an unusually low frequency may be as informative
+#'   as an unusually high frequency.
+#' @param by.quali An optional factor used to merge rows of `dataset` before
+#'   characterization. It must associate each original row with a group. When
+#'   `NULL`, each row is characterized separately. When supplied,
+#'   `FactoMineR::descfreq()` characterizes the groups defined by the factor
+#'   rather than the original rows.
+#' @param proba A numeric value between 0 and 1 giving the significance
+#'   threshold used by `FactoMineR::descfreq()` to retain descriptive
+#'   attributes. The default is `0.05`.
+#' @param interpretation_mode Character string specifying the main objective
+#'   of the interpretation. One of `"description"` or `"comparison"`.
+#'
+#'   With `"description"`, each row is primarily interpreted as a relative
+#'   profile using its over-represented and under-represented attributes.
+#'
+#'   With `"comparison"`, the prompt emphasizes the main contrasts,
+#'   similarities, and distinctive profiles across rows.
+#' @param rows_are_ordered Logical indicating whether the order of the rows
+#'   has a substantive meaning. If `TRUE`, the prompt asks the language model
+#'   to examine possible gradients, transitions, or intermediate positions
+#'   across rows.
+#'
+#'   This argument does not sort or reorder `dataset`. The rows must already
+#'   be supplied in the intended substantive order. The model is also
+#'   instructed not to force a gradient when the retained evidence does not
+#'   support one.
+#' @param explicit_row_labels Logical indicating whether the row names already
+#'   have an explicit substantive meaning. If `TRUE`, the prompt instructs the
+#'   language model not to rename the rows. If `FALSE`, the model may propose
+#'   short descriptive names when the statistical evidence is sufficiently
+#'   clear.
+#'
+#'   This argument does not create or modify the row names of `dataset`.
+#' @param generate Logical. If `FALSE`, no language model is called and the
+#'   function returns the constructed prompt or prompts. If `TRUE`, each
+#'   prompt is sent to the selected provider.
+#' @param ... Additional provider-specific generation arguments passed to the
+#'   selected LLM backend, such as `temperature`, `seed`, or other supported
+#'   options.
+#'
+#' @details
+#' The statistical characterization is computed with
+#' `FactoMineR::descfreq()`.
+#'
+#' For each row, or each group of rows defined through `by.quali`, the
+#' proportion of each column attribute within that row is compared with the
+#' overall proportion of the same attribute in the complete table.
+#'
+#' The resulting tables may contain the following statistics:
+#'
+#' - `Intern %`: percentage of the attribute within the current row or group;
+#' - `glob %`: overall percentage of the attribute in the complete table;
+#' - `Intern freq`: observed frequency of the attribute within the current row
+#'   or group;
+#' - `Glob freq`: overall frequency of the attribute in the complete table;
+#' - `p.value`: probability associated with the statistical characterization;
+#' - `v.test`: standardized measure of the direction and strength of the
+#'   difference from the global proportion.
+#'
+#' A positive v-test indicates that an attribute is over-represented within
+#' the row relative to the complete table. A negative v-test indicates that
+#' the attribute is under-represented. Larger absolute v-test values indicate
+#' stronger departures from the global proportion.
+#'
+#' The rows must therefore be interpreted as relative profiles, not merely
+#' from their raw frequencies. An attribute may have a large frequency in a
+#' row without being characteristic of that row when the same attribute is
+#' also frequent throughout the table.
+#'
+#' ## Interpretation modes
+#'
+#' With `interpretation_mode = "description"`, the prompt asks for a
+#' description of each row based on its characteristic and uncharacteristic
+#' attributes. When all rows are included in one prompt, a brief synthesis of
+#' the most distinctive profiles is also requested.
+#'
+#' With `interpretation_mode = "comparison"`, the prompt asks the language
+#' model to compare the rows and identify their main contrasts, proximities,
+#' and distinctive profiles. This mode is most informative when
+#' `isolate.groups = FALSE`, because all rows are then available in the same
+#' prompt.
+#'
+#' When `interpretation_mode = "comparison"` and
+#' `isolate.groups = TRUE`, each row is still processed separately. The model
+#' can describe how that row differs from the global table, but it cannot
+#' perform a complete direct comparison with rows that are absent from the
+#' current prompt.
+#'
+#' ## Ordered rows
+#'
+#' Setting `rows_are_ordered = TRUE` indicates that the row sequence has a
+#' substantive interpretation, such as increasing education, age, intensity,
+#' preference, or performance levels.
+#'
+#' In description mode, the row order is used as contextual information and
+#' the model may discuss intermediate positions or broader tendencies.
+#'
+#' In comparison mode, the model is explicitly asked to examine whether the
+#' profiles form a gradient. It must nevertheless report mixed patterns,
+#' discontinuities, or exceptions when the evidence does not support a simple
+#' progression.
+#'
+#' ## Row labels
+#'
+#' Setting `explicit_row_labels = TRUE` is appropriate when row names already
+#' have a clear meaning, such as `"No education"`, `"High school"`, or
+#' `"University"`. The model is then instructed to preserve these names.
+#'
+#' Setting `explicit_row_labels = FALSE` allows the model to propose a
+#' descriptive name for a row when this helps summarize its relative profile.
+#' The proposed name is generated text only: the function does not modify the
+#' row names of `dataset`.
+#'
+#' ## Prompt construction and generation
+#'
+#' The `introduction`, statistical reading guide, `request`, retained
+#' statistical tables, and `conclusion` are combined into one structured
+#' prompt.
+#'
+#' If `isolate.groups = FALSE`, all row profiles are included in this prompt.
+#' If `isolate.groups = TRUE`, the same introduction, request, and conclusion
+#' are combined separately with the statistical results for each row or row
+#' group.
+#'
+#' By default, `generate = FALSE`, so no language model is called. When
+#' `generate = TRUE`, the default backend is Ollama and the default model is
+#' `"llama3"`. These defaults can be changed with `provider` and `model`.
+#'
+#' No causal conclusion should be inferred from the reported associations.
+#' The results describe departures from global proportions within the
+#' contingency table.
+#'
+#' @return
+#' The returned object depends on `generate` and `isolate.groups`.
+#'
+#' When `generate = FALSE`:
+#'
+#' - if `isolate.groups = FALSE`, a character string containing the complete
+#'   prompt is returned;
+#' - if `isolate.groups = TRUE`, a named list of character prompts is
+#'   returned, with one element per row or row group.
+#'
+#' When `generate = TRUE`:
+#'
+#' - if `isolate.groups = FALSE`, a list with components `prompt`,
+#'   `response`, and `model` is returned;
+#' - if `isolate.groups = TRUE`, a named list is returned, with one generated
+#'   result per row or row group. Each result contains `prompt`, `response`,
+#'   and `model`.
+#'
+#' In all normal cases, the complete object returned by
+#' `FactoMineR::descfreq()` is stored in the `"descfreq_result"` attribute.
+#'
+#' If no over-represented or under-represented attributes are retained under
+#' the chosen threshold, the LLM is not called and an informative result is
+#' returned.
 #'
 #' @export
 #'
 #' @examples
-#'\dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
+#' \dontrun{
+#' # Some examples below use a large language model and may therefore
+#' # take more than ten seconds to run.
 #'
-#' ### Example 1: beard dataset ###
+#' # Generated responses explicitly use:
+#' # - the local Ollama backend;
+#' # - the llama3 model.
 #'
+#' # Ollama must be running locally and the llama3 model must be installed.
+#' # To use Gemini instead, set:
+#' # provider = "gemini"
+#' # model = "<a supported Gemini model>"
+#' # and define the GEMINI_API_KEY environment variable.
+#'
+#' # The interpretation_mode argument controls the main objective:
+#' #
+#' # - "description" describes each row as a relative profile;
+#' # - "comparison" emphasizes contrasts and similarities across rows.
+#'
+#' # rows_are_ordered = TRUE indicates that the current row order
+#' # has a substantive meaning. It does not reorder the table.
+#'
+#' # explicit_row_labels = TRUE preserves existing row names.
+#' # With FALSE, the model may propose descriptive names.
+#'
+#'
+#' ### Example 1: beard dataset and isolated prompt construction ###
+#'
+#' library(NaileR)
 #' data(beard_cont)
 #'
-#' intro_beard_iso <- 'A survey was conducted about beards
-#' and 8 types of beards were described.
-#' I will give you the results for one type of beard.'
-#' intro_beard_iso <- gsub('\n', ' ', intro_beard_iso) |>
-#' stringr::str_squish()
+#' # The rows represent eight types of beards and the columns represent
+#' # descriptive attributes or uses recorded by the assessors.
+#' intro_beard <- "A survey was conducted about eight types of beards.
+#' The rows of the contingency table represent the beards,
+#' and the columns represent descriptive attributes reported by assessors."
 #'
-#' req_beard_iso <- 'Please give a name to this beard
-#' and summarize what makes this beard unique.'
-#' req_beard_iso <- gsub('\n', ' ', req_beard_iso) |>
-#' stringr::str_squish()
+#' intro_beard <- gsub("\n", " ", intro_beard) |>
+#'   stringr::str_squish()
 #'
-#' res_beard <- nail_descfreq(beard_cont,
-#'                            introduction = intro_beard_iso,
-#'                            request = req_beard_iso,
-#'                            isolate.groups = TRUE,
-#'                            generate = FALSE)
+#' # The beard codes do not have an explicit substantive meaning.
+#' # Therefore, explicit_row_labels = FALSE allows the model to propose
+#' # descriptive names when the statistical evidence is sufficient.
+#' #
+#' # isolate.groups = TRUE creates one prompt per beard.
+#' # generate = FALSE means that no language model is called.
+#' prompts_beard <- nail_descfreq(
+#'   dataset = beard_cont,
+#'   introduction = intro_beard,
+#'   interpretation_mode = "description",
+#'   isolate.groups = TRUE,
+#'   rows_are_ordered = FALSE,
+#'   explicit_row_labels = FALSE,
+#'   drop.negative = FALSE,
+#'   generate = FALSE
+#' )
 #'
-#' res_beard[[1]]
-#' res_beard[[2]]
+#' # Display the prompt created for the first beard.
+#' cat(prompts_beard[[1]])
 #'
-#' intro_beard <- 'A survey was conducted about beards
-#' and 8 types of beards were described.
-#' In the data that follow, beards are named B1 to B8.'
-#' intro_beard <- gsub('\n', ' ', intro_beard) |>
-#' stringr::str_squish()
+#' # Display the names of all isolated prompts.
+#' names(prompts_beard)
 #'
-#' req_beard <- 'Please give a name to each beard
-#' and summarize what makes this beard unique.'
-#' req_beard <- gsub('\n', ' ', req_beard) |>
-#' stringr::str_squish()
 #'
-#' res_beard <- nail_descfreq(beard_cont,
-#'                            introduction = intro_beard,
-#'                            request = req_beard,
-#'                            generate = TRUE)
+#' ### Example 2: beard dataset with one generated comparative response ###
 #'
+#' req_beard <- "Compare the relative profiles of the eight beards.
+#' For each beard, identify its most characteristic
+#' and least characteristic attributes.
+#' Propose a short descriptive name only when the evidence is clear."
+#'
+#' req_beard <- gsub("\n", " ", req_beard) |>
+#'   stringr::str_squish()
+#'
+#' # All rows are included in one prompt so that the model can compare them
+#' # directly. Both positive and negative v-tests are retained.
+#' res_beard <- nail_descfreq(
+#'   dataset = beard_cont,
+#'   introduction = intro_beard,
+#'   request = req_beard,
+#'   interpretation_mode = "comparison",
+#'   isolate.groups = FALSE,
+#'   rows_are_ordered = FALSE,
+#'   explicit_row_labels = FALSE,
+#'   drop.negative = FALSE,
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#'
+#' # Display the generated interpretation.
 #' cat(res_beard$response)
 #'
-#' text <- res_beard$response
-#' titles <- stringr::str_extract_all(text, "\\*\\*B[0-9]+: [^\\*\\*]+\\*\\*")[[1]]
+#' # Inspect the exact prompt sent to Ollama.
+#' cat(res_beard$prompt)
 #'
-#' titles
-#'
-#' # for the following code to work, the response must have the beards'
-#' # new names with this format: **B1: The Nice beard**, etc.
-#'
-#' titles <- stringr::str_replace_all(titles, "\\*\\*", "")  # remove asterisks
-#' names <- stringr::str_extract(titles, ": .+")
-#' names <- stringr::str_replace_all(names, ": ", "")  # remove the colon and space
-#'
-#' rownames(beard_cont) <- names
-#'
-#' library(FactoMineR)
-#'
-#' res_ca_beard <- CA(beard_cont, graph = F)
-#' plot.CA(res_ca_beard, invisible = "col")
+#' # Access the complete statistical result produced by descfreq().
+#' beard_descfreq <- attr(res_beard, "descfreq_result")
 #'
 #'
-#' ### Example 2: children dataset ###
+#' ### Example 3: ordered education levels in the children dataset ###
 #'
-#' data(children)
+#' data(children, package = "FactoMineR")
 #'
-#' children <- children[1:14, 1:5] |> t() |> as.data.frame()
-#' rownames(children) <- c('No education', 'Elementary school',
-#' 'Middle school', 'High school', 'University')
+#' # Retain five education levels and fourteen possible reasons,
+#' # then transpose the table so that education levels are in rows.
+#' children_table <- children[1:14, 1:5] |>
+#'   t() |>
+#'   as.data.frame()
 #'
-#' intro_children <- 'The data used here is a contingency table
-#' that summarizes the answers
-#' given by different categories of people to the following question:
-#' "according to you, what are the reasons that can make
-#' a woman or a couple hesitate to have children?".
-#' Each row corresponds to a level of education, and columns are reasons.'
-#' intro_children <- gsub('\n', ' ', intro_children) |>
-#' stringr::str_squish()
+#' rownames(children_table) <- c(
+#'   "No education",
+#'   "Elementary school",
+#'   "Middle school",
+#'   "High school",
+#'   "University"
+#' )
 #'
-#' req_children <- "Please explain the main differences
-#' between more educated and less educated couples,
-#' when it comes to hesitating to have children."
-#' req_children <- gsub('\n', ' ', req_children) |>
-#' stringr::str_squish()
+#' intro_children <- "This contingency table summarizes answers
+#' to a survey question about reasons that may make
+#' a woman or a couple hesitate to have children.
+#' Rows represent ordered education levels,
+#' from no education to university,
+#' and columns represent the possible reasons."
 #'
-#' res_children <- nail_descfreq(children,
-#'                               introduction = intro_children,
-#'                               request = req_children,
-#'                               generate = TRUE)
+#' intro_children <- gsub("\n", " ", intro_children) |>
+#'   stringr::str_squish()
+#'
+#' req_children <- "Compare the relative profiles across education levels.
+#' Identify the main differences between lower and higher education levels.
+#' Determine whether the rows form a clear gradient,
+#' and report intermediate transitions or exceptions."
+#'
+#' req_children <- gsub("\n", " ", req_children) |>
+#'   stringr::str_squish()
+#'
+#' # The row order is meaningful, so rows_are_ordered = TRUE.
+#' # The education labels already have an explicit meaning,
+#' # so explicit_row_labels = TRUE prevents their renaming.
+#' res_children <- nail_descfreq(
+#'   dataset = children_table,
+#'   introduction = intro_children,
+#'   request = req_children,
+#'   interpretation_mode = "comparison",
+#'   rows_are_ordered = TRUE,
+#'   explicit_row_labels = TRUE,
+#'   isolate.groups = FALSE,
+#'   drop.negative = FALSE,
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
 #'
 #' cat(res_children$response)
+#'
+#'
+#' ### Example 4: merge rows into broader education groups ###
+#'
+#' # by.quali may be used to merge the five original rows
+#' # into broader groups before characterization.
+#' education_group <- factor(
+#'   c(
+#'     "Lower education",
+#'     "Lower education",
+#'     "Secondary education",
+#'     "Secondary education",
+#'     "Higher education"
+#'   ),
+#'   levels = c(
+#'     "Lower education",
+#'     "Secondary education",
+#'     "Higher education"
+#'   )
+#' )
+#'
+#' # Here only the prompt is constructed.
+#' # The three grouped levels are interpreted as an ordered sequence.
+#' prompt_education_groups <- nail_descfreq(
+#'   dataset = children_table,
+#'   introduction = intro_children,
+#'   by.quali = education_group,
+#'   interpretation_mode = "comparison",
+#'   rows_are_ordered = TRUE,
+#'   explicit_row_labels = TRUE,
+#'   isolate.groups = FALSE,
+#'   generate = FALSE
+#' )
+#'
+#' cat(prompt_education_groups)
 #' }
 #'
 #' @importFrom FactoMineR descfreq
@@ -694,18 +985,22 @@ nail_descfreq <- function(dataset,
     )
 
     if (generate) {
-      message("Execution halted: No retained differences found. Nothing to generate.")
+      message(
+        "Execution halted: No retained differences found. Nothing to generate."
+      )
+
       if (isolate.groups) {
         out <- list()
         attr(out, "descfreq_result") <- res_df
         return(out)
       }
-      out <- data.frame(
-        model = model,
-        response = "No retained differences found.",
+
+      out <- list(
         prompt = no_results_message,
-        stringsAsFactors = FALSE
+        response = "No retained differences found.",
+        model = model
       )
+
       attr(out, "descfreq_result") <- res_df
       return(out)
     }

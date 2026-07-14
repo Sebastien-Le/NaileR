@@ -151,7 +151,6 @@ prompt <- nail_condes(
   dataset = score_data,
   num.var = 1,
   interpretation_mode = "latent",
-  target_concept = "food engagement",
   generate = FALSE
 )
 ```

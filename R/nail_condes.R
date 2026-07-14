@@ -90,7 +90,6 @@ get_bins <- function(dataset, keep, quanti.threshold, quanti.cat) {
 
 build_request_condes <- function(
     mode = c("standard", "latent"),
-    target_concept = "the target concept",
     target_label = "the target variable",
     prompt_style = c("detailed", "compact")
 ) {
@@ -180,11 +179,7 @@ build_request_condes <- function(
       "6. Treat smaller p.values as stronger evidence and larger p.values as weaker or more tentative evidence.",
       "7. In the final justification, include one sentence beginning with: 'What separates the high end from the low end of the scale is...'",
       "8. Propose a unifying name for the continuum.",
-      if (identical(target_concept, "the target concept")) {
-        "9. Avoid overly generic names unless no more specific interpretation is supported."
-      } else {
-        paste0("9. Avoid generic names such as '", target_concept, "' unless no more specific interpretation is supported.")
-      },
+      "9. Avoid overly generic names such as 'perception', 'evaluation', or 'attitude' unless no more specific interpretation is supported.",
       "10. Do not invent causal explanations.",
       "",
       "Required output:",
@@ -229,7 +224,7 @@ build_request_condes <- function(
     "- Prefer the simplest unifying latent name supported by most of the strongest results.",
     "- Prefer a general unifying name if most strong associations point in the same substantive direction.",
     "- If several names are plausible, prefer the one that best captures the continuum as a whole rather than only one end.",
-    paste0("- Do not use a generic label such as 'perception', 'evaluation', 'attitude', or '", target_concept, "' unless no more specific interpretation is supported."),
+    "- Do not use an overly generic label such as 'perception', 'evaluation', or 'attitude' unless no more specific interpretation is supported.",
     "- Do not propose a name that is more specific than the evidence supports.",
     "- The sentence 'What separates the high end from the low end of the scale is...' must reflect the main structural difference supported by the strongest variables.",
     "- Do not propose names before clearly stating this structural difference.",
@@ -522,76 +517,259 @@ validate_condes_inputs <- function(dataset,
 # Main function
 # ---------------------------------------------------------------------------
 
-#' Interpret a continuous variable
+#' Interpret a continuous variable or a statistically constructed dimension
 #'
-#' Generate an LLM response to analyze a continuous variable.
+#' Characterizes a quantitative target variable using
+#' `FactoMineR::condes()`, formats the retained quantitative and qualitative
+#' associations as an evidence-based prompt, and optionally sends this prompt
+#' to a large language model.
 #'
-#' @param dataset a data frame made up of at least one quantitative variable and a set of quantitative variables and/or categorical variables.
-#' @param num.var the index of the variable to be characterized.
-#' @param introduction the introduction for the LLM prompt.
-#' @param request the request made to the LLM.
-#' @param model the model name for the selected provider (e.g., 'llama3' for Ollama or 'gemini-2.5-flash' for Gemini).
-#' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
-#' @param quanti.threshold the threshold above (resp. below) which a scaled variable is considered significantly above (resp. below) the average. Used when converting continuous variables to categorical ones.
-#' @param quanti.cat a vector of the 3 possible technical categories used after discretizing continuous variables according to the threshold. Default is "High score", "Low score", "Intermediate score".
-#' @param sample.pct the proportion of features to be sampled.
-#' @param weights weights for the individuals (see [FactoMineR::condes()]).
-#' @param proba the significance threshold considered to characterize the category (by default 0.05).
-#' @param interpretation_mode either "standard" or "latent".
-#' @param prompt_style either "detailed" or "compact".
-#' @param target_concept generic concept used in the prompt to describe what the scale refers to.
-#' @param target_label optional label for the target variable. If NULL, uses the name of the variable indexed by `num.var`.
-#' @param generate a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.
-#' @param ... additional provider-specific generation arguments passed to the selected LLM backend (e.g., `temperature`, `seed`).
+#' The target variable may be either an explicit observed variable or a
+#' continuous dimension constructed by a statistical method such as PCA,
+#' MCA, or CA.
 #'
-#' @return If `generate = FALSE`, a character prompt or a named list of prompts. If `generate = TRUE`, an object containing the generated interpretation and the underlying analytical result.
+#' @param dataset A data frame containing the quantitative target variable
+#'   and at least one additional quantitative or qualitative variable.
+#' @param num.var A single integer giving the column index of the
+#'   quantitative variable to be characterized.
+#' @param introduction An optional character string providing the study
+#'   context in the LLM prompt. If `NULL`, a default introduction is created
+#'   according to `interpretation_mode`.
+#' @param request An optional character string describing the interpretation
+#'   expected from the LLM. If `NULL`, a default request is created according
+#'   to `interpretation_mode`, `prompt_style`, and `target_label`.
+#' @param model Character string giving the model used by the selected
+#'   provider. The default is `"llama3"`, intended for the default Ollama
+#'   backend.
+#' @param provider LLM backend used when `generate = TRUE`. One of
+#'   `"ollama"` or `"gemini"`. The default is `"ollama"`. Gemini requires a
+#'   valid API key, typically supplied through the `GEMINI_API_KEY`
+#'   environment variable.
+#' @param quanti.threshold A non-negative numeric value used when constructing
+#'   illustrative low-end and high-end profiles. Each quantitative descriptor
+#'   is standardized. Values greater than or equal to
+#'   `quanti.threshold` are assigned the first label in `quanti.cat`, values
+#'   less than or equal to `-quanti.threshold` are assigned the second label,
+#'   and intermediate values are assigned the third label. The default is
+#'   `1`, corresponding to one standard deviation from the mean.
+#' @param quanti.cat A character vector of exactly three non-empty labels used
+#'   to describe, in this order, high standardized values, low standardized
+#'   values, and intermediate standardized values. The default is
+#'   `c("High score", "Low score", "Intermediate score")`.
+#' @param sample.pct A numeric value between 0 and 1 giving the proportion of
+#'   continuous associations and profile-level descriptors retained in the
+#'   prompt. The default is `1`, meaning that all retained descriptors are
+#'   included.
+#' @param weights An optional numeric vector of individual weights, with one
+#'   non-missing value per row of `dataset`. If `NULL`, uniform weights are
+#'   used. See `FactoMineR::condes()`.
+#' @param proba A numeric value between 0 and 1 giving the significance
+#'   threshold used by `FactoMineR::condes()`. The default is `0.05`.
+#' @param interpretation_mode Character string specifying how the target
+#'   variable should be interpreted. One of `"standard"` or `"latent"`.
+#' @param prompt_style Character string controlling the level of detail in the
+#'   generated prompt. One of `"detailed"` or `"compact"`.
+#' @param target_label Optional character string used to identify the target
+#'   variable in the prompt. If `NULL`, the name of the column indexed by
+#'   `num.var` is used.
+#' @param generate Logical. If `FALSE`, no LLM is called and the function
+#'   returns the constructed prompt only. If `TRUE`, the prompt is sent to the
+#'   selected provider.
+#' @param ... Additional provider-specific generation arguments passed to the
+#'   selected LLM backend, such as `temperature`, `seed`, or other supported
+#'   options.
 #'
-#' @details This function (when generate = TRUE) sends a prompt to the selected LLM backend.
+#' @details
+#' The function first applies `FactoMineR::condes()` to characterize the
+#' quantitative target variable across its full continuum.
+#'
+#' This first analysis provides variable-level evidence:
+#'
+#' - correlations between the target variable and other quantitative
+#'   variables;
+#' - global associations between the target variable and qualitative
+#'   variables;
+#' - the associated p-values.
+#'
+#' A positive correlation indicates that higher values of a quantitative
+#' descriptor tend to be associated with higher values of the target
+#' variable. A negative correlation indicates that higher values of the
+#' descriptor tend to be associated with lower values of the target variable.
+#'
+#' The substantive meaning of a positive or negative association depends on
+#' the meaning of the descriptor. For example, a higher running time may
+#' indicate poorer athletic performance, whereas a greater jumping distance
+#' may indicate better performance. The sign must therefore always be
+#' interpreted together with the meaning of the variable.
+#'
+#' The function then constructs a second, profile-level representation. Each
+#' quantitative descriptor is standardized and categorized using
+#' `quanti.threshold` and `quanti.cat`. A second call to
+#' `FactoMineR::condes()` identifies the technical categories that are more
+#' typical of the low and high ends of the target variable.
+#'
+#' The two sources of evidence have different roles:
+#'
+#' - variable-level associations are the main evidence used to interpret the
+#'   target variable;
+#' - profile-level categories provide secondary, illustrative descriptions of
+#'   the low and high ends of the continuum.
+#'
+#' The function can be used in two interpretation modes:
+#'
+#' - `interpretation_mode = "standard"` treats the target variable as an
+#'   explicit observed quantitative variable whose meaning is already known.
+#'   The function helps explain what is associated with low and high values
+#'   without renaming the variable or inventing a latent construct.
+#'
+#' - `interpretation_mode = "latent"` treats the target variable as a
+#'   statistically constructed continuous dimension, for example a component
+#'   from PCA, MCA, or CA. The meaning of the continuum must then be inferred
+#'   from the strongest and most coherent associations. In this mode, the LLM
+#'   may propose a substantive name for the latent dimension.
+#'
+#' In latent mode, the low and high ends must be interpreted as opposite
+#' manifestations of the same continuum. The interpretation should not be
+#' based only on the first variable in the table or on isolated profile-level
+#' categories.
+#'
+#' The `target_label` argument controls how the target variable or constructed
+#' dimension is identified in the prompt. It does not provide a substantive
+#' interpretation of the dimension.
+#'
+#' The `sample.pct` argument reduces the number of continuous associations and
+#' profile-level descriptors included in long prompts. It does not alter the
+#' complete analytical objects stored in the result attributes.
+#'
+#' By default, `generate = FALSE`, so no language model is called. When
+#' `generate = TRUE`, the default backend is Ollama and the default model is
+#' `"llama3"`. These defaults can be changed with `provider` and `model`.
+#'
+#' @return
+#' If `generate = FALSE`, a character string containing the constructed
+#' prompt.
+#'
+#' If `generate = TRUE`, a data frame containing the generated interpretation
+#' and the prompt sent to the selected backend.
+#'
+#' In both cases, two analytical objects are stored as attributes:
+#'
+#' - `"condes_result"` contains the original result returned by
+#'   `FactoMineR::condes()` for the target variable;
+#' - `"condes_profile_result"` contains the result of the second
+#'   `FactoMineR::condes()` analysis used to describe the low-end and high-end
+#'   profiles.
 #'
 #' @export
+#'
 #' @examples
-#'\dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
+#' \dontrun{
+#' # These examples use a large language model and may therefore
+#' # take more than ten seconds to run.
+#'
+#' # Examples 1 to 3 explicitly use:
+#' # - the local Ollama backend;
+#' # - the llama3 model.
+#'
+#' # Ollama must be running locally and the llama3 model must be installed.
+#' # To use Gemini instead, set:
+#' # provider = "gemini"
+#' # model = "<a supported Gemini model>"
+#' # and define the GEMINI_API_KEY environment variable.
+#'
+#' # The interpretation_mode argument controls how the target variable
+#' # is presented to the language model:
+#' #
+#' # - interpretation_mode = "standard" is intended for an explicit
+#' #   observed quantitative variable whose meaning is already known.
+#' #
+#' # - interpretation_mode = "latent" is intended for a continuous
+#' #   dimension constructed by a statistical method, such as a component
+#' #   obtained from PCA, MCA, or CA.
+#'
 #'
 #' ### Example 1: decathlon dataset ###
 #'
+#' library(NaileR)
 #' library(FactoMineR)
 #' data(decathlon)
 #'
-#' names(decathlon) <- c('Time taken to complete the 100m',
-#' 'Distance reached for the long jump',
-#' 'Distance reached for the shot put',
-#' 'Height reached for the high jump',
-#' 'Time taken to complete the 400m',
-#' 'Time taken to complete the 110m hurdle',
-#' 'Distance reached for the discus',
-#' 'Height reached for the pole vault',
-#' 'Distance reached for the javeline',
-#' 'Time taken to complete the 1500 m',
-#' 'Rank/Counter-performance indicator',
-#' 'Points', 'Competition')
+#' # Give the observed variables explicit names so that the language
+#' # model can interpret the direction of their associations correctly.
+#' names(decathlon) <- c(
+#'   "Time taken to complete the 100 m",
+#'   "Distance reached for the long jump",
+#'   "Distance reached for the shot put",
+#'   "Height reached for the high jump",
+#'   "Time taken to complete the 400 m",
+#'   "Time taken to complete the 110 m hurdles",
+#'   "Distance reached for the discus",
+#'   "Height reached for the pole vault",
+#'   "Distance reached for the javelin",
+#'   "Time taken to complete the 1500 m",
+#'   "Rank or counter-performance indicator",
+#'   "Points",
+#'   "Competition"
+#' )
 #'
-#' res_pca_deca <- FactoMineR::PCA(decathlon,
-#' quanti.sup = 11:12, quali.sup = 13, graph = FALSE)
-#' plot.PCA(res_pca_deca, choix = 'var')
-#' deca_work <- res_pca_deca$ind$coord |> as.data.frame()
-#' deca_work <- deca_work[,1] |> cbind(decathlon)
+#' # Construct a PCA of the athletic performances.
+#' res_pca_deca <- PCA(
+#'   decathlon,
+#'   quanti.sup = 11:12,
+#'   quali.sup = 13,
+#'   graph = FALSE
+#' )
 #'
-#' intro_deca <- "A study was led on athletes
+#' plot.PCA(
+#'   res_pca_deca,
+#'   choix = "var"
+#' )
+#'
+#' # Add the first PCA dimension to the original data.
+#' deca_work <- res_pca_deca$ind$coord |>
+#'   as.data.frame()
+#'
+#' deca_work <- deca_work[, 1] |>
+#'   cbind(decathlon)
+#'
+#' # Describe the study context.
+#' intro_deca <- "A study was conducted on athletes
 #' participating in a decathlon event.
-#' Their performance was assessed on each part of the decathlon,
-#' and they were all placed on an unidimensional scale."
-#' intro_deca <- gsub('\n', ' ', intro_deca) |>
-#' stringr::str_squish()
+#' Their performance was assessed in each discipline,
+#' and the athletes were positioned on a continuous dimension
+#' obtained from a principal component analysis."
 #'
-#' res_deca <- nail_condes(deca_work,
-#'                         num.var = 1,
-#'                         quanti.threshold = 1,
-#'                         quanti.cat = c('High', 'Low', 'Average'),
-#'                         introduction = intro_deca,
-#'                         generate = TRUE)
+#' intro_deca <- gsub("\n", " ", intro_deca) |>
+#'   stringr::str_squish()
 #'
+#' # The target variable is the first PCA dimension.
+#' # It is a constructed statistical dimension, not an observed variable.
+#' # Therefore, interpretation_mode = "latent" is used.
+#' #
+#' # The quanti.cat labels are given in the following order:
+#' # high standardized values, low standardized values,
+#' # and intermediate standardized values.
+#' #
+#' # Because generate = TRUE, the prompt is sent to Ollama
+#' # and the response is generated locally with llama3.
+#' res_deca <- nail_condes(
+#'   dataset = deca_work,
+#'   num.var = 1,
+#'   quanti.threshold = 1,
+#'   quanti.cat = c(
+#'     "High standardized value",
+#'     "Low standardized value",
+#'     "Intermediate standardized value"
+#'   ),
+#'   introduction = intro_deca,
+#'   interpretation_mode = "latent",
+#'   target_label = "First PCA dimension",
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#'
+#' # Display the generated interpretation.
 #' cat(res_deca$response)
 #'
 #'
@@ -599,97 +777,191 @@ validate_condes_inputs <- function(dataset,
 #'
 #' data(agri_studies)
 #'
+#' # Construct an MCA of the survey responses.
 #' set.seed(1)
-#' res_mca_agri <- FactoMineR::MCA(agri_studies, quali.sup = 39:42,
-#' level.ventil = 0.05, graph = FALSE)
-#' plot.MCA(res_mca_agri, choix = 'ind',
-#' invisible = c('var', 'quali.sup'), label = 'none')
 #'
-#' agri_work <- res_mca_agri$ind$coord |> as.data.frame()
-#' agri_work <- agri_work[,1] |> cbind(agri_studies)
+#' res_mca_agri <- MCA(
+#'   agri_studies,
+#'   quali.sup = 39:42,
+#'   level.ventil = 0.05,
+#'   graph = FALSE
+#' )
 #'
-#' intro_agri <- "These data were collected after a survey
-#' on students' expectations of agribusiness studies.
-#' Participants had to rank how much they agreed with 38 statements
-#' about possible benefits from agribusiness studies;
-#' then, they were asked personal questions."
-#' intro_agri <- gsub('\n', ' ', intro_agri) |>
-#' stringr::str_squish()
+#' plot.MCA(
+#'   res_mca_agri,
+#'   choix = "ind",
+#'   invisible = c("var", "quali.sup"),
+#'   label = "none"
+#' )
 #'
-#' res_agri <- nail_condes(agri_work,
-#'                         num.var = 1,
-#'                         introduction = intro_agri,
-#'                         generate = TRUE)
+#' # Add the first MCA dimension to the original data.
+#' agri_work <- res_mca_agri$ind$coord |>
+#'   as.data.frame()
+#'
+#' agri_work <- agri_work[, 1] |>
+#'   cbind(agri_studies)
+#'
+#' intro_agri <- "These data were collected in a survey
+#' about students' expectations of agribusiness studies.
+#' Participants rated their agreement with 38 statements
+#' about possible benefits of agribusiness studies
+#' and then answered several personal questions."
+#'
+#' intro_agri <- gsub("\n", " ", intro_agri) |>
+#'   stringr::str_squish()
+#'
+#' # The target variable is the first MCA dimension.
+#' # Its substantive meaning must be inferred from the associations,
+#' # so interpretation_mode = "latent" is appropriate.
+#' res_agri <- nail_condes(
+#'   dataset = agri_work,
+#'   num.var = 1,
+#'   introduction = intro_agri,
+#'   interpretation_mode = "latent",
+#'   target_label = "First MCA dimension",
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
 #'
 #' cat(res_agri$response)
+#'
 #'
 #' ### Example 3: glossophobia dataset ###
 #'
 #' data(glossophobia)
 #'
+#' # Construct an MCA of the public-speaking survey.
 #' set.seed(1)
-#' res_mca_phobia <- FactoMineR::MCA(glossophobia,
-#' quali.sup = 26:41, level.ventil = 0.05, graph = FALSE)
-#' plot.MCA(res_mca_phobia, choix = 'ind',
-#' invisible = c('var', 'quali.sup'), label = 'none')
 #'
-#' phobia_work <- res_mca_phobia$ind$coord |> as.data.frame()
-#' phobia_work <- phobia_work[,1] |> cbind(glossophobia)
+#' res_mca_phobia <- MCA(
+#'   glossophobia,
+#'   quali.sup = 26:41,
+#'   level.ventil = 0.05,
+#'   graph = FALSE
+#' )
 #'
-#' intro_phobia <- "These data were collected after a survey
-#' on participants' feelings about speaking in public.
-#' Participants had to rank how much they agreed with
-#' 25 descriptions of speaking in public;
-#' then, they were asked personal questions."
-#' intro_phobia <- gsub('\n', ' ', intro_phobia) |>
-#' stringr::str_squish()
+#' plot.MCA(
+#'   res_mca_phobia,
+#'   choix = "ind",
+#'   invisible = c("var", "quali.sup"),
+#'   label = "none"
+#' )
 #'
-#' res_phobia <- nail_condes(phobia_work,
-#'                           num.var = 1,
-#'                           introduction = intro_phobia,
-#'                           generate = TRUE)
+#' # Add the first MCA dimension to the original data.
+#' phobia_work <- res_mca_phobia$ind$coord |>
+#'   as.data.frame()
+#'
+#' phobia_work <- phobia_work[, 1] |>
+#'   cbind(glossophobia)
+#'
+#' intro_phobia <- "These data were collected in a survey
+#' about participants' feelings regarding public speaking.
+#' Participants rated their agreement with 25 descriptions
+#' of public speaking and then answered several personal questions."
+#'
+#' intro_phobia <- gsub("\n", " ", intro_phobia) |>
+#'   stringr::str_squish()
+#'
+#' # The first MCA dimension is a constructed continuum.
+#' # In latent mode, its meaning is inferred from the strongest
+#' # quantitative and qualitative associations.
+#' res_phobia <- nail_condes(
+#'   dataset = phobia_work,
+#'   num.var = 1,
+#'   introduction = intro_phobia,
+#'   interpretation_mode = "latent",
+#'   target_label = "First MCA dimension",
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
 #'
 #' cat(res_phobia$response)
 #'
-#' ### Example 4: beard_cont dataset ###
+#'
+#' ### Example 4: beard_cont dataset and prompt-only mode ###
 #'
 #' data(beard_cont)
 #'
+#' # Construct a correspondence analysis.
 #' set.seed(1)
-#' res_ca_beard <- FactoMineR::CA(beard_cont, graph = FALSE)
-#' plot.CA(res_ca_beard, invisible = 'col')
 #'
-#' beard_work <- res_ca_beard$row$coord |> as.data.frame()
-#' beard_work <- beard_work[,1] |> cbind(beard_cont)
+#' res_ca_beard <- CA(
+#'   beard_cont,
+#'   graph = FALSE
+#' )
 #'
-#' intro_beard <- "These data refer to 8 types of beards.
+#' plot.CA(
+#'   res_ca_beard,
+#'   invisible = "col"
+#' )
+#'
+#' # Add the first CA dimension to the original table.
+#' beard_work <- res_ca_beard$row$coord |>
+#'   as.data.frame()
+#'
+#' beard_work <- beard_work[, 1] |>
+#'   cbind(beard_cont)
+#'
+#' intro_beard <- "These data refer to eight types of beards.
 #' Each beard was evaluated by 62 assessors."
-#' intro_beard <- gsub('\n', ' ', intro_beard) |>
-#' stringr::str_squish()
 #'
-#' req_beard <- "Please explain what differentiates beards
-#' on both sides of the scale.
-#' Then, give the scale a name."
-#' req_beard <- gsub('\n', ' ', req_beard) |>
-#' stringr::str_squish()
+#' intro_beard <- gsub("\n", " ", intro_beard) |>
+#'   stringr::str_squish()
 #'
-#' res_beard <- nail_condes(beard_work,
-#'                          num.var = 1,
-#'                          quanti.threshold = 0.5,
-#'                          quanti.cat = c('Very often used', 'Never used', 'Sometimes used'),
-#'                          introduction = intro_beard,
-#'                          request = req_beard)
+#' req_beard <- "Please explain what differentiates the beards
+#' at the two ends of the scale.
+#' Then propose a name for the scale."
 #'
-#' res_beard
+#' req_beard <- gsub("\n", " ", req_beard) |>
+#'   stringr::str_squish()
 #'
-#' ppt <- stringr::str_replace_all(res_beard, 'observations', 'beards')
-#' cat(ppt)
+#' # The first CA dimension is a latent statistical dimension.
+#' #
+#' # Here generate = FALSE is used deliberately:
+#' # NaileR constructs and returns the complete prompt,
+#' # but no LLM backend is called.
+#' prompt_beard <- nail_condes(
+#'   dataset = beard_work,
+#'   num.var = 1,
+#'   quanti.threshold = 0.5,
+#'   quanti.cat = c(
+#'     "Very often used",
+#'     "Never used",
+#'     "Sometimes used"
+#'   ),
+#'   introduction = intro_beard,
+#'   request = req_beard,
+#'   interpretation_mode = "latent",
+#'   target_label = "First CA dimension",
+#'   generate = FALSE
+#' )
 #'
-#' res_beard <- ollamar::generate(model = 'llama3', prompt = ppt, output = 'text')
+#' # Display and inspect the prompt before any generation.
+#' cat(prompt_beard)
 #'
-#' cat(res_beard)
+#' # The same analysis can then be generated explicitly with Ollama.
+#' res_beard <- nail_condes(
+#'   dataset = beard_work,
+#'   num.var = 1,
+#'   quanti.threshold = 0.5,
+#'   quanti.cat = c(
+#'     "Very often used",
+#'     "Never used",
+#'     "Sometimes used"
+#'   ),
+#'   introduction = intro_beard,
+#'   request = req_beard,
+#'   interpretation_mode = "latent",
+#'   target_label = "First CA dimension",
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#'
+#' cat(res_beard$response)
 #' }
-#'
 nail_condes <- function(dataset, num.var,
                         introduction = NULL,
                         request = NULL,
@@ -703,7 +975,6 @@ nail_condes <- function(dataset, num.var,
                         generate = FALSE,
                         interpretation_mode = c("standard", "latent"),
                         prompt_style = c("detailed", "compact"),
-                        target_concept = "the target concept",
                         target_label = NULL,
                         ...) {
 
@@ -747,7 +1018,6 @@ nail_condes <- function(dataset, num.var,
   if (is.null(request)) {
     request <- build_request_condes(
       mode = interpretation_mode,
-      target_concept = target_concept,
       target_label = target_label,
       prompt_style = prompt_style
     )
