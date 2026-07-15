@@ -2,738 +2,245 @@
 % Please edit documentation in R/nail_qda_space.R
 \name{nail_qda_space}
 \alias{nail_qda_space}
-\title{Interpret a product sensory space built from QDA adjusted means}
+\title{Interpret a QDA product space with traceable mechanical evidence}
 \usage{
 nail_qda_space(
   x,
-  profile_summary = NULL,
-  llm_product_summaries = NULL,
-  ncp = 2,
-  scale.unit = TRUE,
+  product_expertise = NULL,
+  interpretation_level = c("both", "axis", "portfolio"),
+  expertise_scope = c("cross_functional", "sensory", "formulation", "marketing",
+    "consumer", "innovation"),
+  ncp = 3,
+  scale.unit = FALSE,
   min_inertia_pct = 10,
   top_n_var = 5,
   top_n_products = 2,
-  expertise_mode = c("sensory", "positioning", "hybrid"),
+  context = NULL,
   introduction = NULL,
   request = NULL,
   conclusion = NULL,
   model = "llama3",
   provider = c("ollama", "gemini"),
   generate = FALSE,
+  profile_summary = NULL,
+  llm_product_summaries = NULL,
+  expertise_mode = NULL,
   ...
 )
 }
 \arguments{
-\item{x}{An object providing the result of the QDA product
-characterization.
+\item{x}{An object returned by \code{\link[=nail_qda]{nail_qda()}}. It must contain the
+\code{"decat_result"}, \code{"product_profiles"}, and normally \code{"qda_settings"}
+attributes. Passing a raw \code{SensoMineR::decat()} result with an \code{adjmean}
+component remains temporarily supported with a deprecation warning, but
+such an object does not contain retained product markers.}
 
-\code{x} may be:
-\itemize{
-\item an object returned by \code{nail_qda()}. This is the recommended workflow.
-The function then extracts the \code{"decat_result"} and
-\code{"profile_summary"} attributes automatically;
-\item a raw result returned by \code{SensoMineR::decat()} containing an \code{adjmean}
-component.
-}
+\item{product_expertise}{Optional structured expertise produced by
+\code{\link[=nail_qda_spaceprep]{nail_qda_spaceprep()}}. The function accepts the complete result, its
+\code{product_expertise} component, an attached \code{"product_expertise"} object,
+or the already extracted \code{list(portfolio, products, metadata)} object.
+Products absent from the PCA are ignored with a warning. Missing product
+expertise never prevents the mechanical analysis.}
 
-The \code{adjmean} component must contain products in rows and quantitative
-sensory attributes in columns.}
+\item{interpretation_level}{One of \code{"axis"}, \code{"portfolio"}, or \code{"both"}.
+\code{"axis"} builds one interpretation unit per retained PCA dimension;
+\code{"portfolio"} builds one global unit from all retained dimensions and the
+product geometry; \code{"both"} builds both kinds of units. The default is
+\code{"both"}.}
 
-\item{profile_summary}{Optional advanced argument containing deterministic
-product-level summaries.
+\item{expertise_scope}{Interpretive perspective. One of \code{"sensory"},
+\code{"formulation"}, \code{"marketing"}, \code{"consumer"}, \code{"innovation"}, or
+\code{"cross_functional"}. This argument changes prompts only.}
 
-Most users should leave this argument as \code{NULL}.
+\item{ncp}{Positive integer giving the maximum requested number of PCA
+dimensions. The effective value is limited by the centered rank of the
+adjusted-mean table and is recorded in \code{qda_space_evidence$settings}.}
 
-When \code{x} is returned by \code{nail_qda()}, the \code{"profile_summary"} attribute
-is extracted automatically. Supplying \code{profile_summary} explicitly
-overrides the automatically extracted value.
+\item{scale.unit}{Logical passed to \code{FactoMineR::PCA()}. The default is
+\code{FALSE}, preserving the relative dispersions of attributes measured on
+comparable scales.}
 
-This argument is mainly useful when \code{x} is a raw
-\code{SensoMineR::decat()} result and compatible product summaries are
-available separately.
+\item{min_inertia_pct}{Minimum individual percentage of inertia required for
+a dimension to be retained for automatic interpretation.}
 
-Each named element may contain:
-\itemize{
-\item \code{above}: sensory attributes above the average product profile;
-\item \code{below}: sensory attributes below the average product profile;
-\item \code{profile_strength}: an indication of how clearly the product differs
-from the average profile.
-}
+\item{top_n_var}{Maximum number of variables selected on each non-neutral
+side of a retained dimension.}
 
-These summaries are used only to enrich the textual description of
-products located at the ends of the PCA dimensions. They do not affect
-the adjusted mean table, the PCA, the eigenvalues, the product
-coordinates, or the retained dimensions.}
+\item{top_n_products}{Maximum number of products selected on each
+non-neutral side of a retained dimension.}
 
-\item{llm_product_summaries}{An optional named list of structured product
-summaries, typically returned by
-\code{nail_qda_spaceprep(generate = TRUE)}.
+\item{context}{Optional named product context list with fields \code{category},
+\code{products}, \code{formulation}, \code{brand}, \code{market}, \code{consumers}, \code{usage}, and
+\code{constraints}. It is clearly separated from statistical evidence.}
 
-Product names must correspond to the row names of the adjusted mean
-table.
+\item{introduction}{Optional free-text study context. It is treated as
+user-provided context, not as statistical evidence.}
 
-When a valid LLM summary is available for a product, its
-\code{injectable_summary}, \code{positioning_cues}, and \code{profile_clarity} fields
-are included in the product-level evidence.
+\item{request}{Optional additional interpretation request. It supplements
+the mandatory task and JSON contract but cannot remove traceability or
+epistemic requirements.}
 
-When no usable LLM summary is available for a product, the function falls
-back to the corresponding deterministic summary extracted from
-\code{nail_qda()}, when available.
+\item{conclusion}{Optional additional synthesis instruction. The strict JSON
+schema remains mandatory.}
 
-Results from \code{nail_qda_spaceprep(generate = FALSE)} contain prompts only
-and therefore do not provide parsed product summaries suitable for this
-argument.
+\item{model}{Model name used when \code{generate = TRUE}.}
 
-These summaries affect only the prompt. They do not modify the PCA.}
+\item{provider}{LLM provider, \code{"ollama"} or \code{"gemini"}.}
 
-\item{ncp}{A single integer greater than or equal to 1 giving the requested
-number of PCA dimensions to compute. The default is \code{2}.
+\item{generate}{Logical. With \code{FALSE}, all PCA computations, evidence,
+selections, geometry, and prompts are created without an LLM call. With
+\code{TRUE}, each requested unit is generated and parsed as strict JSON.}
 
-The effective number of dimensions is automatically limited by the
-number of products and sensory attributes. It cannot exceed the smallest
-of:
-\itemize{
-\item the requested value;
-\item the number of products minus one;
-\item the number of sensory attributes.
-}
+\item{profile_summary}{Deprecated compatibility argument. Product profiles
+are now read from \code{attr(x, "product_profiles")}.}
 
-Computing a dimension does not necessarily mean that it will be
-interpreted. Automatic interpretation is also controlled by
-\code{min_inertia_pct}.}
+\item{llm_product_summaries}{Deprecated compatibility argument. Use
+\code{product_expertise} instead. Supplying both arguments is an error.}
 
-\item{scale.unit}{Logical indicating whether the sensory attributes should
-be standardized to unit variance before PCA. The default is \code{TRUE}.
+\item{expertise_mode}{Deprecated compatibility argument. \code{"sensory"} maps
+to \code{expertise_scope = "sensory"}, \code{"positioning"} to \code{"innovation"}, and
+\code{"hybrid"} to \code{"cross_functional"} when \code{expertise_scope} is omitted.}
 
-With \code{scale.unit = TRUE}, each sensory attribute is standardized to unit
-variance before PCA. This gives the attributes comparable weights in the
-construction of the product space and prevents attributes with greater
-dispersion from dominating the analysis solely because of their
-variability.
-
-This setting is generally appropriate when the objective is to give each
-sensory attribute an equivalent role in the analysis.
-
-With \code{scale.unit = FALSE}, the adjusted mean variables are centered but
-their original variances are retained. Attributes with greater variation
-across products may therefore contribute more strongly to the product
-space.
-
-This alternative may be appropriate when all attributes were measured on
-comparable scales and their differences in dispersion are considered
-substantively meaningful.
-
-Changing this argument changes the PCA itself and may therefore alter the
-dimensions, eigenvalues, product coordinates, and resulting
-interpretations.}
-
-\item{min_inertia_pct}{A numeric value between 0 and 100 giving the minimum
-percentage of inertia that a PCA dimension must explain to be interpreted
-automatically. The default is \code{10}.
-
-For example, with \code{ncp = 4} and \code{min_inertia_pct = 10}, up to four
-dimensions are computed, but prompts are produced only for dimensions
-that individually explain at least 10 percent of the total inertia.
-
-This threshold is applied to each dimension separately, not to the
-cumulative percentage of inertia.}
-
-\item{top_n_var}{A single integer greater than or equal to 1 giving the
-maximum number of sensory attributes displayed on each side of a
-dimension. The default is \code{5}.
-
-The attributes are ranked by the absolute value of their correlation with
-the PCA dimension. Up to \code{top_n_var} positively associated attributes and
-up to \code{top_n_var} negatively associated attributes are retained.
-
-Consequently, as many as \code{2 * top_n_var} attributes may be displayed for
-one dimension.}
-
-\item{top_n_products}{A single integer greater than or equal to 1 giving the
-maximum number of products displayed at each end of a PCA dimension. The
-default is \code{2}.
-
-Products are ranked using their coordinates on the current dimension.
-Up to \code{top_n_products} products with the most negative coordinates and up
-to \code{top_n_products} products with the most positive coordinates are
-retained.
-
-Consequently, as many as \code{2 * top_n_products} products may be displayed
-for one dimension.}
-
-\item{expertise_mode}{Character string controlling the interpretive
-perspective used in the prompt. One of \code{"sensory"}, \code{"positioning"}, or
-\code{"hybrid"}.
-
-With \code{"sensory"}, the interpretation focuses on sensory and perceptual
-oppositions. Axis descriptions should remain closely anchored in the
-sensory attributes.
-
-With \code{"positioning"}, the interpretation may extend from the sensory
-evidence to broader product styles, product poles, or forms of
-positioning.
-
-With \code{"hybrid"}, the interpretation first identifies the sensory
-opposition and may then propose a broader product contrast while keeping
-the sensory evidence primary.
-
-This argument changes only the prompt instructions. It does not change
-the adjusted mean table or the PCA.}
-
-\item{introduction}{An optional character string providing the study
-context for the interpretation prompt.
-
-A useful introduction may explain:
-\itemize{
-\item which products were evaluated;
-\item which sensory panel or assessment procedure was used;
-\item what the sensory attributes represent;
-\item the purpose of the product-space analysis.
-}
-
-If \code{NULL}, a default introduction is created according to
-\code{expertise_mode}.}
-
-\item{request}{An optional character string specifying the interpretation
-requested from the language model.
-
-If \code{NULL}, a default request is created according to \code{expertise_mode}.
-The default request asks the model to interpret each retained dimension
-from the sensory attributes and the products located at its two ends.}
-
-\item{conclusion}{An optional character string defining the expected final
-synthesis and output format.
-
-If \code{NULL}, a default conclusion is created according to
-\code{expertise_mode}. The default asks for a structured interpretation of the
-main opposition, the two ends of the dimension, and the products that
-illustrate them.}
-
-\item{model}{Character string giving the language model used by the selected
-provider. The default is \code{"llama3"}, intended for the default Ollama
-backend.}
-
-\item{provider}{LLM backend used when \code{generate = TRUE}. One of
-\code{"ollama"} or \code{"gemini"}.
-
-The default is \code{"ollama"}, which uses a local Ollama installation.
-
-Gemini requires a valid API key, typically supplied through the
-\code{GEMINI_API_KEY} environment variable.}
-
-\item{generate}{Logical.
-
-If \code{FALSE}, no language model is called and the function returns one
-prompt per retained dimension.
-
-If \code{TRUE}, each prompt is sent separately to the selected LLM backend and
-the function returns one generated result per retained dimension.}
-
-\item{...}{Additional provider-specific generation arguments passed to the
-selected LLM backend, such as \code{temperature}, \code{seed}, or other supported
-options.}
+\item{...}{Additional provider-specific generation arguments.}
 }
 \value{
-The returned object depends on \code{generate} and on whether at least one PCA
-dimension reaches \code{min_inertia_pct}.
-
-When at least one dimension is retained and \code{generate = FALSE}, a named
-list of character prompts is returned. The names are of the form \code{"Dim1"},
-\code{"Dim2"}, and so on.
-
-The following attributes are attached to the list:
+A structured object with components:
 \itemize{
-\item \code{"qda_space"}: a list containing the complete PCA result, the adjusted
-mean table, the eigenvalue table, the retained axis indices,
-\code{scale.unit}, and \code{min_inertia_pct};
-\item \code{"profile_summary"}: the deterministic product summaries used in the
-product-level evidence, when available;
-\item \code{"llm_profile_summaries"}: the normalized LLM product summaries used in
-the product-level evidence, when available.
+\item \code{prompt}: axis prompts and/or a portfolio prompt;
+\item \code{response}: raw LLM responses, or \code{NULL} placeholders when not generated;
+\item \code{parsed}: explicit parsing results for every unit;
+\item \code{qda_space_evidence}: the complete mechanical evidence object;
+\item \code{axis_interpretations}: validated axis interpretations when generated;
+\item \code{portfolio_interpretation}: the validated portfolio interpretation when
+generated;
+\item \code{product_expertise}: the normalized optional prior expertise;
+\item \code{metadata}: interpretation and provider settings.
 }
 
-When at least one dimension is retained and \code{generate = TRUE}, a named list
-is returned, with one generated result per retained dimension.
-
-Each generated result is a data frame returned by the selected LLM backend
-and includes a \code{prompt} column containing the exact prompt sent to the
-model.
-
-The same \code{"qda_space"}, \code{"profile_summary"}, and
-\code{"llm_profile_summaries"} attributes are attached to the returned list.
-
-When no dimension reaches \code{min_inertia_pct}:
-\itemize{
-\item with \code{generate = FALSE}, an informative character string is returned and
-the complete product-space object is stored in its \code{"qda_space"}
-attribute;
-\item with \code{generate = TRUE}, no LLM is called and an empty list is returned.
-}
+Compatibility attributes \code{"qda_space"}, \code{"qda_space_evidence"},
+\code{"product_expertise"}, and \code{"profile_summary"} are attached when relevant.
 }
 \description{
-Builds a principal component analysis of the adjusted product means
-obtained from \code{SensoMineR::decat()}, identifies the main sensory
-oppositions structuring the product space, and prepares one interpretation
-prompt for each retained PCA dimension.
+\code{nail_qda_space()} constructs a principal component analysis from the
+adjusted product means produced by \code{\link[=nail_qda]{nail_qda()}}, creates a complete and
+deterministic \code{qda_space_evidence} object, and optionally asks a language
+model to interpret individual axes, the complete product portfolio, or both.
+
+The statistical layer is produced exclusively by R. Product expertise from
+\code{\link[=nail_qda_spaceprep]{nail_qda_spaceprep()}} is optional and is presented to the language model as
+a prior interpretive layer; it never changes the PCA, retained axes,
+coordinates, contributions, cos2 values, distances, nearest neighbors, or
+mechanical selections.
 }
 \details{
-The function combines two complementary sources of evidence:
+\subsection{Mechanical evidence}{
+
+\code{qda_space_evidence} contains:
 \itemize{
-\item sensory attributes that are positively or negatively associated with
-each PCA dimension;
-\item products located at the negative and positive ends of each dimension.
+\item \code{adjusted_means}: the exact product-by-attribute table used for PCA;
+\item \code{pca_result}: the complete \code{FactoMineR::PCA()} result;
+\item \code{eigenvalues}: dimension, eigenvalue, individual inertia percentage, and
+cumulative percentage;
+\item \code{retained_axes}: dimensions meeting \code{min_inertia_pct};
+\item \code{axes}: complete variable and product tables with coordinates,
+correlations where applicable, contributions, cos2, sides, deterministic
+ranks, mechanical selections, and linked product profiles;
+\item \code{product_geometry}: product coordinates, cos2, contributions, distances to
+the origin, pairwise Euclidean distances, and deterministically resolved
+nearest-neighbor ties;
+\item \code{evidence_registry}: the central registry of all evidence IDs that an LLM
+is allowed to cite;
+\item \code{settings}: the statistical and mechanical rules used to build the object.
 }
 
-When \code{x} is an object returned by \code{nail_qda()}, deterministic product
-summaries are extracted automatically and used to make the extreme
-products more concrete. These summaries do not affect the PCA.
+Geometry distances use all computed PCA dimensions, not only dimensions that
+cross the interpretation threshold. This rule is explicit in
+\code{settings$geometry_dimensions} and \code{settings$geometry_distance_rule}.
 
-Product-level evidence may optionally be enriched with structured LLM
-summaries produced by \code{nail_qda_spaceprep(generate = TRUE)}.
-
-By default, no language model is called. The function returns the prompts
-and the complete product-space object so that the statistical structure can
-be inspected before generation.
-\subsection{Construction of the product space}{
-
-The function extracts the adjusted mean table from:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{decat_result$adjmean
-}\if{html}{\out{</div>}}
-
-This table has:
-\itemize{
-\item products or stimuli in rows;
-\item sensory attributes in columns;
-\item adjusted sensory means in the cells.
+Variables and products are assigned to \code{"negative"}, \code{"positive"}, or
+\code{"neutral"} using a numerical tolerance. Within each non-neutral side,
+selection is ordered by descending absolute coordinate, with labels used to
+resolve exact ties deterministically. Contribution and cos2 remain available
+so that an interpretation can distinguish axis construction from quality of
+representation.
 }
 
-The adjusted means are estimates obtained from the ANOVA models fitted by
-\code{SensoMineR::decat()}. They account for the factors included in the QDA
-model, such as panelist effects.
+\subsection{Evidence identifiers}{
 
-A PCA is then computed with \code{FactoMineR::PCA()}. In this PCA:
-\itemize{
-\item products are the individuals;
-\item sensory attributes are the quantitative variables;
-\item PCA dimensions summarize the main sensory oppositions between products.
+Axis and geometry evidence identifiers include forms such as
+\verb{Dim1::variable::Bitterness}, \verb{Dim1::product::A},
+\verb{geometry::distance::A::B}, and
+\verb{geometry::nearest_neighbor::A::B}. Pairwise distance identifiers use a
+canonical lexicographic product order. Product-profile marker identifiers
+from \code{\link[=nail_qda]{nail_qda()}} retain their exact historical form such as
+\code{A::Bitterness}; complete adjusted means additionally receive identifiers
+such as \verb{product_profile::A::Bitterness}.
 }
 
-The result is a multidimensional product space in which products with
-similar adjusted sensory profiles tend to be positioned close to one
-another.
+\subsection{JSON interpretation}{
 
-The PCA is computed exclusively from the adjusted mean table. Neither
-\code{profile_summary} nor \code{llm_product_summaries} contributes to the statistical
-construction of the product space.
+Prompts always present sources in this order: role, space geometry evidence,
+product sensory profiles, optional product expertise, user-provided context,
+interpretation task, mandatory epistemic rules, and output schema. Product
+expertise is explicitly labelled as an earlier interpretation and never as
+PCA evidence.
+
+Valid statuses are \code{expert_interpretation}, \code{hypothesis}, \code{recommendation},
+and \code{user_context}. Every non-context claim must cite existing evidence IDs.
+Hypotheses and recommendations require a non-empty \code{validation_needed} field.
+Invalid JSON or invalid evidence produces \code{parse_status = "error"} and an
+informative \code{parse_error}; no partial structure is silently invented.
 }
 
-\subsection{Selection of interpreted dimensions}{
+\subsection{Invariance}{
 
-The function first computes up to \code{ncp} dimensions. It then retains only
-those dimensions whose individual percentage of inertia is greater than or
-equal to \code{min_inertia_pct}.
-
-A separate prompt is created for each retained dimension.
-
-A dimension explaining less than \code{min_inertia_pct} is still present in the
-PCA object when it was computed, but it is not interpreted automatically.
-
-When no computed dimension reaches the threshold, no LLM call is made. With
-\code{generate = FALSE}, the function returns an informative character message
-with the complete product-space object stored in the \code{"qda_space"}
-attribute.
-}
-
-\subsection{Variable-level evidence}{
-
-For each retained dimension, the function extracts the correlations between
-the sensory attributes and that dimension.
-
-The attributes with the strongest positive correlations describe one side
-of the sensory opposition. The attributes with the strongest negative
-correlations describe the opposite side.
-
-The sign of a PCA axis is arbitrary. Reversing all signs would produce an
-equivalent PCA solution. The interpretation must therefore focus on the
-contrast between the two ends of the dimension rather than assigning an
-intrinsic meaning to the positive or negative side.
-
-For example, an axis opposing sweetness and milkiness to bitterness and
-cocoa intensity should be interpreted as this sensory contrast, regardless
-of which group of attributes appears on the positive side.
-
-The number of attributes displayed is controlled by \code{top_n_var}.
-}
-
-\subsection{Product-level evidence}{
-
-The function also identifies the products with the most negative and most
-positive coordinates on each retained dimension.
-
-These extreme products provide concrete illustrations of the sensory
-opposition identified from the variable correlations.
-
-The number of products displayed at each end is controlled by
-\code{top_n_products}.
-
-Product-level evidence should be interpreted together with the
-variable-level evidence. When both sources do not align perfectly, the
-variable correlations define the main structure of the dimension and the
-products should be treated as illustrations rather than as the sole basis
-for naming the axis.
-}
-
-\subsection{Deterministic product summaries}{
-
-When \code{x} comes from \code{nail_qda()}, the function automatically retrieves the
-\code{"profile_summary"} attribute.
-
-These summaries are compact reformulations of the product-specific QDA
-results. For an extreme product, they may indicate:
-\itemize{
-\item sensory attributes above the average product profile;
-\item sensory attributes below the average product profile;
-\item an indication of the clarity or strength of the product profile.
-}
-
-Their purpose is to transform a purely geometric statement such as:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Product A is located at the negative end of Dimension 1.
-}\if{html}{\out{</div>}}
-
-into a more concrete sensory description such as:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Product A is located at the negative end and is characterized by more
-bitterness and cocoa intensity and less sweetness and milk flavor than the
-average product profile.
-}\if{html}{\out{</div>}}
-
-These summaries do not provide a new statistical analysis. They reorganize
-information already produced by \code{nail_qda()} and are used only to enrich
-the product-level section of the prompt.
-
-Users following the recommended workflow do not need to extract, inspect,
-or supply \code{profile_summary} manually.
-
-When \code{x} is a raw \code{decat()} result and no \code{profile_summary} is supplied,
-the products can still be located and interpreted from their PCA
-coordinates, but their product-specific sensory summaries are not added.
-}
-
-\subsection{Optional LLM product summaries}{
-
-\code{nail_qda_spaceprep()} may be used before \code{nail_qda_space()} to generate
-short structured interpretations of the individual product profiles.
-
-These summaries are optional. They are not required to compute the PCA or
-to interpret the product-space dimensions.
-
-When supplied through \code{llm_product_summaries}, they may add:
-\itemize{
-\item a short product profile;
-\item a positioning cue;
-\item an indication of profile clarity;
-\item a reusable summary sentence.
-}
-
-For a given product, the LLM summary is used when it contains a valid
-\code{injectable_summary}. Otherwise, the function falls back to the
-deterministic summary extracted from \code{nail_qda()}, when available.
-
-The simpler and recommended initial workflow is:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{qda_result <- nail_qda(...)
-space_prompts <- nail_qda_space(x = qda_result)
-}\if{html}{\out{</div>}}
-
-An optional enriched workflow is:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{qda_result <- nail_qda(...)
-
-product_summaries <- nail_qda_spaceprep(
-  ...,
-  generate = TRUE
-)
-
-space_prompts <- nail_qda_space(
-  x = qda_result,
-  llm_product_summaries = product_summaries
-)
-}\if{html}{\out{</div>}}
-}
-
-\subsection{Expertise modes}{
-
-The same PCA evidence can be presented from three interpretive
-perspectives.
-
-In \code{"sensory"} mode, axis interpretations should remain close to the
-sensory attributes and perceptual contrasts.
-
-In \code{"positioning"} mode, broader product styles may be inferred, but they
-must remain grounded in the sensory evidence.
-
-In \code{"hybrid"} mode, the interpretation should first establish the sensory
-contrast and only then consider a broader product meaning.
-
-When \code{nail_qda_spaceprep()} is also used, applying the same
-\code{expertise_mode} in both functions generally produces the most coherent
-chain of interpretation.
-}
-
-\subsection{Prompt construction and generation}{
-
-Each retained dimension produces a separate prompt combining:
-\itemize{
-\item the study introduction;
-\item a statistical reading guide;
-\item the requested interpretation task;
-\item the percentage of inertia explained by the dimension;
-\item the sensory attributes associated with both sides of the dimension;
-\item the products positioned at both ends;
-\item optional deterministic or LLM-generated product descriptions;
-\item the requested final synthesis.
-}
-
-By default, \code{generate = FALSE}, allowing the prompts and PCA results to be
-inspected before any LLM call.
-
-When \code{generate = TRUE}, one independent request is sent for each retained
-dimension.
-
-The generated response is an assisted interpretation of the PCA evidence.
-It does not replace examination of the PCA maps, eigenvalues, contributions,
-cosines, QDA model assumptions, panel performance, product-by-panelist
-interactions, or other diagnostic information.
-
-The interpretation is descriptive and should not be presented as a causal
-conclusion.
+At fixed data and statistical parameters, \code{qda_space_evidence} is independent
+of \code{generate}, \code{request}, \code{expertise_scope}, \code{interpretation_level}, provider,
+model, and optional product expertise. Those arguments may change prompts,
+generation units, interpretations, and LLM metadata only.
 }
 }
 \examples{
 \dontrun{
-# These examples use the sensochoc dataset from SensoMineR.
-#
-# The first examples construct and inspect the product space
-# without calling a language model.
-#
-# The final examples use Ollama and may therefore take more than
-# ten seconds to run.
-
 library(NaileR)
 library(SensoMineR)
+data("chocolates", package = "SensoMineR")
 
-data(chocolates, package = "SensoMineR")
-
-
-### Example 1: recommended workflow without an LLM ###
-
-# First characterize the sensory profile of each chocolate.
-#
-# Product is the first term in the model because it is the factor
-# whose levels are characterized.
-#
-# Panelist is included to account for systematic differences
-# between panelists.
-qda_choc <- nail_qda(
+qda <- nail_qda(
   dataset = sensochoc,
   formul = "~Product+Panelist",
   firstvar = 5,
   lastvar = ncol(sensochoc),
-  product_knowledge = "known",
   generate = FALSE
 )
 
-# Build the PCA of the adjusted product means.
-#
-# scale.unit = TRUE is the default: each sensory attribute
-# is standardized to unit variance before PCA.
-#
-# The deterministic product summaries produced by nail_qda()
-# are extracted automatically. The user does not need to supply
-# profile_summary.
-#
-# No LLM is called because generate = FALSE.
-space_prompts <- nail_qda_space(
-  x = qda_choc,
-  ncp = 3,
-  min_inertia_pct = 10,
-  top_n_var = 5,
-  top_n_products = 2,
-  expertise_mode = "sensory",
-  generate = FALSE
-)
-
-# Display the retained dimensions.
-names(space_prompts)
-
-# Display the prompt constructed for the first retained dimension.
-cat(space_prompts[[1]])
-
-
-### Example 2: inspect the statistical product-space object ###
-
-# Recover the complete statistical object attached to the prompts.
-space_choc <- attr(space_prompts, "qda_space")
-
-# Verify the scaling choice used in the PCA.
-space_choc$scale.unit
-
-# Inspect the adjusted mean table used as input to the PCA.
-space_choc$adjmean
-
-# Inspect the eigenvalues and percentages of inertia.
-space_choc$eig
-
-# Identify the dimensions retained for automatic interpretation.
-space_choc$retained_axes
-
-# Inspect the original FactoMineR PCA result.
-names(space_choc$pca_result)
-
-# Plot the products.
-plot.PCA(
-  space_choc$pca_result,
-  choix = "ind"
-)
-
-# Plot the sensory attributes.
-plot.PCA(
-  space_choc$pca_result,
-  choix = "var"
-)
-
-
-### Example 3: use a raw decat result ###
-
-# A raw decat result can be supplied directly.
-decat_choc <- attr(qda_choc, "decat_result")
-
-# The PCA can be constructed without manually supplying
-# profile_summary.
-#
-# In this case, the products are located from their PCA coordinates,
-# but the deterministic product summaries attached to qda_choc
-# are not available to enrich their descriptions.
-raw_space_prompts <- nail_qda_space(
-  x = decat_choc,
-  ncp = 3,
-  scale.unit = TRUE,
-  min_inertia_pct = 10,
-  expertise_mode = "sensory",
-  generate = FALSE
-)
-
-cat(raw_space_prompts[[1]])
-
-
-### Example 4: compare scaling choices ###
-
-# PCA with unit-variance scaling, which is the default.
-space_scaled <- nail_qda_space(
-  x = qda_choc,
-  ncp = 3,
-  scale.unit = TRUE,
-  min_inertia_pct = 0,
-  generate = FALSE
-)
-
-# PCA without unit-variance scaling.
-space_unscaled <- nail_qda_space(
-  x = qda_choc,
+space <- nail_qda_space(
+  x = qda,
   ncp = 3,
   scale.unit = FALSE,
-  min_inertia_pct = 0,
+  interpretation_level = "both",
   generate = FALSE
 )
 
-# Compare the percentages of inertia.
-attr(space_scaled, "qda_space")$eig
-attr(space_unscaled, "qda_space")$eig
+space$qda_space_evidence$retained_axes
+space$qda_space_evidence$product_geometry$nearest_neighbors
+cat(space$prompt$axes[[1]])
 
-
-### Example 5: prepare optional LLM summaries for each product ###
-
-# Ollama must be running locally and the llama3 model
-# must be installed.
-#
-# This preparation step is optional. It is not required to compute
-# the PCA or to construct the product-space prompts.
-#
-# The same expertise mode is used in the preparation step
-# and in the final product-space interpretation.
-product_summaries <- nail_qda_spaceprep(
-  dataset = sensochoc,
-  formul = "~Product+Panelist",
-  firstvar = 5,
-  lastvar = ncol(sensochoc),
-  product_knowledge = "known",
-  expertise_mode = "sensory",
-  provider = "ollama",
-  model = "llama3",
+expertise <- nail_qda_spaceprep(
+  x = qda,
+  expertise_scope = "cross_functional",
   generate = TRUE
 )
 
-# Inspect the parsed summary of the first product.
-product_summaries[[1]]$parsed
-
-# Add the structured summaries to the product-space prompts
-# without generating the final axis interpretations yet.
-enriched_prompts <- nail_qda_space(
-  x = qda_choc,
-  llm_product_summaries = product_summaries,
-  ncp = 3,
-  min_inertia_pct = 10,
-  expertise_mode = "sensory",
-  generate = FALSE
-)
-
-cat(enriched_prompts[[1]])
-
-
-### Example 6: generate the final interpretation of each dimension ###
-
-space_results <- nail_qda_space(
-  x = qda_choc,
-  llm_product_summaries = product_summaries,
-  ncp = 3,
-  scale.unit = TRUE,
-  min_inertia_pct = 10,
-  top_n_var = 5,
-  top_n_products = 2,
-  expertise_mode = "sensory",
-  provider = "ollama",
-  model = "llama3",
+enriched <- nail_qda_space(
+  x = qda,
+  product_expertise = expertise,
+  interpretation_level = "both",
+  expertise_scope = "cross_functional",
   generate = TRUE
 )
-
-# Display the dimensions interpreted by the LLM.
-names(space_results)
-
-# Display the generated interpretation of the first dimension.
-cat(space_results[[1]]$response)
-
-# Display the exact prompt sent for the first dimension.
-cat(space_results[[1]]$prompt)
-
-
-### Example 7: hybrid interpretation ###
-
-# Hybrid mode first interprets the sensory opposition,
-# then considers a broader product-style contrast.
-hybrid_prompts <- nail_qda_space(
-  x = qda_choc,
-  ncp = 3,
-  min_inertia_pct = 10,
-  expertise_mode = "hybrid",
-  generate = FALSE
-)
-
-cat(hybrid_prompts[[1]])
 }
 }
 \seealso{
-\code{\link[=nail_qda]{nail_qda()}}, \code{\link[=nail_qda_spaceprep]{nail_qda_spaceprep()}}, \code{\link[SensoMineR:decat]{SensoMineR::decat()}},
-\code{\link[FactoMineR:PCA]{FactoMineR::PCA()}}
+\code{\link[=nail_qda]{nail_qda()}}, \code{\link[=nail_qda_spaceprep]{nail_qda_spaceprep()}}, \code{\link[FactoMineR:PCA]{FactoMineR::PCA()}}
 }

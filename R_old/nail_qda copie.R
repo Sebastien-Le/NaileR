@@ -120,28 +120,27 @@ validate_qda_inputs <- function(dataset, formul, firstvar, lastvar,
     dplyr::select("Variable", "Coeff", "Adjust mean", "p.value", "v.test")
 
   if (sample.pct < 1) {
-    target_n <- min(
-      nrow(res_work),
-      max(1L, as.integer(round(nrow(res_work) * sample.pct)))
+    res_work <- sample_numeric_distribution(
+      res_work,
+      num_var_index = which(colnames(res_work) == "v.test"),
+      sample_pct = sample.pct,
+      method = "stratified",
+      bins = 5,
+      return_matrix = FALSE
     )
-
-    # Do not invoke the sampling helper when the requested proportion cannot
-    # reduce the table. This notably covers one-marker product profiles and
-    # avoids a misleading stratification warning for an operation that would
-    # necessarily return the only available row.
-    if (target_n < nrow(res_work)) {
-      res_work <- sample_numeric_distribution(
-        res_work,
-        num_var_index = which(colnames(res_work) == "v.test"),
-        sample_pct = sample.pct,
-        method = "stratified",
-        bins = 5,
-        return_matrix = FALSE
-      )
-    }
   }
 
   res_work
+}
+
+.profile_strength_label <- function(vtests) {
+  if (length(vtests) == 0) return("weak")
+  med <- stats::median(abs(vtests), na.rm = TRUE)
+
+  if (is.na(med)) return("weak")
+  if (med >= 5) return("strong")
+  if (med >= 3) return("moderate")
+  "weak"
 }
 
 .standardize_qda_result_names <- function(df) {
@@ -152,7 +151,6 @@ validate_qda_inputs <- function(dataset, formul, firstvar, lastvar,
   nms <- colnames(df)
 
   # robust handling of R-sanitized names
-  nms[nms %in% c("Coeff", "coef", "Coefficient")] <- "Coeff"
   nms[nms %in% c("Adjust.mean", "Adjust mean")] <- "Adjust mean"
   nms[nms %in% c("P-value", "P.value", "p.value")] <- "p.value"
   nms[nms %in% c("Vtest", "v.test")] <- "v.test"
@@ -161,362 +159,54 @@ validate_qda_inputs <- function(dataset, formul, firstvar, lastvar,
   df
 }
 
-.run_decat_qda <- function(dataset,
-                           formul,
-                           firstvar,
-                           lastvar,
-                           proba) {
-  SensoMineR::decat(
-    dataset,
-    formul = formul,
-    firstvar = firstvar,
-    lastvar = lastvar,
-    proba = proba,
-    graph = FALSE
-  )
-}
-
 # ---------------------------------------------------------------------------
-# Mechanical product profiles
+# Structured profile summary
 # ---------------------------------------------------------------------------
 
-.empty_qda_retained_markers <- function() {
-  data.frame(
-    evidence_id = character(0),
-    product = character(0),
-    attribute = character(0),
-    direction = character(0),
-    coefficient = numeric(0),
-    adjusted_mean = numeric(0),
-    v_test = numeric(0),
-    p_value = numeric(0),
-    abs_v_test = numeric(0),
-    rank = integer(0),
-    stringsAsFactors = FALSE,
-    check.names = FALSE
-  )
-}
-
-.empty_qda_profile_metrics <- function() {
-  list(
-    n_retained = 0L,
-    n_above_average = 0L,
-    n_below_average = 0L,
-    max_abs_v_test = NA_real_,
-    median_abs_v_test = NA_real_,
-    min_p_value = NA_real_
-  )
-}
-
-.has_meaningful_qda_rownames <- function(df) {
-  rn <- rownames(df)
-
-  !is.null(rn) &&
-    length(rn) == nrow(df) &&
-    all(!is.na(rn) & nzchar(rn)) &&
-    !identical(rn, as.character(seq_len(nrow(df))))
-}
-
-.numeric_qda_column <- function(df, name) {
-  if (!name %in% colnames(df)) {
-    return(rep(NA_real_, nrow(df)))
-  }
-
-  suppressWarnings(as.numeric(as.character(df[[name]])))
-}
-
-.build_qda_retained_markers <- function(res_df,
-                                        product,
-                                        adjusted_means = numeric(0)) {
-  if (is.null(res_df) || nrow(as.data.frame(res_df)) == 0) {
-    return(.empty_qda_retained_markers())
-  }
-
-  res_work <- as.data.frame(
-    res_df,
-    check.names = FALSE,
-    stringsAsFactors = FALSE
-  )
-  res_work <- .standardize_qda_result_names(res_work)
-
-  attributes <- if ("Variable" %in% colnames(res_work)) {
-    as.character(res_work[["Variable"]])
-  } else {
-    rownames(res_work)
-  }
-
-  if (is.null(attributes)) {
-    attributes <- rep(NA_character_, nrow(res_work))
-  }
-
-  attributes <- as.character(attributes)
-  coefficient <- .numeric_qda_column(res_work, "Coeff")
-  adjusted_mean <- .numeric_qda_column(res_work, "Adjust mean")
-  v_test <- .numeric_qda_column(res_work, "v.test")
-  p_value <- .numeric_qda_column(res_work, "p.value")
-
-  if (length(adjusted_means) > 0 && !is.null(names(adjusted_means))) {
-    missing_adjusted <- !is.finite(adjusted_mean)
-    matched_means <- unname(adjusted_means[attributes])
-    replaceable <- missing_adjusted & is.finite(matched_means)
-    adjusted_mean[replaceable] <- matched_means[replaceable]
-  }
-
-  direction <- ifelse(
-    is.na(v_test),
-    NA_character_,
-    ifelse(
-      v_test > 0,
-      "higher than overall",
-      ifelse(
-        v_test < 0,
-        "lower than overall",
-        "no signed difference"
-      )
-    )
-  )
-
-  markers <- data.frame(
-    evidence_id = paste(product, attributes, sep = "::"),
-    product = rep(as.character(product), length(attributes)),
-    attribute = attributes,
-    direction = direction,
-    coefficient = coefficient,
-    adjusted_mean = adjusted_mean,
-    v_test = v_test,
-    p_value = p_value,
-    abs_v_test = abs(v_test),
-    rank = seq_along(attributes),
-    stringsAsFactors = FALSE,
-    check.names = FALSE
-  )
-
-  valid_attribute <- !is.na(markers$attribute) &
-    nzchar(trimws(markers$attribute))
-  markers <- markers[valid_attribute, , drop = FALSE]
-
-  if (nrow(markers) == 0) {
-    return(.empty_qda_retained_markers())
-  }
-
-  ordering <- order(
-    -markers$abs_v_test,
-    markers$p_value,
-    markers$attribute,
-    na.last = TRUE
-  )
-  markers <- markers[ordering, , drop = FALSE]
-  markers$rank <- seq_len(nrow(markers))
-  rownames(markers) <- NULL
-
-  if (anyDuplicated(markers$evidence_id)) {
-    stop(
-      sprintf(
-        "Duplicate sensory attribute names prevent deterministic evidence identifiers for product '%s'.",
-        product
-      ),
-      call. = FALSE
-    )
-  }
-
-  markers
-}
-
-.compute_qda_profile_metrics <- function(retained_markers) {
-  if (is.null(retained_markers) || nrow(retained_markers) == 0) {
-    return(.empty_qda_profile_metrics())
-  }
-
-  finite_abs_v <- retained_markers$abs_v_test[
-    is.finite(retained_markers$abs_v_test)
-  ]
-  finite_p <- retained_markers$p_value[
-    is.finite(retained_markers$p_value)
-  ]
-
-  list(
-    n_retained = as.integer(nrow(retained_markers)),
-    n_above_average = as.integer(sum(
-      retained_markers$direction == "higher than overall",
-      na.rm = TRUE
-    )),
-    n_below_average = as.integer(sum(
-      retained_markers$direction == "lower than overall",
-      na.rm = TRUE
-    )),
-    max_abs_v_test = if (length(finite_abs_v) > 0) {
-      max(finite_abs_v)
-    } else {
-      NA_real_
-    },
-    median_abs_v_test = if (length(finite_abs_v) > 0) {
-      stats::median(finite_abs_v)
-    } else {
-      NA_real_
-    },
-    min_p_value = if (length(finite_p) > 0) {
-      min(finite_p)
-    } else {
-      NA_real_
-    }
-  )
-}
-
-.build_qda_product_profiles <- function(res_cd) {
-  quanti <- if (
-    "quanti" %in% names(res_cd) &&
-      is.list(res_cd$quanti)
-  ) {
-    res_cd$quanti
-  } else {
-    list()
-  }
-
-  adjusted_mean_table <- if (
-    "adjmean" %in% names(res_cd) &&
-      !is.null(res_cd$adjmean)
-  ) {
-    as.data.frame(
-      res_cd$adjmean,
-      check.names = FALSE,
-      stringsAsFactors = FALSE
-    )
-  } else {
-    data.frame()
-  }
-
-  quanti_names <- names(quanti)
-  if (is.null(quanti_names)) {
-    quanti_names <- character(0)
-  }
-  quanti_names <- quanti_names[
-    !is.na(quanti_names) & nzchar(quanti_names)
-  ]
-
-  if (
-    nrow(adjusted_mean_table) > 0 &&
-      !.has_meaningful_qda_rownames(adjusted_mean_table) &&
-      length(quanti_names) == nrow(adjusted_mean_table)
-  ) {
-    rownames(adjusted_mean_table) <- quanti_names
-  }
-
-  adjusted_mean_names <- if (nrow(adjusted_mean_table) > 0) {
-    rownames(adjusted_mean_table)
-  } else {
-    character(0)
-  }
-
-  if (is.null(adjusted_mean_names)) {
-    adjusted_mean_names <- character(0)
-  }
-
-  product_names <- unique(c(adjusted_mean_names, quanti_names))
-
-  if (
-    length(product_names) == 0 &&
-      nrow(adjusted_mean_table) > 0
-  ) {
-    product_names <- rownames(adjusted_mean_table)
-  }
-
-  product_names <- product_names[
-    !is.na(product_names) & nzchar(product_names)
-  ]
-
-  profiles <- vector("list", length(product_names))
-  names(profiles) <- product_names
-
-  for (product in product_names) {
-    adjusted_means <- numeric(0)
-
-    if (
-      nrow(adjusted_mean_table) > 0 &&
-        product %in% rownames(adjusted_mean_table)
-    ) {
-      row_values <- unlist(
-        adjusted_mean_table[product, , drop = FALSE],
-        use.names = FALSE
-      )
-      values <- suppressWarnings(as.numeric(row_values))
-      names(values) <- colnames(adjusted_mean_table)
-      adjusted_means <- values
-    }
-
-    res_df <- if (product %in% names(quanti)) {
-      quanti[[product]]
-    } else {
-      NULL
-    }
-
-    retained_markers <- .build_qda_retained_markers(
-      res_df = res_df,
-      product = product,
-      adjusted_means = adjusted_means
-    )
-
-    above_average <- retained_markers[
-      retained_markers$direction == "higher than overall" &
-        !is.na(retained_markers$direction),
-      ,
-      drop = FALSE
-    ]
-
-    below_average <- retained_markers[
-      retained_markers$direction == "lower than overall" &
-        !is.na(retained_markers$direction),
-      ,
-      drop = FALSE
-    ]
-
-    rownames(above_average) <- NULL
-    rownames(below_average) <- NULL
-
-    profiles[[product]] <- list(
-      product = product,
-      adjusted_means = adjusted_means,
-      retained_markers = retained_markers,
-      above_average = above_average,
-      below_average = below_average,
-      metrics = .compute_qda_profile_metrics(retained_markers)
-    )
-  }
-
-  profiles
-}
-
-.derive_qda_profile_summary <- function(product_profiles,
-                                        top_n = 5L) {
-  if (length(product_profiles) == 0) {
+.summarize_qda_profiles <- function(res_cd,
+                                    drop.negative = FALSE,
+                                    top_n = 5) {
+  if (!"quanti" %in% names(res_cd)) {
     return(list())
   }
 
-  top_n <- as.integer(top_n)
-  if (is.na(top_n) || top_n < 0L) {
-    stop("`top_n` must be a non-negative integer.", call. = FALSE)
+  out <- list()
+
+  for (grp_name in names(res_cd$quanti)) {
+    res_df <- res_cd$quanti[[grp_name]]
+    res_work <- .prepare_qda_df(res_df, sample.pct = 1)
+
+    if (is.null(res_work) || nrow(res_work) == 0) {
+      out[[grp_name]] <- list(
+        above = character(0),
+        below = character(0),
+        n_sig = 0,
+        profile_strength = "weak"
+      )
+      next
+    }
+
+    positive_df <- res_work |>
+      dplyr::filter(.data$v.test > 0) |>
+      dplyr::mutate(abs_vtest = abs(.data$v.test)) |>
+      dplyr::arrange(dplyr::desc(.data$abs_vtest), .data$p.value)
+
+    negative_df <- res_work |>
+      dplyr::filter(.data$v.test < 0) |>
+      dplyr::mutate(abs_vtest = abs(.data$v.test)) |>
+      dplyr::arrange(dplyr::desc(.data$abs_vtest), .data$p.value)
+
+    above <- utils::head(positive_df$Variable, top_n)
+    below <- if (drop.negative) character(0) else utils::head(negative_df$Variable, top_n)
+
+    out[[grp_name]] <- list(
+      above = above,
+      below = below,
+      n_sig = nrow(res_work),
+      profile_strength = .profile_strength_label(res_work$v.test)
+    )
   }
 
-  out <- lapply(product_profiles, function(profile) {
-    above <- if (nrow(profile$above_average) > 0) {
-      utils::head(profile$above_average$attribute, top_n)
-    } else {
-      character(0)
-    }
-
-    below <- if (nrow(profile$below_average) > 0) {
-      utils::head(profile$below_average$attribute, top_n)
-    } else {
-      character(0)
-    }
-
-    list(
-      above = as.character(above),
-      below = as.character(below),
-      n_sig = as.integer(profile$metrics$n_retained)
-    )
-  })
-
-  names(out) <- names(product_profiles)
   out
 }
 
@@ -911,7 +601,7 @@ get_prompt_qda <- function(res_cd, introduction, request, conclusion,
 #' language model.
 #'
 #' For each product or stimulus, the function identifies sensory attributes
-#' whose adjusted means are retained as higher or lower than the overall
+#' whose adjusted means are significantly higher or lower than the overall
 #' average profile. The interpretation may be produced for all products
 #' together or separately for each product.
 #'
@@ -1001,10 +691,6 @@ get_prompt_qda <- function(res_cd, introduction, request, conclusion,
 #'   Keeping negative v-tests is generally recommended when the objective is
 #'   to produce a complete sensory profile, because an unusually low intensity
 #'   may be as informative as an unusually high intensity.
-#'
-#'   This argument affects only the prompt. The mechanical
-#'   `"product_profiles"` attribute always preserves both positive and negative
-#'   retained markers.
 #' @param proba A numeric value between 0 and 1 giving the significance
 #'   threshold passed to `SensoMineR::decat()`. The default is `0.05`.
 #'
@@ -1023,8 +709,7 @@ get_prompt_qda <- function(res_cd, introduction, request, conclusion,
 #'   is required.
 #'
 #'   Sampling affects only the content of the prompt. It does not alter the
-#'   complete analytical result stored in the `"decat_result"` attribute or
-#'   the mechanical profiles stored in the `"product_profiles"` attribute.
+#'   complete analytical result stored in the `"decat_result"` attribute.
 #' @param prompt_style Character string controlling the amount of statistical
 #'   guidance and interpretive detail included in the prompt. One of
 #'   `"detailed"` or `"compact"`.
@@ -1136,39 +821,10 @@ get_prompt_qda <- function(res_cd, introduction, request, conclusion,
 #'
 #' This generally provides the most complete description of a product.
 #'
-#' When `drop.negative = TRUE`, only positive v-tests are included in the
-#' prompt. This can be useful when the objective is restricted to identifying
-#' the dominant or most intense sensory characteristics, but it removes
-#' information about attributes that are unusually weak from the prompt only.
-#' The complete mechanical product profiles are unchanged.
-#'
-#' ## Mechanical product profiles
-#'
-#' Independently of prompt construction and LLM generation, `nail_qda()`
-#' constructs a named `"product_profiles"` attribute with one element per
-#' product or stimulus. Each element contains:
-#'
-#' - `product`: the original product or stimulus identifier;
-#' - `adjusted_means`: the complete adjusted-mean sensory profile across all
-#'   available attributes, whether or not an attribute was retained by
-#'   `decat()`;
-#' - `retained_markers`: the complete retained product-by-attribute table with
-#'   deterministic evidence identifiers, statistical directions, coefficients,
-#'   adjusted means, v-tests, p-values, absolute v-tests, and ranks;
-#' - `above_average` and `below_average`: subsets derived directly from
-#'   `retained_markers`;
-#' - `metrics`: explicit counts and numerical summaries of the retained
-#'   markers.
-#'
-#' Evidence identifiers have the deterministic form
-#' `paste(product, attribute, sep = "::")`. Products with no retained marker
-#' are preserved with their complete `adjusted_means`, empty marker tables,
-#' zero counts, and `NA` for numerical extrema that cannot be calculated.
-#'
-#' The `"product_profiles"` attribute depends only on the data, formula,
-#' analyzed variables, and `proba`. It is not changed by `generate`,
-#' `isolate.groups`, `sample.pct`, `drop.negative`, `prompt_style`, `request`,
-#' `provider`, or `model`.
+#' When `drop.negative = TRUE`, only positive v-tests are included. This can
+#' be useful when the objective is restricted to identifying the dominant or
+#' most intense sensory characteristics, but it removes information about
+#' attributes that are unusually weak.
 #'
 #' ## Known and unknown products
 #'
@@ -1237,23 +893,18 @@ get_prompt_qda <- function(res_cd, introduction, request, conclusion,
 #' - if `isolate.groups = TRUE`, a named list of generated results is returned,
 #'   with one element per product or stimulus.
 #'
-#' Four attributes are attached systematically to every returned object,
-#' including no-result outputs:
+#' Two attributes are attached to the returned object:
 #'
 #' - `"decat_result"` contains the complete analytical result produced by
 #'   `SensoMineR::decat()`, after internal standardization of the names used by
 #'   NaileR;
-#' - `"product_profiles"` contains the complete mechanical profile of every
-#'   product or stimulus, including adjusted means, retained evidence tables,
-#'   directional subsets, and explicit metrics;
-#' - `"qda_settings"` records the main statistical, prompt-selection, and generation settings
-#'   used for the call;
-#' - `"profile_summary"` is a temporary compatibility alias derived from
-#'   `"product_profiles"`. It contains only `above`, `below`, and `n_sig` and
-#'   does not contain a qualitative profile-strength classification.
+#' - `"profile_summary"` contains a compact structured summary for each
+#'   product, including the principal attributes above the average profile,
+#'   the principal attributes below the average profile when retained, the
+#'   number of significant attributes, and an internal indication of profile
+#'   strength.
 #'
-#' The `"decat_result"` and `"product_profiles"` attributes are not reduced by
-#' `sample.pct` or `drop.negative`.
+#' The `"decat_result"` attribute is not reduced by `sample.pct`.
 #'
 #' If no product-by-attribute results are retained under the current settings,
 #' the language model is not called and an informative result is returned.
@@ -1333,16 +984,9 @@ get_prompt_qda <- function(res_cd, introduction, request, conclusion,
 #'
 #' names(decat_choc)
 #'
-#' # Inspect the complete mechanical product profiles.
-#' product_profiles_choc <- attr(prompt_choc, "product_profiles")
-#'
-#' product_profiles_choc[[1]]
-#'
-#' # Inspect the recorded settings.
-#' attr(prompt_choc, "qda_settings")
-#'
-#' # Temporary compatibility alias derived from product_profiles.
+#' # Inspect the compact structured product summaries.
 #' profile_choc <- attr(prompt_choc, "profile_summary")
+#'
 #' profile_choc
 #'
 #'
@@ -1407,8 +1051,6 @@ get_prompt_qda <- function(res_cd, introduction, request, conclusion,
 #'
 #' # Recover the statistical evidence attached to the result.
 #' decat_choc <- attr(res_choc, "decat_result")
-#' product_profiles_choc <- attr(res_choc, "product_profiles")
-#' qda_settings_choc <- attr(res_choc, "qda_settings")
 #' profile_choc <- attr(res_choc, "profile_summary")
 #'
 #'
@@ -1552,12 +1194,13 @@ nail_qda <- function(dataset, formul, firstvar, lastvar = length(colnames(datase
   )
   introduction <- paste(introduction, guide_qda, sep = "\n\n---\n\n")
 
-  res_cd <- .run_decat_qda(
-    dataset = dataset,
+  res_cd <- SensoMineR::decat(
+    dataset,
     formul = formul,
     firstvar = firstvar,
     lastvar = lastvar,
-    proba = proba
+    proba = proba,
+    graph = FALSE
   )
 
   # Robust slot renaming
@@ -1572,39 +1215,11 @@ nail_qda <- function(dataset, formul, firstvar, lastvar = length(colnames(datase
     }
   }
 
-  product_profiles <- .build_qda_product_profiles(res_cd)
-  profile_summary <- .derive_qda_profile_summary(
-    product_profiles,
-    top_n = 5L
-  )
-
-  formula_obj <- stats::as.formula(paste(formul, collapse = " "))
-  rhs_terms <- attr(stats::terms(formula_obj), "term.labels")
-
-  qda_settings <- list(
-    formul = paste(formul, collapse = " "),
-    product_variable = trimws(rhs_terms[1]),
-    firstvar = as.integer(firstvar),
-    lastvar = as.integer(lastvar),
-    sensory_attributes = colnames(dataset)[seq.int(firstvar, lastvar)],
-    proba = proba,
-    isolate.groups = isolate.groups,
+  profile_summary <- .summarize_qda_profiles(
+    res_cd,
     drop.negative = drop.negative,
-    sample.pct = sample.pct,
-    prompt_style = prompt_style,
-    product_knowledge = product_knowledge,
-    provider = provider,
-    model = model,
-    generate = generate
+    top_n = 5
   )
-
-  attach_qda_attributes <- function(object) {
-    attr(object, "decat_result") <- res_cd
-    attr(object, "product_profiles") <- product_profiles
-    attr(object, "qda_settings") <- qda_settings
-    attr(object, "profile_summary") <- profile_summary
-    object
-  }
 
   ppt <- tryCatch(
     get_prompt_qda(
@@ -1640,7 +1255,9 @@ nail_qda <- function(dataset, formul, firstvar, lastvar = length(colnames(datase
 
       if (isolate.groups) {
         out <- list()
-        return(attach_qda_attributes(out))
+        attr(out, "profile_summary") <- profile_summary
+        attr(out, "decat_result") <- res_cd
+        return(out)
       }
 
       out <- data.frame(
@@ -1649,12 +1266,16 @@ nail_qda <- function(dataset, formul, firstvar, lastvar = length(colnames(datase
         prompt = no_results_message,
         stringsAsFactors = FALSE
       )
-      return(attach_qda_attributes(out))
+      attr(out, "profile_summary") <- profile_summary
+      attr(out, "decat_result") <- res_cd
+      return(out)
     }
 
     if (isolate.groups) {
       out <- list()
-      return(attach_qda_attributes(out))
+      attr(out, "profile_summary") <- profile_summary
+      attr(out, "decat_result") <- res_cd
+      return(out)
     }
 
     out <- build_standard_prompt(
@@ -1663,11 +1284,15 @@ nail_qda <- function(dataset, formul, firstvar, lastvar = length(colnames(datase
       data = no_results_message,
       conclusion = NULL
     )
-    return(attach_qda_attributes(out))
+    attr(out, "profile_summary") <- profile_summary
+    attr(out, "decat_result") <- res_cd
+    return(out)
   }
 
   if (!generate) {
-    return(attach_qda_attributes(ppt))
+    attr(ppt, "profile_summary") <- profile_summary
+    attr(ppt, "decat_result") <- res_cd
+    return(ppt)
   }
 
   extra_args <- list(...)
@@ -1688,10 +1313,14 @@ nail_qda <- function(dataset, formul, firstvar, lastvar = length(colnames(datase
 
   if (!isolate.groups) {
     out <- .call_llm(ppt)
-    return(attach_qda_attributes(out))
+    attr(out, "profile_summary") <- profile_summary
+    attr(out, "decat_result") <- res_cd
+    return(out)
   }
 
   res_list <- lapply(ppt, .call_llm)
   names(res_list) <- names(ppt)
-  attach_qda_attributes(res_list)
+  attr(res_list, "profile_summary") <- profile_summary
+  attr(res_list, "decat_result") <- res_cd
+  res_list
 }

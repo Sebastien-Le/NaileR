@@ -120,7 +120,11 @@ are retained.
 
 Keeping negative v-tests is generally recommended when the objective is
 to produce a complete sensory profile, because an unusually low intensity
-may be as informative as an unusually high intensity.}
+may be as informative as an unusually high intensity.
+
+This argument affects only the prompt. The mechanical
+\code{"product_profiles"} attribute always preserves both positive and negative
+retained markers.}
 
 \item{proba}{A numeric value between 0 and 1 giving the significance
 threshold passed to \code{SensoMineR::decat()}. The default is \code{0.05}.
@@ -141,7 +145,8 @@ Use \code{set.seed()} before calling the function when reproducible sampling
 is required.
 
 Sampling affects only the content of the prompt. It does not alter the
-complete analytical result stored in the \code{"decat_result"} attribute.}
+complete analytical result stored in the \code{"decat_result"} attribute or
+the mechanical profiles stored in the \code{"product_profiles"} attribute.}
 
 \item{prompt_style}{Character string controlling the amount of statistical
 guidance and interpretive detail included in the prompt. One of
@@ -201,19 +206,24 @@ response and the prompt sent to the selected backend is returned;
 with one element per product or stimulus.
 }
 
-Two attributes are attached to the returned object:
+Four attributes are attached systematically to every returned object,
+including no-result outputs:
 \itemize{
 \item \code{"decat_result"} contains the complete analytical result produced by
 \code{SensoMineR::decat()}, after internal standardization of the names used by
 NaileR;
-\item \code{"profile_summary"} contains a compact structured summary for each
-product, including the principal attributes above the average profile,
-the principal attributes below the average profile when retained, the
-number of significant attributes, and an internal indication of profile
-strength.
+\item \code{"product_profiles"} contains the complete mechanical profile of every
+product or stimulus, including adjusted means, retained evidence tables,
+directional subsets, and explicit metrics;
+\item \code{"qda_settings"} records the main statistical, prompt-selection, and generation settings
+used for the call;
+\item \code{"profile_summary"} is a temporary compatibility alias derived from
+\code{"product_profiles"}. It contains only \code{above}, \code{below}, and \code{n_sig} and
+does not contain a qualitative profile-strength classification.
 }
 
-The \code{"decat_result"} attribute is not reduced by \code{sample.pct}.
+The \code{"decat_result"} and \code{"product_profiles"} attributes are not reduced by
+\code{sample.pct} or \code{drop.negative}.
 
 If no product-by-attribute results are retained under the current settings,
 the language model is not called and an informative result is returned.
@@ -226,7 +236,7 @@ language model.
 }
 \details{
 For each product or stimulus, the function identifies sensory attributes
-whose adjusted means are significantly higher or lower than the overall
+whose adjusted means are retained as higher or lower than the overall
 average profile. The interpretation may be produced for all products
 together or separately for each product.
 \subsection{Statistical analysis}{
@@ -307,10 +317,41 @@ product profile.
 
 This generally provides the most complete description of a product.
 
-When \code{drop.negative = TRUE}, only positive v-tests are included. This can
-be useful when the objective is restricted to identifying the dominant or
-most intense sensory characteristics, but it removes information about
-attributes that are unusually weak.
+When \code{drop.negative = TRUE}, only positive v-tests are included in the
+prompt. This can be useful when the objective is restricted to identifying
+the dominant or most intense sensory characteristics, but it removes
+information about attributes that are unusually weak from the prompt only.
+The complete mechanical product profiles are unchanged.
+}
+
+\subsection{Mechanical product profiles}{
+
+Independently of prompt construction and LLM generation, \code{nail_qda()}
+constructs a named \code{"product_profiles"} attribute with one element per
+product or stimulus. Each element contains:
+\itemize{
+\item \code{product}: the original product or stimulus identifier;
+\item \code{adjusted_means}: the complete adjusted-mean sensory profile across all
+available attributes, whether or not an attribute was retained by
+\code{decat()};
+\item \code{retained_markers}: the complete retained product-by-attribute table with
+deterministic evidence identifiers, statistical directions, coefficients,
+adjusted means, v-tests, p-values, absolute v-tests, and ranks;
+\item \code{above_average} and \code{below_average}: subsets derived directly from
+\code{retained_markers};
+\item \code{metrics}: explicit counts and numerical summaries of the retained
+markers.
+}
+
+Evidence identifiers have the deterministic form
+\code{paste(product, attribute, sep = "::")}. Products with no retained marker
+are preserved with their complete \code{adjusted_means}, empty marker tables,
+zero counts, and \code{NA} for numerical extrema that cannot be calculated.
+
+The \code{"product_profiles"} attribute depends only on the data, formula,
+analyzed variables, and \code{proba}. It is not changed by \code{generate},
+\code{isolate.groups}, \code{sample.pct}, \code{drop.negative}, \code{prompt_style}, \code{request},
+\code{provider}, or \code{model}.
 }
 
 \subsection{Known and unknown products}{
@@ -437,9 +478,16 @@ decat_choc <- attr(prompt_choc, "decat_result")
 
 names(decat_choc)
 
-# Inspect the compact structured product summaries.
-profile_choc <- attr(prompt_choc, "profile_summary")
+# Inspect the complete mechanical product profiles.
+product_profiles_choc <- attr(prompt_choc, "product_profiles")
 
+product_profiles_choc[[1]]
+
+# Inspect the recorded settings.
+attr(prompt_choc, "qda_settings")
+
+# Temporary compatibility alias derived from product_profiles.
+profile_choc <- attr(prompt_choc, "profile_summary")
 profile_choc
 
 
@@ -504,6 +552,8 @@ cat(res_choc$prompt)
 
 # Recover the statistical evidence attached to the result.
 decat_choc <- attr(res_choc, "decat_result")
+product_profiles_choc <- attr(res_choc, "product_profiles")
+qda_settings_choc <- attr(res_choc, "qda_settings")
 profile_choc <- attr(res_choc, "profile_summary")
 
 

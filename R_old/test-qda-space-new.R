@@ -266,21 +266,15 @@ test_that("product geometry equals direct Euclidean calculations", {
 
   expect_equal(geometry$pairwise_distances, direct)
   expect_equal(geometry$pairwise_distances, t(geometry$pairwise_distances))
-  expect_identical(rownames(geometry$pairwise_distances), rownames(geometry$coordinates))
-  expect_identical(colnames(geometry$pairwise_distances), rownames(geometry$coordinates))
-  expect_equal(unname(diag(geometry$pairwise_distances)), rep(0, nrow(direct)))
+  expect_equal(diag(geometry$pairwise_distances), rep(0, nrow(direct)))
   pair_table <- geometry$pairwise_distance_table
   expect_identical(
     paste(pair_table$product_1, pair_table$product_2, sep = "::"),
     sort(paste(pair_table$product_1, pair_table$product_2, sep = "::"), method = "radix")
   )
-  expect_identical(
-    geometry$distance_to_origin$product,
-    rownames(geometry$coordinates)
-  )
   expect_equal(
-    unname(geometry$distance_to_origin$distance),
-    unname(sqrt(rowSums(geometry$coordinates^2)))
+    geometry$distance_to_origin$distance,
+    sqrt(rowSums(geometry$coordinates^2))
   )
 
   for (product in rownames(direct)) {

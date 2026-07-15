@@ -184,8 +184,14 @@ sample_numeric_distribution <- function(data,
   })
 
   sampled_data <- sampled_data |>
-    dplyr::arrange(dplyr::desc(.data[[num_var]])) |>
-    tibble::column_to_rownames(var = "OriginalRowName")
+    dplyr::arrange(dplyr::desc(.data[[num_var]]))
+
+  rownames(sampled_data) <- NULL
+
+  sampled_data <- tibble::column_to_rownames(
+    sampled_data,
+    var = "OriginalRowName"
+  )
 
   if (return_matrix) {
     as.matrix(sampled_data)

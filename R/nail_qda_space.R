@@ -1,81 +1,372 @@
-#' @importFrom dplyr filter arrange desc
-#' @importFrom glue glue
-#' @importFrom knitr kable
-#' @importFrom utils globalVariables
 #' @importFrom FactoMineR PCA
-
-utils::globalVariables(c(".data", "coord", "abs_coord", "correlation", "abs_correlation"))
+#' @importFrom utils globalVariables
+utils::globalVariables(c(".data"))
 
 # ---------------------------------------------------------------------------
-# Validation
+# Constants
 # ---------------------------------------------------------------------------
 
-validate_qda_space_inputs <- function(ncp, scale.unit, min_inertia_pct,
-                                      top_n_var, top_n_products, generate,
-                                      expertise_mode) {
-  if (!is.numeric(ncp) || length(ncp) != 1 || is.na(ncp) || ncp < 1) {
-    stop("`ncp` must be a single numeric value >= 1.", call. = FALSE)
+.qda_space_scopes <- c(
+  "sensory",
+  "formulation",
+  "marketing",
+  "consumer",
+  "innovation",
+  "cross_functional"
+)
+
+.qda_space_levels <- c("axis", "portfolio", "both")
+.qda_space_statuses <- c(
+  "expert_interpretation",
+  "hypothesis",
+  "recommendation",
+  "user_context"
+)
+.qda_space_zero_tolerance <- sqrt(.Machine$double.eps)
+
+# ---------------------------------------------------------------------------
+# Small helpers and validation
+# ---------------------------------------------------------------------------
+
+.qda_space_nonempty_scalar <- function(x) {
+  is.character(x) && length(x) == 1L && !is.na(x) && nzchar(trimws(x))
+}
+
+.qda_space_integerish <- function(x, name, minimum = 1L) {
+  if (!is.numeric(x) || length(x) != 1L || is.na(x) || !is.finite(x) ||
+      x < minimum || abs(x - round(x)) > .Machine$double.eps^0.5) {
+    stop(sprintf("`%s` must be a single integer greater than or equal to %d.", name, minimum),
+         call. = FALSE)
   }
+  as.integer(round(x))
+}
 
-  if (!is.logical(scale.unit) || length(scale.unit) != 1 || is.na(scale.unit)) {
+.validate_qda_space_inputs <- function(ncp,
+                                       scale.unit,
+                                       min_inertia_pct,
+                                       top_n_var,
+                                       top_n_products,
+                                       interpretation_level,
+                                       expertise_scope,
+                                       generate,
+                                       request,
+                                       introduction,
+                                       conclusion) {
+  ncp <- .qda_space_integerish(ncp, "ncp")
+  top_n_var <- .qda_space_integerish(top_n_var, "top_n_var")
+  top_n_products <- .qda_space_integerish(top_n_products, "top_n_products")
+
+  if (!is.logical(scale.unit) || length(scale.unit) != 1L || is.na(scale.unit)) {
     stop("`scale.unit` must be a single non-missing logical value.", call. = FALSE)
   }
-
-  if (!is.numeric(min_inertia_pct) || length(min_inertia_pct) != 1 || is.na(min_inertia_pct) ||
+  if (!is.numeric(min_inertia_pct) || length(min_inertia_pct) != 1L ||
+      is.na(min_inertia_pct) || !is.finite(min_inertia_pct) ||
       min_inertia_pct < 0 || min_inertia_pct > 100) {
     stop("`min_inertia_pct` must be a single numeric value in [0, 100].", call. = FALSE)
   }
-
-  if (!is.numeric(top_n_var) || length(top_n_var) != 1 || is.na(top_n_var) || top_n_var < 1) {
-    stop("`top_n_var` must be a single numeric value >= 1.", call. = FALSE)
-  }
-
-  if (!is.numeric(top_n_products) || length(top_n_products) != 1 || is.na(top_n_products) || top_n_products < 1) {
-    stop("`top_n_products` must be a single numeric value >= 1.", call. = FALSE)
-  }
-
-  if (!is.logical(generate) || length(generate) != 1 || is.na(generate)) {
+  if (!is.logical(generate) || length(generate) != 1L || is.na(generate)) {
     stop("`generate` must be a single non-missing logical value.", call. = FALSE)
   }
+  if (!interpretation_level %in% .qda_space_levels) {
+    stop(
+      sprintf("`interpretation_level` must be one of: %s.",
+              paste(.qda_space_levels, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  if (!expertise_scope %in% .qda_space_scopes) {
+    stop(
+      sprintf("`expertise_scope` must be one of: %s.",
+              paste(.qda_space_scopes, collapse = ", ")),
+      call. = FALSE
+    )
+  }
 
-  if (!expertise_mode %in% c("sensory", "positioning", "hybrid")) {
-    stop("`expertise_mode` must be one of: 'sensory', 'positioning', 'hybrid'.", call. = FALSE)
+  for (item in c("request", "introduction", "conclusion")) {
+    value <- get(item, inherits = FALSE)
+    if (!is.null(value) && !.qda_space_nonempty_scalar(value)) {
+      stop(sprintf("`%s` must be NULL or a single non-empty character string.", item),
+           call. = FALSE)
+    }
+  }
+
+  list(
+    ncp = ncp,
+    top_n_var = top_n_var,
+    top_n_products = top_n_products
+  )
+}
+
+.qda_space_validate_context <- function(context) {
+  if (is.null(context)) {
+    return(stats::setNames(vector("list", length(.qda_spaceprep_context_fields)),
+                    .qda_spaceprep_context_fields))
+  }
+  .validate_qda_spaceprep_context(context)
+}
+
+.qda_space_context_present <- function(context, introduction = NULL) {
+  .is_qda_spaceprep_context_present(context) || .qda_space_nonempty_scalar(introduction)
+}
+
+# ---------------------------------------------------------------------------
+# Source extraction and consistency checks
+# ---------------------------------------------------------------------------
+
+.qda_space_empty_markers <- function() {
+  data.frame(
+    evidence_id = character(0),
+    product = character(0),
+    attribute = character(0),
+    direction = character(0),
+    coefficient = numeric(0),
+    adjusted_mean = numeric(0),
+    v_test = numeric(0),
+    p_value = numeric(0),
+    abs_v_test = numeric(0),
+    rank = integer(0),
+    stringsAsFactors = FALSE
+  )
+}
+
+.qda_space_legacy_product_profiles <- function(adjusted_means) {
+  products <- rownames(adjusted_means)
+  attributes <- colnames(adjusted_means)
+  out <- lapply(seq_along(products), function(i) {
+    means <- as.numeric(adjusted_means[i, , drop = TRUE])
+    names(means) <- attributes
+    list(
+      product = products[[i]],
+      adjusted_means = means,
+      retained_markers = .qda_space_empty_markers(),
+      above_average = .qda_space_empty_markers(),
+      below_average = .qda_space_empty_markers(),
+      metrics = list(
+        n_retained = 0L,
+        n_above_average = 0L,
+        n_below_average = 0L,
+        max_abs_v_test = NA_real_,
+        median_abs_v_test = NA_real_,
+        min_p_value = NA_real_
+      )
+    )
+  })
+  names(out) <- products
+  out
+}
+
+.qda_space_validate_adjusted_means <- function(adjusted_means) {
+  adjusted_means <- as.data.frame(adjusted_means, stringsAsFactors = FALSE)
+
+  if (nrow(adjusted_means) < 2L) {
+    stop("The adjusted-mean table must contain at least 2 products.", call. = FALSE)
+  }
+  if (ncol(adjusted_means) < 2L) {
+    stop("The adjusted-mean table must contain at least 2 sensory attributes.", call. = FALSE)
+  }
+  if (is.null(rownames(adjusted_means)) || any(!nzchar(rownames(adjusted_means))) ||
+      anyDuplicated(rownames(adjusted_means)) > 0L) {
+    stop("The adjusted-mean table must have unique non-empty product row names.", call. = FALSE)
+  }
+  if (is.null(colnames(adjusted_means)) || any(!nzchar(colnames(adjusted_means))) ||
+      anyDuplicated(colnames(adjusted_means)) > 0L) {
+    stop("The adjusted-mean table must have unique non-empty sensory-attribute names.", call. = FALSE)
+  }
+
+  numeric_columns <- vapply(adjusted_means, is.numeric, logical(1))
+  if (!all(numeric_columns)) {
+    stop(
+      sprintf("All adjusted-mean columns must be numeric. Non-numeric column(s): %s.",
+              paste(names(adjusted_means)[!numeric_columns], collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  values <- as.matrix(adjusted_means)
+  if (any(!is.finite(values))) {
+    stop("The adjusted-mean table must contain only finite numeric values.", call. = FALSE)
+  }
+
+  adjusted_means
+}
+
+.qda_space_check_profile_consistency <- function(adjusted_means,
+                                                 product_profiles,
+                                                 tolerance = 1e-10) {
+  .validate_qda_spaceprep_product_profiles(product_profiles)
+
+  products <- rownames(adjusted_means)
+  attributes <- colnames(adjusted_means)
+
+  if (!identical(names(product_profiles), products)) {
+    stop(
+      paste(
+        "The product names and order in `decat_result$adjmean` must match",
+        "those in `attr(x, 'product_profiles')`."
+      ),
+      call. = FALSE
+    )
+  }
+
+  for (product in products) {
+    profile <- product_profiles[[product]]
+    means <- profile$adjusted_means
+    if (!is.numeric(means) || is.null(names(means)) ||
+        !identical(names(means), attributes)) {
+      stop(
+        sprintf(
+          "`product_profiles[['%s']]$adjusted_means` must contain all attributes in the same order as `decat_result$adjmean`.",
+          product
+        ),
+        call. = FALSE
+      )
+    }
+    target <- as.numeric(adjusted_means[product, attributes, drop = TRUE])
+    if (!isTRUE(all.equal(as.numeric(means), target, tolerance = tolerance,
+                          check.attributes = FALSE))) {
+      stop(
+        sprintf(
+          "Adjusted means for product `%s` are inconsistent between `decat_result` and `product_profiles`.",
+          product
+        ),
+        call. = FALSE
+      )
+    }
   }
 
   invisible(TRUE)
 }
 
-# ---------------------------------------------------------------------------
-# Extract inputs from nail_qda outputs or raw decat results
-# ---------------------------------------------------------------------------
-
-.extract_qda_space_inputs <- function(x, profile_summary = NULL) {
+.extract_qda_space_source <- function(x) {
   decat_result <- attr(x, "decat_result", exact = TRUE)
-  profile_attr <- attr(x, "profile_summary", exact = TRUE)
+  product_profiles <- attr(x, "product_profiles", exact = TRUE)
+  qda_settings <- attr(x, "qda_settings", exact = TRUE)
 
-  if (!is.null(decat_result)) {
-    if (is.null(profile_summary)) {
-      profile_summary <- profile_attr
+  if (!is.null(decat_result) || !is.null(product_profiles)) {
+    if (is.null(product_profiles)) {
+      stop(
+        "`x` has QDA attributes but no valid `product_profiles` attribute. Recreate it with the validated `nail_qda()` workflow.",
+        call. = FALSE
+      )
     }
+    if (is.null(decat_result) || !is.list(decat_result) || is.null(decat_result$adjmean)) {
+      stop(
+        "`x` must contain a `decat_result` attribute with an `adjmean` component.",
+        call. = FALSE
+      )
+    }
+
+    adjusted_means <- .qda_space_validate_adjusted_means(decat_result$adjmean)
+    .qda_space_check_profile_consistency(adjusted_means, product_profiles)
+
     return(list(
+      adjusted_means = adjusted_means,
       decat_result = decat_result,
-      profile_summary = profile_summary
+      product_profiles = product_profiles,
+      qda_settings = qda_settings,
+      source = "nail_qda",
+      legacy_input = FALSE
     ))
   }
 
   if (is.list(x) && !is.null(x$adjmean)) {
+    adjusted_means <- .qda_space_validate_adjusted_means(x$adjmean)
+    warning(
+      paste(
+        "Passing a raw `decat()` result to `nail_qda_space()` is deprecated.",
+        "Call `nail_qda()` first and pass its result through `x`."
+      ),
+      call. = FALSE
+    )
     return(list(
+      adjusted_means = adjusted_means,
       decat_result = x,
-      profile_summary = profile_summary
+      product_profiles = .qda_space_legacy_product_profiles(adjusted_means),
+      qda_settings = NULL,
+      source = "raw_decat_legacy",
+      legacy_input = TRUE
     ))
   }
 
-  stop("`x` must be either an object returned by `nail_qda()` or a raw `decat` result containing `adjmean`.", call. = FALSE)
+  stop(
+    paste(
+      "`x` must be an object returned by `nail_qda()` with",
+      "`decat_result` and `product_profiles` attributes."
+    ),
+    call. = FALSE
+  )
 }
 
+# ---------------------------------------------------------------------------
+# Product-expertise normalization and compatibility
+# ---------------------------------------------------------------------------
+
+.qda_space_claim_text <- function(claim) {
+  if (is.list(claim) && .qda_space_nonempty_scalar(claim$text)) {
+    return(trimws(claim$text))
+  }
+  NA_character_
+}
+
+.extract_product_expertise_object <- function(x) {
+  if (is.null(x)) return(NULL)
+
+  candidates <- list(
+    if (is.list(x)) x$product_expertise else NULL,
+    if (is.list(x) && is.list(x$parsed)) x$parsed$product_expertise else NULL,
+    attr(x, "product_expertise", exact = TRUE),
+    if (is.list(x) && all(c("portfolio", "products", "metadata") %in% names(x))) x else NULL
+  )
+
+  for (candidate in candidates) {
+    if (is.list(candidate) && is.list(candidate$products)) {
+      return(candidate)
+    }
+  }
+  NULL
+}
+
+# Transitional helper retained for the validated step-2 compatibility contract.
+# It converts structured product expertise, or historical per-product summaries,
+# to the compact legacy view formerly consumed by nail_qda_space().
 .extract_llm_profile_summaries <- function(llm_product_summaries) {
   if (is.null(llm_product_summaries)) {
     return(NULL)
+  }
+
+  expertise <- .extract_product_expertise_object(llm_product_summaries)
+  if (!is.null(expertise)) {
+    out <- lapply(names(expertise$products), function(product_name) {
+      product <- expertise$products[[product_name]]
+      proposed_name <- .qda_space_claim_text(product$proposed_name)
+      identity <- .qda_space_claim_text(product$sensory_identity)
+      archetype <- .qda_space_claim_text(product$sensory_archetype)
+      role <- .qda_space_claim_text(product$differentiation_role)
+
+      summary_parts <- c(
+        if (!is.na(proposed_name)) proposed_name else NULL,
+        if (!is.na(identity)) identity else NULL
+      )
+      injectable <- if (length(summary_parts) > 0L) {
+        paste(summary_parts, collapse = ": ")
+      } else {
+        NA_character_
+      }
+
+      list(
+        injectable_summary = injectable,
+        positioning_cues = if (!is.na(role)) role else archetype,
+        profile_clarity = NA_character_,
+        core_profile = identity,
+        above_average_traits = character(0),
+        below_average_traits = character(0)
+      )
+    })
+    names(out) <- names(expertise$products)
+    return(out)
+  }
+
+  if (!is.list(llm_product_summaries)) {
+    return(list())
   }
 
   out <- list()
@@ -84,12 +375,9 @@ validate_qda_space_inputs <- function(ncp, scale.unit, min_inertia_pct,
     item <- llm_product_summaries[[nm]]
 
     parsed <- NULL
-
-    # Standard output from nail_qda_spaceprep(generate = TRUE)
     if (is.list(item) && !is.null(item$parsed)) {
       parsed <- item$parsed
     } else if (is.list(item)) {
-      # Also accept an already parsed summary supplied directly.
       has_new_names <- all(c(
         "core_profile",
         "above_average_traits",
@@ -117,24 +405,17 @@ validate_qda_space_inputs <- function(ncp, scale.unit, min_inertia_pct,
       next
     }
 
-    # New canonical names.
     above_traits <- parsed$above_average_traits
     below_traits <- parsed$below_average_traits
-
-    # Backward compatibility with summaries generated by older versions.
     if (is.null(above_traits)) {
       above_traits <- parsed$positive_traits
     }
-
     if (is.null(below_traits)) {
       below_traits <- parsed$negative_traits
     }
-
-    # Ensure stable empty-vector values when a field is absent.
     if (is.null(above_traits)) {
       above_traits <- character(0)
     }
-
     if (is.null(below_traits)) {
       below_traits <- character(0)
     }
@@ -152,1224 +433,1903 @@ validate_qda_space_inputs <- function(ncp, scale.unit, min_inertia_pct,
   out
 }
 
-# ---------------------------------------------------------------------------
-# Prompt builders
-# ---------------------------------------------------------------------------
+.qda_space_validate_prior_claims <- function(x,
+                                            valid_evidence_ids,
+                                            path = "product_expertise") {
+  if (!is.list(x)) return(invisible(TRUE))
 
-build_guide_qda_space <- function(min_inertia_pct = 10,
-                                  expertise_mode = c("sensory", "positioning", "hybrid")) {
-  expertise_mode <- match.arg(expertise_mode)
-  mode_lines <- switch(
-    expertise_mode,
-    sensory = c(
-      "Interpretation mode: sensory.",
-      "Prioritize sensory oppositions between products.",
-      "Describe the axes using sensory and perceptual contrasts first."
-    ),
-    positioning = c(
-      "Interpretation mode: positioning.",
-      "You may interpret the axes as broader product styles or product poles.",
-      "Stay grounded in the sensory evidence."
-    ),
-    hybrid = c(
-      "Interpretation mode: hybrid.",
-      "Start from the sensory oppositions and, when relevant, infer broader product styles.",
-      "Keep the sensory evidence primary."
+  claim_fields <- c("text", "status", "evidence_ids", "validation_needed")
+  present_claim_fields <- intersect(names(x), claim_fields)
+  if (length(present_claim_fields) > 0L) {
+    missing_claim_fields <- setdiff(claim_fields, names(x))
+    if (length(missing_claim_fields) > 0L) {
+      stop(
+        sprintf(
+          "`%s` is missing required claim field(s): %s.",
+          path, paste(missing_claim_fields, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+    status <- as.character(x$status)
+    if (length(status) != 1L || is.na(status) || !status %in% .qda_space_statuses) {
+      stop(
+        sprintf("`%s$status` contains an invalid epistemic status.", path),
+        call. = FALSE
+      )
+    }
+    ids <- .qda_spaceprep_as_character_vector(
+      x$evidence_ids,
+      paste0(path, "$evidence_ids")
     )
-  )
+    if (status == "user_context") {
+      if (length(ids) > 0L) {
+        stop(
+          sprintf("`%s` with status `user_context` must not cite statistical evidence.", path),
+          call. = FALSE
+        )
+      }
+    } else {
+      if (length(ids) == 0L) {
+        stop(
+          sprintf("`%s` must cite at least one product-profile evidence ID.", path),
+          call. = FALSE
+        )
+      }
+      unknown <- setdiff(ids, valid_evidence_ids)
+      if (length(unknown) > 0L) {
+        stop(
+          sprintf(
+            "`%s` cites product-profile evidence absent from the current QDA result: %s.",
+            path, paste(unknown, collapse = ", ")
+          ),
+          call. = FALSE
+        )
+      }
+    }
+    if (status %in% c("hypothesis", "recommendation") &&
+        !.qda_space_nonempty_scalar(x$validation_needed)) {
+      stop(
+        sprintf("`%s` requires a non-empty `validation_needed` field.", path),
+        call. = FALSE
+      )
+    }
+    return(invisible(TRUE))
+  }
 
-  paste(
-    c(
-      "## How to Read the Results",
-      "The product space is built from the adjusted mean sensory profiles of the products.",
-      "Each retained dimension summarizes one major opposition in the sensory space, under the current PCA settings.",
-      "The sign of a PCA dimension is arbitrary: interpret the opposition between the two ends, not the absolute meaning of positive versus negative coordinates.",
-      paste0("Only dimensions explaining at least ", min_inertia_pct, "% of the inertia are interpreted automatically."),
-      "",
-      "### Variable-level evidence",
-      "This section lists the attributes most positively and most negatively associated with the dimension.",
-      "These attributes help identify the main sensory opposition carried by the axis, but they should be interpreted as the strongest associations under the current analysis settings.",
-      "",
-      "### Product-level evidence",
-      "This section lists the products located at the negative and positive ends of the dimension.",
-      "For each product, the summary recalls the profile of the product in a form meant to help interpret the product space.",
-      "",
-      mode_lines,
-      "",
-      "Use both sections together: the variable-level evidence gives the general meaning of the dimension, and the product-level evidence shows how this dimension is expressed in concrete products.",
-      "When variable-level evidence and product-level evidence do not align perfectly, prioritize the variable-level structure and use the products as illustrations."
-    ),
-    collapse = "\n"
-  )
+  nms <- names(x)
+  for (i in seq_along(x)) {
+    child <- if (!is.null(nms) && nzchar(nms[[i]])) {
+      paste0(path, "$", nms[[i]])
+    } else {
+      sprintf("%s[[%d]]", path, i)
+    }
+    .qda_space_validate_prior_claims(x[[i]], valid_evidence_ids, child)
+  }
+  invisible(TRUE)
 }
 
-build_request_qda_space <- function(expertise_mode = c("sensory", "positioning", "hybrid")) {
-  expertise_mode <- match.arg(expertise_mode)
-
-  if (expertise_mode == "sensory") {
-    return(paste(
-      "Using only the results below, interpret each retained dimension of the product sensory space.",
-      "For each dimension, explain what sensory opposition structures the axis.",
-      "Use the variable-level evidence to identify the general sensory meaning of the dimension.",
-      "Use the product-level evidence to explain how this sensory opposition is expressed by the products located at the two ends.",
-      "Stay close to sensory and perceptual vocabulary.",
-      "If the evidence is partial, mixed, or somewhat unstable, say so explicitly.",
-      "Do not interpret the retained attributes as absolute truths; treat them as the strongest associations selected under the current analysis settings.",
-      sep = "\n"
-    ))
+.qda_space_validate_structured_expertise <- function(expertise,
+                                                     valid_evidence_ids) {
+  if (!is.list(expertise) || !is.list(expertise$products)) {
+    stop("`product_expertise` must contain a `products` list.", call. = FALSE)
   }
-
-  if (expertise_mode == "positioning") {
-    return(paste(
-      "Using only the results below, interpret each retained dimension of the product space.",
-      "For each dimension, explain what broader product opposition or product style structures the axis.",
-      "Use the sensory evidence as the basis of your interpretation.",
-      "Use the product-level evidence to explain how the products at the two ends embody this opposition.",
-      "If the evidence is partial, mixed, or somewhat unstable, say so explicitly.",
-      "Do not interpret the retained attributes as absolute truths; treat them as the strongest associations selected under the current analysis settings.",
-      sep = "\n"
-    ))
+  if (length(expertise$products) > 0L &&
+      (is.null(names(expertise$products)) || any(!nzchar(names(expertise$products))) ||
+       anyDuplicated(names(expertise$products)) > 0L)) {
+    stop("`product_expertise$products` must be uniquely named by product identifiers.",
+         call. = FALSE)
   }
-
-  paste(
-    "Using only the results below, interpret each retained dimension of the product space.",
-    "For each dimension, first explain the main sensory opposition that structures the axis, then explain what broader product contrast or style it may suggest.",
-    "Use the variable-level evidence to identify the sensory structure of the dimension.",
-    "Use the product-level evidence to explain how this opposition is expressed by the products located at the two ends.",
-    "Keep the sensory evidence primary and the broader interpretation secondary.",
-    "If the evidence is partial, mixed, or somewhat unstable, say so explicitly.",
-    "Do not interpret the retained attributes as absolute truths; treat them as the strongest associations selected under the current analysis settings.",
-    sep = "\n"
-  )
+  for (product in names(expertise$products)) {
+    item <- expertise$products[[product]]
+    if (!is.list(item)) {
+      stop(sprintf("`product_expertise$products$%s` must be a list.", product),
+           call. = FALSE)
+    }
+    if (!is.null(item$product) && !identical(as.character(item$product), product)) {
+      stop(
+        sprintf("`product_expertise$products$%s$product` does not match its list name.", product),
+        call. = FALSE
+      )
+    }
+  }
+  .qda_space_validate_prior_claims(expertise, valid_evidence_ids)
+  invisible(TRUE)
 }
 
-build_conclusion_qda_space <- function(expertise_mode = c("sensory", "positioning", "hybrid")) {
-  expertise_mode <- match.arg(expertise_mode)
+.qda_space_legacy_summary_item <- function(item) {
+  parsed <- if (is.list(item) && is.list(item$parsed)) item$parsed else item
+  if (!is.list(parsed)) return(NULL)
 
-  if (expertise_mode == "sensory") {
-    return(paste(
-      "# Final Summary Task",
-      "For each retained dimension, provide:",
-      "1. **The main sensory opposition carried by the axis**.",
-      "2. **What characterizes the negative end and the positive end in sensory terms**.",
-      "3. **How the extreme products help make this opposition concrete**.",
-      "",
-      "# Output format",
-      "Your output must be **formatted using valid Quarto Markdown**.",
-      sep = "\n"
-    ))
-  }
-
-  if (expertise_mode == "positioning") {
-    return(paste(
-      "# Final Summary Task",
-      "For each retained dimension, provide:",
-      "1. **The main product opposition or product style contrast carried by the axis**.",
-      "2. **What characterizes the negative end and the positive end**.",
-      "3. **How the extreme products help make this opposition concrete**.",
-      "",
-      "# Output format",
-      "Your output must be **formatted using valid Quarto Markdown**.",
-      sep = "\n"
-    ))
-  }
-
-  paste(
-    "# Final Summary Task",
-    "For each retained dimension, provide:",
-    "1. **The main sensory opposition carried by the axis**.",
-    "2. **The broader product contrast or style that this opposition may suggest**.",
-    "3. **What characterizes the negative end and the positive end**.",
-    "4. **How the extreme products help make this opposition concrete**.",
-    "",
-    "# Output format",
-    "Your output must be **formatted using valid Quarto Markdown**.",
-    sep = "\n"
+  fields <- c(
+    "injectable_summary", "positioning_cues", "core_profile",
+    "above_average_traits", "below_average_traits",
+    "positive_traits", "negative_traits"
   )
-}
-
-# ---------------------------------------------------------------------------
-# Core computations
-# ---------------------------------------------------------------------------
-
-.build_qda_space_object <- function(decat_result, ncp = 2, scale.unit = TRUE, min_inertia_pct = 10) {
-  adjmean <- as.data.frame(decat_result$adjmean)
-
-  if (nrow(adjmean) < 2 || ncol(adjmean) < 2) {
-    stop("`adjmean` must contain at least 2 products and 2 attributes to build a product space.", call. = FALSE)
-  }
-
-  max_ncp <- min(ncp, nrow(adjmean) - 1, ncol(adjmean))
-  if (max_ncp < 1) {
-    stop("No interpretable PCA dimension can be computed from `adjmean`.", call. = FALSE)
-  }
-
-  res_pca <- FactoMineR::PCA(
-    adjmean,
-    scale.unit = scale.unit,
-    ncp = max_ncp,
-    graph = FALSE
-  )
-
-  eig <- as.data.frame(res_pca$eig)
-  colnames(eig)[1:3] <- c("eigenvalue", "percent", "cumulative_percent")
-
-  available_axes <- ncol(res_pca$var$cor)
-
-  retained_axes <- which(eig$percent >= min_inertia_pct)
-  retained_axes <- retained_axes[retained_axes <= available_axes]
+  if (!any(fields %in% names(parsed))) return(NULL)
 
   list(
-    pca_result = res_pca,
-    adjmean = adjmean,
-    eig = eig,
-    retained_axes = retained_axes,
+    injectable_summary = parsed$injectable_summary,
+    positioning_cues = parsed$positioning_cues,
+    core_profile = parsed$core_profile,
+    above_average_traits = parsed$above_average_traits %||% parsed$positive_traits,
+    below_average_traits = parsed$below_average_traits %||% parsed$negative_traits
+  )
+}
+
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
+.normalize_qda_space_product_expertise <- function(product_expertise,
+                                                   llm_product_summaries,
+                                                   profile_summary,
+                                                   analyzed_products,
+                                                   valid_product_evidence_ids,
+                                                   legacy_argument_supplied = FALSE,
+                                                   profile_summary_supplied = FALSE) {
+  if (!is.null(product_expertise) && !is.null(llm_product_summaries)) {
+    stop(
+      "Supply only one of `product_expertise` or deprecated `llm_product_summaries`.",
+      call. = FALSE
+    )
+  }
+
+  if (legacy_argument_supplied) {
+    warning(
+      "`llm_product_summaries` is deprecated; use `product_expertise` instead.",
+      call. = FALSE
+    )
+  }
+  if (profile_summary_supplied) {
+    warning(
+      "`profile_summary` is deprecated in `nail_qda_space()`; product profiles are read from `x`.",
+      call. = FALSE
+    )
+  }
+
+  source_object <- if (!is.null(product_expertise)) product_expertise else llm_product_summaries
+  expertise <- .extract_product_expertise_object(source_object)
+  legacy <- NULL
+
+  if (!is.null(source_object) && is.null(expertise)) {
+    if (!is.list(source_object)) {
+      stop("The supplied product expertise is not a supported structured object.", call. = FALSE)
+    }
+    legacy <- lapply(source_object, .qda_space_legacy_summary_item)
+    legacy <- legacy[!vapply(legacy, is.null, logical(1))]
+    if (length(legacy) == 0L) {
+      stop("The supplied product expertise is not a supported structured object.", call. = FALSE)
+    }
+  }
+
+  if (!is.null(profile_summary)) {
+    if (!is.list(profile_summary)) {
+      stop("Deprecated `profile_summary` must be NULL or a named list.", call. = FALSE)
+    }
+    profile_legacy <- lapply(profile_summary, function(item) {
+      if (!is.list(item)) return(NULL)
+      above <- as.character(item$above %||% character(0))
+      below <- as.character(item$below %||% character(0))
+      list(
+        injectable_summary = paste0(
+          "Above average on ", if (length(above)) paste(above, collapse = ", ") else "none",
+          "; below average on ", if (length(below)) paste(below, collapse = ", ") else "none", "."
+        ),
+        positioning_cues = NULL,
+        core_profile = NULL,
+        above_average_traits = above,
+        below_average_traits = below
+      )
+    })
+    profile_legacy <- profile_legacy[!vapply(profile_legacy, is.null, logical(1))]
+    if (length(profile_legacy)) {
+      legacy <- c(legacy %||% list(), profile_legacy[setdiff(names(profile_legacy), names(legacy))])
+    }
+  }
+
+  if (!is.null(expertise)) {
+    if (length(expertise$products) > 0L &&
+        (is.null(names(expertise$products)) || any(!nzchar(names(expertise$products))))) {
+      stop("`product_expertise$products` must be named by product identifiers.", call. = FALSE)
+    }
+    unknown <- setdiff(names(expertise$products), analyzed_products)
+    if (length(unknown) > 0L) {
+      warning(
+        sprintf(
+          "Ignoring product expertise for product(s) absent from the PCA: %s.",
+          paste(unknown, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+      expertise$products <- expertise$products[setdiff(names(expertise$products), unknown)]
+    }
+    .qda_space_validate_structured_expertise(
+      expertise,
+      valid_evidence_ids = valid_product_evidence_ids
+    )
+  }
+
+  if (!is.null(legacy)) {
+    if (is.null(names(legacy)) || any(!nzchar(names(legacy)))) {
+      stop("Deprecated product summaries must be named by product identifiers.",
+           call. = FALSE)
+    }
+    unknown <- setdiff(names(legacy), analyzed_products)
+    if (length(unknown) > 0L) {
+      warning(
+        sprintf(
+          "Ignoring deprecated product summaries for product(s) absent from the PCA: %s.",
+          paste(unknown, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+      legacy <- legacy[setdiff(names(legacy), unknown)]
+    }
+  }
+
+  list(
+    product_expertise = expertise,
+    legacy_summaries = legacy,
+    source = if (!is.null(expertise)) "product_expertise" else if (!is.null(legacy)) "legacy" else "none"
+  )
+}
+
+# ---------------------------------------------------------------------------
+# PCA and mechanical evidence
+# ---------------------------------------------------------------------------
+
+.qda_space_extract_matrix <- function(x, component, dimensions, row_names) {
+  value <- x[[component]]
+  if (is.null(value)) {
+    out <- matrix(NA_real_, nrow = length(row_names), ncol = length(dimensions),
+                  dimnames = list(row_names, paste0("Dim.", dimensions)))
+    return(out)
+  }
+  value <- as.matrix(value)
+  wanted <- paste0("Dim.", dimensions)
+  out <- matrix(NA_real_, nrow = length(row_names), ncol = length(dimensions),
+                dimnames = list(row_names, wanted))
+  common_rows <- intersect(row_names, rownames(value))
+  common_cols <- intersect(wanted, colnames(value))
+  if (length(common_rows) && length(common_cols)) {
+    out[common_rows, common_cols] <- value[common_rows, common_cols, drop = FALSE]
+  }
+  out
+}
+
+.qda_space_rank <- function(values, labels) {
+  order_index <- order(-abs(values), labels, na.last = TRUE)
+  ranks <- integer(length(values))
+  ranks[order_index] <- seq_along(order_index)
+  ranks
+}
+
+.qda_space_side <- function(values, tolerance = .qda_space_zero_tolerance) {
+  out <- rep("neutral", length(values))
+  finite <- is.finite(values)
+  out[finite & values > tolerance] <- "positive"
+  out[finite & values < -tolerance] <- "negative"
+  out
+}
+
+.qda_space_eigenvalues <- function(pca_result) {
+  eig <- as.data.frame(pca_result$eig, stringsAsFactors = FALSE)
+  if (ncol(eig) < 3L) {
+    stop("The PCA result does not contain a complete eigenvalue table.", call. = FALSE)
+  }
+  data.frame(
+    dimension = seq_len(nrow(eig)),
+    eigenvalue = as.numeric(eig[[1L]]),
+    inertia_percent = as.numeric(eig[[2L]]),
+    cumulative_percent = as.numeric(eig[[3L]]),
+    stringsAsFactors = FALSE
+  )
+}
+
+.qda_space_axis_variable_table <- function(pca_result,
+                                          dimension,
+                                          tolerance = .qda_space_zero_tolerance) {
+  attributes <- rownames(pca_result$var$coord)
+  dims <- dimension
+  coord <- .qda_space_extract_matrix(pca_result$var, "coord", dims, attributes)[, 1L]
+  cor <- .qda_space_extract_matrix(pca_result$var, "cor", dims, attributes)[, 1L]
+  contrib <- .qda_space_extract_matrix(pca_result$var, "contrib", dims, attributes)[, 1L]
+  cos2 <- .qda_space_extract_matrix(pca_result$var, "cos2", dims, attributes)[, 1L]
+
+  data.frame(
+    evidence_id = paste0("Dim", dimension, "::variable::", attributes),
+    attribute = attributes,
+    coordinate = as.numeric(coord),
+    correlation = as.numeric(cor),
+    contribution = as.numeric(contrib),
+    cos2 = as.numeric(cos2),
+    side = .qda_space_side(coord, tolerance),
+    rank_by_abs_coordinate = .qda_space_rank(coord, attributes),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+}
+
+.qda_space_axis_product_table <- function(pca_result,
+                                         dimension,
+                                         tolerance = .qda_space_zero_tolerance) {
+  products <- rownames(pca_result$ind$coord)
+  dims <- dimension
+  coord <- .qda_space_extract_matrix(pca_result$ind, "coord", dims, products)[, 1L]
+  contrib <- .qda_space_extract_matrix(pca_result$ind, "contrib", dims, products)[, 1L]
+  cos2 <- .qda_space_extract_matrix(pca_result$ind, "cos2", dims, products)[, 1L]
+
+  data.frame(
+    evidence_id = paste0("Dim", dimension, "::product::", products),
+    product = products,
+    coordinate = as.numeric(coord),
+    contribution = as.numeric(contrib),
+    cos2 = as.numeric(cos2),
+    side = .qda_space_side(coord, tolerance),
+    rank_by_abs_coordinate = .qda_space_rank(coord, products),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+}
+
+.qda_space_select_side <- function(table, side, n, label_column) {
+  selected <- table[table$side == side & is.finite(table$coordinate), , drop = FALSE]
+  if (nrow(selected) == 0L) return(selected)
+  labels <- selected[[label_column]]
+  selected <- selected[order(-abs(selected$coordinate), labels), , drop = FALSE]
+  utils::head(selected, n)
+}
+
+.qda_space_selected_products <- function(selected) {
+  unique(c(
+    selected$negative_products$product,
+    selected$positive_products$product
+  ))
+}
+
+.qda_space_canonical_pair <- function(a, b) {
+  sort(c(as.character(a), as.character(b)), method = "radix")
+}
+
+.qda_space_pairwise_distance_table <- function(distance_matrix) {
+  products <- rownames(distance_matrix)
+  if (length(products) < 2L) {
+    return(data.frame(
+      evidence_id = character(0),
+      product_1 = character(0),
+      product_2 = character(0),
+      distance = numeric(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  pairs <- utils::combn(products, 2L, simplify = FALSE)
+  rows <- lapply(pairs, function(pair) {
+    canonical <- .qda_space_canonical_pair(pair[[1L]], pair[[2L]])
+    data.frame(
+      evidence_id = paste0("geometry::distance::", canonical[[1L]], "::", canonical[[2L]]),
+      product_1 = canonical[[1L]],
+      product_2 = canonical[[2L]],
+      distance = as.numeric(distance_matrix[canonical[[1L]], canonical[[2L]]]),
+      stringsAsFactors = FALSE
+    )
+  })
+  out <- do.call(rbind, rows)
+  out <- out[order(out$product_1, out$product_2, method = "radix"), , drop = FALSE]
+  rownames(out) <- NULL
+  out
+}
+
+.qda_space_nearest_neighbors <- function(distance_matrix,
+                                         tolerance = .qda_space_zero_tolerance) {
+  products <- rownames(distance_matrix)
+  empty <- data.frame(
+    evidence_id = character(0),
+    product = character(0),
+    neighbor = character(0),
+    distance = numeric(0),
+    tie_count = integer(0),
+    tie_rank = integer(0),
+    selected = logical(0),
+    stringsAsFactors = FALSE
+  )
+  if (length(products) < 2L) return(empty)
+
+  rows <- lapply(products, function(product) {
+    candidates <- setdiff(products, product)
+    distances <- as.numeric(distance_matrix[product, candidates])
+    min_distance <- min(distances)
+    tied <- candidates[abs(distances - min_distance) <= tolerance]
+    tied <- sort(tied, method = "radix")
+    data.frame(
+      evidence_id = paste0("geometry::nearest_neighbor::", product, "::", tied),
+      product = product,
+      neighbor = tied,
+      distance = rep(min_distance, length(tied)),
+      tie_count = rep(length(tied), length(tied)),
+      tie_rank = seq_along(tied),
+      selected = seq_along(tied) == 1L,
+      stringsAsFactors = FALSE
+    )
+  })
+  do.call(rbind, rows)
+}
+
+.qda_space_product_geometry <- function(pca_result,
+                                       geometry_dimensions,
+                                       tolerance = .qda_space_zero_tolerance) {
+  products <- rownames(pca_result$ind$coord)
+  coordinates <- .qda_space_extract_matrix(
+    pca_result$ind, "coord", geometry_dimensions, products
+  )
+  cos2 <- .qda_space_extract_matrix(
+    pca_result$ind, "cos2", geometry_dimensions, products
+  )
+  contributions <- .qda_space_extract_matrix(
+    pca_result$ind, "contrib", geometry_dimensions, products
+  )
+
+  if (any(!is.finite(coordinates))) {
+    stop("The PCA product coordinates contain missing or non-finite values.", call. = FALSE)
+  }
+
+  distance_to_origin <- sqrt(rowSums(coordinates^2))
+  distance_to_origin <- data.frame(
+    evidence_id = paste0("geometry::distance_to_origin::", products),
+    product = products,
+    distance = as.numeric(distance_to_origin),
+    stringsAsFactors = FALSE
+  )
+
+  pairwise <- as.matrix(stats::dist(coordinates, method = "euclidean"))
+  if (length(products) == 1L) {
+    pairwise <- matrix(0, nrow = 1L, ncol = 1L,
+                       dimnames = list(products, products))
+  }
+  pairwise_table <- .qda_space_pairwise_distance_table(pairwise)
+  nearest <- .qda_space_nearest_neighbors(pairwise, tolerance = tolerance)
+
+  list(
+    dimensions_used = geometry_dimensions,
+    coordinates = coordinates,
+    cos2 = cos2,
+    contributions = contributions,
+    distance_to_origin = distance_to_origin,
+    pairwise_distances = pairwise,
+    pairwise_distance_table = pairwise_table,
+    nearest_neighbors = nearest
+  )
+}
+
+.qda_space_profile_registry <- function(product_profiles) {
+  rows <- list()
+  k <- 0L
+
+  for (product in names(product_profiles)) {
+    profile <- product_profiles[[product]]
+    means <- profile$adjusted_means
+    for (attribute in names(means)) {
+      k <- k + 1L
+      rows[[k]] <- data.frame(
+        evidence_id = paste0("product_profile::", product, "::", attribute),
+        evidence_type = "product_adjusted_mean",
+        dimension = NA_integer_,
+        entity = paste(product, attribute, sep = "::"),
+        metric = "adjusted_mean",
+        value = as.numeric(means[[attribute]]),
+        details = "Complete adjusted mean from product_profiles.",
+        stringsAsFactors = FALSE
+      )
+    }
+
+    markers <- profile$retained_markers
+    if (is.data.frame(markers) && nrow(markers) > 0L) {
+      for (i in seq_len(nrow(markers))) {
+        k <- k + 1L
+        rows[[k]] <- data.frame(
+          evidence_id = as.character(markers$evidence_id[[i]]),
+          evidence_type = "product_retained_marker",
+          dimension = NA_integer_,
+          entity = paste(product, markers$attribute[[i]], sep = "::"),
+          metric = "v_test",
+          value = as.numeric(markers$v_test[[i]]),
+          details = paste0(
+            "direction=", markers$direction[[i]],
+            "; adjusted_mean=", markers$adjusted_mean[[i]],
+            "; p_value=", markers$p_value[[i]]
+          ),
+          stringsAsFactors = FALSE
+        )
+      }
+    }
+  }
+
+  if (!length(rows)) {
+    return(data.frame(
+      evidence_id = character(0), evidence_type = character(0),
+      dimension = integer(0), entity = character(0), metric = character(0),
+      value = numeric(0), details = character(0), stringsAsFactors = FALSE
+    ))
+  }
+  do.call(rbind, rows)
+}
+
+.qda_space_build_registry <- function(eigenvalues,
+                                     axes,
+                                     product_geometry,
+                                     product_profiles) {
+  rows <- list()
+  k <- 0L
+  add <- function(df) {
+    if (is.null(df) || nrow(df) == 0L) return(invisible(NULL))
+    for (i in seq_len(nrow(df))) {
+      k <<- k + 1L
+      rows[[k]] <<- df[i, , drop = FALSE]
+    }
+    invisible(NULL)
+  }
+
+  inertia_rows <- data.frame(
+    evidence_id = paste0("Dim", eigenvalues$dimension, "::inertia"),
+    evidence_type = "axis_inertia",
+    dimension = eigenvalues$dimension,
+    entity = paste0("Dim", eigenvalues$dimension),
+    metric = "inertia_percent",
+    value = eigenvalues$inertia_percent,
+    details = paste0("eigenvalue=", eigenvalues$eigenvalue,
+                     "; cumulative_percent=", eigenvalues$cumulative_percent),
+    stringsAsFactors = FALSE
+  )
+  add(inertia_rows)
+
+  for (axis_name in names(axes)) {
+    axis <- axes[[axis_name]]
+    var_rows <- data.frame(
+      evidence_id = axis$variables$evidence_id,
+      evidence_type = "axis_variable",
+      dimension = axis$dimension,
+      entity = axis$variables$attribute,
+      metric = "coordinate",
+      value = axis$variables$coordinate,
+      details = paste0(
+        "correlation=", axis$variables$correlation,
+        "; contribution=", axis$variables$contribution,
+        "; cos2=", axis$variables$cos2,
+        "; side=", axis$variables$side
+      ),
+      stringsAsFactors = FALSE
+    )
+    add(var_rows)
+
+    prod_rows <- data.frame(
+      evidence_id = axis$products$evidence_id,
+      evidence_type = "axis_product",
+      dimension = axis$dimension,
+      entity = axis$products$product,
+      metric = "coordinate",
+      value = axis$products$coordinate,
+      details = paste0(
+        "contribution=", axis$products$contribution,
+        "; cos2=", axis$products$cos2,
+        "; side=", axis$products$side
+      ),
+      stringsAsFactors = FALSE
+    )
+    add(prod_rows)
+  }
+
+  origin <- product_geometry$distance_to_origin
+  add(data.frame(
+    evidence_id = origin$evidence_id,
+    evidence_type = "distance_to_origin",
+    dimension = NA_integer_,
+    entity = origin$product,
+    metric = "distance",
+    value = origin$distance,
+    details = paste0("dimensions=", paste(product_geometry$dimensions_used, collapse = ",")),
+    stringsAsFactors = FALSE
+  ))
+
+  pair <- product_geometry$pairwise_distance_table
+  add(data.frame(
+    evidence_id = pair$evidence_id,
+    evidence_type = "pairwise_distance",
+    dimension = NA_integer_,
+    entity = paste(pair$product_1, pair$product_2, sep = "::"),
+    metric = "distance",
+    value = pair$distance,
+    details = paste0("product_1=", pair$product_1, "; product_2=", pair$product_2),
+    stringsAsFactors = FALSE
+  ))
+
+  nearest <- product_geometry$nearest_neighbors
+  add(data.frame(
+    evidence_id = nearest$evidence_id,
+    evidence_type = "nearest_neighbor",
+    dimension = NA_integer_,
+    entity = paste(nearest$product, nearest$neighbor, sep = "::"),
+    metric = "distance",
+    value = nearest$distance,
+    details = paste0(
+      "product=", nearest$product,
+      "; neighbor=", nearest$neighbor,
+      "; tie_count=", nearest$tie_count,
+      "; selected=", nearest$selected
+    ),
+    stringsAsFactors = FALSE
+  ))
+
+  add(.qda_space_profile_registry(product_profiles))
+
+  registry <- if (length(rows)) do.call(rbind, rows) else data.frame()
+  if (nrow(registry) && anyDuplicated(registry$evidence_id) > 0L) {
+    duplicated_ids <- unique(registry$evidence_id[duplicated(registry$evidence_id)])
+    stop(
+      sprintf("The evidence registry contains duplicate ID(s): %s.",
+              paste(duplicated_ids, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  rownames(registry) <- NULL
+  registry
+}
+
+.build_qda_space_evidence <- function(source,
+                                     ncp,
+                                     scale.unit,
+                                     min_inertia_pct,
+                                     top_n_var,
+                                     top_n_products,
+                                     zero_tolerance = .qda_space_zero_tolerance) {
+  adjusted_means <- source$adjusted_means
+
+  if (scale.unit) {
+    sds <- vapply(adjusted_means, stats::sd, numeric(1))
+    zero_variance <- names(sds)[!is.finite(sds) | sds <= zero_tolerance]
+    if (length(zero_variance) > 0L) {
+      stop(
+        sprintf(
+          "`scale.unit = TRUE` cannot be used because the following attribute(s) have zero variance across products: %s.",
+          paste(zero_variance, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  centered <- scale(as.matrix(adjusted_means), center = TRUE, scale = FALSE)
+  rank_available <- qr(centered, tol = zero_tolerance)$rank
+  if (rank_available < 1L) {
+    stop("The adjusted-mean table has no non-zero PCA dimension.", call. = FALSE)
+  }
+  effective_ncp <- min(ncp, rank_available, nrow(adjusted_means) - 1L, ncol(adjusted_means))
+  if (effective_ncp < 1L) {
+    stop("No PCA dimension can be computed from the adjusted-mean table.", call. = FALSE)
+  }
+
+  pca_result <- FactoMineR::PCA(
+    adjusted_means,
     scale.unit = scale.unit,
-    min_inertia_pct = min_inertia_pct
+    ncp = effective_ncp,
+    graph = FALSE
+  )
+  eigenvalues <- .qda_space_eigenvalues(pca_result)
+  available_dimensions <- seq_len(min(effective_ncp, nrow(eigenvalues)))
+  retained_axes <- available_dimensions[
+    eigenvalues$inertia_percent[available_dimensions] >= min_inertia_pct
+  ]
+
+  geometry_dimensions <- available_dimensions
+  product_geometry <- .qda_space_product_geometry(
+    pca_result,
+    geometry_dimensions = geometry_dimensions,
+    tolerance = zero_tolerance
+  )
+
+  axes <- lapply(retained_axes, function(dimension) {
+    variables <- .qda_space_axis_variable_table(
+      pca_result, dimension, tolerance = zero_tolerance
+    )
+    products <- .qda_space_axis_product_table(
+      pca_result, dimension, tolerance = zero_tolerance
+    )
+    selected <- list(
+      negative_variables = .qda_space_select_side(variables, "negative", top_n_var, "attribute"),
+      positive_variables = .qda_space_select_side(variables, "positive", top_n_var, "attribute"),
+      negative_products = .qda_space_select_side(products, "negative", top_n_products, "product"),
+      positive_products = .qda_space_select_side(products, "positive", top_n_products, "product")
+    )
+    selected_products <- .qda_space_selected_products(selected)
+
+    list(
+      dimension = as.integer(dimension),
+      inertia_percent = eigenvalues$inertia_percent[dimension],
+      variables = variables,
+      products = products,
+      selected_for_interpretation = selected,
+      linked_product_profiles = source$product_profiles[selected_products],
+      linked_product_expertise = NULL
+    )
+  })
+  if (length(retained_axes) > 0L) {
+    names(axes) <- paste0("Dim", retained_axes)
+  } else {
+    axes <- list()
+  }
+
+  registry <- .qda_space_build_registry(
+    eigenvalues = eigenvalues,
+    axes = axes,
+    product_geometry = product_geometry,
+    product_profiles = source$product_profiles
+  )
+
+  list(
+    adjusted_means = adjusted_means,
+    product_profiles = source$product_profiles,
+    pca_result = pca_result,
+    eigenvalues = eigenvalues,
+    retained_axes = as.integer(retained_axes),
+    axes = axes,
+    product_geometry = product_geometry,
+    evidence_registry = registry,
+    settings = list(
+      ncp_requested = ncp,
+      ncp_effective = effective_ncp,
+      rank_available = rank_available,
+      scale.unit = scale.unit,
+      min_inertia_pct = min_inertia_pct,
+      top_n_var = top_n_var,
+      top_n_products = top_n_products,
+      zero_tolerance = zero_tolerance,
+      geometry_dimensions = geometry_dimensions,
+      geometry_distance_rule = "Euclidean distance on all computed PCA dimensions",
+      selection_rule = "Descending absolute coordinate within each non-neutral side; ties resolved by label",
+      source = source$source
+    )
   )
 }
 
 # ---------------------------------------------------------------------------
-# Axis-level evidence
+# Interpretation inputs and prompts
 # ---------------------------------------------------------------------------
 
-get_sentences_qda_axis <- function(space_obj, axis, top_n_var = 5) {
-  var_cor <- as.data.frame(space_obj$pca_result$var$cor)
-  axis_name <- paste0("Dim.", axis)
-
-  if (!axis_name %in% colnames(var_cor)) {
-    stop(sprintf("Axis '%s' not found in PCA variable correlations.", axis_name), call. = FALSE)
-  }
-
-  axis_df <- data.frame(
-    Variable = rownames(var_cor),
-    correlation = var_cor[[axis_name]],
-    stringsAsFactors = FALSE
+.qda_space_scope_mission <- function(expertise_scope) {
+  switch(
+    expertise_scope,
+    sensory = paste(
+      "Interpret the sensory oppositions and the way products express them.",
+      "Remain close to perceptual evidence and representation limits."
+    ),
+    formulation = paste(
+      "Interpret the sensory space for formulation teams.",
+      "Propose sensory movement directions, not unobserved recipes or causal mechanisms."
+    ),
+    marketing = paste(
+      "Interpret differentiated sensory territories and communication implications.",
+      "Do not infer market success, brand value, or observed consumer demand."
+    ),
+    consumer = paste(
+      "Formulate consumer-preference and research hypotheses grounded in sensory geometry.",
+      "Do not invent demographic segments or observed preferences."
+    ),
+    innovation = paste(
+      "Identify potentially underoccupied sensory territories and innovation hypotheses.",
+      "Treat opportunities as hypotheses requiring validation."
+    ),
+    cross_functional = paste(
+      "Integrate sensory, formulation, marketing, consumer-research, and innovation perspectives.",
+      "Keep statistical evidence primary and label hypotheses and recommendations explicitly."
+    )
   )
-
-  axis_df$abs_correlation <- abs(axis_df$correlation)
-
-  pos_df <- axis_df |>
-    dplyr::filter(.data$correlation > 0) |>
-    dplyr::arrange(dplyr::desc(.data$abs_correlation))
-
-  neg_df <- axis_df |>
-    dplyr::filter(.data$correlation < 0) |>
-    dplyr::arrange(dplyr::desc(.data$abs_correlation))
-
-  pos_df <- utils::head(pos_df[, c("Variable", "correlation"), drop = FALSE], top_n_var)
-  neg_df <- utils::head(neg_df[, c("Variable", "correlation"), drop = FALSE], top_n_var)
-
-  pos_txt <- if (nrow(pos_df) > 0) {
-    paste(
-      "### Attributes positively associated with the dimension",
-      "",
-      paste(knitr::kable(pos_df, digits = 2, format = "pipe", align = c("l", "r")), collapse = "\n"),
-      sep = "\n"
-    )
-  } else {
-    "### Attributes positively associated with the dimension\n\n*No positive associations retained.*"
-  }
-
-  neg_txt <- if (nrow(neg_df) > 0) {
-    paste(
-      "### Attributes negatively associated with the dimension",
-      "",
-      paste(knitr::kable(neg_df, digits = 2, format = "pipe", align = c("l", "r")), collapse = "\n"),
-      sep = "\n"
-    )
-  } else {
-    "### Attributes negatively associated with the dimension\n\n*No negative associations retained.*"
-  }
-
-  normalize_blank_lines(paste(pos_txt, neg_txt, sep = "\n\n"))
 }
 
-# ---------------------------------------------------------------------------
-# Product-level evidence
-# ---------------------------------------------------------------------------
+.qda_space_compact_profile <- function(profile) {
+  list(
+    product = profile$product,
+    adjusted_means = as.list(profile$adjusted_means),
+    retained_markers = if (nrow(profile$retained_markers)) {
+      profile$retained_markers[, c(
+        "evidence_id", "attribute", "direction", "adjusted_mean",
+        "v_test", "p_value"
+      ), drop = FALSE]
+    } else {
+      profile$retained_markers
+    }
+  )
+}
 
-.build_axis_product_evidence <- function(space_obj, axis,
-                                         profile_summary = NULL,
-                                         llm_profile_summaries = NULL,
-                                         top_n_products = 2) {
-  coord_df <- as.data.frame(space_obj$pca_result$ind$coord)
-  axis_name <- paste0("Dim.", axis)
-
-  if (!axis_name %in% colnames(coord_df)) {
-    stop(sprintf("Axis '%s' not found in PCA individual coordinates.", axis_name), call. = FALSE)
+.qda_space_compact_expertise <- function(normalized,
+                                               products,
+                                               include_portfolio = TRUE) {
+  if (!is.null(normalized$product_expertise)) {
+    expertise <- normalized$product_expertise
+    return(list(
+      source_type = "structured_product_expertise",
+      portfolio = if (include_portfolio) expertise$portfolio else NULL,
+      products = expertise$products[intersect(products, names(expertise$products))]
+    ))
   }
+  if (!is.null(normalized$legacy_summaries)) {
+    return(list(
+      source_type = "deprecated_unvalidated_summary",
+      portfolio = NULL,
+      products = normalized$legacy_summaries[intersect(products, names(normalized$legacy_summaries))]
+    ))
+  }
+  NULL
+}
 
-  prod_df <- data.frame(
-    Product = rownames(coord_df),
-    coord = coord_df[[axis_name]],
-    stringsAsFactors = FALSE
+.qda_space_axis_valid_ids <- function(evidence, axis) {
+  axis_obj <- evidence$axes[[paste0("Dim", axis)]]
+  selected <- axis_obj$selected_for_interpretation
+  products <- .qda_space_selected_products(selected)
+  profile_ids <- evidence$evidence_registry$evidence_id[
+    evidence$evidence_registry$evidence_type %in% c(
+      "product_adjusted_mean", "product_retained_marker"
+    ) & vapply(evidence$evidence_registry$entity, function(entity) {
+      any(startsWith(entity, paste0(products, "::")))
+    }, logical(1))
+  ]
+  unique(c(
+    paste0("Dim", axis, "::inertia"),
+    selected$negative_variables$evidence_id,
+    selected$positive_variables$evidence_id,
+    selected$negative_products$evidence_id,
+    selected$positive_products$evidence_id,
+    profile_ids
+  ))
+}
+
+.qda_space_axis_prompt_payload <- function(evidence, axis) {
+  axis_obj <- evidence$axes[[paste0("Dim", axis)]]
+  list(
+    dimension = axis,
+    inertia_evidence_id = paste0("Dim", axis, "::inertia"),
+    inertia_percent = axis_obj$inertia_percent,
+    selected_for_interpretation = axis_obj$selected_for_interpretation
+  )
+}
+
+.qda_space_portfolio_prompt_payload <- function(evidence) {
+  axes <- lapply(evidence$axes, function(axis) {
+    list(
+      dimension = axis$dimension,
+      inertia_percent = axis$inertia_percent,
+      variables = axis$variables,
+      products = axis$products,
+      selected_for_interpretation = axis$selected_for_interpretation
+    )
+  })
+  list(
+    eigenvalues = evidence$eigenvalues,
+    retained_axes = evidence$retained_axes,
+    axes = axes,
+    product_geometry = list(
+      dimensions_used = evidence$product_geometry$dimensions_used,
+      distance_to_origin = evidence$product_geometry$distance_to_origin,
+      pairwise_distances = evidence$product_geometry$pairwise_distance_table,
+      nearest_neighbors = evidence$product_geometry$nearest_neighbors
+    )
+  )
+}
+
+.qda_space_claim_schema <- function() {
+  list(
+    text = "string",
+    status = paste(.qda_space_statuses, collapse = " | "),
+    evidence_ids = list("existing evidence ID"),
+    validation_needed = "string or null; mandatory for hypothesis/recommendation"
+  )
+}
+
+.qda_space_axis_schema <- function(axis) {
+  claim <- .qda_space_claim_schema()
+  list(
+    dimension = as.integer(axis),
+    sensory_opposition = claim,
+    negative_pole = claim,
+    positive_pole = claim,
+    representative_products = list(c(list(product = "exact product identifier"), claim)),
+    within_pole_nuances = list(claim),
+    interpretation_limits = list(claim)
+  )
+}
+
+.qda_space_portfolio_schema <- function() {
+  claim <- .qda_space_claim_schema()
+  family <- c(
+    list(label = "string", products = list("exact product identifier")),
+    claim
+  )
+  list(
+    sensory_architecture = claim,
+    major_product_families = list(family),
+    proximity_patterns = list(claim),
+    differentiation_risks = list(claim),
+    underoccupied_territories = list(claim),
+    formulation_trajectories = list(claim),
+    marketing_implications = list(claim),
+    consumer_research_hypotheses = list(claim),
+    validation_priorities = list(claim)
+  )
+}
+
+.qda_space_json <- function(x) {
+  jsonlite::toJSON(
+    x,
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    na = "null",
+    null = "null",
+    dataframe = "rows",
+    digits = NA
+  )
+}
+
+.build_qda_space_prompt <- function(role,
+                                   geometry,
+                                   profiles,
+                                   product_expertise,
+                                   context,
+                                   introduction,
+                                   task,
+                                   request,
+                                   conclusion,
+                                   valid_evidence_ids,
+                                   schema,
+                                   scope_label) {
+  context_payload <- list(
+    structured_context = context,
+    introduction = introduction
+  )
+  expertise_payload <- product_expertise %||% list(
+    source_type = "none",
+    note = "No prior product expertise was supplied."
   )
 
-  neg_products <- prod_df |>
-    dplyr::filter(.data$coord < 0) |>
-    dplyr::arrange(.data$coord)
-
-  pos_products <- prod_df |>
-    dplyr::filter(.data$coord > 0) |>
-    dplyr::arrange(dplyr::desc(.data$coord))
-
-  neg_products <- utils::head(neg_products, top_n_products)
-  pos_products <- utils::head(pos_products, top_n_products)
-
-  .one_line_mechanical <- function(product_name, coord_value, profile_summary_item) {
-    if (is.null(profile_summary_item)) {
-      return(paste0("- ", product_name, " (coord. = ", round(coord_value, 2), ")"))
-    }
-
-    above_txt <- if (length(profile_summary_item$above) > 0) {
-      paste(profile_summary_item$above, collapse = ", ")
-    } else {
-      "none"
-    }
-
-    below_txt <- if (length(profile_summary_item$below) > 0) {
-      paste(profile_summary_item$below, collapse = ", ")
-    } else {
-      "none"
-    }
-
-    paste0(
-      "- ", product_name,
-      " (coord. = ", round(coord_value, 2), "): ",
-      "above average on ", above_txt,
-      "; below average on ", below_txt,
-      " (profile strength: ", profile_summary_item$profile_strength, ")"
-    )
-  }
-
-  .one_line_llm <- function(product_name, coord_value, llm_item, fallback_item = NULL) {
-    if (is.null(llm_item)) {
-      return(.one_line_mechanical(product_name, coord_value, fallback_item))
-    }
-
-    summary_txt <- llm_item$injectable_summary
-    cue_txt <- llm_item$positioning_cues
-    clarity_txt <- llm_item$profile_clarity
-
-    if (is.null(summary_txt) || is.na(summary_txt) || !nzchar(trimws(summary_txt))) {
-      return(.one_line_mechanical(product_name, coord_value, fallback_item))
-    }
-
-    pieces <- c(
-      paste0("- ", product_name, " (coord. = ", round(coord_value, 2), "): ", summary_txt),
-      if (!is.null(cue_txt) && !is.na(cue_txt) && nzchar(trimws(cue_txt)))
-        paste0(" Intermediate summary cue: ", cue_txt) else NULL,
-      if (!is.null(clarity_txt) && !is.na(clarity_txt) && nzchar(trimws(clarity_txt)))
-        paste0(" Profile clarity: ", clarity_txt, ".") else NULL
-    )
-
-    paste0(pieces, collapse = "")
-  }
-
-  neg_lines <- if (nrow(neg_products) > 0) {
-    vapply(
-      seq_len(nrow(neg_products)),
-      function(i) {
-        p <- neg_products$Product[i]
-        llm_item <- if (!is.null(llm_profile_summaries)) llm_profile_summaries[[p]] else NULL
-        fallback_item <- if (!is.null(profile_summary)) profile_summary[[p]] else NULL
-        .one_line_llm(p, neg_products$coord[i], llm_item, fallback_item)
-      },
-      character(1)
-    )
-  } else {
-    "*No product clearly located at the negative end.*"
-  }
-
-  pos_lines <- if (nrow(pos_products) > 0) {
-    vapply(
-      seq_len(nrow(pos_products)),
-      function(i) {
-        p <- pos_products$Product[i]
-        llm_item <- if (!is.null(llm_profile_summaries)) llm_profile_summaries[[p]] else NULL
-        fallback_item <- if (!is.null(profile_summary)) profile_summary[[p]] else NULL
-        .one_line_llm(p, pos_products$coord[i], llm_item, fallback_item)
-      },
-      character(1)
-    )
-  } else {
-    "*No product clearly located at the positive end.*"
-  }
+  task_lines <- c(
+    .qda_space_scope_mission(scope_label),
+    task,
+    if (!is.null(request)) paste0("Additional user request: ", request) else NULL,
+    if (!is.null(conclusion)) paste0("Additional synthesis instruction: ", conclusion) else NULL
+  )
 
   paste(
-    "### Products at the negative end of the dimension",
+    "# 1. ROLE",
+    role,
     "",
-    paste(neg_lines, collapse = "\n"),
+    "# 2. SPACE GEOMETRY EVIDENCE",
+    "The following values were calculated by R and constitute the statistical evidence.",
+    .qda_space_json(geometry),
     "",
-    "### Products at the positive end of the dimension",
+    "# 3. PRODUCT SENSORY PROFILES",
+    "These profiles come from attr(x, 'product_profiles'). They are mechanical evidence, not LLM output.",
+    .qda_space_json(profiles),
     "",
-    paste(pos_lines, collapse = "\n"),
+    "# 4. OPTIONAL PRODUCT EXPERTISE",
+    "This section contains prior interpretations, hypotheses, or recommendations. It is not PCA evidence and must never alter the geometry.",
+    .qda_space_json(expertise_payload),
+    "",
+    "# 5. USER-PROVIDED CONTEXT",
+    "This context was supplied by the user and must not be presented as a statistical result.",
+    .qda_space_json(context_payload),
+    "",
+    "# 6. INTERPRETATION TASK",
+    paste(task_lines, collapse = "\n"),
+    "",
+    "# 7. MANDATORY EPISTEMIC RULES",
+    paste(
+      "Return interpretations only; never recalculate or approximately restate PCA values.",
+      "Use only these statuses: expert_interpretation, hypothesis, recommendation, user_context.",
+      "Every non-user-context claim must cite at least one evidence ID from the allowed registry below.",
+      "Every hypothesis or recommendation must include a non-empty validation_needed field.",
+      "A user_context claim must use an empty evidence_ids array and is allowed only when user context was provided.",
+      "Do not invent demographic segments, observed preferences, causal formulation mechanisms, market performance, or numerical results.",
+      "Low cos2 indicates limited representation on the current dimension and must be reflected in interpretation limits.",
+      "The sign of a PCA axis is arbitrary; interpret the opposition between poles rather than assigning value to positive or negative signs.",
+      "Do not add unknown JSON fields.",
+      sep = "\n"
+    ),
+    "Allowed evidence IDs:",
+    paste(valid_evidence_ids, collapse = "\n"),
+    "",
+    "# 8. OUTPUT SCHEMA",
+    "Return one strict JSON object only, without Markdown fences, comments, or surrounding text.",
+    .qda_space_json(schema),
     sep = "\n"
   )
 }
 
+.build_qda_space_interpretation_units <- function(evidence,
+                                                 normalized_expertise,
+                                                 interpretation_level,
+                                                 expertise_scope,
+                                                 context,
+                                                 introduction,
+                                                 request,
+                                                 conclusion) {
+  products <- rownames(evidence$adjusted_means)
+  units <- list(axes = list(), portfolio = NULL)
+
+  if (interpretation_level %in% c("axis", "both")) {
+    for (axis in evidence$retained_axes) {
+      axis_obj <- evidence$axes[[paste0("Dim", axis)]]
+      selected_products <- .qda_space_selected_products(
+        axis_obj$selected_for_interpretation
+      )
+      profiles <- lapply(
+        axis_obj$linked_product_profiles,
+        .qda_space_compact_profile
+      )
+      valid_ids <- .qda_space_axis_valid_ids(evidence, axis)
+      units$axes[[paste0("Dim", axis)]] <- list(
+        unit_type = "axis",
+        axis = axis,
+        products = selected_products,
+        valid_evidence_ids = valid_ids,
+        prompt = .build_qda_space_prompt(
+          role = "You are a senior sensory scientist interpreting one PCA dimension for cross-functional product teams.",
+          geometry = .qda_space_axis_prompt_payload(evidence, axis),
+          profiles = profiles,
+          product_expertise = .qda_space_compact_expertise(
+            normalized_expertise, selected_products,
+            include_portfolio = FALSE
+          ),
+          context = context,
+          introduction = introduction,
+          task = paste0(
+            "Interpret Dimension ", axis,
+            ". Explain the sensory opposition, both poles, representative products, within-pole nuances, and interpretation limits."
+          ),
+          request = request,
+          conclusion = conclusion,
+          valid_evidence_ids = valid_ids,
+          schema = .qda_space_axis_schema(axis),
+          scope_label = expertise_scope
+        )
+      )
+    }
+  }
+
+  if (interpretation_level %in% c("portfolio", "both") &&
+      length(evidence$retained_axes) > 0L) {
+    profiles <- lapply(
+      evidence$product_profiles %||% list(),
+      .qda_space_compact_profile
+    )
+    if (length(profiles) == 0L) {
+      profiles <- list()
+      # Reconstruct from the profile registry is deliberately avoided; the
+      # complete profiles are attached below by the caller.
+    }
+    valid_ids <- evidence$evidence_registry$evidence_id
+    units$portfolio <- list(
+      unit_type = "portfolio",
+      products = products,
+      valid_evidence_ids = valid_ids,
+      prompt = .build_qda_space_prompt(
+        role = "You are a senior sensory scientist interpreting a complete product space for sensory, formulation, marketing, consumer-research, and innovation teams.",
+        geometry = .qda_space_portfolio_prompt_payload(evidence),
+        profiles = profiles,
+        product_expertise = .qda_space_compact_expertise(
+          normalized_expertise, products
+        ),
+        context = context,
+        introduction = introduction,
+        task = paste(
+          "Interpret the portfolio across all retained dimensions and product distances.",
+          "Address sensory architecture, product families, proximity patterns, differentiation risks, underoccupied territories, formulation trajectories, marketing implications, consumer-research hypotheses, and validation priorities."
+        ),
+        request = request,
+        conclusion = conclusion,
+        valid_evidence_ids = valid_ids,
+        schema = .qda_space_portfolio_schema(),
+        scope_label = expertise_scope
+      )
+    )
+  }
+
+  units
+}
+
 # ---------------------------------------------------------------------------
-# Main
+# JSON validation
 # ---------------------------------------------------------------------------
 
-#' Interpret a product sensory space built from QDA adjusted means
+.qda_space_as_character <- function(x, field) {
+  .qda_spaceprep_as_character_vector(x, field)
+}
+
+.qda_space_validate_claim <- function(claim,
+                                     field,
+                                     valid_evidence_ids,
+                                     context_present) {
+  .qda_spaceprep_validate_claim(
+    claim = claim,
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+}
+
+.qda_space_validate_claim_list <- function(x,
+                                          field,
+                                          valid_evidence_ids,
+                                          context_present,
+                                          required_status = NULL) {
+  .qda_spaceprep_validate_claim_list(
+    x = x,
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present,
+    required_status = required_status
+  )
+}
+
+.qda_space_validate_representative_product <- function(item,
+                                                       field,
+                                                       analyzed_products,
+                                                       valid_evidence_ids,
+                                                       context_present,
+                                                       axis) {
+  if (!is.list(item) || is.data.frame(item)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+  required <- c("product", "text", "status", "evidence_ids", "validation_needed")
+  missing <- setdiff(required, names(item))
+  unknown <- setdiff(names(item), required)
+  if (length(missing)) {
+    stop(sprintf("`%s` is missing required field(s): %s.", field,
+                 paste(missing, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field,
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+  if (!.qda_space_nonempty_scalar(item$product) || !item$product %in% analyzed_products) {
+    stop(sprintf("`%s$product` must identify a product analyzed in the PCA.", field),
+         call. = FALSE)
+  }
+  claim <- .qda_space_validate_claim(
+    item[setdiff(names(item), "product")],
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+  product <- item$product
+  product_prefixes <- c(
+    paste0("Dim", axis, "::product::", product),
+    paste0("product_profile::", product, "::"),
+    paste0(product, "::")
+  )
+  if (claim$status != "user_context" &&
+      !any(vapply(claim$evidence_ids, function(id) {
+        any(id == product_prefixes[[1L]] |
+              startsWith(id, product_prefixes[[2L]]) |
+              startsWith(id, product_prefixes[[3L]]))
+      }, logical(1)))) {
+    stop(sprintf("`%s` must cite at least one evidence ID for product `%s`.", field, product),
+         call. = FALSE)
+  }
+  c(list(product = product), claim)
+}
+
+.validate_qda_space_axis_parsed <- function(parsed,
+                                           axis,
+                                           analyzed_products,
+                                           valid_evidence_ids,
+                                           context_present) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The axis response must be a JSON object.", call. = FALSE)
+  }
+  allowed <- c(
+    "dimension", "sensory_opposition", "negative_pole", "positive_pole",
+    "representative_products", "within_pole_nuances", "interpretation_limits"
+  )
+  missing <- setdiff(allowed, names(parsed))
+  unknown <- setdiff(names(parsed), allowed)
+  if (length(missing)) {
+    stop(sprintf("The axis response is missing required field(s): %s.",
+                 paste(missing, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(sprintf("The axis response contains unexpected field(s): %s.",
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+  if (!is.numeric(parsed$dimension) || length(parsed$dimension) != 1L ||
+      is.na(parsed$dimension) || as.integer(parsed$dimension) != axis) {
+    stop(sprintf("`dimension` must be exactly %d.", axis), call. = FALSE)
+  }
+
+  out <- list(dimension = as.integer(axis))
+  for (field in c("sensory_opposition", "negative_pole", "positive_pole")) {
+    out[[field]] <- .qda_space_validate_claim(
+      parsed[[field]],
+      field = field,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present
+    )
+  }
+
+  representatives <- parsed$representative_products
+  if (is.null(representatives)) representatives <- list()
+  if (!is.list(representatives) || is.data.frame(representatives)) {
+    stop("`representative_products` must be a JSON array.", call. = FALSE)
+  }
+  out$representative_products <- lapply(seq_along(representatives), function(i) {
+    .qda_space_validate_representative_product(
+      representatives[[i]],
+      field = sprintf("representative_products[[%d]]", i),
+      analyzed_products = analyzed_products,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      axis = axis
+    )
+  })
+
+  out$within_pole_nuances <- .qda_space_validate_claim_list(
+    parsed$within_pole_nuances,
+    field = "within_pole_nuances",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+  out$interpretation_limits <- .qda_space_validate_claim_list(
+    parsed$interpretation_limits,
+    field = "interpretation_limits",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+  out
+}
+
+.qda_space_validate_family <- function(item,
+                                      field,
+                                      analyzed_products,
+                                      valid_evidence_ids,
+                                      context_present) {
+  if (!is.list(item) || is.data.frame(item)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+  required <- c(
+    "label", "products", "text", "status", "evidence_ids", "validation_needed"
+  )
+  missing <- setdiff(required, names(item))
+  unknown <- setdiff(names(item), required)
+  if (length(missing)) {
+    stop(sprintf("`%s` is missing required field(s): %s.", field,
+                 paste(missing, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field,
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+  if (!.qda_space_nonempty_scalar(item$label)) {
+    stop(sprintf("`%s$label` must be a non-empty string.", field), call. = FALSE)
+  }
+  products <- .qda_space_as_character(item$products, paste0(field, "$products"))
+  if (length(products) == 0L || any(!products %in% analyzed_products)) {
+    stop(sprintf("`%s$products` must contain analyzed product identifiers.", field),
+         call. = FALSE)
+  }
+  claim <- .qda_space_validate_claim(
+    item[setdiff(names(item), c("label", "products"))],
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+  c(list(label = trimws(item$label), products = unique(products)), claim)
+}
+
+.validate_qda_space_portfolio_parsed <- function(parsed,
+                                                analyzed_products,
+                                                valid_evidence_ids,
+                                                context_present) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The portfolio response must be a JSON object.", call. = FALSE)
+  }
+  allowed <- c(
+    "sensory_architecture", "major_product_families", "proximity_patterns",
+    "differentiation_risks", "underoccupied_territories",
+    "formulation_trajectories", "marketing_implications",
+    "consumer_research_hypotheses", "validation_priorities"
+  )
+  missing <- setdiff(allowed, names(parsed))
+  unknown <- setdiff(names(parsed), allowed)
+  if (length(missing)) {
+    stop(sprintf("The portfolio response is missing required field(s): %s.",
+                 paste(missing, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(sprintf("The portfolio response contains unexpected field(s): %s.",
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+
+  out <- list()
+  out$sensory_architecture <- .qda_space_validate_claim(
+    parsed$sensory_architecture,
+    field = "sensory_architecture",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  families <- parsed$major_product_families
+  if (is.null(families)) families <- list()
+  if (!is.list(families) || is.data.frame(families)) {
+    stop("`major_product_families` must be a JSON array.", call. = FALSE)
+  }
+  out$major_product_families <- lapply(seq_along(families), function(i) {
+    .qda_space_validate_family(
+      families[[i]],
+      field = sprintf("major_product_families[[%d]]", i),
+      analyzed_products = analyzed_products,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present
+    )
+  })
+
+  required_statuses <- c(
+    proximity_patterns = NA_character_,
+    differentiation_risks = "hypothesis",
+    underoccupied_territories = "hypothesis",
+    formulation_trajectories = "recommendation",
+    marketing_implications = NA_character_,
+    consumer_research_hypotheses = "hypothesis",
+    validation_priorities = "recommendation"
+  )
+  for (field in names(required_statuses)) {
+    required_status <- required_statuses[[field]]
+    if (is.na(required_status)) required_status <- NULL
+    out[[field]] <- .qda_space_validate_claim_list(
+      parsed[[field]],
+      field = field,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      required_status = required_status
+    )
+  }
+  out
+}
+
+.parse_qda_space_strict_json <- function(text) {
+  if (!is.character(text) || length(text) == 0L || anyNA(text)) {
+    stop("The LLM response must be a non-missing character string containing one strict JSON object.",
+         call. = FALSE)
+  }
+  text <- trimws(paste(text, collapse = "
+"))
+  if (!nzchar(text) || !startsWith(text, "{") || !endsWith(text, "}")) {
+    stop(
+      "The LLM response must contain one strict JSON object with no Markdown fence or surrounding text.",
+      call. = FALSE
+    )
+  }
+  jsonlite::fromJSON(text, simplifyDataFrame = FALSE)
+}
+
+.qda_space_collect_claim_texts <- function(x) {
+  out <- character(0)
+  walk <- function(value) {
+    if (is.list(value)) {
+      if (.qda_space_nonempty_scalar(value$text)) {
+        out <<- c(out, trimws(value$text))
+      }
+      for (item in value) walk(item)
+    }
+    invisible(NULL)
+  }
+  walk(x)
+  unique(out)
+}
+
+.parse_qda_space_response <- function(text,
+                                     unit_type,
+                                     valid_evidence_ids,
+                                     analyzed_products,
+                                     context_present,
+                                     consumer_context_present,
+                                     axis = NULL) {
+  tryCatch(
+    {
+      parsed <- .parse_qda_space_strict_json(text)
+      interpretation <- if (identical(unit_type, "axis")) {
+        .validate_qda_space_axis_parsed(
+          parsed = parsed,
+          axis = axis,
+          analyzed_products = analyzed_products,
+          valid_evidence_ids = valid_evidence_ids,
+          context_present = context_present
+        )
+      } else {
+        .validate_qda_space_portfolio_parsed(
+          parsed = parsed,
+          analyzed_products = analyzed_products,
+          valid_evidence_ids = valid_evidence_ids,
+          context_present = context_present
+        )
+      }
+      if (!consumer_context_present) {
+        claim_texts <- .qda_space_collect_claim_texts(interpretation)
+        demographic <- claim_texts[vapply(
+          claim_texts,
+          .qda_spaceprep_contains_demographic_claim,
+          logical(1)
+        )]
+        if (length(demographic) > 0L) {
+          stop(
+            paste(
+              "The response contains a demographic or observed-frequency consumer claim,",
+              "but no explicit `context$consumers` was supplied."
+            ),
+            call. = FALSE
+          )
+        }
+      }
+
+      list(
+        parse_status = "success",
+        parse_error = NULL,
+        interpretation = interpretation
+      )
+    },
+    error = function(e) {
+      list(
+        parse_status = "error",
+        parse_error = conditionMessage(e),
+        interpretation = NULL
+      )
+    }
+  )
+}
+
+.as_qda_space_response_text <- function(response) {
+  if (is.character(response)) return(paste(response, collapse = "\n"))
+  if (is.data.frame(response) && "response" %in% names(response)) {
+    return(paste(response$response, collapse = "\n"))
+  }
+  stop("The LLM backend returned an unsupported response format.", call. = FALSE)
+}
+
+# ---------------------------------------------------------------------------
+# Public function
+# ---------------------------------------------------------------------------
+
+#' Interpret a QDA product space with traceable mechanical evidence
 #'
-#' Builds a principal component analysis of the adjusted product means
-#' obtained from `SensoMineR::decat()`, identifies the main sensory
-#' oppositions structuring the product space, and prepares one interpretation
-#' prompt for each retained PCA dimension.
+#' @description
+#' `nail_qda_space()` constructs a principal component analysis from the
+#' adjusted product means produced by [nail_qda()], creates a complete and
+#' deterministic `qda_space_evidence` object, and optionally asks a language
+#' model to interpret individual axes, the complete product portfolio, or both.
 #'
-#' The function combines two complementary sources of evidence:
+#' The statistical layer is produced exclusively by R. Product expertise from
+#' [nail_qda_spaceprep()] is optional and is presented to the language model as
+#' a prior interpretive layer; it never changes the PCA, retained axes,
+#' coordinates, contributions, cos2 values, distances, nearest neighbors, or
+#' mechanical selections.
 #'
-#' - sensory attributes that are positively or negatively associated with
-#'   each PCA dimension;
-#' - products located at the negative and positive ends of each dimension.
-#'
-#' When `x` is an object returned by `nail_qda()`, deterministic product
-#' summaries are extracted automatically and used to make the extreme
-#' products more concrete. These summaries do not affect the PCA.
-#'
-#' Product-level evidence may optionally be enriched with structured LLM
-#' summaries produced by `nail_qda_spaceprep(generate = TRUE)`.
-#'
-#' By default, no language model is called. The function returns the prompts
-#' and the complete product-space object so that the statistical structure can
-#' be inspected before generation.
-#'
-#' @param x An object providing the result of the QDA product
-#'   characterization.
-#'
-#'   `x` may be:
-#'
-#'   - an object returned by `nail_qda()`. This is the recommended workflow.
-#'     The function then extracts the `"decat_result"` and
-#'     `"profile_summary"` attributes automatically;
-#'   - a raw result returned by `SensoMineR::decat()` containing an `adjmean`
-#'     component.
-#'
-#'   The `adjmean` component must contain products in rows and quantitative
-#'   sensory attributes in columns.
-#' @param profile_summary Optional advanced argument containing deterministic
-#'   product-level summaries.
-#'
-#'   Most users should leave this argument as `NULL`.
-#'
-#'   When `x` is returned by `nail_qda()`, the `"profile_summary"` attribute
-#'   is extracted automatically. Supplying `profile_summary` explicitly
-#'   overrides the automatically extracted value.
-#'
-#'   This argument is mainly useful when `x` is a raw
-#'   `SensoMineR::decat()` result and compatible product summaries are
-#'   available separately.
-#'
-#'   Each named element may contain:
-#'
-#'   - `above`: sensory attributes above the average product profile;
-#'   - `below`: sensory attributes below the average product profile;
-#'   - `profile_strength`: an indication of how clearly the product differs
-#'     from the average profile.
-#'
-#'   These summaries are used only to enrich the textual description of
-#'   products located at the ends of the PCA dimensions. They do not affect
-#'   the adjusted mean table, the PCA, the eigenvalues, the product
-#'   coordinates, or the retained dimensions.
-#' @param llm_product_summaries An optional named list of structured product
-#'   summaries, typically returned by
-#'   `nail_qda_spaceprep(generate = TRUE)`.
-#'
-#'   Product names must correspond to the row names of the adjusted mean
-#'   table.
-#'
-#'   When a valid LLM summary is available for a product, its
-#'   `injectable_summary`, `positioning_cues`, and `profile_clarity` fields
-#'   are included in the product-level evidence.
-#'
-#'   When no usable LLM summary is available for a product, the function falls
-#'   back to the corresponding deterministic summary extracted from
-#'   `nail_qda()`, when available.
-#'
-#'   Results from `nail_qda_spaceprep(generate = FALSE)` contain prompts only
-#'   and therefore do not provide parsed product summaries suitable for this
-#'   argument.
-#'
-#'   These summaries affect only the prompt. They do not modify the PCA.
-#' @param ncp A single integer greater than or equal to 1 giving the requested
-#'   number of PCA dimensions to compute. The default is `2`.
-#'
-#'   The effective number of dimensions is automatically limited by the
-#'   number of products and sensory attributes. It cannot exceed the smallest
-#'   of:
-#'
-#'   - the requested value;
-#'   - the number of products minus one;
-#'   - the number of sensory attributes.
-#'
-#'   Computing a dimension does not necessarily mean that it will be
-#'   interpreted. Automatic interpretation is also controlled by
-#'   `min_inertia_pct`.
-#' @param scale.unit Logical indicating whether the sensory attributes should
-#'   be standardized to unit variance before PCA. The default is `TRUE`.
-#'
-#'   With `scale.unit = TRUE`, each sensory attribute is standardized to unit
-#'   variance before PCA. This gives the attributes comparable weights in the
-#'   construction of the product space and prevents attributes with greater
-#'   dispersion from dominating the analysis solely because of their
-#'   variability.
-#'
-#'   This setting is generally appropriate when the objective is to give each
-#'   sensory attribute an equivalent role in the analysis.
-#'
-#'   With `scale.unit = FALSE`, the adjusted mean variables are centered but
-#'   their original variances are retained. Attributes with greater variation
-#'   across products may therefore contribute more strongly to the product
-#'   space.
-#'
-#'   This alternative may be appropriate when all attributes were measured on
-#'   comparable scales and their differences in dispersion are considered
-#'   substantively meaningful.
-#'
-#'   Changing this argument changes the PCA itself and may therefore alter the
-#'   dimensions, eigenvalues, product coordinates, and resulting
-#'   interpretations.
-#' @param min_inertia_pct A numeric value between 0 and 100 giving the minimum
-#'   percentage of inertia that a PCA dimension must explain to be interpreted
-#'   automatically. The default is `10`.
-#'
-#'   For example, with `ncp = 4` and `min_inertia_pct = 10`, up to four
-#'   dimensions are computed, but prompts are produced only for dimensions
-#'   that individually explain at least 10 percent of the total inertia.
-#'
-#'   This threshold is applied to each dimension separately, not to the
-#'   cumulative percentage of inertia.
-#' @param top_n_var A single integer greater than or equal to 1 giving the
-#'   maximum number of sensory attributes displayed on each side of a
-#'   dimension. The default is `5`.
-#'
-#'   The attributes are ranked by the absolute value of their correlation with
-#'   the PCA dimension. Up to `top_n_var` positively associated attributes and
-#'   up to `top_n_var` negatively associated attributes are retained.
-#'
-#'   Consequently, as many as `2 * top_n_var` attributes may be displayed for
-#'   one dimension.
-#' @param top_n_products A single integer greater than or equal to 1 giving the
-#'   maximum number of products displayed at each end of a PCA dimension. The
-#'   default is `2`.
-#'
-#'   Products are ranked using their coordinates on the current dimension.
-#'   Up to `top_n_products` products with the most negative coordinates and up
-#'   to `top_n_products` products with the most positive coordinates are
-#'   retained.
-#'
-#'   Consequently, as many as `2 * top_n_products` products may be displayed
-#'   for one dimension.
-#' @param expertise_mode Character string controlling the interpretive
-#'   perspective used in the prompt. One of `"sensory"`, `"positioning"`, or
-#'   `"hybrid"`.
-#'
-#'   With `"sensory"`, the interpretation focuses on sensory and perceptual
-#'   oppositions. Axis descriptions should remain closely anchored in the
-#'   sensory attributes.
-#'
-#'   With `"positioning"`, the interpretation may extend from the sensory
-#'   evidence to broader product styles, product poles, or forms of
-#'   positioning.
-#'
-#'   With `"hybrid"`, the interpretation first identifies the sensory
-#'   opposition and may then propose a broader product contrast while keeping
-#'   the sensory evidence primary.
-#'
-#'   This argument changes only the prompt instructions. It does not change
-#'   the adjusted mean table or the PCA.
-#' @param introduction An optional character string providing the study
-#'   context for the interpretation prompt.
-#'
-#'   A useful introduction may explain:
-#'
-#'   - which products were evaluated;
-#'   - which sensory panel or assessment procedure was used;
-#'   - what the sensory attributes represent;
-#'   - the purpose of the product-space analysis.
-#'
-#'   If `NULL`, a default introduction is created according to
-#'   `expertise_mode`.
-#' @param request An optional character string specifying the interpretation
-#'   requested from the language model.
-#'
-#'   If `NULL`, a default request is created according to `expertise_mode`.
-#'   The default request asks the model to interpret each retained dimension
-#'   from the sensory attributes and the products located at its two ends.
-#' @param conclusion An optional character string defining the expected final
-#'   synthesis and output format.
-#'
-#'   If `NULL`, a default conclusion is created according to
-#'   `expertise_mode`. The default asks for a structured interpretation of the
-#'   main opposition, the two ends of the dimension, and the products that
-#'   illustrate them.
-#' @param model Character string giving the language model used by the selected
-#'   provider. The default is `"llama3"`, intended for the default Ollama
-#'   backend.
-#' @param provider LLM backend used when `generate = TRUE`. One of
-#'   `"ollama"` or `"gemini"`.
-#'
-#'   The default is `"ollama"`, which uses a local Ollama installation.
-#'
-#'   Gemini requires a valid API key, typically supplied through the
-#'   `GEMINI_API_KEY` environment variable.
-#' @param generate Logical.
-#'
-#'   If `FALSE`, no language model is called and the function returns one
-#'   prompt per retained dimension.
-#'
-#'   If `TRUE`, each prompt is sent separately to the selected LLM backend and
-#'   the function returns one generated result per retained dimension.
-#' @param ... Additional provider-specific generation arguments passed to the
-#'   selected LLM backend, such as `temperature`, `seed`, or other supported
-#'   options.
+#' @param x An object returned by [nail_qda()]. It must contain the
+#'   `"decat_result"`, `"product_profiles"`, and normally `"qda_settings"`
+#'   attributes. Passing a raw `SensoMineR::decat()` result with an `adjmean`
+#'   component remains temporarily supported with a deprecation warning, but
+#'   such an object does not contain retained product markers.
+#' @param product_expertise Optional structured expertise produced by
+#'   [nail_qda_spaceprep()]. The function accepts the complete result, its
+#'   `product_expertise` component, an attached `"product_expertise"` object,
+#'   or the already extracted `list(portfolio, products, metadata)` object.
+#'   Products absent from the PCA are ignored with a warning. Missing product
+#'   expertise never prevents the mechanical analysis.
+#' @param interpretation_level One of `"axis"`, `"portfolio"`, or `"both"`.
+#'   `"axis"` builds one interpretation unit per retained PCA dimension;
+#'   `"portfolio"` builds one global unit from all retained dimensions and the
+#'   product geometry; `"both"` builds both kinds of units. The default is
+#'   `"both"`.
+#' @param expertise_scope Interpretive perspective. One of `"sensory"`,
+#'   `"formulation"`, `"marketing"`, `"consumer"`, `"innovation"`, or
+#'   `"cross_functional"`. This argument changes prompts only.
+#' @param ncp Positive integer giving the maximum requested number of PCA
+#'   dimensions. The effective value is limited by the centered rank of the
+#'   adjusted-mean table and is recorded in `qda_space_evidence$settings`.
+#' @param scale.unit Logical passed to `FactoMineR::PCA()`. The default is
+#'   `FALSE`, preserving the relative dispersions of attributes measured on
+#'   comparable scales.
+#' @param min_inertia_pct Minimum individual percentage of inertia required for
+#'   a dimension to be retained for automatic interpretation.
+#' @param top_n_var Maximum number of variables selected on each non-neutral
+#'   side of a retained dimension.
+#' @param top_n_products Maximum number of products selected on each
+#'   non-neutral side of a retained dimension.
+#' @param context Optional named product context list with fields `category`,
+#'   `products`, `formulation`, `brand`, `market`, `consumers`, `usage`, and
+#'   `constraints`. It is clearly separated from statistical evidence.
+#' @param introduction Optional free-text study context. It is treated as
+#'   user-provided context, not as statistical evidence.
+#' @param request Optional additional interpretation request. It supplements
+#'   the mandatory task and JSON contract but cannot remove traceability or
+#'   epistemic requirements.
+#' @param conclusion Optional additional synthesis instruction. The strict JSON
+#'   schema remains mandatory.
+#' @param model Model name used when `generate = TRUE`.
+#' @param provider LLM provider, `"ollama"` or `"gemini"`.
+#' @param generate Logical. With `FALSE`, all PCA computations, evidence,
+#'   selections, geometry, and prompts are created without an LLM call. With
+#'   `TRUE`, each requested unit is generated and parsed as strict JSON.
+#' @param profile_summary Deprecated compatibility argument. Product profiles
+#'   are now read from `attr(x, "product_profiles")`.
+#' @param llm_product_summaries Deprecated compatibility argument. Use
+#'   `product_expertise` instead. Supplying both arguments is an error.
+#' @param expertise_mode Deprecated compatibility argument. `"sensory"` maps
+#'   to `expertise_scope = "sensory"`, `"positioning"` to `"innovation"`, and
+#'   `"hybrid"` to `"cross_functional"` when `expertise_scope` is omitted.
+#' @param ... Additional provider-specific generation arguments.
 #'
 #' @details
-#' ## Construction of the product space
-#'
-#' The function extracts the adjusted mean table from:
-#'
-#' ```
-#' decat_result$adjmean
-#' ```
-#'
-#' This table has:
-#'
-#' - products or stimuli in rows;
-#' - sensory attributes in columns;
-#' - adjusted sensory means in the cells.
-#'
-#' The adjusted means are estimates obtained from the ANOVA models fitted by
-#' `SensoMineR::decat()`. They account for the factors included in the QDA
-#' model, such as panelist effects.
-#'
-#' A PCA is then computed with `FactoMineR::PCA()`. In this PCA:
-#'
-#' - products are the individuals;
-#' - sensory attributes are the quantitative variables;
-#' - PCA dimensions summarize the main sensory oppositions between products.
-#'
-#' The result is a multidimensional product space in which products with
-#' similar adjusted sensory profiles tend to be positioned close to one
-#' another.
-#'
-#' The PCA is computed exclusively from the adjusted mean table. Neither
-#' `profile_summary` nor `llm_product_summaries` contributes to the statistical
-#' construction of the product space.
-#'
-#' ## Selection of interpreted dimensions
-#'
-#' The function first computes up to `ncp` dimensions. It then retains only
-#' those dimensions whose individual percentage of inertia is greater than or
-#' equal to `min_inertia_pct`.
-#'
-#' A separate prompt is created for each retained dimension.
-#'
-#' A dimension explaining less than `min_inertia_pct` is still present in the
-#' PCA object when it was computed, but it is not interpreted automatically.
-#'
-#' When no computed dimension reaches the threshold, no LLM call is made. With
-#' `generate = FALSE`, the function returns an informative character message
-#' with the complete product-space object stored in the `"qda_space"`
-#' attribute.
-#'
-#' ## Variable-level evidence
-#'
-#' For each retained dimension, the function extracts the correlations between
-#' the sensory attributes and that dimension.
-#'
-#' The attributes with the strongest positive correlations describe one side
-#' of the sensory opposition. The attributes with the strongest negative
-#' correlations describe the opposite side.
-#'
-#' The sign of a PCA axis is arbitrary. Reversing all signs would produce an
-#' equivalent PCA solution. The interpretation must therefore focus on the
-#' contrast between the two ends of the dimension rather than assigning an
-#' intrinsic meaning to the positive or negative side.
-#'
-#' For example, an axis opposing sweetness and milkiness to bitterness and
-#' cocoa intensity should be interpreted as this sensory contrast, regardless
-#' of which group of attributes appears on the positive side.
-#'
-#' The number of attributes displayed is controlled by `top_n_var`.
-#'
-#' ## Product-level evidence
-#'
-#' The function also identifies the products with the most negative and most
-#' positive coordinates on each retained dimension.
-#'
-#' These extreme products provide concrete illustrations of the sensory
-#' opposition identified from the variable correlations.
-#'
-#' The number of products displayed at each end is controlled by
-#' `top_n_products`.
-#'
-#' Product-level evidence should be interpreted together with the
-#' variable-level evidence. When both sources do not align perfectly, the
-#' variable correlations define the main structure of the dimension and the
-#' products should be treated as illustrations rather than as the sole basis
-#' for naming the axis.
-#'
-#' ## Deterministic product summaries
-#'
-#' When `x` comes from `nail_qda()`, the function automatically retrieves the
-#' `"profile_summary"` attribute.
-#'
-#' These summaries are compact reformulations of the product-specific QDA
-#' results. For an extreme product, they may indicate:
-#'
-#' - sensory attributes above the average product profile;
-#' - sensory attributes below the average product profile;
-#' - an indication of the clarity or strength of the product profile.
-#'
-#' Their purpose is to transform a purely geometric statement such as:
-#'
-#' ```
-#' Product A is located at the negative end of Dimension 1.
-#' ```
-#'
-#' into a more concrete sensory description such as:
-#'
-#' ```
-#' Product A is located at the negative end and is characterized by more
-#' bitterness and cocoa intensity and less sweetness and milk flavor than the
-#' average product profile.
-#' ```
-#'
-#' These summaries do not provide a new statistical analysis. They reorganize
-#' information already produced by `nail_qda()` and are used only to enrich
-#' the product-level section of the prompt.
-#'
-#' Users following the recommended workflow do not need to extract, inspect,
-#' or supply `profile_summary` manually.
-#'
-#' When `x` is a raw `decat()` result and no `profile_summary` is supplied,
-#' the products can still be located and interpreted from their PCA
-#' coordinates, but their product-specific sensory summaries are not added.
-#'
-#' ## Optional LLM product summaries
-#'
-#' `nail_qda_spaceprep()` may be used before `nail_qda_space()` to generate
-#' short structured interpretations of the individual product profiles.
-#'
-#' These summaries are optional. They are not required to compute the PCA or
-#' to interpret the product-space dimensions.
-#'
-#' When supplied through `llm_product_summaries`, they may add:
-#'
-#' - a short product profile;
-#' - a positioning cue;
-#' - an indication of profile clarity;
-#' - a reusable summary sentence.
-#'
-#' For a given product, the LLM summary is used when it contains a valid
-#' `injectable_summary`. Otherwise, the function falls back to the
-#' deterministic summary extracted from `nail_qda()`, when available.
-#'
-#' The simpler and recommended initial workflow is:
-#'
-#' ```
-#' qda_result <- nail_qda(...)
-#' space_prompts <- nail_qda_space(x = qda_result)
-#' ```
-#'
-#' An optional enriched workflow is:
-#'
-#' ```
-#' qda_result <- nail_qda(...)
-#'
-#' product_summaries <- nail_qda_spaceprep(
-#'   ...,
-#'   generate = TRUE
-#' )
-#'
-#' space_prompts <- nail_qda_space(
-#'   x = qda_result,
-#'   llm_product_summaries = product_summaries
-#' )
-#' ```
-#'
-#' ## Expertise modes
-#'
-#' The same PCA evidence can be presented from three interpretive
-#' perspectives.
-#'
-#' In `"sensory"` mode, axis interpretations should remain close to the
-#' sensory attributes and perceptual contrasts.
-#'
-#' In `"positioning"` mode, broader product styles may be inferred, but they
-#' must remain grounded in the sensory evidence.
-#'
-#' In `"hybrid"` mode, the interpretation should first establish the sensory
-#' contrast and only then consider a broader product meaning.
-#'
-#' When `nail_qda_spaceprep()` is also used, applying the same
-#' `expertise_mode` in both functions generally produces the most coherent
-#' chain of interpretation.
-#'
-#' ## Prompt construction and generation
-#'
-#' Each retained dimension produces a separate prompt combining:
-#'
-#' - the study introduction;
-#' - a statistical reading guide;
-#' - the requested interpretation task;
-#' - the percentage of inertia explained by the dimension;
-#' - the sensory attributes associated with both sides of the dimension;
-#' - the products positioned at both ends;
-#' - optional deterministic or LLM-generated product descriptions;
-#' - the requested final synthesis.
-#'
-#' By default, `generate = FALSE`, allowing the prompts and PCA results to be
-#' inspected before any LLM call.
-#'
-#' When `generate = TRUE`, one independent request is sent for each retained
-#' dimension.
-#'
-#' The generated response is an assisted interpretation of the PCA evidence.
-#' It does not replace examination of the PCA maps, eigenvalues, contributions,
-#' cosines, QDA model assumptions, panel performance, product-by-panelist
-#' interactions, or other diagnostic information.
-#'
-#' The interpretation is descriptive and should not be presented as a causal
-#' conclusion.
-#'
-#' @return
-#' The returned object depends on `generate` and on whether at least one PCA
-#' dimension reaches `min_inertia_pct`.
-#'
-#' When at least one dimension is retained and `generate = FALSE`, a named
-#' list of character prompts is returned. The names are of the form `"Dim1"`,
-#' `"Dim2"`, and so on.
-#'
-#' The following attributes are attached to the list:
-#'
-#' - `"qda_space"`: a list containing the complete PCA result, the adjusted
-#'   mean table, the eigenvalue table, the retained axis indices,
-#'   `scale.unit`, and `min_inertia_pct`;
-#' - `"profile_summary"`: the deterministic product summaries used in the
-#'   product-level evidence, when available;
-#' - `"llm_profile_summaries"`: the normalized LLM product summaries used in
-#'   the product-level evidence, when available.
-#'
-#' When at least one dimension is retained and `generate = TRUE`, a named list
-#' is returned, with one generated result per retained dimension.
-#'
-#' Each generated result is a data frame returned by the selected LLM backend
-#' and includes a `prompt` column containing the exact prompt sent to the
-#' model.
-#'
-#' The same `"qda_space"`, `"profile_summary"`, and
-#' `"llm_profile_summaries"` attributes are attached to the returned list.
-#'
-#' When no dimension reaches `min_inertia_pct`:
-#'
-#' - with `generate = FALSE`, an informative character string is returned and
-#'   the complete product-space object is stored in its `"qda_space"`
-#'   attribute;
-#' - with `generate = TRUE`, no LLM is called and an empty list is returned.
-#'
-#' @seealso
-#' [nail_qda()], [nail_qda_spaceprep()], [SensoMineR::decat()],
-#' [FactoMineR::PCA()]
-#'
+#' ## Mechanical evidence
+#'
+#' `qda_space_evidence` contains:
+#'
+#' - `adjusted_means`: the exact product-by-attribute table used for PCA;
+#' - `pca_result`: the complete `FactoMineR::PCA()` result;
+#' - `eigenvalues`: dimension, eigenvalue, individual inertia percentage, and
+#'   cumulative percentage;
+#' - `retained_axes`: dimensions meeting `min_inertia_pct`;
+#' - `axes`: complete variable and product tables with coordinates,
+#'   correlations where applicable, contributions, cos2, sides, deterministic
+#'   ranks, mechanical selections, and linked product profiles;
+#' - `product_geometry`: product coordinates, cos2, contributions, distances to
+#'   the origin, pairwise Euclidean distances, and deterministically resolved
+#'   nearest-neighbor ties;
+#' - `evidence_registry`: the central registry of all evidence IDs that an LLM
+#'   is allowed to cite;
+#' - `settings`: the statistical and mechanical rules used to build the object.
+#'
+#' Geometry distances use all computed PCA dimensions, not only dimensions that
+#' cross the interpretation threshold. This rule is explicit in
+#' `settings$geometry_dimensions` and `settings$geometry_distance_rule`.
+#'
+#' Variables and products are assigned to `"negative"`, `"positive"`, or
+#' `"neutral"` using a numerical tolerance. Within each non-neutral side,
+#' selection is ordered by descending absolute coordinate, with labels used to
+#' resolve exact ties deterministically. Contribution and cos2 remain available
+#' so that an interpretation can distinguish axis construction from quality of
+#' representation.
+#'
+#' ## Evidence identifiers
+#'
+#' Axis and geometry evidence identifiers include forms such as
+#' `Dim1::variable::Bitterness`, `Dim1::product::A`,
+#' `geometry::distance::A::B`, and
+#' `geometry::nearest_neighbor::A::B`. Pairwise distance identifiers use a
+#' canonical lexicographic product order. Product-profile marker identifiers
+#' from [nail_qda()] retain their exact historical form such as
+#' `A::Bitterness`; complete adjusted means additionally receive identifiers
+#' such as `product_profile::A::Bitterness`.
+#'
+#' ## JSON interpretation
+#'
+#' Prompts always present sources in this order: role, space geometry evidence,
+#' product sensory profiles, optional product expertise, user-provided context,
+#' interpretation task, mandatory epistemic rules, and output schema. Product
+#' expertise is explicitly labelled as an earlier interpretation and never as
+#' PCA evidence.
+#'
+#' Valid statuses are `expert_interpretation`, `hypothesis`, `recommendation`,
+#' and `user_context`. Every non-context claim must cite existing evidence IDs.
+#' Hypotheses and recommendations require a non-empty `validation_needed` field.
+#' Invalid JSON or invalid evidence produces `parse_status = "error"` and an
+#' informative `parse_error`; no partial structure is silently invented.
+#'
+#' ## Invariance
+#'
+#' At fixed data and statistical parameters, `qda_space_evidence` is independent
+#' of `generate`, `request`, `expertise_scope`, `interpretation_level`, provider,
+#' model, and optional product expertise. Those arguments may change prompts,
+#' generation units, interpretations, and LLM metadata only.
+#'
+#' @return A structured object with components:
+#'
+#' - `prompt`: axis prompts and/or a portfolio prompt;
+#' - `response`: raw LLM responses, or `NULL` placeholders when not generated;
+#' - `parsed`: explicit parsing results for every unit;
+#' - `qda_space_evidence`: the complete mechanical evidence object;
+#' - `axis_interpretations`: validated axis interpretations when generated;
+#' - `portfolio_interpretation`: the validated portfolio interpretation when
+#'   generated;
+#' - `product_expertise`: the normalized optional prior expertise;
+#' - `metadata`: interpretation and provider settings.
+#'
+#' Compatibility attributes `"qda_space"`, `"qda_space_evidence"`,
+#' `"product_expertise"`, and `"profile_summary"` are attached when relevant.
+#'
+#' @seealso [nail_qda()], [nail_qda_spaceprep()], [FactoMineR::PCA()]
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # These examples use the sensochoc dataset from SensoMineR.
-#' #
-#' # The first examples construct and inspect the product space
-#' # without calling a language model.
-#' #
-#' # The final examples use Ollama and may therefore take more than
-#' # ten seconds to run.
-#'
 #' library(NaileR)
 #' library(SensoMineR)
+#' data("chocolates", package = "SensoMineR")
 #'
-#' data(chocolates, package = "SensoMineR")
-#'
-#'
-#' ### Example 1: recommended workflow without an LLM ###
-#'
-#' # First characterize the sensory profile of each chocolate.
-#' #
-#' # Product is the first term in the model because it is the factor
-#' # whose levels are characterized.
-#' #
-#' # Panelist is included to account for systematic differences
-#' # between panelists.
-#' qda_choc <- nail_qda(
+#' qda <- nail_qda(
 #'   dataset = sensochoc,
 #'   formul = "~Product+Panelist",
 #'   firstvar = 5,
 #'   lastvar = ncol(sensochoc),
-#'   product_knowledge = "known",
 #'   generate = FALSE
 #' )
 #'
-#' # Build the PCA of the adjusted product means.
-#' #
-#' # scale.unit = TRUE is the default: each sensory attribute
-#' # is standardized to unit variance before PCA.
-#' #
-#' # The deterministic product summaries produced by nail_qda()
-#' # are extracted automatically. The user does not need to supply
-#' # profile_summary.
-#' #
-#' # No LLM is called because generate = FALSE.
-#' space_prompts <- nail_qda_space(
-#'   x = qda_choc,
-#'   ncp = 3,
-#'   min_inertia_pct = 10,
-#'   top_n_var = 5,
-#'   top_n_products = 2,
-#'   expertise_mode = "sensory",
-#'   generate = FALSE
-#' )
-#'
-#' # Display the retained dimensions.
-#' names(space_prompts)
-#'
-#' # Display the prompt constructed for the first retained dimension.
-#' cat(space_prompts[[1]])
-#'
-#'
-#' ### Example 2: inspect the statistical product-space object ###
-#'
-#' # Recover the complete statistical object attached to the prompts.
-#' space_choc <- attr(space_prompts, "qda_space")
-#'
-#' # Verify the scaling choice used in the PCA.
-#' space_choc$scale.unit
-#'
-#' # Inspect the adjusted mean table used as input to the PCA.
-#' space_choc$adjmean
-#'
-#' # Inspect the eigenvalues and percentages of inertia.
-#' space_choc$eig
-#'
-#' # Identify the dimensions retained for automatic interpretation.
-#' space_choc$retained_axes
-#'
-#' # Inspect the original FactoMineR PCA result.
-#' names(space_choc$pca_result)
-#'
-#' # Plot the products.
-#' plot.PCA(
-#'   space_choc$pca_result,
-#'   choix = "ind"
-#' )
-#'
-#' # Plot the sensory attributes.
-#' plot.PCA(
-#'   space_choc$pca_result,
-#'   choix = "var"
-#' )
-#'
-#'
-#' ### Example 3: use a raw decat result ###
-#'
-#' # A raw decat result can be supplied directly.
-#' decat_choc <- attr(qda_choc, "decat_result")
-#'
-#' # The PCA can be constructed without manually supplying
-#' # profile_summary.
-#' #
-#' # In this case, the products are located from their PCA coordinates,
-#' # but the deterministic product summaries attached to qda_choc
-#' # are not available to enrich their descriptions.
-#' raw_space_prompts <- nail_qda_space(
-#'   x = decat_choc,
-#'   ncp = 3,
-#'   scale.unit = TRUE,
-#'   min_inertia_pct = 10,
-#'   expertise_mode = "sensory",
-#'   generate = FALSE
-#' )
-#'
-#' cat(raw_space_prompts[[1]])
-#'
-#'
-#' ### Example 4: compare scaling choices ###
-#'
-#' # PCA with unit-variance scaling, which is the default.
-#' space_scaled <- nail_qda_space(
-#'   x = qda_choc,
-#'   ncp = 3,
-#'   scale.unit = TRUE,
-#'   min_inertia_pct = 0,
-#'   generate = FALSE
-#' )
-#'
-#' # PCA without unit-variance scaling.
-#' space_unscaled <- nail_qda_space(
-#'   x = qda_choc,
+#' space <- nail_qda_space(
+#'   x = qda,
 #'   ncp = 3,
 #'   scale.unit = FALSE,
-#'   min_inertia_pct = 0,
+#'   interpretation_level = "both",
 #'   generate = FALSE
 #' )
 #'
-#' # Compare the percentages of inertia.
-#' attr(space_scaled, "qda_space")$eig
-#' attr(space_unscaled, "qda_space")$eig
+#' space$qda_space_evidence$retained_axes
+#' space$qda_space_evidence$product_geometry$nearest_neighbors
+#' cat(space$prompt$axes[[1]])
 #'
-#'
-#' ### Example 5: prepare optional LLM summaries for each product ###
-#'
-#' # Ollama must be running locally and the llama3 model
-#' # must be installed.
-#' #
-#' # This preparation step is optional. It is not required to compute
-#' # the PCA or to construct the product-space prompts.
-#' #
-#' # The same expertise mode is used in the preparation step
-#' # and in the final product-space interpretation.
-#' product_summaries <- nail_qda_spaceprep(
-#'   dataset = sensochoc,
-#'   formul = "~Product+Panelist",
-#'   firstvar = 5,
-#'   lastvar = ncol(sensochoc),
-#'   product_knowledge = "known",
-#'   expertise_mode = "sensory",
-#'   provider = "ollama",
-#'   model = "llama3",
+#' expertise <- nail_qda_spaceprep(
+#'   x = qda,
+#'   expertise_scope = "cross_functional",
 #'   generate = TRUE
 #' )
 #'
-#' # Inspect the parsed summary of the first product.
-#' product_summaries[[1]]$parsed
-#'
-#' # Add the structured summaries to the product-space prompts
-#' # without generating the final axis interpretations yet.
-#' enriched_prompts <- nail_qda_space(
-#'   x = qda_choc,
-#'   llm_product_summaries = product_summaries,
-#'   ncp = 3,
-#'   min_inertia_pct = 10,
-#'   expertise_mode = "sensory",
-#'   generate = FALSE
-#' )
-#'
-#' cat(enriched_prompts[[1]])
-#'
-#'
-#' ### Example 6: generate the final interpretation of each dimension ###
-#'
-#' space_results <- nail_qda_space(
-#'   x = qda_choc,
-#'   llm_product_summaries = product_summaries,
-#'   ncp = 3,
-#'   scale.unit = TRUE,
-#'   min_inertia_pct = 10,
-#'   top_n_var = 5,
-#'   top_n_products = 2,
-#'   expertise_mode = "sensory",
-#'   provider = "ollama",
-#'   model = "llama3",
+#' enriched <- nail_qda_space(
+#'   x = qda,
+#'   product_expertise = expertise,
+#'   interpretation_level = "both",
+#'   expertise_scope = "cross_functional",
 #'   generate = TRUE
 #' )
-#'
-#' # Display the dimensions interpreted by the LLM.
-#' names(space_results)
-#'
-#' # Display the generated interpretation of the first dimension.
-#' cat(space_results[[1]]$response)
-#'
-#' # Display the exact prompt sent for the first dimension.
-#' cat(space_results[[1]]$prompt)
-#'
-#'
-#' ### Example 7: hybrid interpretation ###
-#'
-#' # Hybrid mode first interprets the sensory opposition,
-#' # then considers a broader product-style contrast.
-#' hybrid_prompts <- nail_qda_space(
-#'   x = qda_choc,
-#'   ncp = 3,
-#'   min_inertia_pct = 10,
-#'   expertise_mode = "hybrid",
-#'   generate = FALSE
-#' )
-#'
-#' cat(hybrid_prompts[[1]])
 #' }
+
 nail_qda_space <- function(x,
-                           profile_summary = NULL,
-                           llm_product_summaries = NULL,
-                           ncp = 2,
-                           scale.unit = TRUE,
+                           product_expertise = NULL,
+                           interpretation_level = c("both", "axis", "portfolio"),
+                           expertise_scope = c(
+                             "cross_functional", "sensory", "formulation",
+                             "marketing", "consumer", "innovation"
+                           ),
+                           ncp = 3,
+                           scale.unit = FALSE,
                            min_inertia_pct = 10,
                            top_n_var = 5,
                            top_n_products = 2,
-                           expertise_mode = c("sensory", "positioning", "hybrid"),
+                           context = NULL,
                            introduction = NULL,
                            request = NULL,
                            conclusion = NULL,
                            model = "llama3",
                            provider = c("ollama", "gemini"),
                            generate = FALSE,
+                           profile_summary = NULL,
+                           llm_product_summaries = NULL,
+                           expertise_mode = NULL,
                            ...) {
-  expertise_mode <- match.arg(expertise_mode)
-
+  expertise_scope_missing <- missing(expertise_scope)
+  interpretation_level <- match.arg(interpretation_level)
   provider <- match.arg(provider)
 
-  validate_qda_space_inputs(
+  if (!is.null(expertise_mode)) {
+    expertise_mode <- match.arg(expertise_mode, c("sensory", "positioning", "hybrid"))
+    warning(
+      "`expertise_mode` is deprecated; use `expertise_scope` instead.",
+      call. = FALSE
+    )
+    if (expertise_scope_missing) {
+      expertise_scope <- switch(
+        expertise_mode,
+        sensory = "sensory",
+        positioning = "innovation",
+        hybrid = "cross_functional"
+      )
+    }
+  }
+  expertise_scope <- match.arg(expertise_scope)
+
+  validated <- .validate_qda_space_inputs(
     ncp = ncp,
     scale.unit = scale.unit,
     min_inertia_pct = min_inertia_pct,
     top_n_var = top_n_var,
     top_n_products = top_n_products,
+    interpretation_level = interpretation_level,
+    expertise_scope = expertise_scope,
     generate = generate,
-    expertise_mode = expertise_mode
+    request = request,
+    introduction = introduction,
+    conclusion = conclusion
   )
+  ncp <- validated$ncp
+  top_n_var <- validated$top_n_var
+  top_n_products <- validated$top_n_products
+  context <- .qda_space_validate_context(context)
 
-  extracted <- .extract_qda_space_inputs(x, profile_summary = profile_summary)
-  decat_result <- extracted$decat_result
-  profile_summary <- extracted$profile_summary
-  llm_profile_summaries <- .extract_llm_profile_summaries(llm_product_summaries)
-
-  space_obj <- .build_qda_space_object(
-    decat_result = decat_result,
+  source <- .extract_qda_space_source(x)
+  mechanical <- .build_qda_space_evidence(
+    source = source,
     ncp = ncp,
     scale.unit = scale.unit,
-    min_inertia_pct = min_inertia_pct
-  )
-
-  if (is.null(introduction)) {
-    introduction <- switch(
-      expertise_mode,
-      sensory = paste(
-        "The results below describe the main dimensions of a product sensory space built from adjusted mean sensory profiles.",
-        "Each dimension corresponds to one major sensory opposition between products in that space."
-      ),
-      positioning = paste(
-        "The results below describe the main dimensions of a product space built from adjusted mean sensory profiles.",
-        "Each dimension may reflect a broader contrast between product styles or product poles."
-      ),
-      hybrid = paste(
-        "The results below describe the main dimensions of a product space built from adjusted mean sensory profiles.",
-        "Each dimension first reflects a sensory opposition and may also suggest a broader contrast between product styles."
-      )
-    )
-  }
-
-  if (is.null(request)) {
-    request <- build_request_qda_space(expertise_mode = expertise_mode)
-  }
-
-  if (is.null(conclusion)) {
-    conclusion <- build_conclusion_qda_space(expertise_mode = expertise_mode)
-  }
-
-  guide <- build_guide_qda_space(
     min_inertia_pct = min_inertia_pct,
-    expertise_mode = expertise_mode
+    top_n_var = top_n_var,
+    top_n_products = top_n_products
   )
-  introduction <- paste(introduction, guide, sep = "\n\n---\n\n")
+  normalized_expertise <- .normalize_qda_space_product_expertise(
+    product_expertise = product_expertise,
+    llm_product_summaries = llm_product_summaries,
+    profile_summary = profile_summary,
+    analyzed_products = rownames(mechanical$adjusted_means),
+    valid_product_evidence_ids = mechanical$evidence_registry$evidence_id[
+      mechanical$evidence_registry$evidence_type %in% c(
+        "product_adjusted_mean", "product_retained_marker"
+      )
+    ],
+    legacy_argument_supplied = !missing(llm_product_summaries),
+    profile_summary_supplied = !missing(profile_summary)
+  )
 
-  prompts <- tryCatch(
-    {
-      retained_axes <- space_obj$retained_axes
+  units <- .build_qda_space_interpretation_units(
+    evidence = mechanical,
+    normalized_expertise = normalized_expertise,
+    interpretation_level = interpretation_level,
+    expertise_scope = expertise_scope,
+    context = context,
+    introduction = introduction,
+    request = request,
+    conclusion = conclusion
+  )
 
-      if (length(retained_axes) == 0) {
-        stop("No retained dimensions to interpret under the current inertia threshold.", call. = FALSE)
-      }
+  context_present <- .qda_space_context_present(context, introduction)
+  consumer_context_present <- .is_qda_spaceprep_context_present(
+    list(consumers = context$consumers)
+  )
+  prompts <- list(
+    axes = lapply(units$axes, `[[`, "prompt"),
+    portfolio = if (!is.null(units$portfolio)) units$portfolio$prompt else NULL
+  )
 
-      out <- lapply(retained_axes, function(ax) {
-        eig <- space_obj$eig
-        inertia_pct <- round(eig$percent[ax], 2)
+  not_generated <- function(unit) {
+    list(
+      parse_status = "not_generated",
+      parse_error = NULL,
+      interpretation = NULL
+    )
+  }
 
-        var_txt <- get_sentences_qda_axis(space_obj, axis = ax, top_n_var = top_n_var)
-        prod_txt <- .build_axis_product_evidence(
-          space_obj,
-          axis = ax,
-          profile_summary = profile_summary,
-          llm_profile_summaries = llm_profile_summaries,
-          top_n_products = top_n_products
+  responses <- list(
+    axes = stats::setNames(vector("list", length(units$axes)), names(units$axes)),
+    portfolio = NULL
+  )
+  parsed <- list(
+    axes = lapply(units$axes, not_generated),
+    portfolio = if (!is.null(units$portfolio)) not_generated(units$portfolio) else NULL
+  )
+
+  if (generate) {
+    llm_api_options <- list(...)
+    generate_unit <- function(unit) {
+      raw <- .call_llm_base(
+        provider = provider,
+        model = model,
+        prompt = unit$prompt,
+        output = "text",
+        llm_api_options = llm_api_options
+      )
+      text <- .as_qda_space_response_text(raw)
+      list(
+        response = raw,
+        parsed = .parse_qda_space_response(
+          text = text,
+          unit_type = unit$unit_type,
+          valid_evidence_ids = unit$valid_evidence_ids,
+          analyzed_products = rownames(mechanical$adjusted_means),
+          context_present = context_present,
+          consumer_context_present = consumer_context_present,
+          axis = unit$axis %||% NULL
         )
+      )
+    }
 
-        data_txt <- paste(
-          glue::glue("## Dimension {ax} ({inertia_pct}% of inertia)"),
-          "",
-          "### Variable-level evidence",
-          "",
-          var_txt,
-          "",
-          "### Product-level evidence",
-          "",
-          prod_txt,
-          sep = "\n"
+    if (length(units$axes)) {
+      generated_axes <- lapply(units$axes, generate_unit)
+      responses$axes <- lapply(generated_axes, `[[`, "response")
+      parsed$axes <- lapply(generated_axes, `[[`, "parsed")
+    }
+    if (!is.null(units$portfolio)) {
+      generated_portfolio <- generate_unit(units$portfolio)
+      responses$portfolio <- generated_portfolio$response
+      parsed$portfolio <- generated_portfolio$parsed
+    }
+  }
+
+  axis_interpretations <- if (interpretation_level %in% c("axis", "both")) {
+    lapply(parsed$axes, function(item) item$interpretation)
+  } else {
+    NULL
+  }
+  portfolio_interpretation <- if (!is.null(parsed$portfolio)) {
+    parsed$portfolio$interpretation
+  } else {
+    NULL
+  }
+
+  aggregate_status <- c(
+    vapply(parsed$axes, `[[`, character(1), "parse_status"),
+    if (!is.null(parsed$portfolio)) parsed$portfolio$parse_status else character(0)
+  )
+  parsed$parse_status <- if (length(aggregate_status) == 0L) {
+    "no_units"
+  } else if (all(aggregate_status == "not_generated")) {
+    "not_generated"
+  } else if (all(aggregate_status == "success")) {
+    "success"
+  } else if (any(aggregate_status == "error")) {
+    "error"
+  } else {
+    "partial"
+  }
+
+  metadata <- list(
+    interpretation_level = interpretation_level,
+    expertise_scope = expertise_scope,
+    provider = provider,
+    model = model,
+    generate = generate,
+    context = context,
+    introduction = introduction,
+    request = request,
+    conclusion = conclusion,
+    product_expertise_source = normalized_expertise$source,
+    qda_settings = source$qda_settings,
+    legacy_input = source$legacy_input
+  )
+
+  output <- list(
+    prompt = prompts,
+    response = responses,
+    parsed = parsed,
+    qda_space_evidence = mechanical,
+    axis_interpretations = axis_interpretations,
+    portfolio_interpretation = portfolio_interpretation,
+    product_expertise = normalized_expertise$product_expertise,
+    interpretation_inputs = list(
+      axis_products = lapply(units$axes, `[[`, "products"),
+      axis_product_expertise = lapply(units$axes, function(unit) {
+        .qda_space_compact_expertise(
+          normalized_expertise, unit$products,
+          include_portfolio = FALSE
         )
-
-        build_standard_prompt(
-          introduction = introduction,
-          request = request,
-          data = data_txt,
-          conclusion = conclusion
-        )
-      })
-
-      names(out) <- paste0("Dim", retained_axes)
-      out
-    },
-    error = function(e) {
-      if (grepl("No retained dimensions", conditionMessage(e))) {
-        "NAILER_NO_AXES_FOUND"
+      }),
+      portfolio_products = if (!is.null(units$portfolio)) units$portfolio$products else NULL,
+      portfolio_product_expertise = if (!is.null(units$portfolio)) {
+        .qda_space_compact_expertise(normalized_expertise, units$portfolio$products)
       } else {
-        stop(e)
-      }
-    }
+        NULL
+      },
+      product_expertise_source = normalized_expertise$source
+    ),
+    metadata = metadata
   )
+  class(output) <- c("nail_qda_space", "list")
 
-  if (identical(prompts, "NAILER_NO_AXES_FOUND")) {
-    no_axes_message <- paste0(
-      "*No PCA dimension reached the minimum inertia threshold of ",
-      min_inertia_pct,
-      "% under the current settings.*"
-    )
-
-    if (generate) {
-      message("Execution halted: No retained dimensions found. Nothing to generate.")
-      return(list())
-    }
-
-    out <- no_axes_message
-    attr(out, "qda_space") <- space_obj
-    return(out)
-  }
-
-  if (!generate) {
-    attr(prompts, "qda_space") <- space_obj
-    attr(prompts, "profile_summary") <- profile_summary
-    attr(prompts, "llm_profile_summaries") <- llm_profile_summaries
-    return(prompts)
-  }
-
-  extra_args <- list(...)
-  llm_api_options <- extra_args
-
-  .call_llm <- function(prompt) {
-    res_llm <- .call_llm_base(
-      provider = provider,
-      model = model,
-      prompt = prompt,
-      output = "df",
-      llm_api_options = llm_api_options
-    )
-    res_llm$prompt <- prompt
-    res_llm
-  }
-
-  out <- lapply(prompts, .call_llm)
-  names(out) <- names(prompts)
-  attr(out, "qda_space") <- space_obj
-  attr(out, "profile_summary") <- profile_summary
-  attr(out, "llm_profile_summaries") <- llm_profile_summaries
-  out
+  compatibility_space <- list(
+    pca_result = mechanical$pca_result,
+    adjmean = mechanical$adjusted_means,
+    eig = data.frame(
+      eigenvalue = mechanical$eigenvalues$eigenvalue,
+      percent = mechanical$eigenvalues$inertia_percent,
+      cumulative_percent = mechanical$eigenvalues$cumulative_percent,
+      stringsAsFactors = FALSE
+    ),
+    retained_axes = mechanical$retained_axes,
+    scale.unit = mechanical$settings$scale.unit,
+    min_inertia_pct = mechanical$settings$min_inertia_pct
+  )
+  attr(output, "qda_space") <- compatibility_space
+  attr(output, "qda_space_evidence") <- mechanical
+  attr(output, "product_expertise") <- normalized_expertise$product_expertise
+  attr(output, "profile_summary") <- attr(x, "profile_summary", exact = TRUE)
+  attr(output, "llm_profile_summaries") <- normalized_expertise$legacy_summaries
+  output
 }

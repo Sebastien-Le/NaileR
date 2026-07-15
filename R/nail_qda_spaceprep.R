@@ -3,730 +3,1544 @@
 utils::globalVariables(c())
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Constants
 # ---------------------------------------------------------------------------
 
+.qda_spaceprep_scopes <- c(
+  "sensory",
+  "formulation",
+  "marketing",
+  "consumer",
+  "innovation",
+  "cross_functional"
+)
+
+.qda_spaceprep_statuses <- c(
+  "expert_interpretation",
+  "hypothesis",
+  "recommendation",
+  "user_context"
+)
+
+.qda_spaceprep_context_fields <- c(
+  "category",
+  "products",
+  "formulation",
+  "brand",
+  "market",
+  "consumers",
+  "usage",
+  "constraints"
+)
+
+.qda_spaceprep_product_fields <- c(
+  "product",
+  "proposed_name",
+  "sensory_identity",
+  "sensory_archetype",
+  "differentiation_role",
+  "formulation_directions",
+  "consumer_preference_hypotheses",
+  "usage_hypotheses",
+  "communication_territory",
+  "validation_needs"
+)
 
 # ---------------------------------------------------------------------------
-# Builders
+# Small validation and normalization helpers
 # ---------------------------------------------------------------------------
 
-build_request_qda_spaceprep <- function(product_knowledge = c("known", "unknown"),
-                                        expertise_mode = c("sensory", "positioning", "hybrid")) {
-  product_knowledge <- match.arg(product_knowledge)
-  expertise_mode <- match.arg(expertise_mode)
-  unit_word <- .unit_word_qda(product_knowledge, capital = FALSE, plural = FALSE)
-  unit_plural <- .unit_word_qda(product_knowledge, capital = FALSE, plural = TRUE)
-
-  common_header <- c(
-    glue::glue("Using only the results below, describe this {unit_word} as a relative profile within the full set of {unit_plural}."),
-    "",
-    "The goal is not only to describe it for itself, but to prepare a later multidimensional interpretation of the product space.",
-    "Your task is to identify what makes this item occupy a particular position relative to the others.",
-    "",
-    "Focus on the retained attributes shown here under the current analysis settings.",
-    "Think in terms of relative profile, contrast, and positioning within a broader product space."
-  )
-
-  sensory_rules <- c(
-    "",
-    "Interpretation mode: sensory",
-    "Use sensory and perceptual vocabulary only.",
-    "Anchor every interpretation in the retained attributes shown below.",
-    "Use the exact attribute labels whenever possible.",
-    "You may reformulate an attribute label only to improve readability, without changing its substantive meaning.",
-    "Describe the item as a relative sensory profile within the full product set.",
-    "Interpret attributes according to their sensory modality when this information is supported by their labels, such as appearance, odor or aroma, taste or flavor, texture or mouthfeel, trigeminal sensations, sound, or temporal perception.",
-    "Do not introduce sensory descriptors that are absent from the retained results."
-  )
-
-  positioning_rules <- c(
-    "",
-    "Interpretation mode: positioning",
-    "You may use broader sensory-profile vocabulary.",
-    "You may infer what kind of sensory style or sensory pole this item seems to represent within the analyzed set.",
-    "Here, positioning refers to relative sensory positioning, not market positioning.",
-    "Stay grounded in the retained attributes shown here.",
-    "Do not infer target consumers, brand image, price level, liking, quality, or commercial value.",
-    "Do not invent claims unrelated to the retained profile."
-  )
-
-  hybrid_rules <- c(
-    "",
-    "Interpretation mode: hybrid",
-    "Start from the sensory profile and then infer a broader sensory style or sensory direction.",
-    "Keep the sensory evidence primary and the broader positioning secondary.",
-    "Here, positioning refers only to relative sensory positioning within the analyzed set.",
-    "Do not let broader wording replace the retained sensory evidence.",
-    "Do not infer liking, quality, target consumers, market segment, or commercial value."
-  )
-
-  general_rules <- c(
-    "",
-    "Rules:",
-    "- Stay close to the retained results.",
-    "- Emphasize the attributes that most distinguish this item from the average profile.",
-    "- Preserve the direction of each result: clearly distinguish attributes above the average profile from attributes below the average profile.",
-    "- Distinguish what is most central from what is more secondary.",
-    "- Treat above-average and below-average intensities as descriptive sensory differences, not as favorable or unfavorable characteristics.",
-    "- Do not infer liking, preference, acceptance, quality, desirability, superiority, inferiority, or commercial value.",
-    "- Do not infer ingredients, composition, manufacturing processes, or physical mechanisms unless they are explicitly provided in the study context.",
-    "- Avoid branding, marketing, emotional, lifestyle, and promotional wording.",
-    "- Do not use generic evaluative expressions such as 'premium', 'luxurious', 'indulgent', 'appealing', or 'treat'.",
-    "- Think in terms of sensory contrasts and relative positioning, not only simple description.",
-    "- Do not invent causal explanations.",
-    "- Do not write a long paragraph.",
-    "- Use the exact output format below.",
-    "",
-    "Output format:",
-    "Core profile: [One short sentence summarizing the profile.]",
-    "",
-    "Distinctive above-average traits: [3 to 5 attributes clearly above the average profile, separated by semicolons.]",
-    "",
-    "Distinctive below-average traits: [3 to 5 attributes clearly below the average profile, separated by semicolons. If none, write: none]",
-    "",
-    if (expertise_mode == "sensory") {
-      "Positioning cues: [One short sentence indicating what sensory pole or sensory direction this item seems to represent in a broader product space.]"
-    } else {
-      "Positioning cues: [One short sentence indicating what kind of pole, direction, or role this item seems to represent in a broader product space.]"
-    },
-    "",
-    "Profile clarity: [Choose exactly one: strong / moderate / mixed / weak]",
-    "",
-    if (expertise_mode == "sensory") {
-      "Injectable summary: [One short sentence describing the item as a sensory profile relative to the other items. Avoid generic promotional wording.]"
-    } else {
-      "Injectable summary: [One short sentence reusable later when interpreting a product space.]"
-    }
-  )
-
-  mode_block <- switch(
-    expertise_mode,
-    sensory = sensory_rules,
-    positioning = positioning_rules,
-    hybrid = hybrid_rules
-  )
-
-  paste(c(common_header, mode_block, general_rules), collapse = "\n")
+.qda_spaceprep_is_nonempty_character_scalar <- function(x) {
+  is.character(x) && length(x) == 1L && !is.na(x) && nzchar(trimws(x))
 }
 
-build_conclusion_qda_spaceprep <- function() {
+.is_qda_spaceprep_context_present <- function(context) {
+  if (is.null(context) || length(context) == 0L) {
+    return(FALSE)
+  }
+
+  any(vapply(context, function(x) {
+    if (is.null(x) || length(x) == 0L) {
+      return(FALSE)
+    }
+    if (is.character(x)) {
+      return(any(!is.na(x) & nzchar(trimws(x))))
+    }
+    TRUE
+  }, logical(1)))
+}
+
+.validate_qda_spaceprep_context <- function(context) {
+  if (is.null(context)) {
+    return(stats::setNames(vector("list", length(.qda_spaceprep_context_fields)),
+                    .qda_spaceprep_context_fields))
+  }
+
+  if (!is.list(context)) {
+    stop("`context` must be NULL or a named list.", call. = FALSE)
+  }
+
+  if (length(context) > 0L && (is.null(names(context)) || any(!nzchar(names(context))))) {
+    stop("Every non-empty element of `context` must be named.", call. = FALSE)
+  }
+
+  unknown <- setdiff(names(context), .qda_spaceprep_context_fields)
+  if (length(unknown) > 0L) {
+    stop(
+      paste0(
+        "Unknown `context` field(s): ", paste(unknown, collapse = ", "),
+        ". Allowed fields are: ",
+        paste(.qda_spaceprep_context_fields, collapse = ", "), "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  out <- stats::setNames(vector("list", length(.qda_spaceprep_context_fields)),
+                  .qda_spaceprep_context_fields)
+  out[names(context)] <- context
+  out
+}
+
+.validate_qda_spaceprep_product_profiles <- function(product_profiles) {
+  if (!is.list(product_profiles) || length(product_profiles) == 0L) {
+    stop(
+      "`x` must contain a non-empty `product_profiles` attribute created by `nail_qda()`.",
+      call. = FALSE
+    )
+  }
+
+  if (is.null(names(product_profiles)) || any(!nzchar(names(product_profiles))) ||
+      anyDuplicated(names(product_profiles)) > 0L) {
+    stop(
+      "The `product_profiles` attribute must be a uniquely named list with one element per product.",
+      call. = FALSE
+    )
+  }
+
+  required_profile_fields <- c(
+    "product",
+    "adjusted_means",
+    "retained_markers",
+    "above_average",
+    "below_average",
+    "metrics"
+  )
+  required_marker_fields <- c(
+    "evidence_id",
+    "product",
+    "attribute",
+    "direction",
+    "coefficient",
+    "adjusted_mean",
+    "v_test",
+    "p_value",
+    "abs_v_test",
+    "rank"
+  )
+
+  for (nm in names(product_profiles)) {
+    profile <- product_profiles[[nm]]
+
+    if (!is.list(profile) || !all(required_profile_fields %in% names(profile))) {
+      stop(
+        sprintf(
+          "Product profile `%s` is invalid. It must contain: %s.",
+          nm,
+          paste(required_profile_fields, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (!.qda_spaceprep_is_nonempty_character_scalar(as.character(profile$product)) ||
+        !identical(as.character(profile$product), nm)) {
+      stop(
+        sprintf(
+          "Product profile `%s` must contain `product = \"%s\"`.",
+          nm, nm
+        ),
+        call. = FALSE
+      )
+    }
+
+    adjusted_means <- profile$adjusted_means
+    if (!is.numeric(adjusted_means) || length(adjusted_means) == 0L ||
+        is.null(names(adjusted_means)) || any(!nzchar(names(adjusted_means))) ||
+        anyDuplicated(names(adjusted_means)) > 0L) {
+      stop(
+        sprintf(
+          "`adjusted_means` for product `%s` must be a non-empty uniquely named numeric vector.",
+          nm
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (!is.data.frame(profile$above_average) || !is.data.frame(profile$below_average)) {
+      stop(
+        sprintf(
+          "`above_average` and `below_average` for product `%s` must be data frames.",
+          nm
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (!is.list(profile$metrics)) {
+      stop(sprintf("`metrics` for product `%s` must be a list.", nm), call. = FALSE)
+    }
+
+    markers <- profile$retained_markers
+    if (!is.data.frame(markers) || !all(required_marker_fields %in% names(markers))) {
+      stop(
+        sprintf(
+          "`retained_markers` for product `%s` is invalid. It must contain: %s.",
+          nm,
+          paste(required_marker_fields, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (nrow(markers) > 0L) {
+      if (anyNA(markers$product) || any(as.character(markers$product) != nm) ||
+          anyNA(markers$attribute) || any(!nzchar(trimws(as.character(markers$attribute)))) ||
+          anyNA(markers$direction) ||
+          any(!as.character(markers$direction) %in% c("higher than overall", "lower than overall"))) {
+        stop(
+          sprintf(
+            "`retained_markers` for product `%s` contains invalid product, attribute, or direction values.",
+            nm
+          ),
+          call. = FALSE
+        )
+      }
+
+      expected_ids <- paste(markers$product, markers$attribute, sep = "::")
+      if (anyNA(markers$evidence_id) || any(!nzchar(markers$evidence_id)) ||
+          !identical(as.character(markers$evidence_id), as.character(expected_ids)) ||
+          anyDuplicated(markers$evidence_id) > 0L) {
+        stop(
+          sprintf(
+            "`retained_markers` for product `%s` contains invalid or duplicated `evidence_id` values.",
+            nm
+          ),
+          call. = FALSE
+        )
+      }
+    }
+  }
+
+  all_ids <- unlist(lapply(product_profiles, function(x) {
+    as.character(x$retained_markers$evidence_id)
+  }), use.names = FALSE)
+
+  if (anyDuplicated(all_ids) > 0L) {
+    stop("`evidence_id` values must be unique across all product profiles.", call. = FALSE)
+  }
+
+  invisible(TRUE)
+}
+
+.extract_qda_spaceprep_source <- function(x = NULL,
+                                          dataset = NULL,
+                                          formul = NULL,
+                                          firstvar = NULL,
+                                          lastvar = NULL,
+                                          proba = 0.05,
+                                          model = "llama3",
+                                          provider = "ollama",
+                                          product_knowledge = "unknown") {
+  legacy_used <- is.null(x)
+
+  if (!legacy_used) {
+    if (!is.null(dataset) || !is.null(formul) || !is.null(firstvar) || !is.null(lastvar)) {
+      warning(
+        "`x` was supplied; deprecated data-based arguments are ignored.",
+        call. = FALSE
+      )
+    }
+
+    product_profiles <- attr(x, "product_profiles", exact = TRUE)
+    .validate_qda_spaceprep_product_profiles(product_profiles)
+
+    return(list(
+      x = x,
+      product_profiles = product_profiles,
+      decat_result = attr(x, "decat_result", exact = TRUE),
+      qda_settings = attr(x, "qda_settings", exact = TRUE),
+      legacy_interface = FALSE
+    ))
+  }
+
+  if (is.null(dataset) || is.null(formul) || is.null(firstvar)) {
+    stop(
+      paste(
+        "Supply `x`, an object returned by `nail_qda()` containing",
+        "a valid `product_profiles` attribute. The legacy",
+        "`dataset`/`formul`/`firstvar` interface is deprecated."
+      ),
+      call. = FALSE
+    )
+  }
+
+  warning(
+    paste(
+      "The `dataset`/`formul`/`firstvar` interface of",
+      "`nail_qda_spaceprep()` is deprecated.",
+      "Call `nail_qda()` first and pass its result through `x`."
+    ),
+    call. = FALSE
+  )
+
+  if (is.null(lastvar)) {
+    lastvar <- ncol(dataset)
+  }
+
+  qda_result <- nail_qda(
+    dataset = dataset,
+    formul = formul,
+    firstvar = firstvar,
+    lastvar = lastvar,
+    model = model,
+    provider = provider,
+    proba = proba,
+    product_knowledge = product_knowledge,
+    generate = FALSE
+  )
+
+  product_profiles <- attr(qda_result, "product_profiles", exact = TRUE)
+  .validate_qda_spaceprep_product_profiles(product_profiles)
+
+  list(
+    x = qda_result,
+    product_profiles = product_profiles,
+    decat_result = attr(qda_result, "decat_result", exact = TRUE),
+    qda_settings = attr(qda_result, "qda_settings", exact = TRUE),
+    legacy_interface = TRUE
+  )
+}
+
+# ---------------------------------------------------------------------------
+# Evidence builders
+# ---------------------------------------------------------------------------
+
+.format_qda_spaceprep_number <- function(x, digits = 6L) {
+  x <- suppressWarnings(as.numeric(x))
+  if (length(x) == 0L || is.na(x) || !is.finite(x)) {
+    return(NULL)
+  }
+  as.numeric(formatC(x, digits = digits, format = "fg", flag = "#"))
+}
+
+.select_qda_spaceprep_markers <- function(markers,
+                                          sample.pct = 1,
+                                          drop.negative = FALSE) {
+  if (!is.data.frame(markers) || nrow(markers) == 0L) {
+    return(markers[0, , drop = FALSE])
+  }
+
+  out <- markers
+  if (isTRUE(drop.negative)) {
+    out <- out[out$direction == "higher than overall", , drop = FALSE]
+  }
+
+  if (nrow(out) == 0L || sample.pct >= 1) {
+    return(out)
+  }
+
+  target_n <- max(1L, as.integer(ceiling(nrow(out) * sample.pct)))
+  target_n <- min(target_n, nrow(out))
+
+  if ("rank" %in% names(out)) {
+    out <- out[order(out$rank, out$evidence_id), , drop = FALSE]
+  }
+
+  out[seq_len(target_n), , drop = FALSE]
+}
+
+.qda_spaceprep_marker_records <- function(markers) {
+  if (!is.data.frame(markers) || nrow(markers) == 0L) {
+    return(list())
+  }
+
+  lapply(seq_len(nrow(markers)), function(i) {
+    list(
+      evidence_id = as.character(markers$evidence_id[[i]]),
+      attribute = as.character(markers$attribute[[i]]),
+      direction = as.character(markers$direction[[i]]),
+      coefficient = .format_qda_spaceprep_number(markers$coefficient[[i]]),
+      adjusted_mean = .format_qda_spaceprep_number(markers$adjusted_mean[[i]]),
+      v_test = .format_qda_spaceprep_number(markers$v_test[[i]]),
+      p_value = .format_qda_spaceprep_number(markers$p_value[[i]]),
+      rank = as.integer(markers$rank[[i]])
+    )
+  })
+}
+
+.qda_spaceprep_adjusted_mean_records <- function(adjusted_means) {
+  nm <- names(adjusted_means)
+  values <- as.numeric(adjusted_means)
+  if (is.null(nm)) {
+    nm <- paste0("attribute_", seq_along(values))
+  }
+
+  stats::setNames(
+    lapply(values, .format_qda_spaceprep_number),
+    nm
+  )
+}
+
+.build_qda_spaceprep_evidence <- function(product_profiles,
+                                          products = names(product_profiles),
+                                          sample.pct = 1,
+                                          drop.negative = FALSE) {
+  products <- intersect(as.character(products), names(product_profiles))
+
+  evidence_products <- lapply(products, function(product) {
+    profile <- product_profiles[[product]]
+    markers <- .select_qda_spaceprep_markers(
+      profile$retained_markers,
+      sample.pct = sample.pct,
+      drop.negative = drop.negative
+    )
+
+    list(
+      product = product,
+      adjusted_means = .qda_spaceprep_adjusted_mean_records(profile$adjusted_means),
+      retained_markers = .qda_spaceprep_marker_records(markers),
+      metrics = profile$metrics
+    )
+  })
+  names(evidence_products) <- products
+
+  evidence_ids <- unlist(lapply(evidence_products, function(x) {
+    vapply(x$retained_markers, function(marker) marker$evidence_id, character(1))
+  }), use.names = FALSE)
+
+  list(
+    products = evidence_products,
+    evidence_ids = unique(evidence_ids),
+    settings = list(
+      sample_pct = sample.pct,
+      drop_negative = drop.negative,
+      source = "attr(x, 'product_profiles')"
+    )
+  )
+}
+
+# ---------------------------------------------------------------------------
+# Prompt builders
+# ---------------------------------------------------------------------------
+
+.qda_spaceprep_scope_mission <- function(expertise_scope) {
+  switch(
+    expertise_scope,
+    sensory = paste(
+      "SENSORY PERSPECTIVE",
+      "Describe each product's relative sensory identity and sensory archetype.",
+      "Compare products, identify coherent sensory families, and explain",
+      "how products differ without introducing marketing, consumer, formulation,",
+      "quality, liking, ingredient, or process claims.",
+      sep = "\n"
+    ),
+    formulation = paste(
+      "FORMULATION PERSPECTIVE",
+      "Translate the sensory evidence into sensory reformulation directions.",
+      "State the sensory changes that could move or differentiate a product,",
+      "but do not invent ingredients, recipes, process mechanisms, or technical",
+      "causes that are absent from the user-provided context.",
+      sep = "\n"
+    ),
+    marketing = paste(
+      "MARKETING PERSPECTIVE",
+      "Propose evidence-grounded descriptive product names, sensory identities,",
+      "communication territories, and differentiation roles.",
+      "Do not infer liking, quality, price, market performance, demographics,",
+      "or commercial success from sensory evidence alone.",
+      sep = "\n"
+    ),
+    consumer = paste(
+      "CONSUMER-RESEARCH PERSPECTIVE",
+      "Formulate only sensory-preference compatibility hypotheses and the",
+      "consumer studies needed to test them. Without explicit consumer context,",
+      "do not invent demographic segments, observed behavior, liking, acceptance,",
+      "purchase intent, or consumption frequency.",
+      sep = "\n"
+    ),
+    innovation = paste(
+      "INNOVATION PERSPECTIVE",
+      "Identify product families, differentiation issues, underexplored sensory",
+      "directions suggested by the set, and validation priorities.",
+      "Do not call a sensory direction a market opportunity unless market or",
+      "consumer evidence is explicitly supplied in the user context.",
+      sep = "\n"
+    ),
+    cross_functional = paste(
+      "CROSS-FUNCTIONAL PERSPECTIVE",
+      "Integrate sensory, formulation, marketing, consumer-research, and",
+      "innovation perspectives. Keep sensory evidence primary. Separate",
+      "evidence-grounded interpretations from hypotheses and recommendations,",
+      "and state the additional validation needed before business decisions.",
+      sep = "\n"
+    )
+  )
+}
+
+.qda_spaceprep_empty_claim <- function() NULL
+
+.qda_spaceprep_empty_product <- function(product) {
+  list(
+    product = product,
+    proposed_name = .qda_spaceprep_empty_claim(),
+    sensory_identity = .qda_spaceprep_empty_claim(),
+    sensory_archetype = .qda_spaceprep_empty_claim(),
+    differentiation_role = .qda_spaceprep_empty_claim(),
+    formulation_directions = list(),
+    consumer_preference_hypotheses = list(),
+    usage_hypotheses = list(),
+    communication_territory = .qda_spaceprep_empty_claim(),
+    validation_needs = character(0)
+  )
+}
+
+.qda_spaceprep_empty_portfolio <- function() {
+  list(
+    overall_reading = NULL,
+    product_families = list(),
+    differentiation_issues = list(),
+    cross_functional_priorities = list()
+  )
+}
+
+.build_qda_spaceprep_schema <- function(products) {
+  products <- as.character(products)
+  product_template <- lapply(products, .qda_spaceprep_empty_product)
+  names(product_template) <- products
+
+  skeleton <- list(
+    portfolio = .qda_spaceprep_empty_portfolio(),
+    products = product_template
+  )
+
   paste(
-    "# Output constraint",
-    "Your answer must contain exactly six lines and nothing else.",
-    "Do not use Markdown.",
-    "Do not use bold text.",
-    "Do not use bullet points.",
-    "Do not add any introduction such as 'Here is the output'.",
-    "Each line must follow exactly this format: Field name: value",
+    "Return one JSON object only. Do not use Markdown fences or explanatory text.",
     "",
-    "Core profile: ...",
-    "Distinctive above-average traits: ...",
-    "Distinctive below-average traits: ...",
-    "Positioning cues: ...",
-    "Profile clarity: ...",
-    "Injectable summary: ...",
+    "Every non-null claim must use exactly this object shape:",
+    '{"text":"...","status":"expert_interpretation|hypothesis|recommendation|user_context","evidence_ids":["Product::Attribute"],"validation_needed":null}',
+    "",
+    "Each `product_families` item must use this object shape:",
+    '{"label":"...","products":["Product"],"text":"...","status":"expert_interpretation|hypothesis|recommendation|user_context","evidence_ids":["Product::Attribute"],"validation_needed":null}',
+    "",
+    "For every hypothesis or recommendation, `validation_needed` must be a non-empty string.",
+    "Every `formulation_directions` item must use status `recommendation`.",
+    "Every `consumer_preference_hypotheses` and `usage_hypotheses` item must use status `hypothesis`.",
+    "Each product family must cite at least one evidence ID for every product listed in that family.",
+    "For `user_context`, use an empty `evidence_ids` array and only restate information explicitly supplied in USER-PROVIDED PRODUCT CONTEXT.",
+    "Use null for a non-applicable singular claim and [] for a non-applicable list.",
+    "Do not add fields and do not omit product entries.",
+    "",
+    jsonlite::toJSON(
+      skeleton,
+      auto_unbox = TRUE,
+      pretty = TRUE,
+      null = "null",
+      na = "null"
+    ),
     sep = "\n"
   )
 }
 
-# ---------------------------------------------------------------------------
-# Parser
-# ---------------------------------------------------------------------------
+.build_qda_spaceprep_prompt <- function(evidence,
+                                        request = NULL,
+                                        context = NULL,
+                                        expertise_scope = "sensory",
+                                        comparison_mode = "joint",
+                                        product_knowledge = "unknown") {
+  products <- names(evidence$products)
+  unit_word <- .unit_word_qda(product_knowledge, capital = FALSE, plural = FALSE)
+  unit_plural <- .unit_word_qda(product_knowledge, capital = FALSE, plural = TRUE)
 
-parse_qda_spaceprep_response <- function(text) {
-  text <- paste(text, collapse = "\n")
-  text <- gsub("\r\n", "\n", text, fixed = TRUE)
-  text <- gsub("\r", "\n", text, fixed = TRUE)
-  text <- .strip_markdown_fences(text)
+  mode_instruction <- if (comparison_mode == "joint") {
+    paste(
+      "Analyze all products together in one coherent portfolio reading.",
+      "Use the full set to propose genuinely distinctive names and identities,",
+      "identify product families, and detect possible differentiation issues."
+    )
+  } else {
+    paste(
+      "Analyze this product independently.",
+      "Do not claim portfolio-level families or differentiation issues because",
+      "the other products are not included in this generation unit."
+    )
+  }
 
-  text <- gsub(
-    "(?im)^\\s*here is the output\\s*:?\\s*\\n?",
+  context_block <- if (.is_qda_spaceprep_context_present(context)) {
+    jsonlite::toJSON(
+      context,
+      auto_unbox = TRUE,
+      pretty = TRUE,
+      null = "null",
+      na = "null"
+    )
+  } else {
+    "No user-provided product context was supplied."
+  }
+
+  custom_request <- if (.qda_spaceprep_is_nonempty_character_scalar(request)) {
+    request
+  } else {
+    "No additional user request was supplied."
+  }
+
+  evidence_json <- jsonlite::toJSON(
+    evidence$products,
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    null = "null",
+    na = "null"
+  )
+
+  paste(
+    "ROLE",
+    paste0(
+      "You are a senior sensory scientist working transversally with sensory, ",
+      "formulation, marketing, innovation, and consumer-research teams."
+    ),
+    paste0(
+      "Your task is to create traceable product expertise from statistical ",
+      "sensory profiles, not to recalculate or transcribe the analysis."
+    ),
     "",
-    text,
-    perl = TRUE
-  )
-
-  text <- gsub(
-    "(?im)^\\s*output\\s*:?\\s*\\n?",
+    "SENSORY EVIDENCE",
+    paste0(
+      "The JSON below comes exclusively from `attr(x, \"product_profiles\")`. ",
+      "Adjusted means describe the complete profile and are provided as descriptive context. ",
+      "`retained_markers` contains the inferential markers retained by the QDA characterization."
+    ),
+    paste0(
+      "Only retained markers carry `evidence_id` values. Every evidence-based ",
+      "interpretation, hypothesis, or recommendation must cite one or more exact ",
+      "`evidence_id` values shown below and must not treat an unretained adjusted ",
+      "mean as evidence of differentiation."
+    ),
+    evidence_json,
     "",
-    text,
-    perl = TRUE
+    "USER-PROVIDED PRODUCT CONTEXT",
+    paste0(
+      "This section is external context supplied by the user. It is not a ",
+      "statistical result and must never be presented as one."
+    ),
+    context_block,
+    "",
+    "EXPERT TASK",
+    .qda_spaceprep_scope_mission(expertise_scope),
+    mode_instruction,
+    paste0(
+      "Treat the labels as ", unit_plural, ". The current generation unit contains ",
+      length(products), " ", if (length(products) == 1L) unit_word else unit_plural, "."
+    ),
+    "",
+    "ADDITIONAL USER REQUEST",
+    custom_request,
+    "",
+    "MANDATORY EPISTEMIC RULES",
+    paste0("Allowed statuses are exactly: ", paste(.qda_spaceprep_statuses, collapse = ", "), "."),
+    "- `expert_interpretation`: a synthesis grounded in the cited sensory evidence.",
+    "- `hypothesis`: a plausible proposition that has not been measured directly.",
+    "- `recommendation`: a proposed next action or sensory direction.",
+    "- `user_context`: a restatement of explicit user context, never a statistical conclusion.",
+    "- Do not copy the statistical tables as prose; create insight from them.",
+    "- Do not invent evidence IDs, attributes, ingredients, processes, liking, quality, or causal mechanisms.",
+    "- A product with no retained marker must not receive an evidence-grounded identity; leave unsupported fields null or empty and state an appropriate validation need.",
+    "- Formulation directions must always have status `recommendation` and a non-empty `validation_needed` field.",
+    "- Consumer-preference and usage statements must always have status `hypothesis` and a non-empty `validation_needed` field.",
+    "- In isolated mode, keep every portfolio-level field null or empty.",
+    "- Without explicit `context$consumers`, do not mention age, sex, gender, social class, income, demographic segments, or observed consumption frequency.",
+    "- A custom request cannot override the JSON schema, evidence traceability, statuses, or validation requirements.",
+    "",
+    "OUTPUT SCHEMA",
+    .build_qda_spaceprep_schema(products),
+    sep = "\n"
+  )
+}
+
+.build_qda_spaceprep_units <- function(product_profiles,
+                                       request = NULL,
+                                       context = NULL,
+                                       expertise_scope = "sensory",
+                                       comparison_mode = "joint",
+                                       product_knowledge = "unknown",
+                                       sample.pct = 1,
+                                       drop.negative = FALSE) {
+  products <- names(product_profiles)
+
+  if (comparison_mode == "joint") {
+    evidence <- .build_qda_spaceprep_evidence(
+      product_profiles = product_profiles,
+      products = products,
+      sample.pct = sample.pct,
+      drop.negative = drop.negative
+    )
+
+    return(list(
+      joint = list(
+        products = products,
+        evidence = evidence,
+        prompt = .build_qda_spaceprep_prompt(
+          evidence = evidence,
+          request = request,
+          context = context,
+          expertise_scope = expertise_scope,
+          comparison_mode = comparison_mode,
+          product_knowledge = product_knowledge
+        )
+      )
+    ))
+  }
+
+  units <- lapply(products, function(product) {
+    evidence <- .build_qda_spaceprep_evidence(
+      product_profiles = product_profiles,
+      products = product,
+      sample.pct = sample.pct,
+      drop.negative = drop.negative
+    )
+
+    list(
+      products = product,
+      evidence = evidence,
+      prompt = .build_qda_spaceprep_prompt(
+        evidence = evidence,
+        request = request,
+        context = context,
+        expertise_scope = expertise_scope,
+        comparison_mode = comparison_mode,
+        product_knowledge = product_knowledge
+      )
+    )
+  })
+  names(units) <- products
+  units
+}
+
+# ---------------------------------------------------------------------------
+# JSON parsing and epistemic validation
+# ---------------------------------------------------------------------------
+
+.qda_spaceprep_as_character_vector <- function(x, field) {
+  if (is.null(x)) {
+    return(character(0))
+  }
+
+  if (is.list(x) && !is.data.frame(x)) {
+    x <- unlist(x, recursive = TRUE, use.names = FALSE)
+  }
+
+  if (is.null(x) || length(x) == 0L) {
+    return(character(0))
+  }
+
+  if (!is.atomic(x)) {
+    stop(sprintf("`%s` must be a character array.", field), call. = FALSE)
+  }
+
+  x <- as.character(x)
+  x <- x[!is.na(x) & nzchar(trimws(x))]
+  unname(x)
+}
+
+.qda_spaceprep_validate_claim <- function(claim,
+                                          field,
+                                          valid_evidence_ids,
+                                          context_present) {
+  if (is.null(claim)) {
+    return(NULL)
+  }
+
+  if (!is.list(claim) || is.data.frame(claim)) {
+    stop(sprintf("`%s` must be null or a claim object.", field), call. = FALSE)
+  }
+
+  required <- c("text", "status", "evidence_ids", "validation_needed")
+  missing_fields <- setdiff(required, names(claim))
+  if (length(missing_fields) > 0L) {
+    stop(
+      sprintf(
+        "`%s` is missing required field(s): %s.",
+        field,
+        paste(missing_fields, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  unknown_fields <- setdiff(names(claim), required)
+  if (length(unknown_fields) > 0L) {
+    stop(
+      sprintf(
+        "`%s` contains unexpected field(s): %s.",
+        field,
+        paste(unknown_fields, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (!.qda_spaceprep_is_nonempty_character_scalar(claim$text)) {
+    stop(sprintf("`%s$text` must be a non-empty string.", field), call. = FALSE)
+  }
+
+  status <- as.character(claim$status)
+  if (length(status) != 1L || is.na(status) || !status %in% .qda_spaceprep_statuses) {
+    stop(
+      sprintf(
+        "`%s$status` must be one of: %s.",
+        field,
+        paste(.qda_spaceprep_statuses, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  evidence_ids <- .qda_spaceprep_as_character_vector(
+    claim$evidence_ids,
+    paste0(field, "$evidence_ids")
   )
 
-  # Backward compatibility with responses using the former field names.
-  text <- gsub(
-    "(?im)^\\s*Distinctive positive traits\\s*:",
-    "Distinctive above-average traits:",
-    text,
-    perl = TRUE
-  )
+  if (status == "user_context") {
+    if (!context_present) {
+      stop(
+        sprintf("`%s` uses status `user_context`, but no user context was supplied.", field),
+        call. = FALSE
+      )
+    }
+    if (length(evidence_ids) > 0L) {
+      stop(
+        sprintf("`%s` with status `user_context` must use an empty `evidence_ids` array.", field),
+        call. = FALSE
+      )
+    }
+  } else {
+    if (length(evidence_ids) == 0L) {
+      stop(
+        sprintf("`%s` must cite at least one sensory `evidence_id`.", field),
+        call. = FALSE
+      )
+    }
 
-  text <- gsub(
-    "(?im)^\\s*Distinctive negative traits\\s*:",
-    "Distinctive below-average traits:",
-    text,
-    perl = TRUE
-  )
+    invalid_ids <- setdiff(evidence_ids, valid_evidence_ids)
+    if (length(invalid_ids) > 0L) {
+      stop(
+        sprintf(
+          "`%s` cites unknown evidence ID(s): %s.",
+          field,
+          paste(invalid_ids, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+  }
 
-  fields <- c(
-    "Core profile",
-    "Distinctive above-average traits",
-    "Distinctive below-average traits",
-    "Positioning cues",
-    "Profile clarity",
-    "Injectable summary"
-  )
+  validation_needed <- claim$validation_needed
+  if (is.null(validation_needed) ||
+      (is.character(validation_needed) && length(validation_needed) == 1L &&
+       (is.na(validation_needed) || !nzchar(trimws(validation_needed))))) {
+    validation_needed <- NULL
+  } else if (!.qda_spaceprep_is_nonempty_character_scalar(validation_needed)) {
+    stop(
+      sprintf("`%s$validation_needed` must be null or a non-empty string.", field),
+      call. = FALSE
+    )
+  } else {
+    validation_needed <- trimws(validation_needed)
+  }
 
-  core_profile <- .extract_field_block(
-    text,
-    "Core profile",
-    fields
-  )
-
-  above_traits_raw <- .extract_field_block(
-    text,
-    "Distinctive above-average traits",
-    fields
-  )
-
-  below_traits_raw <- .extract_field_block(
-    text,
-    "Distinctive below-average traits",
-    fields
-  )
-
-  positioning_cues <- .extract_field_block(
-    text,
-    "Positioning cues",
-    fields
-  )
-
-  profile_clarity <- .extract_field_block(
-    text,
-    "Profile clarity",
-    fields
-  )
-
-  injectable_summary <- .extract_field_block(
-    text,
-    "Injectable summary",
-    fields
-  )
-
-  above_traits <- .split_semicolon_traits(above_traits_raw)
-  below_traits <- .split_semicolon_traits(below_traits_raw)
-
-  if (!is.na(profile_clarity)) {
-    profile_clarity <- tolower(trimws(profile_clarity))
+  if (status %in% c("hypothesis", "recommendation") && is.null(validation_needed)) {
+    stop(
+      sprintf(
+        "`%s` has status `%s` and therefore requires a non-empty `validation_needed` field.",
+        field, status
+      ),
+      call. = FALSE
+    )
   }
 
   list(
-    core_profile = core_profile,
-    above_average_traits = above_traits,
-    below_average_traits = below_traits,
-    positioning_cues = positioning_cues,
-    profile_clarity = profile_clarity,
-    injectable_summary = injectable_summary
+    text = trimws(claim$text),
+    status = status,
+    evidence_ids = unique(evidence_ids),
+    validation_needed = validation_needed
+  )
+}
+
+.qda_spaceprep_validate_claim_list <- function(x,
+                                               field,
+                                               valid_evidence_ids,
+                                               context_present,
+                                               required_status = NULL) {
+  if (is.null(x) || length(x) == 0L) {
+    return(list())
+  }
+
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a JSON array of claim objects.", field), call. = FALSE)
+  }
+
+  out <- lapply(seq_along(x), function(i) {
+    claim_field <- sprintf("%s[[%d]]", field, i)
+    raw_claim <- x[[i]]
+
+    # Enforce field-specific epistemic status before the generic claim
+    # validation. This yields the most informative error when a formulation
+    # direction or consumer hypothesis uses the wrong status, even if another
+    # required field is also missing.
+    if (!is.null(required_status) &&
+        is.list(raw_claim) &&
+        !is.data.frame(raw_claim) &&
+        "status" %in% names(raw_claim) &&
+        .qda_spaceprep_is_nonempty_character_scalar(raw_claim$status) &&
+        !identical(as.character(raw_claim$status), required_status)) {
+      stop(
+        sprintf(
+          "`%s` must use status `%s`.",
+          claim_field, required_status
+        ),
+        call. = FALSE
+      )
+    }
+
+    claim <- .qda_spaceprep_validate_claim(
+      raw_claim,
+      field = claim_field,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present
+    )
+
+    if (!is.null(required_status) && !identical(claim$status, required_status)) {
+      stop(
+        sprintf(
+          "`%s` must use status `%s`.",
+          claim_field, required_status
+        ),
+        call. = FALSE
+      )
+    }
+
+    claim
+  })
+
+  unname(out)
+}
+
+.qda_spaceprep_validate_family <- function(family,
+                                           index,
+                                           expected_products,
+                                           valid_evidence_ids,
+                                           context_present) {
+  field <- sprintf("portfolio$product_families[[%d]]", index)
+  if (!is.list(family) || is.data.frame(family)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+
+  required <- c("label", "products", "text", "status", "evidence_ids", "validation_needed")
+  missing_fields <- setdiff(required, names(family))
+  if (length(missing_fields) > 0L) {
+    stop(
+      sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  unknown_fields <- setdiff(names(family), required)
+  if (length(unknown_fields) > 0L) {
+    stop(
+      sprintf(
+        "`%s` contains unexpected field(s): %s.",
+        field,
+        paste(unknown_fields, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (!.qda_spaceprep_is_nonempty_character_scalar(family$label)) {
+    stop(sprintf("`%s$label` must be a non-empty string.", field), call. = FALSE)
+  }
+
+  products <- .qda_spaceprep_as_character_vector(family$products, paste0(field, "$products"))
+  if (length(products) == 0L || length(setdiff(products, expected_products)) > 0L) {
+    stop(
+      sprintf("`%s$products` must contain only products included in this generation unit.", field),
+      call. = FALSE
+    )
+  }
+
+  claim <- .qda_spaceprep_validate_claim(
+    family[c("text", "status", "evidence_ids", "validation_needed")],
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  products <- unique(products)
+  if (!identical(claim$status, "user_context")) {
+    evidence_products <- sub("::.*$", "", claim$evidence_ids)
+    unsupported_products <- setdiff(products, evidence_products)
+    if (length(unsupported_products) > 0L) {
+      stop(
+        sprintf(
+          "`%s` must cite at least one evidence ID for every listed product. Missing: %s.",
+          field,
+          paste(unsupported_products, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  c(
+    list(label = trimws(family$label), products = products),
+    claim
+  )
+}
+
+.qda_spaceprep_validate_product_claim_ownership <- function(claim,
+                                                        product_name,
+                                                        field) {
+  if (is.null(claim) || identical(claim$status, "user_context")) {
+    return(invisible(TRUE))
+  }
+
+  prefix <- paste0(product_name, "::")
+  if (!any(startsWith(claim$evidence_ids, prefix))) {
+    stop(
+      sprintf(
+        "`%s` must cite at least one evidence ID belonging to product `%s`.",
+        field, product_name
+      ),
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}
+
+.qda_spaceprep_contains_demographic_claim <- function(text) {
+  if (length(text) == 0L || is.na(text) || !nzchar(text)) {
+    return(FALSE)
+  }
+
+  patterns <- c(
+    "\\b(men|women|male|female|boys|girls|gender|sex)\\b",
+    "\\b(hommes?|femmes?|masculin|f\u00e9minin|genre|sexe)\\b",
+    "\\b(age|aged|years? old|ans)\\b",
+    "\\b(young adults?|teenagers?|adolescents?|older adults?|seniors?|millennials?|gen[ -]?z)\\b",
+    "\\b(jeunes? adultes?|adolescents?|personnes? \u00e2g\u00e9es?|seniors?)\\b",
+    "\\b[1-9][0-9]?\\s*[-\u2013]\\s*[1-9][0-9]?\\b",
+    "\\b(social class|socioeconomic|income|low-income|high-income)\\b",
+    "\\b(classe sociale|cat\u00e9gorie sociale|csp|revenu)\\b",
+    "\\b(daily|weekly|monthly|frequent|occasional) consumers?\\b",
+    "\\bconsum(?:e|es|ing|ption)[^.!?]{0,30}(daily|weekly|monthly|frequently|occasionally)\\b",
+    "\\bconsommateurs? (quotidiens?|hebdomadaires?|fr\u00e9quents?|occasionnels?)\\b",
+    "\\bconsomm(?:e|ent|ation)[^.!?]{0,30}(quotidiennement|chaque semaine|mensuellement|fr\u00e9quemment|occasionnellement)\\b"
+  )
+
+  any(vapply(patterns, grepl, logical(1), x = text, ignore.case = TRUE, perl = TRUE))
+}
+
+.qda_spaceprep_collect_claim_texts <- function(product_expertise) {
+  texts <- character(0)
+
+  add_claim <- function(x) {
+    if (is.list(x) && .qda_spaceprep_is_nonempty_character_scalar(x$text)) {
+      texts <<- c(texts, x$text)
+    }
+  }
+
+  add_claim(product_expertise$portfolio$overall_reading)
+  lapply(product_expertise$portfolio$product_families, add_claim)
+  lapply(product_expertise$portfolio$differentiation_issues, add_claim)
+  lapply(product_expertise$portfolio$cross_functional_priorities, add_claim)
+
+  for (product in product_expertise$products) {
+    add_claim(product$proposed_name)
+    add_claim(product$sensory_identity)
+    add_claim(product$sensory_archetype)
+    add_claim(product$differentiation_role)
+    lapply(product$formulation_directions, add_claim)
+    lapply(product$consumer_preference_hypotheses, add_claim)
+    lapply(product$usage_hypotheses, add_claim)
+    add_claim(product$communication_territory)
+  }
+
+  texts
+}
+
+.validate_qda_spaceprep_parsed <- function(parsed,
+                                           expected_products,
+                                           valid_evidence_ids,
+                                           context,
+                                           expertise_scope,
+                                           comparison_mode,
+                                           metadata) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The JSON root must be an object.", call. = FALSE)
+  }
+
+  unknown_top <- setdiff(names(parsed), c("portfolio", "products"))
+  if (length(unknown_top) > 0L) {
+    stop(
+      sprintf("Unexpected top-level JSON field(s): %s.", paste(unknown_top, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  if (is.null(parsed$portfolio) || !is.list(parsed$portfolio) || is.data.frame(parsed$portfolio)) {
+    stop("The JSON output must contain a `portfolio` object.", call. = FALSE)
+  }
+  if (is.null(parsed$products) || !is.list(parsed$products) || is.data.frame(parsed$products)) {
+    stop("The JSON output must contain a named `products` object.", call. = FALSE)
+  }
+
+  expected_portfolio_fields <- c(
+    "overall_reading",
+    "product_families",
+    "differentiation_issues",
+    "cross_functional_priorities"
+  )
+  unknown_portfolio <- setdiff(names(parsed$portfolio), expected_portfolio_fields)
+  if (length(unknown_portfolio) > 0L) {
+    stop(
+      sprintf("Unexpected `portfolio` field(s): %s.", paste(unknown_portfolio, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  product_names <- names(parsed$products)
+  if (is.null(product_names) || any(!nzchar(product_names))) {
+    stop("The JSON `products` object must be named by product identifiers.", call. = FALSE)
+  }
+
+  missing_products <- setdiff(expected_products, product_names)
+  extra_products <- setdiff(product_names, expected_products)
+  if (length(missing_products) > 0L || length(extra_products) > 0L) {
+    stop(
+      paste0(
+        "The JSON `products` object must contain exactly: ",
+        paste(expected_products, collapse = ", "), "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  context_present <- .is_qda_spaceprep_context_present(context)
+  consumer_context_present <- .is_qda_spaceprep_context_present(list(consumers = context$consumers))
+
+  portfolio <- .qda_spaceprep_empty_portfolio()
+  portfolio$overall_reading <- .qda_spaceprep_validate_claim(
+    parsed$portfolio$overall_reading,
+    field = "portfolio$overall_reading",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  families <- parsed$portfolio$product_families
+  if (is.null(families)) families <- list()
+  if (!is.list(families) || is.data.frame(families)) {
+    stop("`portfolio$product_families` must be a JSON array.", call. = FALSE)
+  }
+  portfolio$product_families <- lapply(seq_along(families), function(i) {
+    .qda_spaceprep_validate_family(
+      families[[i]],
+      index = i,
+      expected_products = expected_products,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present
+    )
+  })
+
+  portfolio$differentiation_issues <- .qda_spaceprep_validate_claim_list(
+    parsed$portfolio$differentiation_issues,
+    field = "portfolio$differentiation_issues",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  portfolio$cross_functional_priorities <- .qda_spaceprep_validate_claim_list(
+    parsed$portfolio$cross_functional_priorities,
+    field = "portfolio$cross_functional_priorities",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  if (identical(comparison_mode, "isolated")) {
+    has_portfolio_content <- !is.null(portfolio$overall_reading) ||
+      length(portfolio$product_families) > 0L ||
+      length(portfolio$differentiation_issues) > 0L ||
+      length(portfolio$cross_functional_priorities) > 0L
+
+    if (has_portfolio_content) {
+      stop(
+        paste(
+          "Portfolio-level claims are not allowed when",
+          "`comparison_mode = \"isolated\"`; use null or empty arrays."
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  products <- lapply(expected_products, function(product_name) {
+    item <- parsed$products[[product_name]]
+    field <- paste0("products$", product_name)
+
+    if (!is.list(item) || is.data.frame(item)) {
+      stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+    }
+
+    unknown_fields <- setdiff(names(item), .qda_spaceprep_product_fields)
+    if (length(unknown_fields) > 0L) {
+      stop(
+        sprintf("Unexpected field(s) in `%s`: %s.", field, paste(unknown_fields, collapse = ", ")),
+        call. = FALSE
+      )
+    }
+
+    if (!.qda_spaceprep_is_nonempty_character_scalar(item$product) || !identical(item$product, product_name)) {
+      stop(
+        sprintf("`%s$product` must be exactly `%s`.", field, product_name),
+        call. = FALSE
+      )
+    }
+
+    out <- .qda_spaceprep_empty_product(product_name)
+
+    for (claim_field in c(
+      "proposed_name",
+      "sensory_identity",
+      "sensory_archetype",
+      "differentiation_role",
+      "communication_territory"
+    )) {
+      claim_path <- paste0(field, "$", claim_field)
+      out[[claim_field]] <- .qda_spaceprep_validate_claim(
+        item[[claim_field]],
+        field = claim_path,
+        valid_evidence_ids = valid_evidence_ids,
+        context_present = context_present
+      )
+      .qda_spaceprep_validate_product_claim_ownership(
+        out[[claim_field]],
+        product_name = product_name,
+        field = claim_path
+      )
+    }
+
+    out$formulation_directions <- .qda_spaceprep_validate_claim_list(
+      item$formulation_directions,
+      field = paste0(field, "$formulation_directions"),
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      required_status = "recommendation"
+    )
+
+    out$consumer_preference_hypotheses <- .qda_spaceprep_validate_claim_list(
+      item$consumer_preference_hypotheses,
+      field = paste0(field, "$consumer_preference_hypotheses"),
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      required_status = "hypothesis"
+    )
+
+    out$usage_hypotheses <- .qda_spaceprep_validate_claim_list(
+      item$usage_hypotheses,
+      field = paste0(field, "$usage_hypotheses"),
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      required_status = "hypothesis"
+    )
+
+    for (claim_field in c(
+      "formulation_directions",
+      "consumer_preference_hypotheses",
+      "usage_hypotheses"
+    )) {
+      claims <- out[[claim_field]]
+      for (i in seq_along(claims)) {
+        .qda_spaceprep_validate_product_claim_ownership(
+          claims[[i]],
+          product_name = product_name,
+          field = sprintf("%s$%s[[%d]]", field, claim_field, i)
+        )
+      }
+    }
+
+    out$validation_needs <- .qda_spaceprep_as_character_vector(
+      item$validation_needs,
+      paste0(field, "$validation_needs")
+    )
+
+    out
+  })
+  names(products) <- expected_products
+
+  expertise_metadata <- metadata
+  expertise_metadata$expertise_scope <- expertise_scope
+  expertise_metadata$comparison_mode <- comparison_mode
+  expertise_metadata$parse_status <- "success"
+
+  product_expertise <- list(
+    portfolio = portfolio,
+    products = products,
+    metadata = expertise_metadata
+  )
+
+  if (!consumer_context_present) {
+    all_text <- .qda_spaceprep_collect_claim_texts(product_expertise)
+    demographic_text <- all_text[vapply(
+      all_text,
+      .qda_spaceprep_contains_demographic_claim,
+      logical(1)
+    )]
+
+    if (length(demographic_text) > 0L) {
+      stop(
+        paste(
+          "The response contains a demographic or observed-frequency consumer claim,",
+          "but no explicit `context$consumers` was supplied."
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  product_expertise
+}
+
+.parse_qda_spaceprep_response <- function(text,
+                                          expected_products,
+                                          valid_evidence_ids,
+                                          context,
+                                          expertise_scope,
+                                          comparison_mode,
+                                          metadata = list()) {
+  tryCatch(
+    {
+      parsed <- .parse_json_response(text, simplifyDataFrame = FALSE)
+      expertise <- .validate_qda_spaceprep_parsed(
+        parsed = parsed,
+        expected_products = expected_products,
+        valid_evidence_ids = valid_evidence_ids,
+        context = context,
+        expertise_scope = expertise_scope,
+        comparison_mode = comparison_mode,
+        metadata = metadata
+      )
+
+      list(
+        parse_status = "success",
+        parse_error = NULL,
+        product_expertise = expertise
+      )
+    },
+    error = function(e) {
+      list(
+        parse_status = "error",
+        parse_error = conditionMessage(e),
+        product_expertise = NULL
+      )
+    }
+  )
+}
+
+.as_qda_spaceprep_response_text <- function(response) {
+  if (is.character(response)) {
+    return(paste(response, collapse = "\n"))
+  }
+
+  if (is.data.frame(response) && "response" %in% names(response)) {
+    return(paste(response$response, collapse = "\n"))
+  }
+
+  stop(
+    "The LLM backend returned an unsupported response type for `nail_qda_spaceprep()`.",
+    call. = FALSE
+  )
+}
+
+.combine_isolated_qda_expertise <- function(unit_results,
+                                            metadata,
+                                            product_order) {
+  statuses <- vapply(
+    unit_results,
+    function(x) x$parsed$parse_status,
+    character(1)
+  )
+
+  if (!all(statuses == "success")) {
+    return(list(
+      parse_status = if (all(statuses == "error")) "error" else "partial_error",
+      parse_error = stats::setNames(
+        lapply(unit_results, function(x) x$parsed$parse_error),
+        names(unit_results)
+      ),
+      product_expertise = NULL
+    ))
+  }
+
+  products <- lapply(product_order, function(product) {
+    unit_results[[product]]$parsed$product_expertise$products[[product]]
+  })
+  names(products) <- product_order
+
+  list(
+    parse_status = "success",
+    parse_error = NULL,
+    product_expertise = list(
+      portfolio = .qda_spaceprep_empty_portfolio(),
+      products = products,
+      metadata = utils::modifyList(
+        metadata,
+        list(
+          comparison_mode = "isolated",
+          parse_status = "success",
+          portfolio_interpretation_available = FALSE
+        )
+      )
+    )
   )
 }
 
 # ---------------------------------------------------------------------------
-# Main
+# Main function
 # ---------------------------------------------------------------------------
 
-#' Prepare optional product-level LLM summaries for product-space interpretation
+#' Prepare traceable product expertise from QDA profiles
 #'
-#' Creates short, structured summaries of individual product profiles for
-#' optional use in a later interpretation of a multidimensional product
-#' space.
+#' Converts the deterministic `product_profiles` artifact created by
+#' [nail_qda()] into prompts for structured, evidence-traceable product
+#' expertise. The function does not recalculate `decat()` and does not ask the
+#' language model to transcribe statistical tables.
 #'
-#' The function reuses `nail_qda()` with one isolated prompt per product and
-#' requests a standardized six-field response describing:
+#' The model is instead asked to interpret what the sensory profiles may mean
+#' for product identity, differentiation, formulation, marketing, innovation,
+#' and future consumer research. Every generated interpretation, hypothesis,
+#' or recommendation must cite valid `evidence_id` values from
+#' `attr(x, "product_profiles")`.
 #'
-#' - the core sensory profile;
-#' - the main attributes above the average product profile;
-#' - the main attributes below the average product profile;
-#' - the product's possible positioning within a broader product space;
-#' - the clarity of the profile;
-#' - a short summary suitable for later reuse.
-#'
-#' These summaries do not contribute to the statistical construction of the
-#' product space. In particular, they do not modify the adjusted product
-#' means, the PCA, the eigenvalues, or the product coordinates computed by
-#' `nail_qda_space()`.
-#'
-#' This preparation step is optional. `nail_qda_space()` can be used directly
-#' on an object returned by `nail_qda()` without calling
-#' `nail_qda_spaceprep()`.
-#'
-#' @param dataset A data frame containing the QDA sensory evaluations.
-#'
-#'   Rows generally correspond to evaluations of products by panelists. The
-#'   data frame must contain the categorical variables used in `formul`,
-#'   followed by the quantitative sensory attributes specified by `firstvar`
-#'   and `lastvar`.
-#'
-#'   In a standard QDA design, the categorical variables usually include a
-#'   product factor and a panelist factor, while the quantitative variables
-#'   contain sensory intensity scores.
-#' @param formul A one-sided analysis-of-variance formula passed to
-#'   `nail_qda()`.
-#'
-#'   It is typically supplied as a character string, for example:
-#'
-#'   ```
-#'   "~Product+Panelist"
-#'   ```
-#'
-#'   The first term on the right-hand side must identify the product or
-#'   stimulus factor whose levels are to be summarized.
-#'
-#'   For example, in `"~Product+Panelist"`, `Product` is characterized and
-#'   `Panelist` is included to account for systematic differences among
-#'   panelists.
-#' @param firstvar A single integer giving the column index of the first
-#'   quantitative sensory attribute to analyze.
-#' @param lastvar A single integer giving the column index of the last
-#'   quantitative sensory attribute to analyze. The default is the last column
-#'   of `dataset`.
-#' @param model Character string giving the language model used by the selected
-#'   provider. The default is `"llama3"`, intended for the default Ollama
-#'   backend.
-#' @param provider LLM backend used when `generate = TRUE`. One of
-#'   `"ollama"` or `"gemini"`.
-#'
-#'   The default is `"ollama"`, which uses a local Ollama installation.
-#'
-#'   Gemini requires a valid API key, typically supplied through the
-#'   `GEMINI_API_KEY` environment variable.
-#' @param proba A numeric value between 0 and 1 giving the significance
-#'   threshold forwarded to `nail_qda()`. The default is `0.05`.
-#'
-#'   Only product-by-attribute results retained under this threshold are
-#'   available for inclusion in the individual product prompts.
-#' @param sample.pct A numeric value between 0 and 1 giving the proportion of
-#'   retained sensory attributes included in each product prompt. The default
-#'   is `1`, meaning that all retained attributes are included.
-#'
-#'   Lower values may be useful when many sensory attributes characterize a
-#'   product and shorter prompts are required.
-#'
-#'   Sampling changes only the information included in the prompts. It does
-#'   not alter the underlying QDA analysis.
-#'
-#'   Use `set.seed()` before calling the function when reproducible sampling
-#'   is required.
-#' @param drop.negative Logical indicating whether sensory attributes with
-#'   negative v-tests should be excluded from the individual product prompts.
-#'   The default is `FALSE`.
-#'
-#'   With `drop.negative = FALSE`, the prompt may contain both:
-#'
-#'   - attributes above the average product profile;
-#'   - attributes below the average product profile.
-#'
-#'   This generally provides the most complete relative description of each
-#'   product.
-#'
-#'   With `drop.negative = TRUE`, only attributes associated with positive
-#'   v-tests are retained. The resulting summary focuses on sensory attributes
-#'   that are more intense than in the average product profile.
-#' @param product_knowledge Character string indicating how the product labels
-#'   should be treated. One of `"known"` or `"unknown"`.
-#'
-#'   With `"known"`, the levels of the product factor are treated as meaningful
-#'   product names or established identifiers.
-#'
-#'   With `"unknown"`, the levels are treated as anonymous stimulus codes. The
-#'   summaries may then describe the sensory style represented by the
-#'   stimulus without assuming prior knowledge of its identity.
-#'
-#'   This argument changes the terminology and interpretation instructions in
-#'   the prompts. It does not change the statistical analysis.
-#' @param expertise_mode Character string controlling the vocabulary and the
-#'   level of interpretation requested for each product. One of `"sensory"`,
-#'   `"positioning"`, or `"hybrid"`.
-#'
-#'   With `"sensory"`, the response must remain closely anchored in sensory
-#'   and perceptual vocabulary. Promotional, emotional, branding, and hedonic
-#'   interpretations are discouraged.
-#'
-#'   With `"positioning"`, the response may infer a broader product style,
-#'   product pole, or positioning, provided that this interpretation remains
-#'   grounded in the retained sensory attributes.
-#'
-#'   With `"hybrid"`, the response first describes the sensory profile and may
-#'   then infer a broader product style. The sensory evidence must remain
-#'   primary.
-#'
-#'   When the summaries are later supplied to `nail_qda_space()`, using the
-#'   same `expertise_mode` in both functions generally produces the most
-#'   coherent interpretation.
-#' @param generate Logical.
-#'
-#'   If `FALSE`, no language model is called. The function returns one
-#'   structured prompt per product.
-#'
-#'   If `TRUE`, each product prompt is sent separately to the selected LLM
-#'   backend. The function returns the prompt, raw response, and parsed
-#'   structured summary for each product.
-#'
-#'   Because one LLM request is made per product, processing time and API usage
-#'   increase with the number of products.
-#' @param ... Additional provider-specific generation arguments passed to the
-#'   selected LLM backend, such as `temperature`, `seed`, or other supported
-#'   options.
+#' @param dataset Deprecated. A QDA data frame used by the historical interface.
+#'   Prefer supplying an object returned by [nail_qda()] through `x`.
+#' @param formul Deprecated. Formula forwarded to [nail_qda()] only when the
+#'   historical data-based interface is used.
+#' @param firstvar Deprecated. Index of the first sensory variable, used only by
+#'   the historical data-based interface.
+#' @param lastvar Deprecated. Index of the last sensory variable, used only by
+#'   the historical data-based interface. When omitted, the last column of
+#'   `dataset` is used.
+#' @param x The preferred input: an object returned by [nail_qda()] containing a
+#'   valid `"product_profiles"` attribute. The optional `"decat_result"` and
+#'   `"qda_settings"` attributes are preserved as provenance metadata.
+#' @param request Optional single character string adding a customized expert
+#'   task. It complements the selected `expertise_scope`; it cannot remove the
+#'   mandatory JSON schema, evidence traceability, epistemic statuses, or
+#'   validation requirements.
+#' @param context Optional named list containing user-provided product context.
+#'   Supported fields are `category`, `products`, `formulation`, `brand`,
+#'   `market`, `consumers`, `usage`, and `constraints`. This context is displayed
+#'   in a separate prompt section and is never presented as a statistical
+#'   result.
+#' @param expertise_scope Perspective requested from the model. One of
+#'   `"sensory"`, `"formulation"`, `"marketing"`, `"consumer"`,
+#'   `"innovation"`, or `"cross_functional"`. The conservative default is
+#'   `"sensory"`.
+#' @param comparison_mode Either `"joint"` or `"isolated"`. In joint mode, all
+#'   products are included in one generation unit so that the model can compare
+#'   the range, propose distinct identities, identify families, and discuss
+#'   differentiation. In isolated mode, one independent generation unit is
+#'   created per product.
+#' @param product_knowledge Either `"known"` or `"unknown"`, controlling whether
+#'   labels are treated as meaningful product names or anonymous stimulus codes.
+#' @param model Character scalar naming the model used when `generate = TRUE`.
+#' @param provider LLM provider, either `"ollama"` or `"gemini"`.
+#' @param proba Significance threshold used only by the deprecated data-based
+#'   interface when it internally calls [nail_qda()]. It does not modify an
+#'   existing `x` object.
+#' @param sample.pct Proportion of retained markers exposed in each prompt. The
+#'   selection is deterministic and follows the marker rank stored in
+#'   `product_profiles`. This affects prompt evidence only, never the source
+#'   profiles.
+#' @param drop.negative Logical. When `TRUE`, below-average retained markers are
+#'   omitted from the prompt evidence. This does not modify
+#'   `attr(x, "product_profiles")`.
+#' @param expertise_mode Deprecated compatibility argument. `"sensory"` maps to
+#'   `expertise_scope = "sensory"`, `"positioning"` to `"innovation"`, and
+#'   `"hybrid"` to `"cross_functional"` when `expertise_scope` is not supplied.
+#' @param generate Logical. With `FALSE`, the complete evidence payload and
+#'   prompt are returned without an LLM call. With `TRUE`, each generation unit
+#'   is sent to the selected provider and its JSON response is parsed and
+#'   validated.
+#' @param ... Additional provider-specific generation options passed to the
+#'   internal LLM dispatcher.
 #'
 #' @details
-#' ## Purpose of the function
+#' The preferred workflow is:
 #'
-#' `nail_qda_spaceprep()` prepares concise textual summaries of individual
-#' products before the interpretation of a multidimensional product space.
-#'
-#' It does not compute the product-space PCA. The PCA is computed later by
-#' `nail_qda_space()` from the adjusted product mean table returned by
-#' `SensoMineR::decat()`.
-#'
-#' The summaries created here are used only as optional product-level context.
-#' They can help explain how products located at the ends of a PCA dimension
-#' express the sensory opposition identified from the variables.
-#'
-#' The minimal workflow is therefore:
-#'
-#' ```
-#' qda_result <- nail_qda(...)
-#' space_prompts <- nail_qda_space(x = qda_result)
+#' ```r
+#' qda <- nail_qda(..., generate = FALSE)
+#' expertise <- nail_qda_spaceprep(x = qda, generate = TRUE)
 #' ```
 #'
-#' The optional enriched workflow is:
+#' The statistical evidence used by this function comes exclusively from the
+#' `product_profiles` attribute. Adjusted means provide the complete product
+#' profile, while `retained_markers` provides the inferentially retained
+#' product-by-attribute evidence and its deterministic `evidence_id` values.
 #'
-#' ```
-#' qda_result <- nail_qda(...)
+#' Generated claims may use only four statuses:
 #'
-#' product_summaries <- nail_qda_spaceprep(
-#'   ...,
-#'   generate = TRUE
-#' )
+#' - `"expert_interpretation"`;
+#' - `"hypothesis"`;
+#' - `"recommendation"`;
+#' - `"user_context"`.
 #'
-#' space_prompts <- nail_qda_space(
-#'   x = qda_result,
-#'   llm_product_summaries = product_summaries
-#' )
-#' ```
-#'
-#' ## Relationship with `nail_qda()`
-#'
-#' Internally, the function calls `nail_qda()` with:
-#'
-#' ```
-#' isolate.groups = TRUE
-#' prompt_style = "compact"
-#' ```
-#'
-#' This means that the statistical characterization is computed from the
-#' complete QDA dataset, but one separate prompt is constructed for each
-#' product.
-#'
-#' Each product remains characterized relative to the average profile of the
-#' complete product set. Isolating the prompts does not mean that the
-#' statistical analysis is performed separately for each product.
-#'
-#' The function uses a dedicated introduction, request, and conclusion. These
-#' instructions are intentionally standardized because the resulting summaries
-#' must follow a stable structure before they can be reused by
-#' `nail_qda_space()`.
-#'
-#' ## Requested response structure
-#'
-#' When `generate = TRUE`, the language model is instructed to return exactly
-#' six fields:
-#'
-#' ```
-#' Core profile: ...
-#' Distinctive above-average traits: ...
-#' Distinctive below-average traits: ...
-#' Positioning cues: ...
-#' Profile clarity: ...
-#' Injectable summary: ...
-#' ```
-#'
-#' Their intended meanings are:
-#'
-#' - `Core profile`: one short sentence summarizing the relative product
-#'   profile;
-#' - `Distinctive above-average traits`: three to five attributes clearly above the
-#'   average product profile, separated by semicolons;
-#' - `Distinctive below-average traits`: three to five attributes clearly below the
-#'   average profile, or `"none"` when no such attribute is available;
-#' - `Positioning cues`: one short sentence describing the sensory pole,
-#'   broader product direction, or positioning suggested by the profile;
-#' - `Profile clarity`: one of `"strong"`, `"moderate"`, `"mixed"`, or
-#'   `"weak"`;
-#' - `Injectable summary`: one short sentence intended for later inclusion in
-#'   the product-level evidence of `nail_qda_space()`.
-#'
-#' The model is instructed not to add Markdown, bullets, introductory text, or
-#' additional sections.
-#'
-#' ## Parsing the LLM response
-#'
-#' The raw response is parsed automatically into a named list.
-#'
-#' The parser:
-#'
-#' - removes common Markdown code fences;
-#' - removes introductory expressions such as `"Here is the output"`;
-#' - extracts the six expected fields;
-#' - splits positive and negative traits at semicolons;
-#' - converts `profile_clarity` to lower case.
-#'
-#' The parsed object contains:
-#'
-#' - `core_profile`: a character string or `NA`;
-#' - `above_average_traits`: a character vector;
-#' - `below_average_traits`: a character vector;
-#' - `positioning_cues`: a character string or `NA`;
-#' - `profile_clarity`: a lower-case character string or `NA`;
-#' - `injectable_summary`: a character string or `NA`.
-#'
-#' Language models do not always follow formatting instructions perfectly.
-#' Users should therefore inspect both the raw `response` and the `parsed`
-#' result before using the summaries in a final analysis.
-#'
-#' If parsing fails for one product, the complete workflow is not interrupted.
-#' The corresponding parsed result contains `NA` values and empty character
-#' vectors where appropriate.
-#'
-#' ## Sensory, positioning, and hybrid modes
-#'
-#' In `"sensory"` mode, the model is instructed to remain within sensory and
-#' perceptual vocabulary and to base every descriptor on the retained
-#' attributes.
-#'
-#' Depending on the variables present in the dataset, the interpretation may
-#' refer to appearance, odor or aroma, taste or flavor, texture or mouthfeel,
-#' trigeminal sensations, sound, or temporal perception. No sensory modality
-#' or descriptor is introduced unless it is supported by the retained
-#' attribute labels.
-#'
-#' Generic promotional expressions such as `"premium"`, `"luxurious"`,
-#' `"indulgent"`, or `"treat"` are discouraged.
-#'
-#' In `"positioning"` mode, the model may infer the broader product style or
-#' pole represented by the item, but it must remain grounded in the retained
-#' QDA attributes.
-#'
-#' In `"hybrid"` mode, the sensory profile is described first. A broader
-#' product interpretation may then be proposed as a secondary conclusion.
-#'
-#' ## Positive and negative product traits
-#'
-#' The positive and negative traits refer to relative product profiles:
-#'
-#' - a positive trait is an attribute retained as higher than the average
-#'   profile of the analyzed product set;
-#' - a negative trait is an attribute retained as lower than the average
-#'   profile.
-#'
-#' These terms do not mean desirable and undesirable. A negative trait is not
-#' necessarily a defect; it only indicates a lower relative sensory intensity.
-#'
-#' For example, `"lower bitterness"` may be represented among the negative
-#' traits because bitterness is less intense than in the average product, even
-#' though this characteristic may be desirable for some consumers.
-#'
-#' ## Use in `nail_qda_space()`
-#'
-#' A valid result produced with `generate = TRUE` can be passed directly to:
-#'
-#' ```
-#' nail_qda_space(
-#'   x = qda_result,
-#'   llm_product_summaries = product_summaries
-#' )
-#' ```
-#'
-#' For each extreme product, `nail_qda_space()` primarily uses:
-#'
-#' - `injectable_summary`;
-#' - `positioning_cues`;
-#' - `profile_clarity`.
-#'
-#' When no valid `injectable_summary` is available, `nail_qda_space()` falls
-#' back to the deterministic product summary obtained from `nail_qda()`, when
-#' available.
-#'
-#' Results produced with `generate = FALSE` contain prompts only. They cannot
-#' provide parsed product summaries to `llm_product_summaries`.
-#'
-#' ## Generation considerations
-#'
-#' With `generate = TRUE`, one request is sent for every product. For a dataset
-#' containing six products, six independent LLM requests are therefore made.
-#'
-#' The summaries are generated interpretations of statistical results. They
-#' should be reviewed before being reused, particularly when product names,
-#' commercial claims, or broader positioning language are involved.
-#'
-#' They should not be interpreted as causal findings or as a substitute for
-#' examination of the original sensory data and QDA model.
+#' Hypotheses and recommendations require a non-empty `validation_needed`
+#' field. Formulation directions must be recommendations, while consumer-
+#' preference and usage claims must be hypotheses. Each product family must cite
+#' evidence for every product it lists. In isolated mode, portfolio-level fields
+#' must remain empty. Without explicit `context$consumers`, demographic and
+#' observed-frequency consumer claims are rejected during parsing.
 #'
 #' @return
-#' The returned object depends on `generate`.
+#' With `comparison_mode = "joint"`, a list containing at least:
 #'
-#' When `generate = FALSE`, a named list of character prompts is returned, with
-#' one element per product or stimulus.
+#' - `prompt`: the complete prompt;
+#' - `response`: the raw response, or `NULL` when `generate = FALSE`;
+#' - `parsed`: an explicit parsing record containing `parse_status`,
+#'   `parse_error`, and `product_expertise`;
+#' - `product_expertise`: the validated expertise object on success;
+#' - `evidence`: the exact evidence payload exposed to the model;
+#' - `metadata`: generation and provenance metadata.
 #'
-#' The names of the list correspond to the product levels characterized by
-#' `nail_qda()`.
+#' With `comparison_mode = "isolated"`, a named list of such generation units is
+#' returned, one per product. A combined `product_expertise` object is attached
+#' as an attribute when every unit parses successfully.
 #'
-#' When `generate = TRUE`, a named list is returned, with one element per
-#' product or stimulus. Each element contains:
+#' A successful `product_expertise` object contains predictable `portfolio`,
+#' `products`, and `metadata` components. Invalid JSON or invalid epistemic
+#' content never produces a silently completed expertise object: `parse_status`
+#' is set to `"error"` and the validation message is stored in `parse_error`.
 #'
-#' - `prompt`: the exact character prompt sent to the selected LLM backend;
-#' - `response`: the raw generated response, stored as a single character
-#'   string;
-#' - `parsed`: a named list containing the six structured fields extracted
-#'   from the response.
-#'
-#' The `parsed` component contains:
-#'
-#' - `core_profile`;
-#' - `above_average_traits`;
-#' - `below_average_traits`;
-#' - `positioning_cues`;
-#' - `profile_clarity`;
-#' - `injectable_summary`.
-#'
-#' If a response cannot be parsed, the corresponding `parsed` component is
-#' returned with missing character fields and empty trait vectors rather than
-#' stopping the complete multi-product workflow.
-#'
-#' @seealso
-#' [nail_qda()], [nail_qda_space()], [SensoMineR::decat()]
-#'
+#' @seealso [nail_qda()], [nail_qda_space()]
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # These examples use the sensochoc dataset from SensoMineR.
-#' #
-#' # The first example constructs the product prompts without
-#' # calling a language model.
-#' #
-#' # The later examples use Ollama and may therefore take more
-#' # than ten seconds to run.
-#'
 #' library(NaileR)
 #' library(SensoMineR)
 #'
 #' data(chocolates, package = "SensoMineR")
 #'
-#'
-#' ### Example 1: inspect one structured product prompt ###
-#'
-#' # Product is the first term in the model because it is
-#' # the factor whose levels must be summarized.
-#' #
-#' # Panelist is included to account for systematic differences
-#' # among assessors.
-#' #
-#' # generate = FALSE constructs one prompt per product
-#' # without calling an LLM.
-#' prep_prompts <- nail_qda_spaceprep(
-#'   dataset = sensochoc,
-#'   formul = "~Product+Panelist",
-#'   firstvar = 5,
-#'   lastvar = ncol(sensochoc),
-#'   proba = 0.05,
-#'   sample.pct = 1,
-#'   drop.negative = FALSE,
-#'   product_knowledge = "known",
-#'   expertise_mode = "sensory",
-#'   generate = FALSE
-#' )
-#'
-#' # Display the products for which prompts were created.
-#' names(prep_prompts)
-#'
-#' # Display the complete prompt for the first product.
-#' cat(prep_prompts[[1]])
-#'
-#' # A prompt may also be accessed by product name.
-#' cat(prep_prompts[["choc1"]])
-#'
-#'
-#' ### Example 2: generate and parse one summary per product ###
-#'
-#' # Ollama must be running locally and the llama3 model
-#' # must be installed.
-#' #
-#' # One LLM request is sent for each chocolate.
-#' product_summaries <- nail_qda_spaceprep(
-#'   dataset = sensochoc,
-#'   formul = "~Product+Panelist",
-#'   firstvar = 5,
-#'   lastvar = ncol(sensochoc),
-#'   proba = 0.05,
-#'   sample.pct = 1,
-#'   drop.negative = FALSE,
-#'   product_knowledge = "known",
-#'   expertise_mode = "sensory",
-#'   provider = "ollama",
-#'   model = "llama3",
-#'   generate = TRUE
-#' )
-#'
-#' # Display the products for which summaries were generated.
-#' names(product_summaries)
-#'
-#' # Inspect the exact prompt sent for the first product.
-#' cat(product_summaries[[1]]$prompt)
-#'
-#' # Inspect the unmodified LLM response.
-#' cat(product_summaries[[1]]$response)
-#'
-#' # Inspect the structured fields extracted from the response.
-#' product_summaries[[1]]$parsed
-#'
-#'
-#' ### Example 3: inspect parsing quality across all products ###
-#'
-#' # Extract the profile clarity returned for each product.
-#' vapply(
-#'   product_summaries,
-#'   function(x) x$parsed$profile_clarity,
-#'   character(1)
-#' )
-#'
-#' # Display the injectable summary for each product.
-#' vapply(
-#'   product_summaries,
-#'   function(x) {
-#'     value <- x$parsed$injectable_summary
-#'     if (is.na(value)) "" else value
-#'   },
-#'   character(1)
-#' )
-#'
-#' # Identify products for which the injectable summary is missing.
-#' missing_summaries <- vapply(
-#'   product_summaries,
-#'   function(x) {
-#'     value <- x$parsed$injectable_summary
-#'     is.na(value) || !nzchar(trimws(value))
-#'   },
-#'   logical(1)
-#' )
-#'
-#' names(product_summaries)[missing_summaries]
-#'
-#'
-#' ### Example 4: reuse the summaries in nail_qda_space() ###
-#'
-#' # First construct the usual nail_qda() result.
-#' # No LLM is required at this stage.
 #' qda_choc <- nail_qda(
 #'   dataset = sensochoc,
 #'   formul = "~Product+Panelist",
@@ -736,160 +1550,236 @@ parse_qda_spaceprep_response <- function(text) {
 #'   generate = FALSE
 #' )
 #'
-#' # Build the product-space prompts and add the optional
-#' # structured LLM summaries for the extreme products.
-#' enriched_space_prompts <- nail_qda_space(
+#' # Build one portfolio-level prompt without calling an LLM.
+#' prep <- nail_qda_spaceprep(
 #'   x = qda_choc,
-#'   llm_product_summaries = product_summaries,
-#'   ncp = 3,
-#'   scale.unit = TRUE,
-#'   min_inertia_pct = 10,
-#'   expertise_mode = "sensory",
+#'   expertise_scope = "cross_functional",
+#'   comparison_mode = "joint",
+#'   request = "Propose distinct descriptive identities and validation priorities.",
+#'   context = list(category = "chocolate"),
 #'   generate = FALSE
 #' )
 #'
-#' # Display the enriched prompt for the first retained dimension.
-#' cat(enriched_space_prompts[[1]])
+#' cat(prep$prompt)
+#' prep$evidence
 #'
-#'
-#' ### Example 5: prepare summaries for anonymous stimuli ###
-#'
-#' # Replace the original product levels with anonymous codes.
-#' sensochoc_blind <- sensochoc
-#'
-#' levels(sensochoc_blind$Product) <- paste0(
-#'   "Stimulus_",
-#'   seq_len(nlevels(sensochoc_blind$Product))
-#' )
-#'
-#' # product_knowledge = "unknown" indicates that the codes
-#' # should be treated only as stimulus identifiers.
-#' blind_prompts <- nail_qda_spaceprep(
-#'   dataset = sensochoc_blind,
-#'   formul = "~Product+Panelist",
-#'   firstvar = 5,
-#'   lastvar = ncol(sensochoc_blind),
-#'   product_knowledge = "unknown",
-#'   expertise_mode = "hybrid",
+#' # Create one independent prompt per product.
+#' isolated <- nail_qda_spaceprep(
+#'   x = qda_choc,
+#'   expertise_scope = "sensory",
+#'   comparison_mode = "isolated",
 #'   generate = FALSE
 #' )
 #'
-#' cat(blind_prompts[[1]])
+#' cat(isolated[[1]]$prompt)
 #'
-#'
-#' ### Example 6: compare expertise modes without an LLM ###
-#'
-#' sensory_prompts <- nail_qda_spaceprep(
-#'   dataset = sensochoc,
-#'   formul = "~Product+Panelist",
-#'   firstvar = 5,
-#'   expertise_mode = "sensory",
-#'   generate = FALSE
+#' # Generate and validate a joint JSON response with Ollama.
+#' generated <- nail_qda_spaceprep(
+#'   x = qda_choc,
+#'   expertise_scope = "cross_functional",
+#'   comparison_mode = "joint",
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
 #' )
 #'
-#' positioning_prompts <- nail_qda_spaceprep(
-#'   dataset = sensochoc,
-#'   formul = "~Product+Panelist",
-#'   firstvar = 5,
-#'   expertise_mode = "positioning",
-#'   generate = FALSE
-#' )
-#'
-#' hybrid_prompts <- nail_qda_spaceprep(
-#'   dataset = sensochoc,
-#'   formul = "~Product+Panelist",
-#'   firstvar = 5,
-#'   expertise_mode = "hybrid",
-#'   generate = FALSE
-#' )
-#'
-#' # Compare the task instructions used in the first product prompt.
-#' cat(sensory_prompts[[1]])
-#' cat(positioning_prompts[[1]])
-#' cat(hybrid_prompts[[1]])
+#' generated$parsed$parse_status
+#' generated$product_expertise$portfolio
+#' generated$product_expertise$products[[1]]
 #' }
-nail_qda_spaceprep <- function(dataset, formul, firstvar,
-                               lastvar = length(colnames(dataset)),
+nail_qda_spaceprep <- function(dataset = NULL,
+                               formul = NULL,
+                               firstvar = NULL,
+                               lastvar = NULL,
+                               x = NULL,
+                               request = NULL,
+                               context = NULL,
+                               expertise_scope = "sensory",
+                               comparison_mode = "joint",
+                               product_knowledge = "unknown",
                                model = "llama3",
                                provider = c("ollama", "gemini"),
                                proba = 0.05,
                                sample.pct = 1,
                                drop.negative = FALSE,
-                               product_knowledge = c("known", "unknown"),
-                               expertise_mode = c("sensory", "positioning", "hybrid"),
+                               expertise_mode = NULL,
                                generate = FALSE,
                                ...) {
-  product_knowledge <- match.arg(product_knowledge)
-  expertise_mode <- match.arg(expertise_mode)
-  provider <- match.arg(provider)
+  expertise_scope_missing <- missing(expertise_scope)
 
-  intro <- if (product_knowledge == "known") {
-    paste(
-      "The product below belongs to a common sensory product set.",
-      "The goal is to describe this product as a relative profile that may later help interpret the overall product space."
+  if (!is.null(expertise_mode)) {
+    expertise_mode <- match.arg(expertise_mode, c("sensory", "positioning", "hybrid"))
+    warning(
+      paste(
+        "`expertise_mode` is deprecated in `nail_qda_spaceprep()`.",
+        "Use `expertise_scope` instead."
+      ),
+      call. = FALSE
     )
-  } else {
-    paste(
-      "The stimulus below belongs to a common sensory set.",
-      "The goal is to describe this stimulus as a relative profile that may later help interpret the overall product space."
-    )
+
+    if (expertise_scope_missing) {
+      expertise_scope <- switch(
+        expertise_mode,
+        sensory = "sensory",
+        positioning = "innovation",
+        hybrid = "cross_functional"
+      )
+    }
   }
 
-  req <- build_request_qda_spaceprep(
-    product_knowledge = product_knowledge,
-    expertise_mode = expertise_mode
-  )
+  expertise_scope <- match.arg(expertise_scope, .qda_spaceprep_scopes)
+  comparison_mode <- match.arg(comparison_mode, c("joint", "isolated"))
+  product_knowledge <- match.arg(product_knowledge, c("unknown", "known"))
+  provider <- match.arg(provider)
 
-  concl <- build_conclusion_qda_spaceprep()
+  if (!is.logical(generate) || length(generate) != 1L || is.na(generate)) {
+    stop("`generate` must be a single non-missing logical value.", call. = FALSE)
+  }
+  if (!is.logical(drop.negative) || length(drop.negative) != 1L || is.na(drop.negative)) {
+    stop("`drop.negative` must be a single non-missing logical value.", call. = FALSE)
+  }
+  if (!is.numeric(sample.pct) || length(sample.pct) != 1L || is.na(sample.pct) ||
+      sample.pct <= 0 || sample.pct > 1) {
+    stop("`sample.pct` must be a single numeric value in (0, 1].", call. = FALSE)
+  }
+  if (!is.null(request) && !.qda_spaceprep_is_nonempty_character_scalar(request)) {
+    stop("`request` must be NULL or a single non-empty character string.", call. = FALSE)
+  }
 
-  prompts_or_results <- nail_qda(
+  context <- .validate_qda_spaceprep_context(context)
+
+  source <- .extract_qda_spaceprep_source(
+    x = x,
     dataset = dataset,
     formul = formul,
     firstvar = firstvar,
     lastvar = lastvar,
-    introduction = intro,
-    request = req,
-    conclusion = concl,
+    proba = proba,
     model = model,
     provider = provider,
-    isolate.groups = TRUE,
-    drop.negative = drop.negative,
-    proba = proba,
-    sample.pct = sample.pct,
-    prompt_style = "compact",
-    product_knowledge = product_knowledge,
-    generate = generate,
-    ...
+    product_knowledge = product_knowledge
   )
 
-  if (!generate) {
-    return(prompts_or_results)
+  units <- .build_qda_spaceprep_units(
+    product_profiles = source$product_profiles,
+    request = request,
+    context = context,
+    expertise_scope = expertise_scope,
+    comparison_mode = comparison_mode,
+    product_knowledge = product_knowledge,
+    sample.pct = sample.pct,
+    drop.negative = drop.negative
+  )
+
+  metadata <- list(
+    expertise_scope = expertise_scope,
+    comparison_mode = comparison_mode,
+    product_knowledge = product_knowledge,
+    provider = provider,
+    model = model,
+    generate = generate,
+    request = request,
+    context = context,
+    context_fields = names(context)[vapply(context, function(z) {
+      .is_qda_spaceprep_context_present(list(value = z))
+    }, logical(1))],
+    products = names(source$product_profiles),
+    evidence_source = "attr(x, 'product_profiles')",
+    legacy_interface = source$legacy_interface,
+    qda_settings = source$qda_settings
+  )
+
+  make_not_generated_unit <- function(unit) {
+    list(
+      prompt = unit$prompt,
+      response = NULL,
+      parsed = list(
+        parse_status = "not_generated",
+        parse_error = NULL,
+        product_expertise = NULL
+      ),
+      product_expertise = NULL,
+      evidence = unit$evidence,
+      metadata = c(metadata, list(unit_products = unit$products))
+    )
   }
 
-  out <- lapply(prompts_or_results, function(x) {
-    response_text <- paste(x$response, collapse = "\n")
+  if (!generate) {
+    out <- lapply(units, make_not_generated_unit)
 
-    parsed <- tryCatch(
-      parse_qda_spaceprep_response(response_text),
-      error = function(e) {
-        list(
-          core_profile = NA_character_,
-          above_average_traits = character(0),
-          below_average_traits = character(0),
-          positioning_cues = NA_character_,
-          profile_clarity = NA_character_,
-          injectable_summary = NA_character_
-        )
-      }
+    if (comparison_mode == "joint") {
+      result <- out[[1L]]
+      class(result) <- c("nail_qda_spaceprep_joint", "nail_qda_spaceprep", "list")
+      attr(result, "product_profiles") <- source$product_profiles
+      attr(result, "decat_result") <- source$decat_result
+      return(result)
+    }
+
+    class(out) <- c("nail_qda_spaceprep_isolated", "nail_qda_spaceprep", "list")
+    attr(out, "product_expertise") <- NULL
+    attr(out, "parsed") <- list(
+      parse_status = "not_generated",
+      parse_error = NULL,
+      product_expertise = NULL
+    )
+    attr(out, "metadata") <- metadata
+    attr(out, "product_profiles") <- source$product_profiles
+    attr(out, "decat_result") <- source$decat_result
+    return(out)
+  }
+
+  llm_api_options <- list(...)
+
+  generated_units <- lapply(units, function(unit) {
+    raw_response <- .call_llm_base(
+      provider = provider,
+      model = model,
+      prompt = unit$prompt,
+      output = "text",
+      llm_api_options = llm_api_options
+    )
+    response_text <- .as_qda_spaceprep_response_text(raw_response)
+
+    parsed <- .parse_qda_spaceprep_response(
+      text = response_text,
+      expected_products = unit$products,
+      valid_evidence_ids = unit$evidence$evidence_ids,
+      context = context,
+      expertise_scope = expertise_scope,
+      comparison_mode = comparison_mode,
+      metadata = c(metadata, list(unit_products = unit$products))
     )
 
     list(
-      prompt = x$prompt,
-      response = response_text,
-      parsed = parsed
+      prompt = unit$prompt,
+      response = raw_response,
+      parsed = parsed,
+      product_expertise = parsed$product_expertise,
+      evidence = unit$evidence,
+      metadata = c(metadata, list(unit_products = unit$products))
     )
   })
+  names(generated_units) <- names(units)
 
-  names(out) <- names(prompts_or_results)
-  out
+  if (comparison_mode == "joint") {
+    result <- generated_units[[1L]]
+    class(result) <- c("nail_qda_spaceprep_joint", "nail_qda_spaceprep", "list")
+    attr(result, "product_profiles") <- source$product_profiles
+    attr(result, "decat_result") <- source$decat_result
+    return(result)
+  }
+
+  combined <- .combine_isolated_qda_expertise(
+    unit_results = generated_units,
+    metadata = metadata,
+    product_order = names(source$product_profiles)
+  )
+
+  class(generated_units) <- c("nail_qda_spaceprep_isolated", "nail_qda_spaceprep", "list")
+  attr(generated_units, "product_expertise") <- combined$product_expertise
+  attr(generated_units, "parsed") <- combined
+  attr(generated_units, "metadata") <- metadata
+  attr(generated_units, "product_profiles") <- source$product_profiles
+  attr(generated_units, "decat_result") <- source$decat_result
+  generated_units
 }
