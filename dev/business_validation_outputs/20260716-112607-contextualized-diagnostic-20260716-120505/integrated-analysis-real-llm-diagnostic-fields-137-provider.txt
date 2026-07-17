@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$metadata$provider
+FIELD: provider
+TYPEOF: character
+CLASS: character
+
+ollama

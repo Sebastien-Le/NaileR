@@ -1,15 +1,2 @@
-.Rproj.user
-.Rhistory
-.Rdata
-.httr-oauth
-.DS_Store
-.quarto
-inst/doc
-/doc/
-/Meta/
-
-# CRAN build artifacts
-cran/
-NaileR-*-audit.zip
-
-NaileR-*-audit.zip
+*.html
+*.R

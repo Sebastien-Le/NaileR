@@ -3,7 +3,7 @@
 \name{nail_catdes_prep}
 \alias{nail_catdes_prep}
 \alias{nail_group_profile_prep}
-\title{Prepare structured \code{catdes} profiles for later contextualization}
+\title{Build deterministic statistical profiles from a \code{catdes} result}
 \usage{
 nail_catdes_prep(
   x = NULL,
@@ -30,422 +30,135 @@ nail_catdes_prep(
 nail_group_profile_prep(...)
 }
 \arguments{
-\item{x}{Optional raw result returned by \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}}, or an object
-carrying such a result in a \code{"catdes_result"} attribute. In particular,
-an object returned by \code{\link[=nail_catdes]{nail_catdes()}} can be supplied directly because
-\code{nail_catdes()} preserves its underlying \code{catdes()} result.
+\item{x}{Preferred input. A raw result returned by
+\code{\link[FactoMineR:catdes]{FactoMineR::catdes()}}, an object returned by \code{\link[=nail_catdes]{nail_catdes()}} carrying a
+\code{"catdes_result"} attribute, or an existing \code{statistical_profiles} object.}
 
-Supply exactly one of \code{x} or \code{dataset}.
+\item{dataset}{Deprecated compatibility input. A data frame from which
+\code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} is calculated once. Prefer computing the analysis
+first and supplying it through \code{x}.}
 
-When \code{x} is supplied, \code{exclude} and \code{row.w} cannot be applied because the
-analysis has already been computed. The value of \code{proba} is then stored as
-declared metadata; the function cannot verify the threshold originally
-used to compute \code{x}.}
+\item{num.var}{Deprecated compatibility argument giving the grouping-column
+index when \code{dataset} is supplied.}
 
-\item{dataset}{Optional data frame from which \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} is
-computed. Supply exactly one of \code{dataset} or \code{x}.
+\item{exclude}{Optional column names or indices excluded before \code{catdes()}
+is calculated through the deprecated \code{dataset} interface.}
 
-Character columns retained in the prepared data are converted to factors.
-Numeric columns remain numeric. The grouping variable is converted to a
-factor when necessary.}
+\item{proba}{Probability threshold passed to \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} only
+when \code{dataset} is supplied. With a precomputed \code{x}, the retained rows are
+accepted as the statistical result and \code{proba} is recorded as metadata.}
 
-\item{num.var}{A single integer giving the column index of the grouping
-variable in the original \code{dataset}. It is required when \code{dataset} is
-supplied.}
+\item{sample.pct, top_n_quanti, top_n_quali}{Deprecated prompt-selection
+arguments. They are ignored and never remove evidence.}
 
-\item{exclude}{Optional column indices or column names removed before
-\code{catdes()} is computed.
+\item{profile_mode, prompt_style, include_metrics_in_prompt}{Deprecated prompt
+presentation arguments. They are ignored.}
 
-This argument should be used for identifiers, open-ended text columns,
-technical variables, and any other columns that should not participate in
-the external statistical characterization of the groups. The grouping
-variable cannot be excluded.}
+\item{introduction, request, conclusion}{Deprecated prompt text arguments.
+They are ignored.}
 
-\item{proba}{A single numeric value in ]0, 1] forwarded to
-\code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} when \code{dataset} is supplied. The default is \code{0.05}.
+\item{model, provider, generate}{Deprecated LLM arguments. They are ignored;
+no provider is contacted even when \code{generate = TRUE} is supplied.}
 
-When \code{x} is supplied, this value is recorded only as declared metadata.}
+\item{row.w}{Optional row weights passed to \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} only with
+the deprecated \code{dataset} interface.}
 
-\item{sample.pct}{A single numeric value in ]0, 1] controlling the
-proportion of descriptors retained by \code{catdes()} that are displayed in
-each prompt.
-
-This is a deterministic selection rather than random sampling. Within
-each descriptor type, rows are ranked by decreasing absolute v-test and
-then by increasing p-value. The complete retained tables remain available
-in the mechanical profile.}
-
-\item{top_n_quanti}{A single non-negative integer giving the maximum number
-of quantitative descriptors displayed in each prompt. The default is \code{5}.}
-
-\item{top_n_quali}{A single non-negative integer giving the maximum number
-of categorical descriptors displayed in each prompt. The default is \code{5}.}
-
-\item{profile_mode}{One of \code{"balanced"}, \code{"categorical"}, or
-\code{"quantitative"}.
-
-\code{"balanced"} displays both types when available. The other modes restrict
-the prompt to one descriptor type, while the complete mechanical profile
-still preserves all retained results.}
-
-\item{prompt_style}{One of \code{"compact"} or \code{"detailed"}. This controls the
-amount of statistical guidance included in the prompt. It does not change
-the underlying \code{catdes()} result or the descriptor selection.}
-
-\item{include_metrics_in_prompt}{Logical indicating whether the mechanical
-descriptor summary is displayed before the statistical tables.
-
-The summary distinguishes the descriptors retained by \code{catdes()} from the
-subset shown in the prompt. It reports numerical quantities only and does
-not create a qualitative strong/moderate/weak classification.}
-
-\item{introduction}{Optional common introduction added to every group
-prompt. If \code{NULL}, a generic introduction is created.}
-
-\item{request}{Optional request block. If \code{NULL}, the function uses its
-internal default request builder.
-
-A custom request used with \code{generate = TRUE} should ask for the three
-narrative labels \verb{Core group profile:}, \verb{Distinctive markers:}, and
-\verb{Injectable summary:}. Quantitative traits, categorical traits, and the
-statistical caution are constructed mechanically and are not taken from
-the language-model response.}
-
-\item{conclusion}{Optional output-constraint block. If \code{NULL}, the
-function uses its internal default output constraint.
-
-A custom conclusion used with \code{generate = TRUE} should preserve the same
-three narrative labels and their order so that the response can be parsed
-automatically.}
-
-\item{model}{Character string giving the language model used by the selected
-provider. The default is \code{"llama3"}.}
-
-\item{provider}{LLM backend, one of \code{"ollama"} or \code{"gemini"}.}
-
-\item{row.w}{Optional non-negative row weights forwarded to \code{catdes()} when
-\code{dataset} is supplied. The vector must have length \code{nrow(dataset)} and a
-positive sum.}
-
-\item{generate}{Logical.
-
-If \code{FALSE}, no language model is called and the function returns one
-structured prompt per group.
-
-If \code{TRUE}, one request is sent independently for each group and the
-generated response is parsed.}
-
-\item{...}{Additional provider-specific generation arguments passed to the
-selected LLM backend.}
+\item{...}{Deprecated provider or prompt arguments. They are ignored.}
 }
 \value{
-With \code{generate = FALSE}, a named list of character prompts is returned, with
-one element per group.
-
-With \code{generate = TRUE}, a named list is returned, with one element per
-group. Each element contains:
-\itemize{
-\item \code{prompt}: the exact prompt sent to the selected backend;
-\item \code{response}: the raw generated response stored as one character string;
-\item \code{parsed}: the structured fields extracted from the response;
-\item \code{mechanical_profile}: the retained statistical evidence and explicit
-metrics for the group.
-}
-
-The parsed component contains:
-\itemize{
-\item \code{core_group_profile}: narrative synthesis parsed from the model response;
-\item \code{quantitative_traits}: mechanically constructed from the displayed
-quantitative table;
-\item \code{categorical_traits}: mechanically constructed from the displayed
-categorical table;
-\item \code{distinctive_markers}: concise narrative markers parsed from the model
-response;
-\item \code{statistical_caution}: mechanically assigned conservative scope
-statement;
-\item \code{injectable_summary}: narrative synthesis parsed from the model response,
-with a fallback to \code{core_group_profile} if omitted.
-}
-
-The complete returned object has the following attributes:
-\itemize{
-\item \code{"catdes_result"}: the raw \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} result;
-\item \code{"catdes_profiles"}: all mechanical group profiles;
-\item \code{"catdes_input"}: source, exclusion, and prepared-data metadata;
-\item \code{"catdes_settings"}: threshold and prompt-selection settings.
-}
+A list of class \code{c("nail_catdes_prep", "statistical_profiles", "list")} containing \code{groups}, \code{evidence_registry}, \code{settings}, and
+\code{metadata}. The function returns the same mechanical artifact regardless
+of deprecated prompt, sampling, or LLM arguments.
 }
 \description{
-Runs or reuses \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}}, preserves the retained statistical
-descriptors for every group, constructs one controlled prompt per group,
-and optionally parses one language-model response per group into a stable
-object intended for later contextualization.
+\code{nail_catdes_prep()} normalizes the qualitative and quantitative tables
+retained by \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} into one stable, traceable mechanical
+artifact. It never calls a language model and never creates a sociological,
+psychological, consumer, marketing, or other domain interpretation.
 }
 \details{
-\code{nail_catdes_prep()} is the statistical counterpart of
-\code{\link[=nail_textual_prep]{nail_textual_prep()}}. It prepares the external statistical profile that may
-later be combined with the structured textual profile in
-\code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}}.
+The function answers only: which statistical markers characterize each
+group, in which direction, with which values, ranks, and evidence IDs?
+\subsection{Main artifact}{
 
-The suffix \verb{_prep} refers to the complete preparation workflow. Parsing is
-one part of that workflow, but the function also computes or retrieves the
-\code{catdes()} result, standardizes the retained tables, selects the descriptors
-displayed in each prompt, calculates explicit mechanical summaries, and
-preserves the exact statistical evidence used for generation.
-\subsection{Statistical directions}{
-
-For quantitative variables, a positive v-test means that the group value is
-higher than the overall value, whereas a negative v-test means that it is
-lower.
-
-For categorical variables, positive and negative v-tests indicate
-over-representation and under-representation, respectively, under the
-current analysis.
-
-These signs are mathematical directions. They do not indicate favorable or
-unfavorable qualities, superiority, inferiority, desirability, or value.
-}
-
-\subsection{Mechanical profile}{
-
-Every group profile contains:
+The returned object is a \code{statistical_profiles} list with four components:
 \itemize{
-\item \code{quantitative}: the complete retained quantitative table;
-\item \code{categorical}: the complete retained categorical table;
-\item \code{selected_for_prompt}: the deterministic subsets actually displayed to
-the language model;
-\item \code{salient_quantitative_traits} and \code{salient_categorical_traits};
-\item \code{metrics$retained}: summaries of all descriptors retained by \code{catdes()};
-\item \code{metrics$shown_in_prompt}: summaries of the smaller displayed subsets.
+\item \code{groups}: one explicit element per group;
+\item \code{evidence_registry}: one row per retained statistical marker;
+\item \code{settings}: deterministic rules used for directions, ranks, and IDs;
+\item \code{metadata}: source and schema information, including \code{llm_used = FALSE}.
 }
 
-Each metrics component contains counts of retained descriptors and signed
-v-tests, the maximum and median absolute v-test, and the smallest p-value.
-These are explicit numerical summaries. No qualitative profile-strength
-label is calculated or returned.
-
-Small p-values are formatted with \code{\link[base:format.pval]{base::format.pval()}} before they are
-inserted into the prompt. A non-zero p-value is therefore not rounded and
-displayed as zero merely because it is smaller than three decimal places.
+Each group contains \code{qualitative_markers}, \code{quantitative_markers},
+\code{positive_markers}, \code{negative_markers}, descriptive \code{metrics}, its complete
+\code{evidence_ids}, and a short factual summary produced mechanically by R.
 }
 
-\subsection{Descriptor selection}{
+\subsection{Directions}{
 
-\code{sample.pct}, \code{top_n_quanti}, and \code{top_n_quali} change only the information
-displayed in the prompt. They do not modify the complete \code{catdes()} result
-or the complete retained tables stored in the mechanical profile.
-
-The prompt explicitly reports both the number of descriptors retained and
-the number shown. This prevents a selected prompt subset from being confused
-with the complete statistical result.
+For qualitative markers, positive and negative v-tests produce
+\code{"overrepresented"} and \code{"underrepresented"}. For quantitative markers,
+they produce \code{"higher"} and \code{"lower"}. Values whose absolute magnitude is
+at or below the stored tolerance are \code{"neutral"}. If the v-test is missing,
+the function uses an available observed difference and records that basis.
+If no signed quantity is available, direction remains \code{NA}.
 }
 
-\subsection{Parsed profile}{
+\subsection{Ranking}{
 
-The current prompt asks the language model for three narrative fields only:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Core group profile: ...
-Distinctive markers: ...
-Injectable summary: ...
-}\if{html}{\out{</div>}}
-
-The language model is therefore used for synthesis rather than for copying
-numerical tables. The parser also tolerates the six-field layout used by
-earlier exploratory versions, but generated quantitative traits,
-categorical traits, and statistical cautions are ignored.
-
-The final parsed object always retains six components. Their origins are:
-\itemize{
-\item \code{core_group_profile}: parsed from the language-model response;
-\item \code{quantitative_traits}: constructed mechanically from the exact
-quantitative rows displayed in the prompt;
-\item \code{categorical_traits}: constructed mechanically from the exact categorical
-rows displayed in the prompt;
-\item \code{distinctive_markers}: parsed from the language-model response;
-\item \code{statistical_caution}: assigned mechanically from a fixed,
-methodologically conservative sentence;
-\item \code{injectable_summary}: parsed from the language-model response, with
-\code{core_group_profile} used as a fallback when the field is omitted.
+Rows are ranked separately within each group and marker type by decreasing
+absolute v-test, then increasing p-value, then source names and source-row
+order. Missing statistics are retained and sorted deterministically after
+available values.
 }
 
-The two trait vectors preserve every displayed descriptor exactly once and
-in table order. They retain the descriptor name, statistical direction,
-available group and overall values or percentages, v-test, and p-value.
-Their completeness therefore does not depend on language-model compliance.
+\subsection{Evidence IDs}{
 
-The narrative fields are instructed to name concrete displayed descriptors,
-preserve their directions, avoid vague placeholders, and avoid unsupported
-claims of uniqueness, representativeness, causality, or individual-level
-generality.
+IDs use \verb{group::quali::variable::modality} or
+\verb{group::quanti::variable}. Literal \code{::} inside source labels is escaped as
+\verb{\%3A\%3A}; source labels themselves are otherwise preserved. If a source
+table does not expose a qualitative variable name, the variable column is
+\code{NA} and a deterministic source-row placeholder is used only inside the ID.
 }
 
-\subsection{Statistical caution}{
+\subsection{Missing source fields}{
 
-\code{statistical_caution} is not generated by the language model and is not a
-qualitative profile-strength score. It is assigned mechanically to state
-that the descriptors characterize the group relative to the full sample
-under the variables and analysis settings used, describe associations rather
-than causal effects, and need not apply to every individual.
+Stable columns are always present. A field that has a clear meaning but is
+absent from the source table is stored as \code{NA}; it is never reconstructed
+from insufficient information. In standard \code{catdes()} category tables,
+\code{Mod/Cla}, \code{Cla/Mod}, and \code{Global} are mapped respectively to
+\code{percentage_in_group}, \code{percentage_in_modality}, and \code{global_percentage}.
 }
 
-\subsection{Excluding textual and technical variables}{
+\subsection{Compatibility}{
 
-Open-ended text columns should normally be excluded. Otherwise, distinct
-responses may be interpreted as categorical modalities and contaminate the
-external statistical profile intended to complement the textual analysis.
-}
+The raw \code{catdes} result and compatibility views are attached as
+\code{"catdes_result"}, \code{"catdes_profiles"}, \code{"catdes_input"}, and
+\code{"catdes_settings"} attributes. The compatibility views are derived from
+the main artifact and are not a second source of truth. The alias
+\code{\link[=nail_group_profile_prep]{nail_group_profile_prep()}} remains deprecated.
 
-\subsection{Interpretation limits}{
-
-Retained descriptors characterize a group relative to the full sample. They
-do not establish causality, do not describe every individual, and do not
-prove that an omitted descriptor is absent. Results should be treated as
-exploratory when many descriptors are tested or categories are sparse.
+This object is intended to supply exact statistical evidence to a later
+contextual interpretation, notably \code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}}, where a
+language model may connect the markers to textual evidence and domain
+questions.
 }
 }
 \examples{
-### Example 1: Fisher's iris data, without an LLM ###
-
 data(iris)
 
-iris_prompts <- nail_catdes_prep(
-  dataset = iris,
+iris_catdes <- FactoMineR::catdes(
+  iris,
   num.var = 5,
-  proba = 0.05,
-  profile_mode = "quantitative",
-  generate = FALSE
+  proba = 0.05
 )
 
-# One structured prompt is prepared for each species.
-names(iris_prompts)
-
-# Display one prompt and inspect its complete mechanical profile.
-cat(iris_prompts[["setosa"]])
-attr(iris_prompts, "catdes_profiles")[["setosa"]]
-
-
-### Example 2: reuse the analytical result preserved by nail_catdes() ###
-
-iris_catdes_prompt <- nail_catdes(
-  dataset = iris,
-  num.var = 5,
-  isolate.groups = TRUE,
-  proba = 0.05,
-  generate = FALSE
-)
-
-iris_prep_from_nail <- nail_catdes_prep(
-  x = iris_catdes_prompt,
-  proba = 0.05,
-  profile_mode = "quantitative",
-  generate = FALSE
-)
-
-names(iris_prep_from_nail)
-attr(iris_prep_from_nail, "catdes_input")
-
-
-\dontrun{
-# The following examples either call an LLM or compute an MCA and HCPC.
-library(FactoMineR)
-
-
-### Example 3: generate structured iris profiles ###
-
-iris_generated <- nail_catdes_prep(
-  dataset = iris,
-  num.var = 5,
-  proba = 0.05,
-  profile_mode = "quantitative",
-  provider = "ollama",
-  model = "llama3",
-  generate = TRUE
-)
-
-cat(iris_generated[["setosa"]]$response)
-iris_generated[["setosa"]]$parsed
-iris_generated[["setosa"]]$mechanical_profile
-
-
-### Example 4: food-waste clusters used by nail_catdes() ###
-
-data(waste)
-waste_work <- waste[-14]
-
-set.seed(1)
-waste_mca <- MCA(
-  waste_work,
-  quali.sup = c(1, 2, 50:76),
-  ncp = 35,
-  level.ventil = 0.05,
-  graph = FALSE
-)
-
-waste_hcpc <- HCPC(
-  waste_mca,
-  nb.clust = 3,
-  graph = FALSE
-)
-
-waste_clusters <- waste_hcpc$data.clust
-
-waste_prep <- nail_catdes_prep(
-  dataset = waste_clusters,
-  num.var = ncol(waste_clusters),
-  introduction = paste(
-    "These data were collected in a survey on food waste.",
-    "The groups were obtained from an MCA followed by HCPC."
-  ),
-  sample.pct = 0.75,
-  top_n_quanti = 5,
-  top_n_quali = 8,
-  provider = "ollama",
-  model = "llama3",
-  generate = TRUE
-)
-
-cat(waste_prep[[1]]$response)
-
-
-### Example 5: sustainable-food clusters used by nail_catdes() ###
-
-data(local_food)
-
-set.seed(1)
-food_mca <- MCA(
-  local_food,
-  quali.sup = 46:63,
-  ncp = 100,
-  level.ventil = 0.05,
-  graph = FALSE
-)
-
-food_hcpc <- HCPC(
-  food_mca,
-  nb.clust = 3,
-  graph = FALSE
-)
-
-food_clusters <- food_hcpc$data.clust
-
-food_prep <- nail_catdes_prep(
-  dataset = food_clusters,
-  num.var = ncol(food_clusters),
-  introduction = paste(
-    "This study concerns sustainable food systems.",
-    "The groups were obtained from an MCA followed by HCPC."
-  ),
-  sample.pct = 0.50,
-  top_n_quali = 10,
-  provider = "ollama",
-  model = "llama3",
-  generate = TRUE
-)
-
-cat(food_prep[[1]]$response)
-}
+iris_profiles <- nail_catdes_prep(iris_catdes)
+names(iris_profiles$groups)
+iris_profiles$groups$setosa$quantitative_markers
+iris_profiles$evidence_registry
 }
 \seealso{
 \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}}, \code{\link[=nail_catdes]{nail_catdes()}},
-\code{\link[=nail_textual_prep]{nail_textual_prep()}}, \code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}}
+\code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}}
 }

@@ -1,0 +1,180 @@
+INTERNAL HELPER: .contextualized_validate_claim
+
+FORMALS:
+as.pairlist(alist(claim = , field = , registry = , group = NULL, context = list(), source_requirement = c("any", 
+    "both", "statistical_only", "textual_only"), allowed_statuses = .contextualized_statuses, allowed_relationships = NULL, require_multiple_groups = FALSE))
+
+BODY:
+function(claim,
+                                           field,
+                                           registry,
+                                           group = NULL,
+                                           context = list(),
+                                           source_requirement = c("any", "both", "statistical_only", "textual_only"),
+                                           allowed_statuses = .contextualized_statuses,
+                                           allowed_relationships = NULL,
+                                           require_multiple_groups = FALSE) {
+  source_requirement <- match.arg(source_requirement)
+  if (is.null(claim)) return(NULL)
+  if (!is.list(claim) || is.data.frame(claim)) {
+    stop(sprintf("`%s` must be null or a claim object.", field), call. = FALSE)
+  }
+  missing_fields <- setdiff(.contextualized_claim_fields, names(claim))
+  unknown_fields <- setdiff(names(claim), .contextualized_claim_fields)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field, paste(unknown_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (!.contextualized_is_scalar_string(claim$text)) {
+    stop(sprintf("`%s$text` must be a non-empty string.", field), call. = FALSE)
+  }
+  status <- as.character(claim$status)
+  if (length(status) != 1L || is.na(status) || !status %in% allowed_statuses) {
+    stop(
+      sprintf("`%s$status` must be one of: %s.", field, paste(allowed_statuses, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  stat_ids <- unique(.contextualized_as_character_vector(
+    claim$statistical_evidence_ids,
+    paste0(field, "$statistical_evidence_ids")
+  ))
+  text_ids <- unique(.contextualized_as_character_vector(
+    claim$textual_evidence_ids,
+    paste0(field, "$textual_evidence_ids")
+  ))
+
+  stat_rows <- registry$evidence_type %in% c("statistical_qualitative", "statistical_quantitative")
+  text_rows <- registry$evidence_type == "textual_verbatim" &
+    !is.na(registry$included_in_prompt) & registry$included_in_prompt
+  invalid_stat <- setdiff(stat_ids, registry$evidence_id[stat_rows])
+  invalid_text <- setdiff(text_ids, registry$evidence_id[text_rows])
+  if (length(invalid_stat) > 0L) {
+    stop(sprintf("`%s` cites unknown statistical evidence ID(s): %s.", field, paste(invalid_stat, collapse = ", ")), call. = FALSE)
+  }
+  if (length(invalid_text) > 0L) {
+    stop(sprintf("`%s` cites unknown or non-presented textual evidence ID(s): %s.", field, paste(invalid_text, collapse = ", ")), call. = FALSE)
+  }
+
+  if (!is.null(group)) {
+    evidence_groups <- registry$group[match(c(stat_ids, text_ids), registry$evidence_id)]
+    if (length(evidence_groups) > 0L && any(is.na(evidence_groups) | evidence_groups != group)) {
+      stop(sprintf("`%s` cites evidence belonging to another group.", field), call. = FALSE)
+    }
+  }
+
+  if (status == "user_context") {
+    if (length(context) == 0L) {
+      stop(sprintf("`%s` cannot use `user_context` without context.", field), call. = FALSE)
+    }
+    if (length(stat_ids) > 0L || length(text_ids) > 0L) {
+      stop(sprintf("`%s` with status `user_context` must not cite evidence IDs.", field), call. = FALSE)
+    }
+  } else {
+    if (source_requirement == "both" && (length(stat_ids) == 0L || length(text_ids) == 0L)) {
+      stop(sprintf("`%s` must cite both statistical and textual evidence.", field), call. = FALSE)
+    }
+    if (source_requirement == "statistical_only" &&
+        (length(stat_ids) == 0L || length(text_ids) > 0L)) {
+      stop(sprintf("`%s` must cite statistical evidence only.", field), call. = FALSE)
+    }
+    if (source_requirement == "textual_only" &&
+        (length(text_ids) == 0L || length(stat_ids) > 0L)) {
+      stop(sprintf("`%s` must cite textual evidence only.", field), call. = FALSE)
+    }
+    if (source_requirement == "any" && length(stat_ids) == 0L && length(text_ids) == 0L) {
+      stop(sprintf("`%s` must cite at least one evidence ID.", field), call. = FALSE)
+    }
+  }
+
+  relationship <- claim$relationship
+  if (is.null(relationship) ||
+      (is.character(relationship) && length(relationship) == 1L &&
+       (is.na(relationship) || !nzchar(trimws(relationship))))) {
+    relationship <- NULL
+  } else if (!.contextualized_is_scalar_string(relationship)) {
+    stop(sprintf("`%s$relationship` must be null or a non-empty string.", field), call. = FALSE)
+  }
+  if (is.null(allowed_relationships)) {
+    if (!is.null(relationship)) {
+      stop(sprintf("`%s$relationship` must be null in this field.", field), call. = FALSE)
+    }
+  } else if (is.null(relationship) || !relationship %in% allowed_relationships) {
+    stop(
+      sprintf("`%s$relationship` must be one of: %s.", field, paste(allowed_relationships, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  validation_needed <- claim$validation_needed
+  if (is.null(validation_needed) ||
+      (is.character(validation_needed) && length(validation_needed) == 1L &&
+       (is.na(validation_needed) || !nzchar(trimws(validation_needed))))) {
+    validation_needed <- NULL
+  } else if (!.contextualized_is_scalar_string(validation_needed)) {
+    stop(sprintf("`%s$validation_needed` must be null or a non-empty string.", field), call. = FALSE)
+  } else {
+    validation_needed <- trimws(validation_needed)
+  }
+  if (status %in% c("hypothesis", "recommendation") && is.null(validation_needed)) {
+    stop(sprintf("`%s` with status `%s` requires validation_needed.", field, status), call. = FALSE)
+  }
+
+  quotations <- claim$quotations
+  if (is.null(quotations) || length(quotations) == 0L) {
+    quotations <- list()
+  } else if (!is.list(quotations) || is.data.frame(quotations)) {
+    stop(sprintf("`%s$quotations` must be a JSON array.", field), call. = FALSE)
+  } else {
+    quotations <- unname(lapply(seq_along(quotations), function(i) {
+      quote <- .contextualized_validate_quote(
+        quotations[[i]],
+        field = sprintf("%s$quotations[[%d]]", field, i),
+        registry = registry,
+        group = group,
+        allowed_textual_ids = text_ids
+      )
+      quote
+    }))
+  }
+
+  source_text <- c(
+    registry$original_text[match(text_ids, registry$evidence_id, nomatch = 0L)],
+    if (length(context) > 0L) unlist(context, recursive = TRUE, use.names = FALSE) else character(0)
+  )
+  if (.contextualized_contains_diagnostic_claim(claim$text)) {
+    stop("Psychological diagnoses of individuals or groups are not allowed.", call. = FALSE)
+  }
+  if (.contextualized_contains_unqualified_causality(claim$text, status)) {
+    stop("An unqualified causal claim is not supported by this integration.", call. = FALSE)
+  }
+  if (.contextualized_contains_unsupported_number(claim$text, source_text)) {
+    stop("A claim contains a numerical statement not present in its cited textual evidence or context.", call. = FALSE)
+  }
+  if (.contextualized_contains_demographic_claim(claim$text) &&
+      !.contextualized_contains_demographic_claim(paste(source_text, collapse = "\n"))) {
+    stop("A demographic claim is not supported by cited verbatims or user context.", call. = FALSE)
+  }
+
+  if (require_multiple_groups && status != "user_context") {
+    evidence_groups <- unique(registry$group[match(c(stat_ids, text_ids), registry$evidence_id)])
+    evidence_groups <- evidence_groups[!is.na(evidence_groups)]
+    if (length(evidence_groups) < 2L) {
+      stop(sprintf("`%s` must cite evidence from at least two groups.", field), call. = FALSE)
+    }
+  }
+
+  list(
+    text = trimws(claim$text),
+    status = status,
+    statistical_evidence_ids = stat_ids,
+    textual_evidence_ids = text_ids,
+    relationship = relationship,
+    quotations = quotations,
+    validation_needed = validation_needed
+  )
+}
+<environment: namespace:NaileR>

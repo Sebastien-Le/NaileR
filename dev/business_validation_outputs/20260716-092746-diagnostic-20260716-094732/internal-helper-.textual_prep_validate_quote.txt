@@ -1,0 +1,48 @@
+INTERNAL HELPER: .textual_prep_validate_quote
+
+FORMALS:
+as.pairlist(alist(x = , field = , registry = , group = ))
+
+BODY:
+function(x, field, registry, group) {
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a quotation object.", field), call. = FALSE)
+  }
+  required <- c("evidence_id", "quotation", "rationale", "status")
+  missing_fields <- setdiff(required, names(x))
+  unknown_fields <- setdiff(names(x), required)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field, paste(unknown_fields, collapse = ", ")), call. = FALSE)
+  }
+
+  if (!.textual_prep_is_scalar_string(x$evidence_id) ||
+      !x$evidence_id %in% registry$evidence_id[registry$included_in_prompt]) {
+    stop(sprintf("`%s$evidence_id` is unknown or was not included in the prompt.", field), call. = FALSE)
+  }
+
+  row <- registry[match(x$evidence_id, registry$evidence_id), , drop = FALSE]
+  if (is.na(row$group[[1]]) || row$group[[1]] != group) {
+    stop(sprintf("`%s` cites a verbatim from another group.", field), call. = FALSE)
+  }
+  if (!.textual_prep_is_scalar_string(x$quotation, allow_empty = TRUE) ||
+      !identical(as.character(x$quotation), as.character(row$original_text[[1]]))) {
+    stop(sprintf("`%s$quotation` must exactly match original_text.", field), call. = FALSE)
+  }
+  if (!.textual_prep_is_scalar_string(x$rationale)) {
+    stop(sprintf("`%s$rationale` must be a non-empty string.", field), call. = FALSE)
+  }
+  if (!identical(as.character(x$status), "expert_interpretation")) {
+    stop(sprintf("`%s$status` must be `expert_interpretation`.", field), call. = FALSE)
+  }
+
+  list(
+    evidence_id = x$evidence_id,
+    quotation = x$quotation,
+    rationale = trimws(x$rationale),
+    status = "expert_interpretation"
+  )
+}
+<environment: namespace:NaileR>

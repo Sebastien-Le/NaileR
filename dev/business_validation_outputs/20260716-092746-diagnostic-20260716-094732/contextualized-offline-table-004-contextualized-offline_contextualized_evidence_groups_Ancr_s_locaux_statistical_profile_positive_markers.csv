@@ -1,0 +1,8 @@
+"evidence_id","group","marker_type","variable","modality","direction","v_test","p_value","abs_v_test","rank","source"
+"Ancrés locaux::quali::cooking_frequency::Quotidienne","Ancrés locaux","qualitative","cooking_frequency","Quotidienne","overrepresented",4.43507011797165,9.20423259640928e-06,4.43507011797165,1,"FactoMineR::catdes()$category"
+"Ancrés locaux::quali::organic_purchase::Souvent","Ancrés locaux","qualitative","organic_purchase","Souvent","overrepresented",3.35270213090652,0.00080026782330237,3.35270213090652,2,"FactoMineR::catdes()$category"
+"Ancrés locaux::quali::local_preference::Forte","Ancrés locaux","qualitative","local_preference","Forte","overrepresented",3.18077441445745,0.00146881955911669,3.18077441445745,3,"FactoMineR::catdes()$category"
+"Ancrés locaux::quali::purchase_place::Marché/local","Ancrés locaux","qualitative","purchase_place","Marché/local","overrepresented",2.78641902718969,0.00532939309326659,2.78641902718969,5,"FactoMineR::catdes()$category"
+"Ancrés locaux::quali::purchase_place::Petit commerce","Ancrés locaux","qualitative","purchase_place","Petit commerce","overrepresented",2.6059725157781,0.00916138125440452,2.6059725157781,6,"FactoMineR::catdes()$category"
+"Ancrés locaux::quanti::territorial_engagement","Ancrés locaux","quantitative","territorial_engagement",NA,"higher",5.38251279660773,7.34531532413801e-08,5.38251279660773,1,"FactoMineR::catdes()$quanti"
+"Ancrés locaux::quanti::food_knowledge","Ancrés locaux","quantitative","food_knowledge",NA,"higher",4.9954396479904,5.8701880146237e-07,4.9954396479904,2,"FactoMineR::catdes()$quanti"

@@ -1,0 +1,2 @@
+"json_valid","outer_markdown_fence_removed","parser_name","parse_status","parse_error","contextualized_analysis_available"
+TRUE,TRUE,".parse_textual_contextualized_response","error","`cross_group_analysis$marketing_priorities[[1]]` must cite at least one evidence ID.",FALSE

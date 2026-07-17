@@ -1,0 +1,32 @@
+INTERNAL HELPER: parse_factominer_rownames
+
+FORMALS:
+as.pairlist(alist(text = ))
+
+BODY:
+function(text) {
+  # This helper function parses complex rownames from FactoMineR
+  # e.g., "var.name=modality_one" or "quantitative.var"
+  # It returns a list with two elements: Variable and Modalite.
+
+  # Split into max 2 parts at the first '='
+  # 'n = 2' ensures that any '=' in the modality name is kept
+  parts <- stringr::str_split_fixed(text, "=", n = 2)
+
+  # Clean the variable name (part 1)
+  # Replace all dots with spaces and trim whitespace
+  var_name <- stringr::str_replace_all(parts[1, 1], "\\.", " ")
+  var_name <- stringr::str_squish(var_name)
+
+  mod_name <- NA_character_
+
+  if (nzchar(parts[1, 2])) {
+    # A modality exists (part 2)
+    # Replace all dots and underscores with spaces and trim
+    mod_name <- stringr::str_replace_all(parts[1, 2], "[\\._]", " ")
+    mod_name <- stringr::str_squish(mod_name)
+  }
+
+  return(list(Variable = var_name, Modalite = mod_name))
+}
+<environment: namespace:NaileR>

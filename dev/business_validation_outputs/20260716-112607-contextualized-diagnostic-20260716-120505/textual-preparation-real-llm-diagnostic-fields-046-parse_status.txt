@@ -1,0 +1,6 @@
+PATH: textual-preparation-real-llm$units$joint$parsed$textual_profiles$metadata$parse_status
+FIELD: parse_status
+TYPEOF: character
+CLASS: character
+
+success

@@ -1,0 +1,6 @@
+PATH: contextualized-offline$contextualized_evidence$metadata$schema
+FIELD: schema
+TYPEOF: character
+CLASS: character
+
+NaileR::contextualized_evidence

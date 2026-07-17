@@ -1,0 +1,1253 @@
+List of 8
+ $ prompt          : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+ $ response        : NULL
+ $ parsed          :List of 3
+  ..$ parse_status    : chr "not_generated"
+  ..$ parse_error     : NULL
+  ..$ textual_profiles: NULL
+ $ textual_profiles: NULL
+ $ textual_evidence:List of 11
+  ..$ corpus               :'data.frame':	45 obs. of  4 variables:
+  .. ..$ row_index    : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ group        : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ original_text: chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ text_status  : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  ..$ groups               :List of 3
+  .. ..$ Ancrés locaux          :List of 7
+  .. .. ..$ group                 : chr "Ancrés locaux"
+  .. .. ..$ evidence_ids          : chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Ancrés locaux"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2753
+  .. .. .. ..$ total_words           : int 441
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 27
+  .. .. .. ..$ max_words             : int 35
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3194
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr(0) 
+  .. .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. .. ..$ n_underrepresented: num 0
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  .. ..$ Pragmatiques contraints:List of 7
+  .. .. ..$ group                 : chr "Pragmatiques contraints"
+  .. .. ..$ evidence_ids          : chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Pragmatiques contraints"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2566
+  .. .. .. ..$ total_words           : int 418
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 23
+  .. .. .. ..$ max_words             : int 31
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3166
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr(0) 
+  .. .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. .. ..$ n_underrepresented: num 0
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  .. ..$ Curieux flexibles      :List of 7
+  .. .. ..$ group                 : chr "Curieux flexibles"
+  .. .. ..$ evidence_ids          : chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Curieux flexibles"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2816
+  .. .. .. ..$ total_words           : int 435
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 26
+  .. .. .. ..$ max_words             : int 32
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3326
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr(0) 
+  .. .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. .. ..$ n_underrepresented: num 0
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "peux" "acheter" "commander" ...
+  ..$ verbatims            :'data.frame':	45 obs. of  12 variables:
+  .. ..$ verbatim_id          : chr [1:45] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. ..$ group                : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ original_text        : chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ row_index            : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ character_count      : int [1:45] 178 192 172 207 161 170 160 180 185 194 ...
+  .. ..$ word_count           : int [1:45] 30 34 28 31 27 28 28 28 29 29 ...
+  .. ..$ text_status          : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  .. ..$ missing_or_empty     : logi [1:45] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. ..$ included_in_prompt   : logi [1:45] TRUE TRUE TRUE TRUE TRUE TRUE ...
+  .. ..$ sampling_rank        : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ exclusion_reason     : chr [1:45] NA NA NA NA ...
+  .. ..$ prompt_character_cost: int [1:45] 207 221 201 236 190 199 189 209 214 224 ...
+  ..$ group_diagnostics    :'data.frame':	3 obs. of  17 variables:
+  .. ..$ group                 : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ n_total               : int [1:3] 15 15 15
+  .. ..$ n_missing             : int [1:3] 0 0 0
+  .. ..$ n_empty               : int [1:3] 0 0 0
+  .. ..$ n_whitespace          : int [1:3] 0 0 0
+  .. ..$ n_non_empty           : int [1:3] 15 15 15
+  .. ..$ n_included_in_prompt  : int [1:3] 15 15 15
+  .. ..$ n_excluded_from_prompt: int [1:3] 0 0 0
+  .. ..$ n_not_sampled         : int [1:3] 0 0 0
+  .. ..$ n_prompt_budget       : int [1:3] 0 0 0
+  .. ..$ total_characters      : int [1:3] 2753 2566 2816
+  .. ..$ total_words           : int [1:3] 441 418 435
+  .. ..$ median_words          : int [1:3] 29 29 29
+  .. ..$ min_words             : int [1:3] 27 23 26
+  .. ..$ max_words             : int [1:3] 35 31 32
+  .. ..$ sampling_fraction     : num [1:3] 1 1 1
+  .. ..$ prompt_character_count: int [1:3] 3194 3166 3326
+  ..$ sampling             :List of 5
+  .. ..$ method                         : chr "deterministic_hash_within_group"
+  .. ..$ sample_pct                     : num 1
+  .. ..$ seed                           : NULL
+  .. ..$ max_prompt_characters_per_group: num Inf
+  .. ..$ by_group                       :'data.frame':	3 obs. of  7 variables:
+  .. .. ..$ group                 : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ n_non_empty           : int [1:3] 15 15 15
+  .. .. ..$ n_included_in_prompt  : int [1:3] 15 15 15
+  .. .. ..$ n_not_sampled         : int [1:3] 0 0 0
+  .. .. ..$ n_prompt_budget       : int [1:3] 0 0 0
+  .. .. ..$ sampling_fraction     : num [1:3] 1 1 1
+  .. .. ..$ prompt_character_count: int [1:3] 3194 3166 3326
+  ..$ evidence_registry    :'data.frame':	45 obs. of  12 variables:
+  .. ..$ evidence_id       : chr [1:45] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. ..$ group             : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ row_index         : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ original_text     : chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ character_count   : int [1:45] 178 192 172 207 161 170 160 180 185 194 ...
+  .. ..$ word_count        : int [1:45] 30 34 28 31 27 28 28 28 29 29 ...
+  .. ..$ text_status       : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  .. ..$ missing_or_empty  : logi [1:45] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. ..$ included_in_prompt: logi [1:45] TRUE TRUE TRUE TRUE TRUE TRUE ...
+  .. ..$ sampling_rank     : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ exclusion_reason  : chr [1:45] NA NA NA NA ...
+  .. ..$ source            : chr [1:45] "comment" "comment" "comment" "comment" ...
+  ..$ lexical_analysis     :List of 9
+  .. ..$ settings                :List of 9
+  .. .. ..$ lexical_unit               : chr "occurrence"
+  .. .. ..$ language                   : chr "en"
+  .. .. ..$ lexical_proba              : num 0.05
+  .. .. ..$ min_word_frequency         : num 2
+  .. .. ..$ min_word_length            : num 4
+  .. .. ..$ top_n_characteristic_words : num 8
+  .. .. ..$ multiple_testing_adjustment: chr "none"
+  .. .. ..$ available                  : logi FALSE
+  .. .. ..$ reason                     : chr "The lexical analysis was disabled."
+  .. ..$ contingency_table       : num[0 , 0 ] 
+  .. ..$ occurrence_table        : num[0 , 0 ] 
+  .. ..$ raw_occurrence_table    : num[0 , 0 ] 
+  .. ..$ retained_occurrence_rate: num NA
+  .. ..$ textual_result          : NULL
+  .. ..$ descfreq_result         : NULL
+  .. ..$ group_profiles          : list()
+  .. ..$ global_association      :List of 10
+  .. .. ..$ available               : logi FALSE
+  .. .. ..$ reason                  : chr "At least two non-empty groups and two retained terms are required."
+  .. .. ..$ chi_square              : num NA
+  .. .. ..$ df                      : num NA
+  .. .. ..$ p_value                 : num NA
+  .. .. ..$ total_inertia           : num NA
+  .. .. ..$ cramers_v               : num NA
+  .. .. ..$ min_expected            : num NA
+  .. .. ..$ percent_expected_below_5: num NA
+  .. .. ..$ interpretation_note     : chr "The global lexical association is descriptive and exploratory. It should not be interpreted as a measure of textual quality."
+  ..$ length_group_analysis:List of 9
+  .. ..$ available          : logi TRUE
+  .. ..$ reason             : NULL
+  .. ..$ outcome            : chr "log1p(number of characters)"
+  .. ..$ n_texts            : int 45
+  .. ..$ n_groups           : int 3
+  .. ..$ anova              :List of 6
+  .. .. ..$ f_value      : num 6.9
+  .. .. ..$ df1          : int 2
+  .. .. ..$ df2          : int 42
+  .. .. ..$ p_value      : num 0.00256
+  .. .. ..$ eta_squared  : num 0.247
+  .. .. ..$ omega_squared: num 0.208
+  .. ..$ welch              :List of 4
+  .. .. ..$ f_value: num 7.39
+  .. .. ..$ df1    : num 2
+  .. .. ..$ df2    : num 27.1
+  .. .. ..$ p_value: num 0.00274
+  .. ..$ group_descriptives :'data.frame':	3 obs. of  6 variables:
+  .. .. ..$ group                : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ n_texts              : int [1:3] 15 15 15
+  .. .. ..$ mean_characters      : num [1:3] 184 171 188
+  .. .. ..$ median_characters    : int [1:3] 180 173 190
+  .. .. ..$ sd_characters        : num [1:3] 15.1 12.8 10.2
+  .. .. ..$ mean_log1p_characters: num [1:3] 5.21 5.15 5.24
+  .. ..$ interpretation_note: chr "This analysis concerns response length only. It does not measure textual quality, richness, validity, or evidential strength."
+  ..$ corpus_metrics       :List of 3
+  .. ..$ Ancrés locaux          :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2753
+  .. .. ..$ mean_characters  : num 184
+  .. .. ..$ median_characters: int 180
+  .. .. ..$ iqr_characters   : num 18
+  .. .. ..$ min_characters   : int 160
+  .. .. ..$ max_characters   : int 212
+  .. .. ..$ total_words      : int 441
+  .. .. ..$ mean_words       : num 29.4
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 27
+  .. .. ..$ max_words        : int 35
+  .. ..$ Pragmatiques contraints:List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2566
+  .. .. ..$ mean_characters  : num 171
+  .. .. ..$ median_characters: int 173
+  .. .. ..$ iqr_characters   : num 16
+  .. .. ..$ min_characters   : int 149
+  .. .. ..$ max_characters   : int 193
+  .. .. ..$ total_words      : int 418
+  .. .. ..$ mean_words       : num 27.9
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 3.5
+  .. .. ..$ min_words        : int 23
+  .. .. ..$ max_words        : int 31
+  .. ..$ Curieux flexibles      :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2816
+  .. .. ..$ mean_characters  : num 188
+  .. .. ..$ median_characters: int 190
+  .. .. ..$ iqr_characters   : num 9
+  .. .. ..$ min_characters   : int 163
+  .. .. ..$ max_characters   : int 208
+  .. .. ..$ total_words      : int 435
+  .. .. ..$ mean_words       : num 29
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 26
+  .. .. ..$ max_words        : int 32
+  ..$ settings             :List of 16
+  .. ..$ group_column_index             : int 1
+  .. ..$ group_column                   : chr "group"
+  .. ..$ text_column_index              : int 10
+  .. ..$ text_column                    : chr "comment"
+  .. ..$ sample_pct                     : num 1
+  .. ..$ seed                           : NULL
+  .. ..$ max_prompt_characters_per_group: num Inf
+  .. ..$ lexical_analysis               : logi FALSE
+  .. ..$ lexical_unit                   : chr "occurrence"
+  .. ..$ language                       : chr "en"
+  .. ..$ lexical_proba                  : num 0.05
+  .. ..$ min_word_frequency             : int 2
+  .. ..$ min_word_length                : int 4
+  .. ..$ top_n_characteristic_words     : int 8
+  .. ..$ top_n_frequent_terms           : int 5
+  .. ..$ compute_length_analysis        : logi TRUE
+  ..$ metadata             :List of 4
+  .. ..$ source              : chr "dataset"
+  .. ..$ n_rows              : int 45
+  .. ..$ n_groups            : int 3
+  .. ..$ n_invalid_group_rows: int 0
+  ..- attr(*, "class")= chr [1:2] "textual_evidence" "list"
+ $ units           :List of 1
+  ..$ joint:List of 4
+  .. ..$ groups      : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ has_evidence: logi TRUE
+  .. ..$ prompt      : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ parsed      :List of 3
+  .. .. ..$ parse_status    : chr "not_generated"
+  .. .. ..$ parse_error     : NULL
+  .. .. ..$ textual_profiles: NULL
+ $ legacy_groups   :List of 3
+  ..$ Ancrés locaux          :List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           : NULL
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr NA
+  .. .. ..$ main_themes                : chr(0) 
+  .. .. ..$ dominant_concerns          : chr(0) 
+  .. .. ..$ tone_or_stance             : chr(0) 
+  .. .. ..$ intra_group_consistency    : chr NA
+  .. .. ..$ intra_group_consistency_raw: chr NA
+  .. .. ..$ injectable_summary         : chr NA
+  .. .. ..$ central_verbatim_cues      : chr(0) 
+  .. .. ..$ contrastive_verbatim_cues  : chr(0) 
+  .. .. ..$ tension_verbatim_cues      : chr(0) 
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2753
+  .. .. ..$ mean_characters  : num 184
+  .. .. ..$ median_characters: int 180
+  .. .. ..$ iqr_characters   : num 18
+  .. .. ..$ min_characters   : int 160
+  .. .. ..$ max_characters   : int 212
+  .. .. ..$ total_words      : int 441
+  .. .. ..$ mean_words       : num 29.4
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 27
+  .. .. ..$ max_words        : int 35
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr(0) 
+  .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. ..$ n_underrepresented: num 0
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr(0) 
+  .. .. ..$ contrastive: chr(0) 
+  .. .. ..$ tension    : chr(0) 
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  ..$ Pragmatiques contraints:List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           : NULL
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr NA
+  .. .. ..$ main_themes                : chr(0) 
+  .. .. ..$ dominant_concerns          : chr(0) 
+  .. .. ..$ tone_or_stance             : chr(0) 
+  .. .. ..$ intra_group_consistency    : chr NA
+  .. .. ..$ intra_group_consistency_raw: chr NA
+  .. .. ..$ injectable_summary         : chr NA
+  .. .. ..$ central_verbatim_cues      : chr(0) 
+  .. .. ..$ contrastive_verbatim_cues  : chr(0) 
+  .. .. ..$ tension_verbatim_cues      : chr(0) 
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2566
+  .. .. ..$ mean_characters  : num 171
+  .. .. ..$ median_characters: int 173
+  .. .. ..$ iqr_characters   : num 16
+  .. .. ..$ min_characters   : int 149
+  .. .. ..$ max_characters   : int 193
+  .. .. ..$ total_words      : int 418
+  .. .. ..$ mean_words       : num 27.9
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 3.5
+  .. .. ..$ min_words        : int 23
+  .. .. ..$ max_words        : int 31
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr(0) 
+  .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. ..$ n_underrepresented: num 0
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr(0) 
+  .. .. ..$ contrastive: chr(0) 
+  .. .. ..$ tension    : chr(0) 
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  ..$ Curieux flexibles      :List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           : NULL
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr NA
+  .. .. ..$ main_themes                : chr(0) 
+  .. .. ..$ dominant_concerns          : chr(0) 
+  .. .. ..$ tone_or_stance             : chr(0) 
+  .. .. ..$ intra_group_consistency    : chr NA
+  .. .. ..$ intra_group_consistency_raw: chr NA
+  .. .. ..$ injectable_summary         : chr NA
+  .. .. ..$ central_verbatim_cues      : chr(0) 
+  .. .. ..$ contrastive_verbatim_cues  : chr(0) 
+  .. .. ..$ tension_verbatim_cues      : chr(0) 
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2816
+  .. .. ..$ mean_characters  : num 188
+  .. .. ..$ median_characters: int 190
+  .. .. ..$ iqr_characters   : num 9
+  .. .. ..$ min_characters   : int 163
+  .. .. ..$ max_characters   : int 208
+  .. .. ..$ total_words      : int 435
+  .. .. ..$ mean_words       : num 29
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 26
+  .. .. ..$ max_words        : int 32
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr(0) 
+  .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. ..$ n_underrepresented: num 0
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr(0) 
+  .. .. ..$ contrastive: chr(0) 
+  .. .. ..$ tension    : chr(0) 
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "peux" "acheter" "commander" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "peux" "acheter" "commander" ...
+ $ metadata        :List of 14
+  ..$ analysis_scope           : chr "general"
+  ..$ comparison_mode          : chr "joint"
+  ..$ provider                 : chr "ollama"
+  ..$ model                    : chr "llama3"
+  ..$ generate                 : logi FALSE
+  ..$ context_supplied         : logi FALSE
+  ..$ context                  : list()
+  ..$ preparation_request      : NULL
+  ..$ prompt_style             : chr "detailed"
+  ..$ text_role                : chr "responses"
+  ..$ attach_selected_verbatims: logi TRUE
+  ..$ n_central_verbatims      : int 2
+  ..$ n_tension_verbatims      : int 1
+  ..$ max_verbatim_chars       : int 220
+ - attr(*, "class")= chr [1:2] "nail_textual_prep" "list"
+ - attr(*, "textual_evidence")=List of 11
+  ..$ corpus               :'data.frame':	45 obs. of  4 variables:
+  .. ..$ row_index    : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ group        : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ original_text: chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ text_status  : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  ..$ groups               :List of 3
+  .. ..$ Ancrés locaux          :List of 7
+  .. .. ..$ group                 : chr "Ancrés locaux"
+  .. .. ..$ evidence_ids          : chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Ancrés locaux"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2753
+  .. .. .. ..$ total_words           : int 441
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 27
+  .. .. .. ..$ max_words             : int 35
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3194
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr(0) 
+  .. .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. .. ..$ n_underrepresented: num 0
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  .. ..$ Pragmatiques contraints:List of 7
+  .. .. ..$ group                 : chr "Pragmatiques contraints"
+  .. .. ..$ evidence_ids          : chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Pragmatiques contraints"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2566
+  .. .. .. ..$ total_words           : int 418
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 23
+  .. .. .. ..$ max_words             : int 31
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3166
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr(0) 
+  .. .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. .. ..$ n_underrepresented: num 0
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  .. ..$ Curieux flexibles      :List of 7
+  .. .. ..$ group                 : chr "Curieux flexibles"
+  .. .. ..$ evidence_ids          : chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Curieux flexibles"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2816
+  .. .. .. ..$ total_words           : int 435
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 26
+  .. .. .. ..$ max_words             : int 32
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3326
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr(0) 
+  .. .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr(0) 
+  .. .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. .. ..$ p_value               : num(0) 
+  .. .. .. .. ..$ v_test                : num(0) 
+  .. .. .. .. ..$ direction             : chr(0) 
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. .. ..$ n_underrepresented: num 0
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "peux" "acheter" "commander" ...
+  ..$ verbatims            :'data.frame':	45 obs. of  12 variables:
+  .. ..$ verbatim_id          : chr [1:45] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. ..$ group                : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ original_text        : chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ row_index            : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ character_count      : int [1:45] 178 192 172 207 161 170 160 180 185 194 ...
+  .. ..$ word_count           : int [1:45] 30 34 28 31 27 28 28 28 29 29 ...
+  .. ..$ text_status          : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  .. ..$ missing_or_empty     : logi [1:45] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. ..$ included_in_prompt   : logi [1:45] TRUE TRUE TRUE TRUE TRUE TRUE ...
+  .. ..$ sampling_rank        : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ exclusion_reason     : chr [1:45] NA NA NA NA ...
+  .. ..$ prompt_character_cost: int [1:45] 207 221 201 236 190 199 189 209 214 224 ...
+  ..$ group_diagnostics    :'data.frame':	3 obs. of  17 variables:
+  .. ..$ group                 : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ n_total               : int [1:3] 15 15 15
+  .. ..$ n_missing             : int [1:3] 0 0 0
+  .. ..$ n_empty               : int [1:3] 0 0 0
+  .. ..$ n_whitespace          : int [1:3] 0 0 0
+  .. ..$ n_non_empty           : int [1:3] 15 15 15
+  .. ..$ n_included_in_prompt  : int [1:3] 15 15 15
+  .. ..$ n_excluded_from_prompt: int [1:3] 0 0 0
+  .. ..$ n_not_sampled         : int [1:3] 0 0 0
+  .. ..$ n_prompt_budget       : int [1:3] 0 0 0
+  .. ..$ total_characters      : int [1:3] 2753 2566 2816
+  .. ..$ total_words           : int [1:3] 441 418 435
+  .. ..$ median_words          : int [1:3] 29 29 29
+  .. ..$ min_words             : int [1:3] 27 23 26
+  .. ..$ max_words             : int [1:3] 35 31 32
+  .. ..$ sampling_fraction     : num [1:3] 1 1 1
+  .. ..$ prompt_character_count: int [1:3] 3194 3166 3326
+  ..$ sampling             :List of 5
+  .. ..$ method                         : chr "deterministic_hash_within_group"
+  .. ..$ sample_pct                     : num 1
+  .. ..$ seed                           : NULL
+  .. ..$ max_prompt_characters_per_group: num Inf
+  .. ..$ by_group                       :'data.frame':	3 obs. of  7 variables:
+  .. .. ..$ group                 : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ n_non_empty           : int [1:3] 15 15 15
+  .. .. ..$ n_included_in_prompt  : int [1:3] 15 15 15
+  .. .. ..$ n_not_sampled         : int [1:3] 0 0 0
+  .. .. ..$ n_prompt_budget       : int [1:3] 0 0 0
+  .. .. ..$ sampling_fraction     : num [1:3] 1 1 1
+  .. .. ..$ prompt_character_count: int [1:3] 3194 3166 3326
+  ..$ evidence_registry    :'data.frame':	45 obs. of  12 variables:
+  .. ..$ evidence_id       : chr [1:45] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. ..$ group             : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ row_index         : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ original_text     : chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ character_count   : int [1:45] 178 192 172 207 161 170 160 180 185 194 ...
+  .. ..$ word_count        : int [1:45] 30 34 28 31 27 28 28 28 29 29 ...
+  .. ..$ text_status       : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  .. ..$ missing_or_empty  : logi [1:45] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. ..$ included_in_prompt: logi [1:45] TRUE TRUE TRUE TRUE TRUE TRUE ...
+  .. ..$ sampling_rank     : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ exclusion_reason  : chr [1:45] NA NA NA NA ...
+  .. ..$ source            : chr [1:45] "comment" "comment" "comment" "comment" ...
+  ..$ lexical_analysis     :List of 9
+  .. ..$ settings                :List of 9
+  .. .. ..$ lexical_unit               : chr "occurrence"
+  .. .. ..$ language                   : chr "en"
+  .. .. ..$ lexical_proba              : num 0.05
+  .. .. ..$ min_word_frequency         : num 2
+  .. .. ..$ min_word_length            : num 4
+  .. .. ..$ top_n_characteristic_words : num 8
+  .. .. ..$ multiple_testing_adjustment: chr "none"
+  .. .. ..$ available                  : logi FALSE
+  .. .. ..$ reason                     : chr "The lexical analysis was disabled."
+  .. ..$ contingency_table       : num[0 , 0 ] 
+  .. ..$ occurrence_table        : num[0 , 0 ] 
+  .. ..$ raw_occurrence_table    : num[0 , 0 ] 
+  .. ..$ retained_occurrence_rate: num NA
+  .. ..$ textual_result          : NULL
+  .. ..$ descfreq_result         : NULL
+  .. ..$ group_profiles          : list()
+  .. ..$ global_association      :List of 10
+  .. .. ..$ available               : logi FALSE
+  .. .. ..$ reason                  : chr "At least two non-empty groups and two retained terms are required."
+  .. .. ..$ chi_square              : num NA
+  .. .. ..$ df                      : num NA
+  .. .. ..$ p_value                 : num NA
+  .. .. ..$ total_inertia           : num NA
+  .. .. ..$ cramers_v               : num NA
+  .. .. ..$ min_expected            : num NA
+  .. .. ..$ percent_expected_below_5: num NA
+  .. .. ..$ interpretation_note     : chr "The global lexical association is descriptive and exploratory. It should not be interpreted as a measure of textual quality."
+  ..$ length_group_analysis:List of 9
+  .. ..$ available          : logi TRUE
+  .. ..$ reason             : NULL
+  .. ..$ outcome            : chr "log1p(number of characters)"
+  .. ..$ n_texts            : int 45
+  .. ..$ n_groups           : int 3
+  .. ..$ anova              :List of 6
+  .. .. ..$ f_value      : num 6.9
+  .. .. ..$ df1          : int 2
+  .. .. ..$ df2          : int 42
+  .. .. ..$ p_value      : num 0.00256
+  .. .. ..$ eta_squared  : num 0.247
+  .. .. ..$ omega_squared: num 0.208
+  .. ..$ welch              :List of 4
+  .. .. ..$ f_value: num 7.39
+  .. .. ..$ df1    : num 2
+  .. .. ..$ df2    : num 27.1
+  .. .. ..$ p_value: num 0.00274
+  .. ..$ group_descriptives :'data.frame':	3 obs. of  6 variables:
+  .. .. ..$ group                : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ n_texts              : int [1:3] 15 15 15
+  .. .. ..$ mean_characters      : num [1:3] 184 171 188
+  .. .. ..$ median_characters    : int [1:3] 180 173 190
+  .. .. ..$ sd_characters        : num [1:3] 15.1 12.8 10.2
+  .. .. ..$ mean_log1p_characters: num [1:3] 5.21 5.15 5.24
+  .. ..$ interpretation_note: chr "This analysis concerns response length only. It does not measure textual quality, richness, validity, or evidential strength."
+  ..$ corpus_metrics       :List of 3
+  .. ..$ Ancrés locaux          :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2753
+  .. .. ..$ mean_characters  : num 184
+  .. .. ..$ median_characters: int 180
+  .. .. ..$ iqr_characters   : num 18
+  .. .. ..$ min_characters   : int 160
+  .. .. ..$ max_characters   : int 212
+  .. .. ..$ total_words      : int 441
+  .. .. ..$ mean_words       : num 29.4
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 27
+  .. .. ..$ max_words        : int 35
+  .. ..$ Pragmatiques contraints:List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2566
+  .. .. ..$ mean_characters  : num 171
+  .. .. ..$ median_characters: int 173
+  .. .. ..$ iqr_characters   : num 16
+  .. .. ..$ min_characters   : int 149
+  .. .. ..$ max_characters   : int 193
+  .. .. ..$ total_words      : int 418
+  .. .. ..$ mean_words       : num 27.9
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 3.5
+  .. .. ..$ min_words        : int 23
+  .. .. ..$ max_words        : int 31
+  .. ..$ Curieux flexibles      :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2816
+  .. .. ..$ mean_characters  : num 188
+  .. .. ..$ median_characters: int 190
+  .. .. ..$ iqr_characters   : num 9
+  .. .. ..$ min_characters   : int 163
+  .. .. ..$ max_characters   : int 208
+  .. .. ..$ total_words      : int 435
+  .. .. ..$ mean_words       : num 29
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 26
+  .. .. ..$ max_words        : int 32
+  ..$ settings             :List of 16
+  .. ..$ group_column_index             : int 1
+  .. ..$ group_column                   : chr "group"
+  .. ..$ text_column_index              : int 10
+  .. ..$ text_column                    : chr "comment"
+  .. ..$ sample_pct                     : num 1
+  .. ..$ seed                           : NULL
+  .. ..$ max_prompt_characters_per_group: num Inf
+  .. ..$ lexical_analysis               : logi FALSE
+  .. ..$ lexical_unit                   : chr "occurrence"
+  .. ..$ language                       : chr "en"
+  .. ..$ lexical_proba                  : num 0.05
+  .. ..$ min_word_frequency             : int 2
+  .. ..$ min_word_length                : int 4
+  .. ..$ top_n_characteristic_words     : int 8
+  .. ..$ top_n_frequent_terms           : int 5
+  .. ..$ compute_length_analysis        : logi TRUE
+  ..$ metadata             :List of 4
+  .. ..$ source              : chr "dataset"
+  .. ..$ n_rows              : int 45
+  .. ..$ n_groups            : int 3
+  .. ..$ n_invalid_group_rows: int 0
+  ..- attr(*, "class")= chr [1:2] "textual_evidence" "list"
+ - attr(*, "legacy_textual_prep")=List of 3
+  ..$ Ancrés locaux          :List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           : NULL
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr NA
+  .. .. ..$ main_themes                : chr(0) 
+  .. .. ..$ dominant_concerns          : chr(0) 
+  .. .. ..$ tone_or_stance             : chr(0) 
+  .. .. ..$ intra_group_consistency    : chr NA
+  .. .. ..$ intra_group_consistency_raw: chr NA
+  .. .. ..$ injectable_summary         : chr NA
+  .. .. ..$ central_verbatim_cues      : chr(0) 
+  .. .. ..$ contrastive_verbatim_cues  : chr(0) 
+  .. .. ..$ tension_verbatim_cues      : chr(0) 
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2753
+  .. .. ..$ mean_characters  : num 184
+  .. .. ..$ median_characters: int 180
+  .. .. ..$ iqr_characters   : num 18
+  .. .. ..$ min_characters   : int 160
+  .. .. ..$ max_characters   : int 212
+  .. .. ..$ total_words      : int 441
+  .. .. ..$ mean_words       : num 29.4
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 27
+  .. .. ..$ max_words        : int 35
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr(0) 
+  .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. ..$ n_underrepresented: num 0
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr(0) 
+  .. .. ..$ contrastive: chr(0) 
+  .. .. ..$ tension    : chr(0) 
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  ..$ Pragmatiques contraints:List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           : NULL
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr NA
+  .. .. ..$ main_themes                : chr(0) 
+  .. .. ..$ dominant_concerns          : chr(0) 
+  .. .. ..$ tone_or_stance             : chr(0) 
+  .. .. ..$ intra_group_consistency    : chr NA
+  .. .. ..$ intra_group_consistency_raw: chr NA
+  .. .. ..$ injectable_summary         : chr NA
+  .. .. ..$ central_verbatim_cues      : chr(0) 
+  .. .. ..$ contrastive_verbatim_cues  : chr(0) 
+  .. .. ..$ tension_verbatim_cues      : chr(0) 
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2566
+  .. .. ..$ mean_characters  : num 171
+  .. .. ..$ median_characters: int 173
+  .. .. ..$ iqr_characters   : num 16
+  .. .. ..$ min_characters   : int 149
+  .. .. ..$ max_characters   : int 193
+  .. .. ..$ total_words      : int 418
+  .. .. ..$ mean_words       : num 27.9
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 3.5
+  .. .. ..$ min_words        : int 23
+  .. .. ..$ max_words        : int 31
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr(0) 
+  .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. ..$ n_underrepresented: num 0
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr(0) 
+  .. .. ..$ contrastive: chr(0) 
+  .. .. ..$ tension    : chr(0) 
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  ..$ Curieux flexibles      :List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           : NULL
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr NA
+  .. .. ..$ main_themes                : chr(0) 
+  .. .. ..$ dominant_concerns          : chr(0) 
+  .. .. ..$ tone_or_stance             : chr(0) 
+  .. .. ..$ intra_group_consistency    : chr NA
+  .. .. ..$ intra_group_consistency_raw: chr NA
+  .. .. ..$ injectable_summary         : chr NA
+  .. .. ..$ central_verbatim_cues      : chr(0) 
+  .. .. ..$ contrastive_verbatim_cues  : chr(0) 
+  .. .. ..$ tension_verbatim_cues      : chr(0) 
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2816
+  .. .. ..$ mean_characters  : num 188
+  .. .. ..$ median_characters: int 190
+  .. .. ..$ iqr_characters   : num 9
+  .. .. ..$ min_characters   : int 163
+  .. .. ..$ max_characters   : int 208
+  .. .. ..$ total_words      : int 435
+  .. .. ..$ mean_words       : num 29
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 26
+  .. .. ..$ max_words        : int 32
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr(0) 
+  .. .. ..$ overrepresented     :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ underrepresented    :'data.frame':	0 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr(0) 
+  .. .. .. ..$ within_group_percent  : num(0) 
+  .. .. .. ..$ global_percent        : num(0) 
+  .. .. .. ..$ within_group_frequency: num(0) 
+  .. .. .. ..$ global_frequency      : num(0) 
+  .. .. .. ..$ p_value               : num(0) 
+  .. .. .. ..$ v_test                : num(0) 
+  .. .. .. ..$ direction             : chr(0) 
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : num 0
+  .. .. .. ..$ n_underrepresented: num 0
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 0
+  .. .. .. ..$ retained_vocabulary_size       : num 0
+  .. .. .. ..$ type_token_ratio               : num NA
+  .. .. .. ..$ shannon_entropy                : num NA
+  .. .. .. ..$ normalized_shannon_entropy     : num NA
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr(0) 
+  .. .. ..$ contrastive: chr(0) 
+  .. .. ..$ tension    : chr(0) 
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "peux" "acheter" "commander" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "peux" "acheter" "commander" ...
+ - attr(*, "corpus_metrics")=List of 3
+  ..$ Ancrés locaux          :List of 15
+  .. ..$ n_rows           : int 15
+  .. ..$ n_texts          : int 15
+  .. ..$ response_rate    : num 1
+  .. ..$ total_characters : int 2753
+  .. ..$ mean_characters  : num 184
+  .. ..$ median_characters: int 180
+  .. ..$ iqr_characters   : num 18
+  .. ..$ min_characters   : int 160
+  .. ..$ max_characters   : int 212
+  .. ..$ total_words      : int 441
+  .. ..$ mean_words       : num 29.4
+  .. ..$ median_words     : int 29
+  .. ..$ iqr_words        : num 2
+  .. ..$ min_words        : int 27
+  .. ..$ max_words        : int 35
+  ..$ Pragmatiques contraints:List of 15
+  .. ..$ n_rows           : int 15
+  .. ..$ n_texts          : int 15
+  .. ..$ response_rate    : num 1
+  .. ..$ total_characters : int 2566
+  .. ..$ mean_characters  : num 171
+  .. ..$ median_characters: int 173
+  .. ..$ iqr_characters   : num 16
+  .. ..$ min_characters   : int 149
+  .. ..$ max_characters   : int 193
+  .. ..$ total_words      : int 418
+  .. ..$ mean_words       : num 27.9
+  .. ..$ median_words     : int 29
+  .. ..$ iqr_words        : num 3.5
+  .. ..$ min_words        : int 23
+  .. ..$ max_words        : int 31
+  ..$ Curieux flexibles      :List of 15
+  .. ..$ n_rows           : int 15
+  .. ..$ n_texts          : int 15
+  .. ..$ response_rate    : num 1
+  .. ..$ total_characters : int 2816
+  .. ..$ mean_characters  : num 188
+  .. ..$ median_characters: int 190
+  .. ..$ iqr_characters   : num 9
+  .. ..$ min_characters   : int 163
+  .. ..$ max_characters   : int 208
+  .. ..$ total_words      : int 435
+  .. ..$ mean_words       : num 29
+  .. ..$ median_words     : int 29
+  .. ..$ iqr_words        : num 2
+  .. ..$ min_words        : int 26
+  .. ..$ max_words        : int 32
+ - attr(*, "length_group_analysis")=List of 9
+  ..$ available          : logi TRUE
+  ..$ reason             : NULL
+  ..$ outcome            : chr "log1p(number of characters)"
+  ..$ n_texts            : int 45
+  ..$ n_groups           : int 3
+  ..$ anova              :List of 6
+  .. ..$ f_value      : num 6.9
+  .. ..$ df1          : int 2
+  .. ..$ df2          : int 42
+  .. ..$ p_value      : num 0.00256
+  .. ..$ eta_squared  : num 0.247
+  .. ..$ omega_squared: num 0.208
+  ..$ welch              :List of 4
+  .. ..$ f_value: num 7.39
+  .. ..$ df1    : num 2
+  .. ..$ df2    : num 27.1
+  .. ..$ p_value: num 0.00274
+  ..$ group_descriptives :'data.frame':	3 obs. of  6 variables:
+  .. ..$ group                : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ n_texts              : int [1:3] 15 15 15
+  .. ..$ mean_characters      : num [1:3] 184 171 188
+  .. ..$ median_characters    : int [1:3] 180 173 190
+  .. ..$ sd_characters        : num [1:3] 15.1 12.8 10.2
+  .. ..$ mean_log1p_characters: num [1:3] 5.21 5.15 5.24
+  ..$ interpretation_note: chr "This analysis concerns response length only. It does not measure textual quality, richness, validity, or evidential strength."
+ - attr(*, "lexical_analysis")=List of 9
+  ..$ settings                :List of 9
+  .. ..$ lexical_unit               : chr "occurrence"
+  .. ..$ language                   : chr "en"
+  .. ..$ lexical_proba              : num 0.05
+  .. ..$ min_word_frequency         : num 2
+  .. ..$ min_word_length            : num 4
+  .. ..$ top_n_characteristic_words : num 8
+  .. ..$ multiple_testing_adjustment: chr "none"
+  .. ..$ available                  : logi FALSE
+  .. ..$ reason                     : chr "The lexical analysis was disabled."
+  ..$ contingency_table       : num[0 , 0 ] 
+  ..$ occurrence_table        : num[0 , 0 ] 
+  ..$ raw_occurrence_table    : num[0 , 0 ] 
+  ..$ retained_occurrence_rate: num NA
+  ..$ textual_result          : NULL
+  ..$ descfreq_result         : NULL
+  ..$ group_profiles          : list()
+  ..$ global_association      :List of 10
+  .. ..$ available               : logi FALSE
+  .. ..$ reason                  : chr "At least two non-empty groups and two retained terms are required."
+  .. ..$ chi_square              : num NA
+  .. ..$ df                      : num NA
+  .. ..$ p_value                 : num NA
+  .. ..$ total_inertia           : num NA
+  .. ..$ cramers_v               : num NA
+  .. ..$ min_expected            : num NA
+  .. ..$ percent_expected_below_5: num NA
+  .. ..$ interpretation_note     : chr "The global lexical association is descriptive and exploratory. It should not be interpreted as a measure of textual quality."

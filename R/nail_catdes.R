@@ -1,10 +1,6 @@
-
-
-# ===========================================================================
-# UTILS — vocabulary helpers
-# ===========================================================================
-# All the mode-dependent vocabulary is centralised here.
-# Every other function calls these helpers instead of duplicating strings.
+# ---------------------------------------------------------------------------
+# Vocabulary used by the historical catdes prompts
+# ---------------------------------------------------------------------------
 
 .unit_noun <- function(mode, plural = FALSE) {
   if (mode == "standard") {
@@ -18,44 +14,62 @@
   if (mode == "standard") "Category" else "Group"
 }
 
-.groups_description <- function(mode, plural = FALSE, target_label = "the target variable") {
+.groups_description <- function(mode, plural = FALSE,
+                                target_label = "the target variable") {
   if (mode == "standard") {
     unit <- .unit_noun(mode, plural)
     if (plural) {
-      paste0("The ", unit, " below correspond to the explicit ", unit, " of '", target_label, "'.")
+      paste0(
+        "The ", unit, " below correspond to the explicit ", unit,
+        " of '", target_label, "'."
+      )
     } else {
-      paste0("The ", unit, " below is one of the explicit ", unit, " of '", target_label, "'.")
+      paste0(
+        "The ", unit, " below is one of the explicit ", unit,
+        " of '", target_label, "'."
+      )
     }
+  } else if (plural) {
+    paste(
+      "The groups below correspond to constructed profiles or latent classes.",
+      paste(
+        "The group labels are only identifiers and should not be treated",
+        "as the interpretation of the groups."
+      ),
+      sep = "\n"
+    )
   } else {
-    if (plural) {
+    paste(
+      "The group below corresponds to a constructed profile or latent class.",
       paste(
-        "The groups below correspond to constructed profiles or latent classes.",
-        "The group labels are only identifiers and should not be treated as the interpretation of the groups.",
-        sep = "\n"
-      )
-    } else {
-      paste(
-        "The group below corresponds to a constructed profile or latent class.",
-        "The group label is only an identifier and should not be treated as the interpretation of the group.",
-        sep = "\n"
-      )
-    }
+        "The group label is only an identifier and should not be treated",
+        "as the interpretation of the group."
+      ),
+      sep = "\n"
+    )
   }
 }
 
 .groups_instruction <- function(mode, plural = FALSE) {
   if (mode == "standard") {
     if (plural) {
-      "Use the results to understand what characterizes each category and what distinguishes it from the others."
+      paste(
+        "Use the results to understand what characterizes each category",
+        "and what distinguishes it from the others."
+      )
     } else {
       "Use the results to understand what characterizes this category."
     }
+  } else if (plural) {
+    paste(
+      "Use the results to infer what characterizes each group",
+      "and how the groups differ from one another."
+    )
   } else {
-    if (plural) {
-      "Use the results to infer what characterizes each group and how the groups differ from one another."
-    } else {
-      "Use the results to infer what characterizes this group and how it differs from the overall dataset."
-    }
+    paste(
+      "Use the results to infer what characterizes this group",
+      "and how it differs from the overall dataset."
+    )
   }
 }
 
@@ -75,295 +89,673 @@
   }
 }
 
+# ---------------------------------------------------------------------------
+# Input normalization
+# ---------------------------------------------------------------------------
 
-# ===========================================================================
-# UTILS — shared loop body for get_sentences_quali / get_sentences_quanti
-# ===========================================================================
-
-.sort_stats_rows <- function(df, sort_col = "v.test") {
-  if (
-    !is.null(sort_col) &&
-    sort_col %in% colnames(df) &&
-    is.numeric(df[[sort_col]])
-  ) {
-    ord <- order(df[[sort_col]], decreasing = TRUE, na.last = TRUE)
-    return(df[ord, , drop = FALSE])
-  }
-
-  df
+.is_statistical_profiles_nail_catdes <- function(x) {
+  inherits(x, "statistical_profiles") &&
+    is.list(x) &&
+    is.list(x$groups) &&
+    is.data.frame(x$evidence_registry) &&
+    is.list(x$settings) &&
+    is.list(x$metadata)
 }
 
-.sample_stats_rows <- function(df, sample_pct = 1, sort_col = "v.test", bins = 5) {
-  if (!is.data.frame(df) || nrow(df) == 0) {
-    return(df)
+.validate_statistical_profiles_nail_catdes <- function(x) {
+  if (!.is_statistical_profiles_nail_catdes(x)) {
+    stop(
+      paste(
+        "`x` must be a valid `statistical_profiles` object, an object",
+        "carrying a `statistical_profiles` attribute, or a supported",
+        "catdes-compatible object."
+      ),
+      call. = FALSE
+    )
   }
 
-  sample_pct <- as.numeric(sample_pct)[1]
-
-  if (is.na(sample_pct) || sample_pct < 0 || sample_pct > 1) {
-    stop("`sample_pct` must be a single number between 0 and 1.", call. = FALSE)
+  group_names <- names(x$groups)
+  if (length(x$groups) == 0L || is.null(group_names) ||
+      anyNA(group_names) || any(!nzchar(group_names)) ||
+      anyDuplicated(group_names)) {
+    stop(
+      "`statistical_profiles$groups` must be a non-empty uniquely named list.",
+      call. = FALSE
+    )
   }
 
-  if (sample_pct >= 1) {
-    return(df)
+  required_registry <- c(
+    "evidence_id", "group", "marker_type", "direction", "rank"
+  )
+  missing_registry <- setdiff(required_registry, names(x$evidence_registry))
+  if (length(missing_registry) > 0L) {
+    stop(
+      paste0(
+        "`statistical_profiles$evidence_registry` is missing: ",
+        paste(missing_registry, collapse = ", "),
+        "."
+      ),
+      call. = FALSE
+    )
   }
 
-  if (sample_pct <= 0) {
-    return(df[0, , drop = FALSE])
+  if (anyDuplicated(x$evidence_registry$evidence_id)) {
+    stop(
+      "`statistical_profiles$evidence_registry$evidence_id` must be unique.",
+      call. = FALSE
+    )
   }
 
-  n <- nrow(df)
-  n_keep <- max(1L, ceiling(n * sample_pct))
+  qualitative_columns <- c(
+    "evidence_id", "group", "variable", "modality", "direction",
+    "percentage_in_group", "percentage_in_modality",
+    "global_percentage", "v_test", "p_value", "rank"
+  )
+  quantitative_columns <- c(
+    "evidence_id", "group", "variable", "direction", "group_mean",
+    "overall_mean", "standard_deviation",
+    "overall_standard_deviation", "v_test", "p_value", "rank"
+  )
 
-  if (n_keep >= n) {
-    return(df)
-  }
+  for (group_name in group_names) {
+    group <- x$groups[[group_name]]
+    if (!is.list(group) ||
+        !is.data.frame(group$qualitative_markers) ||
+        !is.data.frame(group$quantitative_markers)) {
+      stop(
+        paste0(
+          "Group '", group_name,
+          "' must contain qualitative and quantitative marker tables."
+        ),
+        call. = FALSE
+      )
+    }
 
-  x <- NULL
-  if (
-    !is.null(sort_col) &&
-    sort_col %in% colnames(df) &&
-    is.numeric(df[[sort_col]])
-  ) {
-    x <- df[[sort_col]]
-  } else {
-    is_num_col <- vapply(df, is.numeric, logical(1))
-    if (any(is_num_col)) {
-      x <- df[[which(is_num_col)[1]]]
+    missing_quali <- setdiff(
+      qualitative_columns,
+      names(group$qualitative_markers)
+    )
+    missing_quanti <- setdiff(
+      quantitative_columns,
+      names(group$quantitative_markers)
+    )
+    if (length(missing_quali) > 0L || length(missing_quanti) > 0L) {
+      stop(
+        paste0(
+          "Group '", group_name,
+          "' contains incomplete statistical marker tables."
+        ),
+        call. = FALSE
+      )
+    }
+
+    group_ids <- c(
+      group$qualitative_markers$evidence_id,
+      group$quantitative_markers$evidence_id
+    )
+    if (any(!group_ids %in% x$evidence_registry$evidence_id)) {
+      stop(
+        paste0(
+          "Group '", group_name,
+          "' contains evidence IDs absent from the central registry."
+        ),
+        call. = FALSE
+      )
     }
   }
 
-  if (is.null(x) || all(!is.finite(x))) {
-    idx <- sample(seq_len(n), n_keep)
-    return(.sort_stats_rows(df[idx, , drop = FALSE], sort_col = sort_col))
-  }
-
-  ok <- is.finite(x)
-  ranks <- rep(NA_real_, n)
-  ranks[ok] <- rank(x[ok], ties.method = "random")
-
-  n_bins <- min(as.integer(bins), sum(ok), n_keep)
-  n_bins <- max(1L, n_bins)
-
-  bin_id <- rep(n_bins + 1L, n)
-  if (any(ok)) {
-    bin_id[ok] <- pmin(
-      n_bins,
-      pmax(1L, ceiling(ranks[ok] / max(ranks[ok]) * n_bins))
-    )
-  }
-
-  ids_by_bin <- split(seq_len(n), bin_id)
-  idx <- unlist(
-    lapply(ids_by_bin, function(ids) {
-      k <- max(1L, ceiling(length(ids) * sample_pct))
-      k <- min(length(ids), k)
-      sample(ids, k)
-    }),
-    use.names = FALSE
-  )
-
-  idx <- unique(idx)
-
-  if (length(idx) > n_keep) {
-    idx <- sample(idx, n_keep)
-  }
-
-  if (length(idx) < n_keep) {
-    remaining <- setdiff(seq_len(n), idx)
-    idx <- c(idx, sample(remaining, n_keep - length(idx)))
-  }
-
-  .sort_stats_rows(df[idx, , drop = FALSE], sort_col = sort_col)
+  invisible(TRUE)
 }
 
-.prepare_stats_df <- function(res_mat, group_name, cols_to_show,
-                              sample_pct, entity) {
-  if (!is.data.frame(res_mat) || nrow(res_mat) == 0 || ncol(res_mat) == 0) {
-    message(glue::glue("Skipping group {group_name}: empty or invalid data ({entity})."))
-    return(NULL)
+.muffle_catdes_prep_dataset_deprecation <- function(expr) {
+  withCallingHandlers(
+    expr,
+    warning = function(w) {
+      message <- conditionMessage(w)
+      if (grepl(
+        "dataset`/`num.var` interface of `nail_catdes_prep", message,
+        fixed = TRUE
+      )) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+}
+
+.extract_target_label_nail_catdes <- function(profiles, dataset = NULL,
+                                               num.var = NULL) {
+  if (!is.null(dataset) && !is.null(num.var) &&
+      !is.null(colnames(dataset)) &&
+      num.var >= 1L && num.var <= ncol(dataset)) {
+    return(colnames(dataset)[num.var])
   }
 
-  is_num_col <- sapply(res_mat, is.numeric)
-  if (!any(is_num_col)) {
-    message(glue::glue("Skipping group {group_name}: no numeric column found ({entity})."))
-    return(NULL)
+  input <- attr(profiles, "catdes_input", exact = TRUE)
+  if (is.null(input) && is.list(profiles$metadata$input)) {
+    input <- profiles$metadata$input
   }
 
-  sort_col <- if ("v.test" %in% colnames(res_mat) && is.numeric(res_mat[["v.test"]])) {
-    "v.test"
+  if (is.list(input) && is.character(input$group_variable) &&
+      length(input$group_variable) == 1L &&
+      !is.na(input$group_variable) && nzchar(input$group_variable)) {
+    return(input$group_variable)
+  }
+
+  "the target variable"
+}
+
+.canonicalize_raw_profiles_nail_catdes <- function(profiles, proba) {
+  canonical_input <- list(
+    source = "x",
+    proba_applied_by_function = FALSE,
+    declared_proba = proba
+  )
+
+  profiles$settings$proba_applied_by_function <- FALSE
+  profiles$metadata$input <- canonical_input
+  attr(profiles, "catdes_input") <- canonical_input
+  attr(profiles, "catdes_settings") <- profiles$settings
+  profiles
+}
+
+.normalize_nail_catdes_input <- function(x = NULL,
+                                         dataset = NULL,
+                                         num.var = NULL,
+                                         proba = 0.05,
+                                         row.w = NULL) {
+  if (!is.null(x) && !is.null(dataset)) {
+    stop("Provide only one of `x` and `dataset`.", call. = FALSE)
+  }
+  if (is.null(x) && is.null(dataset)) {
+    stop("Provide either `x` or `dataset`.", call. = FALSE)
+  }
+
+  if (!is.null(x)) {
+    if (!is.null(num.var)) {
+      stop("`num.var` cannot be used when `x` is supplied.", call. = FALSE)
+    }
+    if (!is.null(row.w)) {
+      stop("`row.w` cannot be used when `x` is supplied.", call. = FALSE)
+    }
+
+    if (.is_statistical_profiles_nail_catdes(x)) {
+      profiles <- x
+      source_type <- "statistical_profiles"
+      preparation_performed <- FALSE
+    } else {
+      attached <- attr(x, "statistical_profiles", exact = TRUE)
+      if (.is_statistical_profiles_nail_catdes(attached)) {
+        profiles <- attached
+        source_type <- "statistical_profiles_attribute"
+        preparation_performed <- FALSE
+      } else {
+        profiles <- tryCatch(
+          nail_catdes_prep(x = x, proba = proba),
+          error = function(e) {
+            stop(
+              paste0(
+                "`x` must be a valid `statistical_profiles` object, an object ",
+                "carrying a `statistical_profiles` attribute, or a supported ",
+                "catdes-compatible object. Original error: ",
+                conditionMessage(e)
+              ),
+              call. = FALSE
+            )
+          }
+        )
+        source_type <- "catdes_compatible_x"
+        preparation_performed <- TRUE
+      }
+    }
+
+    .validate_statistical_profiles_nail_catdes(profiles)
+
+    return(list(
+      statistical_profiles = profiles,
+      catdes_result = attr(profiles, "catdes_result", exact = TRUE),
+      source_type = source_type,
+      preparation_performed = preparation_performed,
+      target_label = .extract_target_label_nail_catdes(profiles),
+      metadata = list(
+        source_type = source_type,
+        nail_catdes_prep_calls = as.integer(preparation_performed),
+        raw_dataset_supplied = FALSE
+      )
+    ))
+  }
+
+  profiles <- .muffle_catdes_prep_dataset_deprecation(
+    nail_catdes_prep(
+      dataset = dataset,
+      num.var = num.var,
+      proba = proba,
+      row.w = row.w
+    )
+  )
+  .validate_statistical_profiles_nail_catdes(profiles)
+  preparation_input <- attr(profiles, "catdes_input", exact = TRUE)
+  profiles <- .canonicalize_raw_profiles_nail_catdes(profiles, proba = proba)
+
+  list(
+    statistical_profiles = profiles,
+    catdes_result = attr(profiles, "catdes_result", exact = TRUE),
+    source_type = "dataset",
+    preparation_performed = TRUE,
+    target_label = .extract_target_label_nail_catdes(
+      profiles,
+      dataset = dataset,
+      num.var = num.var
+    ),
+    metadata = list(
+      source_type = "dataset",
+      nail_catdes_prep_calls = 1L,
+      raw_dataset_supplied = TRUE,
+      preparation_input = preparation_input,
+      statistical_profiles_canonicalized = TRUE
+    )
+  )
+}
+
+# ---------------------------------------------------------------------------
+# Deterministic prompt-selection evidence
+# ---------------------------------------------------------------------------
+
+.empty_selected_registry_nail_catdes <- function(registry) {
+  out <- registry[0, , drop = FALSE]
+  out$selection_order <- integer(0)
+  out
+}
+
+.order_markers_for_nail_catdes <- function(markers) {
+  if (!is.data.frame(markers) || nrow(markers) == 0L) {
+    return(markers)
+  }
+
+  rank_value <- suppressWarnings(as.numeric(markers$rank))
+  rank_value[!is.finite(rank_value)] <- Inf
+  evidence_id <- as.character(markers$evidence_id)
+  evidence_id[is.na(evidence_id)] <- ""
+
+  markers[order(rank_value, evidence_id, na.last = TRUE), , drop = FALSE]
+}
+
+.select_markers_for_nail_catdes <- function(markers,
+                                            proportion,
+                                            drop_negative,
+                                            negative_directions) {
+  if (!is.data.frame(markers) || nrow(markers) == 0L) {
+    return(markers)
+  }
+
+  ordered <- .order_markers_for_nail_catdes(markers)
+  eligible <- if (isTRUE(drop_negative)) {
+    ordered[!(ordered$direction %in% negative_directions), , drop = FALSE]
   } else {
-    colnames(res_mat)[which(is_num_col)[1]]
+    ordered
   }
 
-  df <- .sample_stats_rows(
-    res_mat,
-    sample_pct = sample_pct,
-    sort_col   = sort_col,
-    bins       = 5
+  n_available <- nrow(eligible)
+  if (n_available == 0L || proportion <= 0) {
+    return(eligible[0, , drop = FALSE])
+  }
+
+  n_selected <- if (proportion >= 1) {
+    n_available
+  } else {
+    ceiling(n_available * proportion)
+  }
+
+  eligible[seq_len(min(n_selected, n_available)), , drop = FALSE]
+}
+
+.build_interpretation_evidence_nail_catdes <- function(statistical_profiles,
+                                                        quali_sample = 1,
+                                                        quanti_sample = 1,
+                                                        drop_negative = FALSE) {
+  .validate_statistical_profiles_nail_catdes(statistical_profiles)
+
+  group_names <- names(statistical_profiles$groups)
+  groups <- stats::setNames(vector("list", length(group_names)), group_names)
+  selected_ids <- character(0)
+
+  for (group_name in group_names) {
+    profile <- statistical_profiles$groups[[group_name]]
+    qualitative <- profile$qualitative_markers
+    quantitative <- profile$quantitative_markers
+
+    if (!is.data.frame(qualitative) || !is.data.frame(quantitative)) {
+      stop(
+        paste0(
+          "Group '", group_name,
+          "' does not contain valid qualitative and quantitative marker tables."
+        ),
+        call. = FALSE
+      )
+    }
+
+    qualitative_selected <- .select_markers_for_nail_catdes(
+      qualitative,
+      proportion = quali_sample,
+      drop_negative = drop_negative,
+      negative_directions = "underrepresented"
+    )
+    quantitative_selected <- .select_markers_for_nail_catdes(
+      quantitative,
+      proportion = quanti_sample,
+      drop_negative = drop_negative,
+      negative_directions = "lower"
+    )
+
+    all_negative <- c(
+      qualitative$evidence_id[
+        qualitative$direction %in% "underrepresented"
+      ],
+      quantitative$evidence_id[
+        quantitative$direction %in% "lower"
+      ]
+    )
+    selected_negative <- c(
+      qualitative_selected$evidence_id[
+        qualitative_selected$direction %in% "underrepresented"
+      ],
+      quantitative_selected$evidence_id[
+        quantitative_selected$direction %in% "lower"
+      ]
+    )
+
+    n_available <- nrow(qualitative) + nrow(quantitative)
+    n_eligible <- if (isTRUE(drop_negative)) {
+      n_available - length(all_negative)
+    } else {
+      n_available
+    }
+    n_selected <- nrow(qualitative_selected) + nrow(quantitative_selected)
+
+    status <- if (n_available == 0L) {
+      "no_available_markers"
+    } else if (n_eligible == 0L) {
+      "no_eligible_markers"
+    } else if (n_selected == 0L) {
+      "selection_empty"
+    } else {
+      "ready"
+    }
+
+    groups[[group_name]] <- list(
+      group = group_name,
+      status = status,
+      qualitative_markers = qualitative_selected,
+      quantitative_markers = quantitative_selected,
+      selected_evidence_ids = c(
+        qualitative_selected$evidence_id,
+        quantitative_selected$evidence_id
+      ),
+      excluded_negative_evidence_ids = if (isTRUE(drop_negative)) {
+        setdiff(all_negative, selected_negative)
+      } else {
+        character(0)
+      },
+      metrics = list(
+        n_qualitative_available = as.integer(nrow(qualitative)),
+        n_qualitative_selected = as.integer(nrow(qualitative_selected)),
+        n_quantitative_available = as.integer(nrow(quantitative)),
+        n_quantitative_selected = as.integer(nrow(quantitative_selected)),
+        n_negative_available = as.integer(length(all_negative)),
+        n_negative_selected = as.integer(length(selected_negative)),
+        n_negative_excluded_by_policy = as.integer(
+          if (isTRUE(drop_negative)) length(all_negative) else 0L
+        )
+      )
+    )
+
+    selected_ids <- c(
+      selected_ids,
+      groups[[group_name]]$selected_evidence_ids
+    )
+  }
+
+  registry <- statistical_profiles$evidence_registry
+  if (length(selected_ids) == 0L) {
+    selected_registry <- .empty_selected_registry_nail_catdes(registry)
+  } else {
+    positions <- match(selected_ids, registry$evidence_id)
+    if (anyNA(positions)) {
+      stop(
+        "Internal error: selected evidence is absent from the full registry.",
+        call. = FALSE
+      )
+    }
+    selected_registry <- registry[positions, , drop = FALSE]
+    selected_registry$selection_order <- seq_len(nrow(selected_registry))
+    rownames(selected_registry) <- NULL
+  }
+
+  out <- list(
+    groups = groups,
+    selected_evidence_registry = selected_registry,
+    settings = list(
+      quali_sample = quali_sample,
+      quanti_sample = quanti_sample,
+      drop_negative = drop_negative,
+      qualitative_selection_rule = paste(
+        "Filter negative directions only when requested; order by the",
+        "precomputed rank and evidence_id; retain ceiling(n * quali_sample)."
+      ),
+      quantitative_selection_rule = paste(
+        "Filter negative directions only when requested; order by the",
+        "precomputed rank and evidence_id; retain ceiling(n * quanti_sample)."
+      ),
+      zero_proportion_rule = "A zero proportion selects no marker.",
+      full_proportion_rule = "A proportion of one selects every eligible marker."
+    ),
+    metadata = list(
+      schema = "NaileR::catdes_interpretation_evidence",
+      schema_version = "1.0.0",
+      source_schema = statistical_profiles$metadata$schema,
+      n_groups = as.integer(length(groups)),
+      n_selected_evidence = as.integer(nrow(selected_registry)),
+      n_ready_groups = as.integer(sum(vapply(
+        groups,
+        function(group) identical(group$status, "ready"),
+        logical(1)
+      )))
+    )
+  )
+  class(out) <- c("nail_catdes_interpretation_evidence", "list")
+  out
+}
+
+# ---------------------------------------------------------------------------
+# Historical prompt builders, now based only on interpretation_evidence
+# ---------------------------------------------------------------------------
+
+.format_catdes_prompt_number <- function(x, p_value = FALSE) {
+  vapply(x, function(value) {
+    if (length(value) == 0L || is.na(value) || !is.finite(value)) {
+      return("NA")
+    }
+    if (isTRUE(p_value) && value < 0.001) {
+      return("<0.001")
+    }
+    if (isTRUE(p_value)) {
+      return(formatC(value, digits = 3, format = "f"))
+    }
+    formatC(value, digits = 2, format = "f")
+  }, character(1))
+}
+
+.escape_markdown_cell_nail_catdes <- function(x) {
+  x <- as.character(x)
+  x[is.na(x)] <- "-"
+  x <- gsub("\\|", "\\\\|", x)
+  x <- gsub("[\r\n]+", " ", x)
+  x
+}
+
+.markdown_table_nail_catdes <- function(df) {
+  if (!is.data.frame(df) || nrow(df) == 0L) {
+    return("*No significant data to display.*")
+  }
+
+  for (column in names(df)) {
+    df[[column]] <- .escape_markdown_cell_nail_catdes(df[[column]])
+  }
+
+  header <- paste("|", paste(names(df), collapse = " | "), "|")
+  separator <- paste("|", paste(rep("---", ncol(df)), collapse = " | "), "|")
+  rows <- apply(df, 1L, function(row) {
+    paste("|", paste(row, collapse = " | "), "|")
+  })
+  paste(header, separator, paste(rows, collapse = "\n"), sep = "\n")
+}
+
+.format_qualitative_evidence_nail_catdes <- function(markers,
+                                                      interpretation_mode) {
+  title <- .quali_title(interpretation_mode)
+  if (nrow(markers) == 0L) {
+    return(paste0("### ", title, "\n\n*No significant data to display.*\n"))
+  }
+
+  table <- data.frame(
+    `Evidence ID` = markers$evidence_id,
+    Variable = markers$variable,
+    Modality = markers$modality,
+    Direction = markers$direction,
+    `Cla/Mod` = .format_catdes_prompt_number(markers$percentage_in_modality),
+    `Mod/Cla` = .format_catdes_prompt_number(markers$percentage_in_group),
+    Global = .format_catdes_prompt_number(markers$global_percentage),
+    `p.value` = .format_catdes_prompt_number(markers$p_value, p_value = TRUE),
+    `v.test` = .format_catdes_prompt_number(markers$v_test),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
   )
 
-  cols_exist <- cols_to_show[cols_to_show %in% colnames(df)]
-  if (length(cols_exist) == 0 || !"v.test" %in% colnames(df)) {
-    message(glue::glue("Skipping group {group_name}: no standard stat/v.test columns found ({entity})."))
-    return(NULL)
-  }
-
-  df[, cols_exist, drop = FALSE]
+  paste0("### ", title, "\n\n", .markdown_table_nail_catdes(table), "\n")
 }
 
-# ---------------------------------------------------------------------------
-# get_sentences_quali
-# ---------------------------------------------------------------------------
-get_sentences_quali <- function(res_cd, quali.sample, drop.negative,
-                                interpretation_mode = c("standard", "latent")) {
-  interpretation_mode <- match.arg(interpretation_mode)
-  res_cd <- res_cd$category
-  ppts   <- list()
-
-  cols_to_show <- c("Cla/Mod", "Mod/Cla", "Global", "p.value", "v.test")
-
-  for (i in seq_along(res_cd)) {
-    group_name <- names(res_cd)[i]
-    res_mat    <- as.data.frame(res_cd[[i]])
-
-    df <- .prepare_stats_df(res_mat, group_name, cols_to_show,
-                            sample_pct = quali.sample, entity = "quali")
-    if (is.null(df)) { ppts[[group_name]] <- ""; next }
-
-    if (isTRUE(drop.negative)) df <- dplyr::filter(df, .data$v.test > 0)
-
-    ppts[[group_name]] <- format_stats_as_markdown(
-      df_stats = df,
-      title    = .quali_title(interpretation_mode)
-    )
+.format_quantitative_evidence_nail_catdes <- function(markers,
+                                                       interpretation_mode) {
+  title <- .quanti_title(interpretation_mode)
+  if (nrow(markers) == 0L) {
+    return(paste0("### ", title, "\n\n*No significant data to display.*\n"))
   }
-  ppts
+
+  table <- data.frame(
+    `Evidence ID` = markers$evidence_id,
+    Variable = markers$variable,
+    Direction = markers$direction,
+    `Mean in category` = .format_catdes_prompt_number(markers$group_mean),
+    `Overall mean` = .format_catdes_prompt_number(markers$overall_mean),
+    `sd in category` = .format_catdes_prompt_number(markers$standard_deviation),
+    `Overall sd` = .format_catdes_prompt_number(
+      markers$overall_standard_deviation
+    ),
+    `p.value` = .format_catdes_prompt_number(markers$p_value, p_value = TRUE),
+    `v.test` = .format_catdes_prompt_number(markers$v_test),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+
+  paste0("### ", title, "\n\n", .markdown_table_nail_catdes(table), "\n")
 }
-
-# ---------------------------------------------------------------------------
-# get_sentences_quanti
-# ---------------------------------------------------------------------------
-get_sentences_quanti <- function(res_cd, quanti.sample, drop.negative,
-                                 interpretation_mode = c("standard", "latent")) {
-  interpretation_mode <- match.arg(interpretation_mode)
-  res_cd <- res_cd$quanti
-  ppts   <- list()
-
-  cols_to_show <- c("Mean in category", "Overall mean",
-                    "sd in category",   "Overall sd",
-                    "p.value",          "v.test")
-
-  for (i in seq_along(res_cd)) {
-    group_name <- names(res_cd)[i]
-    res_mat    <- as.data.frame(res_cd[[i]])
-
-    df <- .prepare_stats_df(res_mat, group_name, cols_to_show,
-                            sample_pct = quanti.sample, entity = "quanti")
-    if (is.null(df)) { ppts[[group_name]] <- ""; next }
-
-    if (isTRUE(drop.negative)) df <- dplyr::filter(df, .data$v.test > 0)
-
-    ppts[[group_name]] <- format_stats_as_markdown(
-      df_stats = df,
-      title    = .quanti_title(interpretation_mode)
-    )
-  }
-  ppts
-}
-
-
-# ===========================================================================
-# UTILS — shared block builder for get_prompt_catdes
-# ===========================================================================
 
 .build_data_intro <- function(interpretation_mode, isolate_groups,
                               target_label, prompt_style) {
   plural <- !isolate_groups
-  desc   <- .groups_description(interpretation_mode, plural, target_label)
-  instr  <- .groups_instruction(interpretation_mode, plural)
-  paste0(desc, "
-", instr, "
-")
+  desc <- .groups_description(interpretation_mode, plural, target_label)
+  instr <- .groups_instruction(interpretation_mode, plural)
+  paste0(desc, "\n", instr, "\n")
 }
 
-.build_group_block <- function(qual_text, quant_text) {
-  qual  <- if (!is.null(qual_text)  && nzchar(trimws(qual_text)))  qual_text  else NULL
-  quant <- if (!is.null(quant_text) && nzchar(trimws(quant_text))) quant_text else NULL
-  parts <- c(qual, quant)
-  paste(parts[!sapply(parts, is.null)], collapse = "\n\n")
-}
-
-
-# ---------------------------------------------------------------------------
-# get_prompt_catdes
-# ---------------------------------------------------------------------------
-get_prompt_catdes <- function(res_cd, introduction, request, isolate.groups,
-                              quali.sample, quanti.sample, drop.negative,
-                              interpretation_mode = c("standard", "latent"),
-                              target_label = "the target variable",
-                              prompt_style = c("detailed", "compact")) {
-
-  interpretation_mode <- match.arg(interpretation_mode)
-  prompt_style        <- match.arg(prompt_style)
-
-  stces_quali  <- if ("category" %in% names(res_cd))
-    get_sentences_quali( res_cd, quali.sample,  drop.negative, interpretation_mode)
-  else list()
-
-  stces_quanti <- if ("quanti" %in% names(res_cd))
-    get_sentences_quanti(res_cd, quanti.sample, drop.negative, interpretation_mode)
-  else list()
-
-  if (length(stces_quali) == 0 && length(stces_quanti) == 0)
-    stop("No significant differences between groups, execution was halted.")
-
-  all_groups <- union(names(stces_quali), names(stces_quanti))
-  grp_label  <- .unit_label(interpretation_mode)
-
-  data_intro <- .build_data_intro(interpretation_mode, isolate.groups,
-                                  target_label, prompt_style)
-
-  header <- glue::glue(
-    "# Introduction\n\n{introduction}\n\n",
-    "# Task\n\n{request}\n\n",
-    "# Data\n\n{data_intro}\n\n"
+.build_group_block_nail_catdes <- function(group_evidence,
+                                           interpretation_mode) {
+  metrics <- group_evidence$metrics
+  counts <- paste0(
+    "Selected evidence: ", metrics$n_qualitative_selected,
+    "/", metrics$n_qualitative_available, " qualitative marker(s) and ",
+    metrics$n_quantitative_selected, "/",
+    metrics$n_quantitative_available, " quantitative marker(s)."
   )
 
-  # ── non-isolated: one single prompt ────────────────────────────────────────
-  if (!isolate.groups) {
-    stces <- character(0)
-    for (grp in all_groups) {
-      block <- .build_group_block(stces_quali[[grp]], stces_quanti[[grp]])
-      if (nzchar(block))
-        stces <- c(stces, glue::glue('## {grp_label} "{grp}":\n\n{block}'))
-    }
-    body <- paste(stces, collapse = "\n\n")
-    out  <- paste(header, body, sep = "\n\n")
-    return(normalize_blank_lines(out))
+  if (!identical(group_evidence$status, "ready")) {
+    return(paste(
+      counts,
+      paste0("Selection status: ", group_evidence$status, "."),
+      "*No statistical evidence was selected for this group.*",
+      sep = "\n\n"
+    ))
   }
 
-  # ── isolated: one prompt per group ─────────────────────────────────────────
-  prompts <- list()
-  for (grp in all_groups) {
-    block <- .build_group_block(stces_quali[[grp]], stces_quanti[[grp]])
-    if (nzchar(block)) {
-      prompt_i <- paste(
-        glue::glue("# Introduction\n\n{introduction}"),
-        glue::glue("# Task\n\n{request}"),
-        glue::glue("# Data\n\n{data_intro}\n\n## {grp_label} \"{grp}\":\n\n{block}"),
-        sep = "\n\n"
+  paste(
+    counts,
+    .format_qualitative_evidence_nail_catdes(
+      group_evidence$qualitative_markers,
+      interpretation_mode
+    ),
+    .format_quantitative_evidence_nail_catdes(
+      group_evidence$quantitative_markers,
+      interpretation_mode
+    ),
+    sep = "\n\n"
+  )
+}
+
+.build_prompts_from_interpretation_evidence <- function(
+    interpretation_evidence,
+    introduction,
+    request,
+    isolate_groups,
+    interpretation_mode,
+    target_label,
+    prompt_style) {
+  group_names <- names(interpretation_evidence$groups)
+  group_label <- .unit_label(interpretation_mode)
+  data_intro <- .build_data_intro(
+    interpretation_mode,
+    isolate_groups,
+    target_label,
+    prompt_style
+  )
+
+  if (!isolate_groups) {
+    blocks <- vapply(group_names, function(group_name) {
+      block <- .build_group_block_nail_catdes(
+        interpretation_evidence$groups[[group_name]],
+        interpretation_mode
       )
-      prompts[[grp]] <- normalize_blank_lines(prompt_i)
-    }
+      paste0("## ", group_label, " \"", group_name, "\":\n\n", block)
+    }, character(1))
+
+    return(normalize_blank_lines(paste(
+      paste0("# Introduction\n\n", introduction),
+      paste0("# Task\n\n", request),
+      paste0("# Data\n\n", data_intro, "\n", paste(blocks, collapse = "\n\n")),
+      sep = "\n\n"
+    )))
+  }
+
+  prompts <- stats::setNames(vector("list", length(group_names)), group_names)
+  for (group_name in group_names) {
+    block <- .build_group_block_nail_catdes(
+      interpretation_evidence$groups[[group_name]],
+      interpretation_mode
+    )
+    prompts[[group_name]] <- normalize_blank_lines(paste(
+      paste0("# Introduction\n\n", introduction),
+      paste0("# Task\n\n", request),
+      paste0(
+        "# Data\n\n", data_intro, "\n\n## ", group_label,
+        " \"", group_name, "\":\n\n", block
+      ),
+      sep = "\n\n"
+    ))
   }
   prompts
 }
 
-
-# ===========================================================================
-# UTILS — shared table-column definitions for build_guide_catdes
-# ===========================================================================
+# ---------------------------------------------------------------------------
+# Historical guide and request text
+# ---------------------------------------------------------------------------
 
 .guide_quali_columns <- function(mode = c("standard", "latent")) {
   mode <- match.arg(mode)
@@ -456,7 +848,7 @@ build_guide_catdes <- function(interpretation_mode = c("standard", "latent"),
     return(paste(header, "", .guide_compact_vtest(), sep = "\n"))
   }
 
-  # ── detailed ───────────────────────────────────────────────────────────────
+  # detailed
   # Additional lines that differ between standard and latent
   if (interpretation_mode == "standard") {
     no_rename <- if (plural)
@@ -604,12 +996,44 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
 
 
 
+
+# Keep the historical guide text and add only the traceability rule introduced
+# by the statistical_profiles workflow.
+.build_guide_catdes_historical <- build_guide_catdes
+build_guide_catdes <- function(interpretation_mode = c("standard", "latent"),
+                               target_label = "the target variable",
+                               prompt_style = c("detailed", "compact"),
+                               isolate_groups = FALSE) {
+  paste(
+    .build_guide_catdes_historical(
+      interpretation_mode = interpretation_mode,
+      target_label = target_label,
+      prompt_style = prompt_style,
+      isolate_groups = isolate_groups
+    ),
+    "Each displayed row includes a stable Evidence ID. Use that ID when referring to a marker.",
+    sep = "\n"
+  )
+}
+
 # ---------------------------------------------------------------------------
-# Validation
+# Validation and output helpers
 # ---------------------------------------------------------------------------
 
-validate_catdes_inputs <- function(dataset,
-                                   num.var,
+.validate_zero_one_nail_catdes <- function(x, argument) {
+  if (!is.numeric(x) || length(x) != 1L || is.na(x) ||
+      !is.finite(x) || x < 0 || x > 1) {
+    stop(
+      sprintf("`%s` must be a single numeric value in [0, 1].", argument),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
+validate_catdes_inputs <- function(dataset = NULL,
+                                   num.var = NULL,
+                                   x = NULL,
                                    isolate.groups = FALSE,
                                    quali.sample = 1,
                                    quanti.sample = 1,
@@ -618,133 +1042,152 @@ validate_catdes_inputs <- function(dataset,
                                    generate = FALSE,
                                    interpretation_mode = c("standard", "latent"),
                                    prompt_style = c("detailed", "compact")) {
-  interpretation_mode <- match.arg(interpretation_mode)
-  prompt_style <- match.arg(prompt_style)
+  match.arg(interpretation_mode)
+  match.arg(prompt_style)
 
-  assert_data_frame(dataset, "dataset")
-  if (ncol(dataset) < 2) {
-    stop("`dataset` must contain at least two columns.", call. = FALSE)
+  if (!is.null(x) && !is.null(dataset)) {
+    stop("Provide only one of `x` and `dataset`.", call. = FALSE)
   }
-  assert_column_index(num.var, ncol(dataset), "num.var")
+  if (is.null(x) && is.null(dataset)) {
+    stop("Provide either `x` or `dataset`.", call. = FALSE)
+  }
+
+  if (!is.null(dataset)) {
+    assert_data_frame(dataset, "dataset")
+    if (ncol(dataset) < 2L) {
+      stop("`dataset` must contain at least two columns.", call. = FALSE)
+    }
+    assert_column_index(num.var, ncol(dataset), "num.var")
+  } else if (!is.null(num.var)) {
+    stop("`num.var` cannot be used when `x` is supplied.", call. = FALSE)
+  }
+
   assert_single_logical(isolate.groups, "isolate.groups")
   assert_single_logical(drop.negative, "drop.negative")
   assert_single_logical(generate, "generate")
-  assert_proportion(quali.sample, "quali.sample")
-  assert_proportion(quanti.sample, "quanti.sample")
-  assert_proportion(proba, "proba")
+  .validate_zero_one_nail_catdes(quali.sample, "quali.sample")
+  .validate_zero_one_nail_catdes(quanti.sample, "quanti.sample")
+
+  if (!is.numeric(proba) || length(proba) != 1L || is.na(proba) ||
+      !is.finite(proba) || proba <= 0 || proba > 1) {
+    stop("`proba` must be a single numeric value in (0, 1].", call. = FALSE)
+  }
 
   invisible(TRUE)
 }
 
+.catdes_no_results_data_frame <- function(model, prompt,
+                                           response = "No significant differences found.") {
+  data.frame(
+    model = model,
+    created_at = Sys.time(),
+    response = response,
+    done = TRUE,
+    prompt = prompt,
+    stringsAsFactors = FALSE
+  )
+}
+
+.attach_nail_catdes_artifacts <- function(result,
+                                          normalized,
+                                          interpretation_evidence,
+                                          catdes_settings) {
+  attr(result, "statistical_profiles") <- normalized$statistical_profiles
+  attr(result, "interpretation_evidence") <- interpretation_evidence
+  if (!is.null(normalized$catdes_result)) {
+    attr(result, "catdes_result") <- normalized$catdes_result
+  }
+  attr(result, "catdes_settings") <- catdes_settings
+  result
+}
+
 # ---------------------------------------------------------------------------
-# nail_catdes (Main Function)
+# Public function
 # ---------------------------------------------------------------------------
 
-#' Interpret a categorical variable or statistically constructed groups
+#' Interpret statistical profiles produced from `catdes()`
 #'
-#' Characterizes the categories of a qualitative variable using
-#' `FactoMineR::catdes()`, formats the retained qualitative and quantitative
-#' results as an evidence-based prompt, and optionally sends this prompt to
-#' a large language model.
+#' `nail_catdes()` is the autonomous interpretation layer for a categorical
+#' typology. Its internal statistical source of truth is always the
+#' `statistical_profiles` artifact produced by [nail_catdes_prep()]. The
+#' function preserves its historical prompt and backend return forms while
+#' removing the former parallel extraction and random sampling workflow.
 #'
-#' @param dataset A data frame containing the categorical variable to be
-#'   characterized and at least one additional qualitative or quantitative
-#'   variable.
-#' @param num.var A single integer giving the column index of the categorical
-#'   variable to be characterized.
-#' @param introduction An optional character string providing the context of
-#'   the study in the LLM prompt. If `NULL`, a default introduction is created.
-#' @param request An optional character string describing the interpretation
-#'   requested from the LLM. If `NULL`, a default request is created according
-#'   to `interpretation_mode`, `prompt_style`, and `isolate.groups`.
-#' @param model Character string giving the model used by the selected
-#'   provider. The default is `"llama3"`, intended for the default Ollama
-#'   backend.
-#' @param provider LLM backend used when `generate = TRUE`. One of
-#'   `"ollama"` or `"gemini"`. The default is `"ollama"`. Gemini requires a
-#'   valid API key, typically supplied through the `GEMINI_API_KEY`
-#'   environment variable.
-#' @param isolate.groups Logical. If `FALSE`, a single prompt is created for
-#'   all categories or groups. If `TRUE`, one prompt is created for each
-#'   category or group separately.
-#' @param quali.sample A numeric value between 0 and 1 giving the proportion
-#'   of retained qualitative descriptors included in the prompt.
-#' @param quanti.sample A numeric value between 0 and 1 giving the proportion
-#'   of retained quantitative descriptors included in the prompt.
-#' @param drop.negative Logical. If `TRUE`, descriptors with a negative
-#'   v-test are excluded from the prompt.
-#' @param proba A numeric value between 0 and 1 giving the significance
-#'   threshold used by `FactoMineR::catdes()`. The default is `0.05`.
-#' @param row.w An optional numeric vector of row weights, with one value per
-#'   observation. If `NULL`, uniform weights are used.
-#' @param interpretation_mode Character string specifying how the target
-#'   categories should be interpreted. One of `"standard"` or `"latent"`.
-#' @param prompt_style Character string controlling the level of detail in the
-#'   generated prompt. One of `"detailed"` or `"compact"`.
-#' @param generate Logical. If `FALSE`, no LLM is called and the function
-#'   returns the prompt only. If `TRUE`, the prompt is sent to the selected
-#'   provider.
-#' @param ... Additional provider-specific generation arguments passed to the
-#'   selected LLM backend, such as `temperature`, `seed`, or other supported
-#'   options.
+#' @param dataset Historical raw-data input. A data frame containing the
+#'   grouping variable and at least one descriptor. Positional calls such as
+#'   `nail_catdes(dataset, num.var)` remain supported.
+#' @param num.var Column index of the grouping variable when `dataset` is used.
+#' @param x Preferred advanced input. A direct `statistical_profiles` object,
+#'   an object carrying a `statistical_profiles` attribute, a raw
+#'   [FactoMineR::catdes()] result, or a historical `nail_catdes()` result
+#'   carrying a `catdes_result` attribute. Do not supply `x` with `dataset`.
+#' @param introduction Optional study context included in the historical
+#'   prompt. A default is generated when `NULL`.
+#' @param request Optional interpretation request. A default is generated from
+#'   `interpretation_mode`, `prompt_style`, and `isolate.groups` when `NULL`.
+#' @param model Model name used by the selected provider.
+#' @param provider LLM backend, either `"ollama"` or `"gemini"`.
+#' @param isolate.groups Logical. If `FALSE`, build one joint prompt. If
+#'   `TRUE`, build one prompt per group.
+#' @param quali.sample,quanti.sample Numbers in `[0, 1]` controlling only the
+#'   deterministic proportion of ranked qualitative or quantitative markers
+#'   shown in the prompt. Zero selects none; one selects every eligible marker;
+#'   intermediate values retain `ceiling(n * proportion)` top-ranked markers.
+#' @param drop.negative Logical. If `TRUE`, underrepresented qualitative
+#'   markers and lower quantitative markers are excluded only from the prompt
+#'   selection. They remain unchanged in `statistical_profiles`.
+#' @param proba Significance threshold used only when raw data must be prepared.
+#'   A precomputed `x` is not re-filtered.
+#' @param row.w Optional row weights used only with the raw `dataset` path.
+#' @param interpretation_mode Either `"standard"` for explicit categories or
+#'   `"latent"` for statistically constructed groups.
+#' @param prompt_style Either `"detailed"` or `"compact"`.
+#' @param generate Logical. If `FALSE`, return the historical prompt form
+#'   without contacting a backend. If `TRUE`, send each eligible prompt to the
+#'   selected backend.
+#' @param ... Provider-specific generation arguments.
 #'
 #' @details
-#' The function can be used in two interpretation modes:
+#' ## Single statistical source
 #'
-#' - `interpretation_mode = "standard"` treats the target variable as an
-#'   explicit observed categorical variable whose category labels already
-#'   have a substantive meaning. The categories are interpreted without being
-#'   renamed.
+#' With raw data, `nail_catdes_prep()` is called exactly once and performs the
+#' only `catdes()` computation. With a prepared `statistical_profiles` object,
+#' neither `nail_catdes_prep()` nor `FactoMineR::catdes()` is called.
 #'
-#' - `interpretation_mode = "latent"` treats the target variable as a set of
-#'   statistically constructed groups or classes, for example groups obtained
-#'   from `FactoMineR::HCPC()`. In this mode, group labels are treated only as
-#'   identifiers, and their substantive meaning must be inferred from the
-#'   descriptive results.
+#' All groups, marker tables, directions, v-tests, p-values, ranks, metrics,
+#' and evidence identifiers are read from `statistical_profiles`. The original
+#' `catdes_result` is retained only for compatibility and inspection.
 #'
-#' The statistical characterization is computed with
-#' `FactoMineR::catdes()`. Depending on the variables available in `dataset`,
-#' the prompt may include:
+#' For route invariance, the raw-data path stores its source-specific
+#' preparation provenance in `catdes_settings$preparation_input` and exposes a
+#' canonical `statistical_profiles` object equivalent to preparing the same
+#' precomputed `catdes_result` through `x`.
 #'
-#' - qualitative modalities that are overrepresented or underrepresented
-#'   within each category or group;
-#' - quantitative variables whose means are higher or lower within each
-#'   category or group than in the full dataset;
-#' - the associated p-values and v-test values.
+#' ## Prompt selection
 #'
-#' For qualitative descriptors, a positive v-test indicates that a modality
-#' is overrepresented within the category or group, whereas a negative v-test
-#' indicates that it is underrepresented.
+#' A separate `interpretation_evidence` artifact is derived deterministically
+#' from the complete profiles. Selection follows the precomputed marker rank,
+#' then `evidence_id` for deterministic tie breaking. No call to `sample()` and
+#' no random tie handling is used. Each displayed marker retains its original
+#' evidence ID.
 #'
-#' For quantitative descriptors, a positive v-test indicates a mean above the
-#' overall mean, whereas a negative v-test indicates a mean below the overall
-#' mean.
+#' Groups with no available or selected marker remain represented in
+#' `interpretation_evidence`. No LLM call is made for an empty isolated group.
 #'
-#' Setting `drop.negative = TRUE` removes all descriptors with negative
-#' v-tests from the prompt.
+#' ## Transitional return contract
 #'
-#' The `quali.sample` and `quanti.sample` arguments can be used to reduce the
-#' number of descriptors included in long prompts. They affect the prompt
-#' content but not the complete result returned by `FactoMineR::catdes()`.
+#' The historical main return forms are intentionally preserved for this
+#' transition step: a character prompt or named list of prompts when
+#' `generate = FALSE`, and backend data frames or a named list of backend
+#' results when `generate = TRUE`. A new main output class is deferred to the
+#' next refactoring stage.
 #'
-#' By default, `generate = FALSE`, so no language model is called. When
-#' `generate = TRUE`, the default backend is Ollama and the default model is
-#' `"llama3"`. These defaults can be changed with `provider` and `model`.
+#' Every successful return carries the attributes `statistical_profiles`,
+#' `interpretation_evidence`, `catdes_result` when available, and
+#' `catdes_settings`.
 #'
-#' @return
-#' If `generate = FALSE`, a character prompt or, when
-#' `isolate.groups = TRUE`, a named list of character prompts.
-#'
-#' If `generate = TRUE`, the function returns the generated interpretation:
-#' a data frame when all categories or groups are processed together, or a
-#' named list of generated results when `isolate.groups = TRUE`.
-#'
-#' If no significant differences are found, the function returns an
-#' informative prompt or result indicating that no retained differences were
-#' available for interpretation.
-#'
-#' In all cases, the complete object returned by `FactoMineR::catdes()` is
-#' stored in the `"catdes_result"` attribute.
+#' @return The historical prompt or backend result form, augmented with the
+#'   mechanical attributes described above.
 #'
 #' @importFrom dplyr mutate filter arrange desc pull select slice_sample group_by n ungroup
 #' @importFrom glue glue
@@ -755,292 +1198,54 @@ validate_catdes_inputs <- function(dataset,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # These examples use a large language model and may therefore
-#' # take more than ten seconds to run.
-#'
-#' # All generated responses below explicitly use:
-#' # - the local Ollama backend;
-#' # - the llama3 model.
-#'
-#' # Ollama must be running locally and the llama3 model must be installed.
-#' # To use Gemini instead, set:
-#' # provider = "gemini"
-#' # model = "<a supported Gemini model>"
-#' # and define the GEMINI_API_KEY environment variable.
-#'
-#' # The interpretation_mode argument controls how the target
-#' # categories are presented to the language model:
-#' #
-#' # - interpretation_mode = "standard" is intended for an explicit,
-#' #   observed categorical variable whose categories already have
-#' #   a substantive meaning, such as flower species.
-#' #
-#' # - interpretation_mode = "latent" is intended for groups or classes
-#' #   constructed by a statistical method, such as HCPC. In that case,
-#' #   the group labels are treated only as identifiers and their meaning
-#' #   must be inferred from the descriptive results.
-#'
-#'
-#' ### Example 1: Fisher's iris ###
-#'
-#' library(NaileR)
 #' data(iris)
 #'
-#' # Describe the study context for the language model.
-#' intro_iris <- "A study measured various parts of iris flowers
-#' from 3 different species: setosa, versicolor and virginica.
-#' I will give you the results from this study.
-#' You will have to identify what sets these flowers apart."
-#'
-#' intro_iris <- gsub("\n", " ", intro_iris) |>
-#'   stringr::str_squish()
-#'
-#' # Specify the interpretation expected from the language model.
-#' req_iris <- "Please explain what makes each species distinct.
-#' Also, tell me which species has the biggest flowers,
-#' and which species has the smallest."
-#'
-#' req_iris <- gsub("\n", " ", req_iris) |>
-#'   stringr::str_squish()
-#'
-#' # Characterize the fifth variable, Species.
-#' #
-#' # Species is an explicit observed variable whose categories
-#' # already have a substantive meaning. Therefore,
-#' # interpretation_mode = "standard" is used.
-#' #
-#' # In standard mode, the categories are interpreted as they are:
-#' # they are not treated as latent profiles and are not renamed.
-#' #
-#' # Because generate = TRUE, the prompt produced from
-#' # FactoMineR::catdes() is sent to Ollama.
-#' # The response is generated locally with the llama3 model.
-#' res_iris <- nail_catdes(
+#' # Historical raw-data interface.
+#' prompt <- nail_catdes(
 #'   dataset = iris,
 #'   num.var = 5,
-#'   introduction = intro_iris,
-#'   request = req_iris,
-#'   interpretation_mode = "standard",
+#'   generate = FALSE
+#' )
+#' attr(prompt, "statistical_profiles")
+#'
+#' # Recommended advanced interface.
+#' catdes_result <- FactoMineR::catdes(iris, num.var = 5, proba = 0.05)
+#' profiles <- nail_catdes_prep(catdes_result)
+#' prompt_from_profiles <- nail_catdes(x = profiles, generate = FALSE)
+#' identical(attr(prompt_from_profiles, "statistical_profiles"), profiles)
+#' \dontrun{
+#' generated <- nail_catdes(
+#'   x = profiles,
 #'   provider = "ollama",
 #'   model = "llama3",
 #'   generate = TRUE
 #' )
-#'
-#' # Display the generated interpretation.
-#' cat(res_iris$response)
-#'
-#'
-#' ### Example 2: food waste dataset ###
-#'
-#' library(FactoMineR)
-#' data(waste)
-#'
-#' # Remove a question with no variability.
-#' waste <- waste[-14]
-#'
-#' # Build a multiple correspondence analysis.
-#' set.seed(1)
-#'
-#' res_mca_waste <- MCA(
-#'   waste,
-#'   quali.sup = c(1, 2, 50:76),
-#'   ncp = 35,
-#'   level.ventil = 0.05,
-#'   graph = FALSE
-#' )
-#'
-#' plot.MCA(
-#'   res_mca_waste,
-#'   choix = "ind",
-#'   invisible = c("var", "quali.sup"),
-#'   label = "none"
-#' )
-#'
-#' # Construct three groups of participants with HCPC.
-#' res_hcpc_waste <- HCPC(
-#'   res_mca_waste,
-#'   nb.clust = 3,
-#'   graph = FALSE
-#' )
-#'
-#' plot.HCPC(
-#'   res_hcpc_waste,
-#'   choice = "map",
-#'   draw.tree = FALSE,
-#'   ind.names = FALSE
-#' )
-#'
-#' # The final column contains the group membership produced by HCPC.
-#' don_clust_waste <- res_hcpc_waste$data.clust
-#'
-#' # Describe the context of the food-waste survey.
-#' intro_waste <- "These data were collected
-#' after a survey on food waste,
-#' with participants describing their habits."
-#'
-#' intro_waste <- gsub("\n", " ", intro_waste) |>
-#'   stringr::str_squish()
-#'
-#' # Ask the language model to interpret and rename the groups.
-#' req_waste <- "Please summarize the characteristics of each group.
-#' Then, give each group a new name, based on your conclusions.
-#' Finally, give each group a grade between 0 and 10,
-#' based on how wasteful they are with food:
-#' 0 being \"not at all\", 10 being \"absolutely\"."
-#'
-#' req_waste <- gsub("\n", " ", req_waste) |>
-#'   stringr::str_squish()
-#'
-#' # Characterize the HCPC grouping variable.
-#' #
-#' # The groups were constructed by HCPC and are not categories
-#' # with an explicit substantive meaning. Therefore,
-#' # interpretation_mode = "latent" is used.
-#' #
-#' # In latent mode, the numerical group labels are treated only
-#' # as identifiers. Their meaning must be inferred from the
-#' # qualitative and quantitative characteristics returned by catdes().
-#' # The model may therefore propose meaningful names for the groups.
-#' #
-#' # Negative v.test values are excluded from the prompt.
-#' # The response is generated locally by Ollama with llama3.
-#' res_waste <- nail_catdes(
-#'   dataset = don_clust_waste,
-#'   num.var = ncol(don_clust_waste),
-#'   introduction = intro_waste,
-#'   request = req_waste,
-#'   interpretation_mode = "latent",
-#'   drop.negative = TRUE,
-#'   provider = "ollama",
-#'   model = "llama3",
-#'   generate = TRUE
-#' )
-#'
-#' # Display the generated interpretation of all groups.
-#' cat(res_waste$response)
-#'
-#'
-#' ### Example 3: local_food dataset ###
-#'
-#' data(local_food)
-#'
-#' # Build a multiple correspondence analysis.
-#' set.seed(1)
-#'
-#' res_mca_food <- MCA(
-#'   local_food,
-#'   quali.sup = 46:63,
-#'   ncp = 100,
-#'   level.ventil = 0.05,
-#'   graph = FALSE
-#' )
-#'
-#' plot.MCA(
-#'   res_mca_food,
-#'   choix = "ind",
-#'   invisible = c("var", "quali.sup"),
-#'   label = "none"
-#' )
-#'
-#' # Construct three groups of participants with HCPC.
-#' res_hcpc_food <- HCPC(
-#'   res_mca_food,
-#'   nb.clust = 3,
-#'   graph = FALSE
-#' )
-#'
-#' plot.HCPC(
-#'   res_hcpc_food,
-#'   choice = "map",
-#'   draw.tree = FALSE,
-#'   ind.names = FALSE
-#' )
-#'
-#' # The final column contains the group membership produced by HCPC.
-#' don_clust_food <- res_hcpc_food$data.clust
-#'
-#' # Describe the context of the sustainable-food study.
-#' intro_food <- "A study on sustainable food systems
-#' was led on several French participants.
-#' This study had 2 parts. In the first part,
-#' participants had to rate how acceptable
-#' \"a food system that...\" was to them,
-#' for example a food system that only uses renewable energy.
-#' In the second part, they had to say
-#' whether they agreed or disagreed with several statements."
-#'
-#' intro_food <- gsub("\n", " ", intro_food) |>
-#'   stringr::str_squish()
-#'
-#' # The groups are interpreted separately because
-#' # isolate.groups = TRUE.
-#' req_food <- "I will give you the answers from one group.
-#' Please explain who the individuals of this group are
-#' and what their beliefs are.
-#' Then, give this group a new name
-#' and explain why you chose this name.
-#' Do not use the first person, such as \"I\" or \"my\",
-#' in your answer."
-#'
-#' req_food <- gsub("\n", " ", req_food) |>
-#'   stringr::str_squish()
-#'
-#' # Characterize the HCPC grouping variable.
-#' #
-#' # As in the previous example, these groups were constructed
-#' # by HCPC. Their labels do not have an explicit substantive
-#' # meaning, so interpretation_mode = "latent" is appropriate.
-#' #
-#' # In latent mode, the language model must infer the profile
-#' # represented by each group from the catdes() results and may
-#' # propose a meaningful name for it.
-#' #
-#' # Because isolate.groups = TRUE, one prompt is built and sent
-#' # to Ollama for each group separately.
-#' # Each response is generated locally with llama3.
-#' res_food <- nail_catdes(
-#'   dataset = don_clust_food,
-#'   num.var = ncol(don_clust_food),
-#'   introduction = intro_food,
-#'   request = req_food,
-#'   interpretation_mode = "latent",
-#'   isolate.groups = TRUE,
-#'   drop.negative = TRUE,
-#'   provider = "ollama",
-#'   model = "llama3",
-#'   generate = TRUE
-#' )
-#'
-#' # Display the response generated for each group.
-#' cat(res_food[[1]]$response)
-#' cat(res_food[[2]]$response)
-#' cat(res_food[[3]]$response)
 #' }
-nail_catdes <- function(dataset, num.var,
+nail_catdes <- function(dataset = NULL,
+                        num.var = NULL,
                         introduction = NULL,
-                        request      = NULL,
-                        model        = "llama3",
-                        provider     = c("ollama", "gemini"),
-                        isolate.groups  = FALSE,
-                        quali.sample    = 1,
-                        quanti.sample   = 1,
-                        drop.negative   = FALSE,
-                        proba           = 0.05,
-                        row.w           = NULL,
+                        request = NULL,
+                        model = "llama3",
+                        provider = c("ollama", "gemini"),
+                        isolate.groups = FALSE,
+                        quali.sample = 1,
+                        quanti.sample = 1,
+                        drop.negative = FALSE,
+                        proba = 0.05,
+                        row.w = NULL,
                         interpretation_mode = c("standard", "latent"),
-                        prompt_style        = c("detailed", "compact"),
+                        prompt_style = c("detailed", "compact"),
                         generate = FALSE,
+                        x = NULL,
                         ...) {
-
   interpretation_mode <- match.arg(interpretation_mode)
-  prompt_style        <- match.arg(prompt_style)
-
+  prompt_style <- match.arg(prompt_style)
   provider <- match.arg(provider)
 
   validate_catdes_inputs(
     dataset = dataset,
     num.var = num.var,
+    x = x,
     isolate.groups = isolate.groups,
     quali.sample = quali.sample,
     quanti.sample = quanti.sample,
@@ -1051,131 +1256,159 @@ nail_catdes <- function(dataset, num.var,
     prompt_style = prompt_style
   )
 
+  normalized <- .normalize_nail_catdes_input(
+    x = x,
+    dataset = dataset,
+    num.var = num.var,
+    proba = proba,
+    row.w = row.w
+  )
+  profiles <- normalized$statistical_profiles
+
+  interpretation_evidence <- .build_interpretation_evidence_nail_catdes(
+    statistical_profiles = profiles,
+    quali_sample = quali.sample,
+    quanti_sample = quanti.sample,
+    drop_negative = drop.negative
+  )
+
   if (is.null(introduction)) {
-    introduction <- if (interpretation_mode == "standard")
+    introduction <- if (interpretation_mode == "standard") {
       "For this study, observations were described according to an explicit categorical variable."
-    else
+    } else {
       "For this study, observations were grouped according to their similarities."
+    }
   }
 
   if (is.null(request)) {
     request <- build_request_catdes(
       interpretation_mode = interpretation_mode,
-      isolate_groups      = isolate.groups,
-      prompt_style        = prompt_style
+      isolate_groups = isolate.groups,
+      prompt_style = prompt_style
     )
   }
 
-  target_label <- if (is.null(colnames(dataset)))
-    "the target variable"
-  else
-    colnames(dataset)[num.var]
-
-  GUIDE_CATDES <- build_guide_catdes(
+  guide <- build_guide_catdes(
     interpretation_mode = interpretation_mode,
-    target_label        = target_label,
-    prompt_style        = prompt_style,
-    isolate_groups      = isolate.groups
+    target_label = normalized$target_label,
+    prompt_style = prompt_style,
+    isolate_groups = isolate.groups
+  )
+  introduction_with_guide <- paste(
+    introduction,
+    guide,
+    sep = "\n\n---\n\n"
   )
 
-  introduction <- paste(introduction, GUIDE_CATDES, sep = "\n\n---\n\n")
-
-  res_cd <- FactoMineR::catdes(
-    dataset,
-    num.var = num.var,
-    proba = proba,
-    row.w = row.w
+  prompts <- .build_prompts_from_interpretation_evidence(
+    interpretation_evidence = interpretation_evidence,
+    introduction = introduction_with_guide,
+    request = request,
+    isolate_groups = isolate.groups,
+    interpretation_mode = interpretation_mode,
+    target_label = normalized$target_label,
+    prompt_style = prompt_style
   )
 
-  ppt <- tryCatch(
-    get_prompt_catdes(
-      res_cd,
-      introduction   = introduction,
-      request        = request,
-      isolate.groups = isolate.groups,
-      quali.sample   = quali.sample,
-      quanti.sample  = quanti.sample,
-      drop.negative  = drop.negative,
-      interpretation_mode = interpretation_mode,
-      target_label        = target_label,
-      prompt_style        = prompt_style
-    ),
-    error = function(e) {
-      if (grepl("No significant differences", conditionMessage(e))) {
-        "NAILER_NO_RESULTS_FOUND"
-      } else {
-        stop(e)
-      }
-    }
-  )
-
-  if (identical(ppt, "NAILER_NO_RESULTS_FOUND")) {
-    no_results_message <- "*No significant differences were found between the groups at this probability threshold.*"
-
-    if (generate) {
-      message("Execution halted: No significant differences found. Nothing to generate.")
-
-      if (isolate.groups) {
-        out <- list()
-        attr(out, "catdes_result") <- res_cd
-        return(out)
-      }
-
-      out <- data.frame(
-        model      = model,
-        created_at = Sys.time(),
-        response   = "No significant differences found.",
-        done       = TRUE,
-        prompt     = no_results_message,
-        stringsAsFactors = FALSE
-      )
-      attr(out, "catdes_result") <- res_cd
-      return(out)
-    }
-
-    header <- glue::glue(
-      "# Introduction\n\n{introduction}\n\n",
-      "# Task\n\n{request}\n\n",
-      "# Data\n\n"
-    )
-
-    out <- paste0(header, no_results_message)
-    attr(out, "catdes_result") <- res_cd
-    return(out)
+  n_ready_groups <- interpretation_evidence$metadata$n_ready_groups
+  n_selected <- interpretation_evidence$metadata$n_selected_evidence
+  llm_calls <- if (!isTRUE(generate)) {
+    0L
+  } else if (!isTRUE(isolate.groups)) {
+    as.integer(n_selected > 0L)
+  } else {
+    as.integer(n_ready_groups)
   }
+
+  catdes_settings <- list(
+    source_type = normalized$source_type,
+    preparation_performed = normalized$preparation_performed,
+    nail_catdes_prep_calls = normalized$metadata$nail_catdes_prep_calls,
+    direct_catdes_calls_in_nail_catdes = 0L,
+    proba = profiles$settings$proba,
+    requested_proba = proba,
+    proba_reapplied_to_prepared_profiles = FALSE,
+    interpretation_mode = interpretation_mode,
+    prompt_style = prompt_style,
+    isolate_groups = isolate.groups,
+    quali_sample = quali.sample,
+    quanti_sample = quanti.sample,
+    drop_negative = drop.negative,
+    generate = generate,
+    provider = provider,
+    model = model,
+    llm_calls = llm_calls,
+    target_label = normalized$target_label,
+    preparation_input = normalized$metadata$preparation_input,
+    statistical_profiles_canonicalized = isTRUE(
+      normalized$metadata$statistical_profiles_canonicalized
+    )
+  )
 
   if (!generate) {
-    attr(ppt, "catdes_result") <- res_cd
-    return(ppt)
+    return(.attach_nail_catdes_artifacts(
+      prompts,
+      normalized,
+      interpretation_evidence,
+      catdes_settings
+    ))
   }
 
-  extra_args <- list(...)
-  llm_api_options <- extra_args
-
-  .call_llm <- function(prompt) {
-    res <- .call_llm_base(
+  llm_api_options <- list(...)
+  call_llm <- function(prompt) {
+    response <- .call_llm_base(
       provider = provider,
       model = model,
       prompt = prompt,
       output = "df",
       llm_api_options = llm_api_options
     )
-    res$prompt <- prompt
-    res
+    response$prompt <- prompt
+    response
   }
 
   if (!isolate.groups) {
-    out <- .call_llm(ppt)
-    attr(out, "catdes_result") <- res_cd
-    return(out)
+    result <- if (n_selected == 0L) {
+      message("Execution halted: No selected statistical evidence. Nothing to generate.")
+      .catdes_no_results_data_frame(
+        model = model,
+        prompt = prompts,
+        response = "No selected statistical evidence found."
+      )
+    } else {
+      call_llm(prompts)
+    }
+
+    return(.attach_nail_catdes_artifacts(
+      result,
+      normalized,
+      interpretation_evidence,
+      catdes_settings
+    ))
   }
 
-  res_list <- lapply(ppt, .call_llm)
-
-  if (!is.null(names(ppt))) {
-    names(res_list) <- names(ppt)
+  result <- stats::setNames(vector("list", length(prompts)), names(prompts))
+  for (group_name in names(prompts)) {
+    group_evidence <- interpretation_evidence$groups[[group_name]]
+    result[[group_name]] <- if (identical(group_evidence$status, "ready")) {
+      call_llm(prompts[[group_name]])
+    } else {
+      .catdes_no_results_data_frame(
+        model = model,
+        prompt = prompts[[group_name]],
+        response = paste0(
+          "No selected statistical evidence found for group '",
+          group_name,
+          "'."
+        )
+      )
+    }
   }
 
-  attr(res_list, "catdes_result") <- res_cd
-  res_list
+  .attach_nail_catdes_artifacts(
+    result,
+    normalized,
+    interpretation_evidence,
+    catdes_settings
+  )
 }

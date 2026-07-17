@@ -1,0 +1,41 @@
+INTERNAL HELPER: validate_descfreq_inputs
+
+FORMALS:
+as.pairlist(alist(dataset = , sample.pct = , proba = , isolate.groups = , drop.negative = , rows_are_ordered = , explicit_row_labels = , generate = ))
+
+BODY:
+function(dataset, sample.pct, proba,
+                                     isolate.groups,
+                                     drop.negative,
+                                     rows_are_ordered,
+                                     explicit_row_labels,
+                                     generate) {
+  assert_data_frame(dataset, "dataset")
+  if (nrow(dataset) < 1 || ncol(dataset) < 2) {
+    stop("`dataset` must contain at least one row and two columns.", call. = FALSE)
+  }
+  assert_proportion(sample.pct, "sample.pct")
+  assert_proportion(proba, "proba")
+
+  logical_args <- list(
+    isolate.groups = isolate.groups,
+    drop.negative = drop.negative,
+    rows_are_ordered = rows_are_ordered,
+    explicit_row_labels = explicit_row_labels,
+    generate = generate
+  )
+
+  invalid_logicals <- names(logical_args)[!vapply(logical_args, function(x) is.logical(x) && length(x) == 1 && !is.na(x), logical(1))]
+
+  if (length(invalid_logicals) > 0) {
+    stop(
+      sprintf(
+        "The following arguments must be single non-missing logical values: %s.",
+        paste(invalid_logicals, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

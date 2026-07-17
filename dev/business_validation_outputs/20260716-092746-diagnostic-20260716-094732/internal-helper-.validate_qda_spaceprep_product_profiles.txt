@@ -1,0 +1,147 @@
+INTERNAL HELPER: .validate_qda_spaceprep_product_profiles
+
+FORMALS:
+as.pairlist(alist(product_profiles = ))
+
+BODY:
+function(product_profiles) {
+  if (!is.list(product_profiles) || length(product_profiles) == 0L) {
+    stop(
+      "`x` must contain a non-empty `product_profiles` attribute created by `nail_qda()`.",
+      call. = FALSE
+    )
+  }
+
+  if (is.null(names(product_profiles)) || any(!nzchar(names(product_profiles))) ||
+      anyDuplicated(names(product_profiles)) > 0L) {
+    stop(
+      "The `product_profiles` attribute must be a uniquely named list with one element per product.",
+      call. = FALSE
+    )
+  }
+
+  required_profile_fields <- c(
+    "product",
+    "adjusted_means",
+    "retained_markers",
+    "above_average",
+    "below_average",
+    "metrics"
+  )
+  required_marker_fields <- c(
+    "evidence_id",
+    "product",
+    "attribute",
+    "direction",
+    "coefficient",
+    "adjusted_mean",
+    "v_test",
+    "p_value",
+    "abs_v_test",
+    "rank"
+  )
+
+  for (nm in names(product_profiles)) {
+    profile <- product_profiles[[nm]]
+
+    if (!is.list(profile) || !all(required_profile_fields %in% names(profile))) {
+      stop(
+        sprintf(
+          "Product profile `%s` is invalid. It must contain: %s.",
+          nm,
+          paste(required_profile_fields, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (!.qda_spaceprep_is_nonempty_character_scalar(as.character(profile$product)) ||
+        !identical(as.character(profile$product), nm)) {
+      stop(
+        sprintf(
+          "Product profile `%s` must contain `product = \"%s\"`.",
+          nm, nm
+        ),
+        call. = FALSE
+      )
+    }
+
+    adjusted_means <- profile$adjusted_means
+    if (!is.numeric(adjusted_means) || length(adjusted_means) == 0L ||
+        is.null(names(adjusted_means)) || any(!nzchar(names(adjusted_means))) ||
+        anyDuplicated(names(adjusted_means)) > 0L) {
+      stop(
+        sprintf(
+          "`adjusted_means` for product `%s` must be a non-empty uniquely named numeric vector.",
+          nm
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (!is.data.frame(profile$above_average) || !is.data.frame(profile$below_average)) {
+      stop(
+        sprintf(
+          "`above_average` and `below_average` for product `%s` must be data frames.",
+          nm
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (!is.list(profile$metrics)) {
+      stop(sprintf("`metrics` for product `%s` must be a list.", nm), call. = FALSE)
+    }
+
+    markers <- profile$retained_markers
+    if (!is.data.frame(markers) || !all(required_marker_fields %in% names(markers))) {
+      stop(
+        sprintf(
+          "`retained_markers` for product `%s` is invalid. It must contain: %s.",
+          nm,
+          paste(required_marker_fields, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (nrow(markers) > 0L) {
+      if (anyNA(markers$product) || any(as.character(markers$product) != nm) ||
+          anyNA(markers$attribute) || any(!nzchar(trimws(as.character(markers$attribute)))) ||
+          anyNA(markers$direction) ||
+          any(!as.character(markers$direction) %in% c("higher than overall", "lower than overall"))) {
+        stop(
+          sprintf(
+            "`retained_markers` for product `%s` contains invalid product, attribute, or direction values.",
+            nm
+          ),
+          call. = FALSE
+        )
+      }
+
+      expected_ids <- paste(markers$product, markers$attribute, sep = "::")
+      if (anyNA(markers$evidence_id) || any(!nzchar(markers$evidence_id)) ||
+          !identical(as.character(markers$evidence_id), as.character(expected_ids)) ||
+          anyDuplicated(markers$evidence_id) > 0L) {
+        stop(
+          sprintf(
+            "`retained_markers` for product `%s` contains invalid or duplicated `evidence_id` values.",
+            nm
+          ),
+          call. = FALSE
+        )
+      }
+    }
+  }
+
+  all_ids <- unlist(lapply(product_profiles, function(x) {
+    as.character(x$retained_markers$evidence_id)
+  }), use.names = FALSE)
+
+  if (anyDuplicated(all_ids) > 0L) {
+    stop("`evidence_id` values must be unique across all product profiles.", call. = FALSE)
+  }
+
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

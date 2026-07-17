@@ -1,0 +1,335 @@
+List of 3
+ $ parse_status    : chr "success"
+ $ parse_error     : NULL
+ $ textual_profiles:List of 3
+  ..$ groups     :List of 3
+  .. ..$ Ancrés locaux          :List of 17
+  .. .. ..$ group                   : chr "Ancrés locaux"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Importance des habitudes locales et de la provenance des produits."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::5"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Préférence pour les producteurs proches et la saisonnalité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::4" "Ancrés locaux::verbatim::9"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de temps en semaine pour maintenir ces pratiques."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::8"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité positive et engagée, avec une volonté de soutenir l'économie locale."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::7"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur la confiance et la qualité des produits locaux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Soutenir l'économie locale et contrôler la qualité des aliments."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::12"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de temps et compromis lorsque l'offre locale est peu pratique."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de soutenir l'économie locale et d'avoir un lien direct avec les producteurs."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::15"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de soutien à l'économie locale et de préférence pour les produits de proximité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::7"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la cuisine maison et au contrôle de la qualité des aliments."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::12"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants font des compromis lorsque l'offre locale est peu pratique."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::2"
+  .. .. .. .. ..$ quotation  : chr "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre la préférence pour les produits locaux et le soutien à l'économie locale."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ quotation  : chr "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'importance de la confiance et de la saisonnalité, ainsi que les compromis nécessaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ quotation  : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la préférence pour les produits locaux et les compromis nécessaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::1"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. ..$ Pragmatiques contraints:List of 17
+  .. .. ..$ group                   : chr "Pragmatiques contraints"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Importance du prix et du temps disponible dans les choix alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Intérêt pour le local lorsqu'il est accessible et moins coûteux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::22"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque d'informations simples pour arbitrer les choix alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::25"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité pragmatique et réaliste, avec une volonté de trouver des solutions accessibles."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::23"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur les contraintes budgétaires et les difficultés à accéder aux produits locaux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::23" "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Recherche de solutions pratiques et moins coûteuses pour les courses alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque d'informations et circuits spécialisés perçus comme compliqués."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::24"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de trouver des solutions accessibles et moins coûteuses."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de recherche de praticité et d'accessibilité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la recherche de solutions pratiques et économiques."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::23" "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants expriment une culpabilité lorsqu'ils choisissent le moins cher."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::16"
+  .. .. .. .. ..$ quotation  : chr "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessi"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre les contraintes pratiques et l'intérêt pour le local lorsqu'il est accessible."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ quotation  : chr "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offr"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'importance du prix et du temps disponible dans les choix alimentaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ quotation  : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la recherche de praticité et la culpabilité liée aux choix économiques."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Pragmatiques contraints::verbatim::16"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. ..$ Curieux flexibles      :List of 17
+  .. .. ..$ group                   : chr "Curieux flexibles"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Combinaison de plusieurs circuits selon les occasions."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::36"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Ouverture aux innovations et découverte de nouvelles façons de manger."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::34"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Recherche d'un équilibre entre curiosité, prix et cohérence."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::35" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité ouverte et flexible, avec une volonté de découvrir et d'expérimenter."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur la découverte et l'adaptation des pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Découverte de nouvelles façons de manger et ouverture aux innovations."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::34"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de régularité dans les pratiques et difficulté à trouver un équilibre."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::36" "Curieux flexibles::verbatim::43"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de découvrir et d'expérimenter de nouvelles façons de manger."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de découverte et d'adaptation des pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la curiosité et à la flexibilité dans les pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants expriment une difficulté à trouver un équilibre entre curiosité et praticité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Curieux flexibles::verbatim::35"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::31"
+  .. .. .. .. ..$ quotation  : chr "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine sui"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre la combinaison de plusieurs circuits et la flexibilité dans les pratiques."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::32"
+  .. .. .. .. ..$ quotation  : chr "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une inn"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'ouverture aux innovations et la recherche de praticité."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::35"
+  .. .. .. .. ..$ quotation  : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la curiosité et la difficulté à trouver un équilibre."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dan"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Curieux flexibles::verbatim::31"
+  .. .. .. .. ..$ validation_needed: NULL
+  ..$ cross_group:List of 4
+  .. ..$ shared_themes        :List of 1
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "L'importance de la provenance et des produits locaux est un thème partagé par les trois groupes, bien que avec des nuances."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:3] "Ancrés locaux::verbatim::3" "Pragmatiques contraints::verbatim::16" "Curieux flexibles::verbatim::31"
+  .. .. .. ..$ validation_needed: NULL
+  .. ..$ group_contrasts      :List of 2
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les 'Ancrés locaux' valorisent la confiance et la saisonnalité, tandis que les 'Pragmatiques contraints' cherch"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::4" "Pragmatiques contraints::verbatim::16"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les 'Curieux flexibles' sont ouverts aux innovations et combinent plusieurs circuits, contrairement aux 'Ancrés"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Ancrés locaux::verbatim::1"
+  .. .. .. ..$ validation_needed: NULL
+  .. ..$ minority_patterns    : list()
+  .. ..$ interpretation_limits:List of 1
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::1"
+  .. .. .. ..$ validation_needed: NULL
+  ..$ metadata   :List of 4
+  .. ..$ analysis_scope : chr "general"
+  .. ..$ comparison_mode: chr "joint"
+  .. ..$ groups         : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ parse_status   : chr "success"

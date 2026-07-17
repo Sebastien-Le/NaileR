@@ -1,0 +1,96 @@
+{
+  "group": "Pragmatiques contraints",
+  "integrated_profile": {
+    "text": "Les Pragmatiques contraints sont un groupe caractérisé par des contraintes budgétaires et pratiques, cherchant des solutions alimentaires accessibles et moins coûteuses. Ils montrent une préférence marquée pour les hard-discounts et une faible fréquence d'achat de produits bio, tout en exprimant un intérêt limité pour le local et une faible connaissance alimentaire.",
+    "status": "expert_interpretation",
+    "statistical_evidence_ids": [
+      "Pragmatiques contraints::quali::purchase_place::Hard-discount",
+      "Pragmatiques contraints::quanti::food_knowledge"
+    ],
+    "textual_evidence_ids": [
+      "Pragmatiques contraints::verbatim::16",
+      "Pragmatiques contraints::verbatim::20"
+    ],
+    "relationship": "convergence",
+    "validation_needed": null
+  },
+  "convergences": [
+    {
+      "text": "La préférence pour les hard-discounts (60% dans le groupe vs 20% globalement) converge avec les contraintes budgétaires exprimées dans les verbatims, où le prix est un facteur déterminant.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Pragmatiques contraints::quali::purchase_place::Hard-discount"
+      ],
+      "textual_evidence_ids": [
+        "Pragmatiques contraints::verbatim::17",
+        "Pragmatiques contraints::verbatim::20"
+      ],
+      "relationship": "convergence",
+      "validation_needed": null
+    },
+    {
+      "text": "Le faible intérêt pour le local (0% dans le groupe vs 31.11% globalement) est cohérent avec les verbatims indiquant que le local n'est considéré que lorsqu'il reste accessible et moins coûteux.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Pragmatiques contraints::quali::purchase_place::Marché/local"
+      ],
+      "textual_evidence_ids": [
+        "Pragmatiques contraints::verbatim::16",
+        "Pragmatiques contraints::verbatim::22"
+      ],
+      "relationship": "convergence",
+      "validation_needed": null
+    }
+  ],
+  "tensions": [
+    {
+      "text": "Bien que les verbatims expriment un manque d'informations pour arbitrer les choix alimentaires, le groupe montre une faible connaissance alimentaire (moyenne de 3.93 vs 6.06 globalement), ce qui pourrait indiquer une sous-estimation de leur besoin en information.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Pragmatiques contraints::quanti::food_knowledge"
+      ],
+      "textual_evidence_ids": [
+        "Pragmatiques contraints::verbatim::18",
+        "Pragmatiques contraints::verbatim::25"
+      ],
+      "relationship": "tension",
+      "validation_needed": null
+    }
+  ],
+  "statistical_only_findings": [
+    {
+      "text": "Le groupe a une contrainte de prix significativement plus élevée (moyenne de 7.73 vs 5.74 globalement), ce qui n'est pas explicitement mentionné dans les verbatims.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Pragmatiques contraints::quanti::price_constraint"
+      ],
+      "textual_evidence_ids": [],
+      "relationship": "statistical_only",
+      "validation_needed": null
+    }
+  ],
+  "textual_only_findings": [
+    {
+      "text": "Certains répondants expriment une culpabilité lorsqu'ils choisissent le moins cher, ce qui n'est pas reflété dans les données quantitatives.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [],
+      "textual_evidence_ids": [
+        "Pragmatiques contraints::verbatim::29"
+      ],
+      "relationship": "textual_only",
+      "validation_needed": null
+    }
+  ],
+  "interpretation_limits": [
+    {
+      "text": "Les verbatims analysés représentent une partie des données, limitant la généralisation des conclusions à l'ensemble du groupe.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [],
+      "textual_evidence_ids": [
+        "Pragmatiques contraints::verbatim::16"
+      ],
+      "relationship": "scope_limit",
+      "validation_needed": null
+    }
+  ]
+}

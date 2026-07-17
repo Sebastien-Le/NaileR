@@ -1,0 +1,16 @@
+"claim_id","group","claim_type","expected_claim","importance","found_in_nailer","accurate","traceable","epistemic_status_correct","usefulness_1_to_5","correction_needed","reviewer_notes"
+"REF-01","Ancrés locaux","statistical","Le groupe se distingue par un engagement territorial élevé.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-02","Ancrés locaux","textual","Le discours valorise la provenance, la confiance et la saisonnalité.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-03","Ancrés locaux","integration","Les pratiques locales et le discours sont globalement convergents.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-04","Ancrés locaux","limit","Le manque de temps nuance l'image d'une pratique toujours cohérente.",4,NA,NA,NA,NA,NA,NA,NA
+"REF-05","Pragmatiques contraints","statistical","La contrainte de prix est le marqueur quantitatif central.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-06","Pragmatiques contraints","textual","Le discours insiste sur le budget, les promotions et la simplicité.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-07","Pragmatiques contraints","integration","Les statistiques et les verbatims décrivent un arbitrage contraint.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-08","Pragmatiques contraints","limit","La contrainte ne doit pas être interprétée comme un manque d'intérêt.",4,NA,NA,NA,NA,NA,NA,NA
+"REF-09","Curieux flexibles","statistical","L'ouverture à l'innovation est le marqueur le plus distinctif.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-10","Curieux flexibles","textual","Le discours valorise la découverte, la diversité et l'expérimentation.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-11","Curieux flexibles","integration","Le texte donne un sens comportemental à l'ouverture statistique.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-12","Curieux flexibles","limit","La flexibilité ne permet pas d'inférer un profil social ou psychologique.",4,NA,NA,NA,NA,NA,NA,NA
+"REF-13","Transversal","contrast","Les trois groupes correspondent à des logiques distinctes plutôt qu'à une hiérarchie.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-14","Transversal","tension","Les tensions temps, budget et cohérence des pratiques doivent rester visibles.",5,NA,NA,NA,NA,NA,NA,NA
+"REF-15","Transversal","business_value","L'intégration doit apporter plus qu'une juxtaposition des deux rapports.",5,NA,NA,NA,NA,NA,NA,NA

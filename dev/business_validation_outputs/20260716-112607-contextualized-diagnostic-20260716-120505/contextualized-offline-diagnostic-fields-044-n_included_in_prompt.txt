@@ -1,0 +1,8 @@
+PATH: contextualized-offline$textual_evidence$group_diagnostics$n_included_in_prompt
+FIELD: n_included_in_prompt
+TYPEOF: integer
+CLASS: integer
+
+15
+15
+15

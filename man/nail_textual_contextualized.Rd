@@ -2,108 +2,245 @@
 % Please edit documentation in R/nail_textual_contextualized.R
 \name{nail_textual_contextualized}
 \alias{nail_textual_contextualized}
-\title{Contextualized interpretation of textual group differences}
+\title{Integrate mechanical statistical profiles and traceable textual profiles}
 \usage{
 nail_textual_contextualized(
   group_profile_prep = NULL,
   textual_prep = NULL,
-  representative_verbatims = NULL,
+  statistical_profiles = NULL,
+  textual_preparation = NULL,
   dataset = NULL,
   num.var = NULL,
   num.text = NULL,
+  group_map = NULL,
+  context = NULL,
+  analysis_scope = c("cross_functional", "general", "sociological", "consumer",
+    "psychological", "marketing", "innovation"),
+  comparison_mode = c("joint", "isolated"),
+  integration_mode = c("modular", "legacy"),
+  expertise = c("integration"),
+  report_format = c("structured", "markdown", "compact"),
+  request = NULL,
+  prompt_style = c("detailed", "compact"),
   proba = 0.05,
   sample.pct.text = 1,
   sample.pct.profile = 1,
   profile_mode = c("balanced", "categorical", "quantitative"),
-  prompt_style = c("compact", "detailed"),
-  interpretation_mode = c("groupwise", "comparative"),
+  interpretation_mode = NULL,
+  representative_verbatims = NULL,
   include_verbatims = TRUE,
   n_central_verbatims = 2,
   n_tension_verbatims = 1,
   max_verbatim_chars = 220,
   introduction = NULL,
-  request = NULL,
   conclusion = NULL,
-  isolate.groups = FALSE,
+  isolate.groups = NULL,
   model = "llama3",
   provider = c("ollama", "gemini"),
+  llm_model = NULL,
+  llm_engine = NULL,
+  max_verbatims = 12L,
+  max_group_claims = 2L,
+  max_cross_claims = 2L,
+  fail_fast = FALSE,
+  gemini_api_key = NULL,
+  gemini_max_output_tokens = 8192L,
+  gemini_thinking_level = "low",
+  ollama_url = Sys.getenv("OLLAMA_HOST", unset = "http://127.0.0.1:11434"),
+  ollama_num_ctx = 32768L,
+  ollama_num_predict = 8192L,
+  timeout_seconds = 900,
   row.w = NULL,
   generate = FALSE,
   ...
 )
 }
 \arguments{
-\item{group_profile_prep}{Optional output from \code{nail_group_profile_prep(generate = TRUE)}.}
+\item{group_profile_prep}{Deprecated-compatible first positional statistical
+source. Prefer \code{statistical_profiles}. It may be a direct result of
+\code{\link[=nail_catdes_prep]{nail_catdes_prep()}}, an object carrying a \code{statistical_profiles}
+attribute, or a supported legacy prepared object.}
 
-\item{textual_prep}{Optional output from \code{nail_textual_prep(generate = TRUE)}.}
+\item{textual_prep}{Deprecated-compatible second positional textual source.
+Prefer \code{textual_preparation}. It may be a result of
+\code{\link[=nail_textual_prep]{nail_textual_prep()}}, a \code{\link[=nail_textual]{nail_textual()}} result containing its original
+preparation, an explicit evidence/profile object, or a supported legacy
+prepared object.}
 
-\item{representative_verbatims}{Optional named list of verbatims per group.}
+\item{statistical_profiles}{Preferred statistical source. It cannot be used
+simultaneously with \code{group_profile_prep}.}
 
-\item{dataset}{Optional raw dataset.}
+\item{textual_preparation}{Preferred textual source. It cannot be used
+simultaneously with \code{textual_prep}.}
 
-\item{num.var}{Index of grouping variable if \code{dataset} is used.}
+\item{dataset}{Optional historical raw data frame. Missing prepared sources
+are created at most once from this data frame.}
 
-\item{num.text}{Index of textual variable if \code{dataset} is used.}
+\item{num.var}{Grouping-column index for raw data.}
 
-\item{proba}{Significance threshold forwarded to \code{nail_group_profile_prep()}.}
+\item{num.text}{Text-column index for raw data.}
 
-\item{sample.pct.text}{Proportion of texts retained per group for textual prep.}
+\item{group_map}{Optional named character vector mapping statistical group
+names to textual group names. Exact original names are used otherwise;
+no fuzzy matching is performed.}
 
-\item{sample.pct.profile}{Proportion of retained descriptors kept for group profile prep.}
+\item{context}{Optional character scalar or named list of user-provided
+context. It is separated from measured and textual evidence in the prompt.}
 
-\item{profile_mode}{\code{"balanced"}, \code{"categorical"}, or \code{"quantitative"}.}
+\item{analysis_scope}{Public analysis scope retained for upstream textual
+preparation, context, and metadata. In modular mode the core expertise is
+deliberately limited to evidence integration; specialized expert modules
+are not generated in the same call.}
 
-\item{prompt_style}{\code{"compact"} or \code{"detailed"}.}
+\item{comparison_mode}{In modular mode, \code{"joint"} means one request per
+eligible group followed by one validated cross-group synthesis;
+\code{"isolated"} omits the cross-group synthesis. In legacy mode it retains
+the historical joint-versus-isolated behavior.}
 
-\item{interpretation_mode}{\code{"groupwise"} or \code{"comparative"}.}
+\item{integration_mode}{\code{"modular"} (default) or \code{"legacy"}. Modular mode
+uses the validated split architecture. Legacy mode preserves the historical
+monolithic JSON contract during the transition.}
 
-\item{include_verbatims}{Logical; whether to include illustrative verbatims in the final prompt.}
+\item{expertise}{Core expertise requested in modular mode. The current
+validated value is \code{"integration"}; specialized expertise will be added
+as separate modules rather than mixed into the core request.}
 
-\item{n_central_verbatims}{Number of central verbatims per group for fallback selection.}
+\item{report_format}{\code{"structured"}, \code{"markdown"}, or \code{"compact"}.
+Reporting never modifies evidence or the structured analysis.}
 
-\item{n_tension_verbatims}{Number of tension verbatims per group for fallback selection.}
+\item{request}{Optional additional analytical request. It cannot remove the
+mandatory evidence, epistemic, or JSON rules.}
 
-\item{max_verbatim_chars}{Maximum number of characters per fallback verbatim.}
+\item{prompt_style}{\code{"detailed"} or \code{"compact"}; this changes prompt
+presentation only.}
 
-\item{introduction}{Optional introduction.}
+\item{proba}{Historical raw-data preparation argument forwarded to
+\code{\link[=nail_catdes_prep]{nail_catdes_prep()}}.}
 
-\item{request}{Optional request block.}
+\item{sample.pct.text}{Historical raw-data sampling proportion forwarded to
+\code{\link[=nail_textual_prep]{nail_textual_prep()}}. Sampling never occurs inside this function.}
 
-\item{conclusion}{Optional conclusion block.}
+\item{sample.pct.profile}{Deprecated; statistical profiles now retain all
+mechanical markers.}
 
-\item{isolate.groups}{Logical; if TRUE, one prompt per group.}
+\item{profile_mode}{Deprecated presentation argument.}
 
-\item{model}{LLM model name for the selected provider.}
+\item{interpretation_mode}{Deprecated. Use \code{comparison_mode}.}
 
-\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
+\item{representative_verbatims}{Deprecated. Exact prompted verbatims are
+read from \code{textual_evidence}.}
 
-\item{row.w}{Optional row weights forwarded to \code{nail_group_profile_prep()}.}
+\item{include_verbatims}{Deprecated. Traceable prompts always include the
+exact verbatims selected by \code{nail_textual_prep()}.}
 
-\item{generate}{Logical; if FALSE, return prompt(s) only.}
+\item{n_central_verbatims, n_tension_verbatims, max_verbatim_chars}{Deprecated
+fallback-selection arguments. This function performs no new selection.}
 
-\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
+\item{introduction}{Deprecated; use \code{context}.}
+
+\item{conclusion}{Deprecated; use \code{request}.}
+
+\item{isolate.groups}{Deprecated logical alias for \code{comparison_mode}.}
+
+\item{model}{LLM model for the final integration. When Gemini is selected
+and no model is supplied, the public function uses \code{gemini-3.5-flash}.}
+
+\item{provider}{LLM provider, \code{"ollama"} or \code{"gemini"}.}
+
+\item{llm_model, llm_engine}{Optional aliases for \code{model} and \code{provider}.}
+
+\item{max_verbatims}{Maximum exact verbatims included in each modular group
+request.}
+
+\item{max_group_claims}{Maximum convergence and tension claims requested per
+modular group. Empty sections are allowed.}
+
+\item{max_cross_claims}{Maximum claims requested per cross-group section.}
+
+\item{fail_fast}{Stop on the first modular validation error when \code{TRUE};
+otherwise preserve valid groups and return a partial result.}
+
+\item{gemini_api_key, gemini_max_output_tokens, gemini_thinking_level}{Gemini
+options for modular generation.}
+
+\item{ollama_url, ollama_num_ctx, ollama_num_predict}{Ollama options for modular
+generation.}
+
+\item{timeout_seconds}{HTTP timeout for each modular request.}
+
+\item{row.w}{Optional row weights used only when a missing statistical source
+is created from raw data.}
+
+\item{generate}{Logical. With \code{FALSE}, all mechanical evidence and prompts
+are built without contacting a backend and \code{contextualized_analysis} is
+\code{NULL}. If a supported legacy prepared object lacks the evidence IDs
+required for modular generation, its group unit receives a non-generative
+compatibility preview prompt while \code{integration_eligible} remains \code{FALSE}.}
+
+\item{...}{Provider-specific generation arguments used by the legacy
+integration path and by raw textual preparation. Modular integration uses
+the explicit Gemini and Ollama arguments documented above.}
 }
 \value{
-When \code{generate = FALSE}, both \code{group_profile_prep} and \code{textual_prep} must be supplied as precomputed objects. Internal preparation from raw data requires LLM generation.
-If \code{generate = TRUE}, a data frame or a named list of data frames.
-
-Attributes:
-\itemize{
-\item \code{group_profile_summary}
-\item \code{textual_group_summary}
-\item \code{representative_verbatims}
-\item \code{notable_expressions}
-}
+An object of class \code{c("nail_textual_contextualized", "list")}
+containing \code{prompt}, \code{response}, \code{parsed}, \code{contextualized_analysis},
+\code{contextualized_evidence}, the normalized upstream statistical and textual
+artifacts, generation \code{units}, a derived \code{report}, a \code{legacy_output} view,
+\code{core_analysis}, normalization and audit warnings in modular mode, and
+\code{metadata}.
 }
 \description{
-This function crosses:
-\itemize{
-\item a structured statistical summary of each group
-\item a structured textual summary of each group
-\item optional representative verbatims for each group
-}
+\code{nail_textual_contextualized()} combines three layers without recalculating
+them: mechanical statistical evidence from \code{\link[=nail_catdes_prep]{nail_catdes_prep()}}, exact
+textual evidence from \code{\link[=nail_textual_prep]{nail_textual_prep()}}, and validated semantic
+\code{textual_profiles}. R aligns groups and builds a combined evidence registry.
+By default, the LLM then receives one small integration request per eligible
+group, followed by one cross-group synthesis built only from validated group
+results. The historical monolithic request remains available explicitly.
 }
 \details{
-It can work either from precomputed objects (\code{nail_group_profile_prep()},
-\code{nail_textual_prep()}) or compute them internally from the raw dataset.
+The mechanical \code{contextualized_evidence} object is invariant to provider,
+model, request, context, analysis scope, comparison mode, report format, and
+generation. It contains the deterministic \code{group_alignment}, unmodified
+upstream profiles and registries, group-specific source availability and
+limits, and a \code{combined_evidence_registry} distinguishing statistical
+qualitative markers, statistical quantitative markers, exact verbatims,
+and validated textual interpretations.
+
+Group alignment uses exact original names. A manual \code{group_map} is recorded
+in settings. Statistical-only, textual-only, evidence-without-profile, and
+profile-without-evidence groups remain explicit; missing sources are never
+silently imputed.
+
+In modular mode, core claims use \code{expert_interpretation} only. Integrated
+profiles, convergences, and tensions must cite statistical and textual
+evidence; source-only findings must cite exactly one source layer.
+\code{relationship} is derived deterministically by R from the section rather than
+generated by the model. Empty sections are valid, methodological limits may
+rely on coverage metadata without artificial evidence IDs, and unknown or
+cross-group evidence IDs are rejected. Semantic ambiguities such as forced
+tensions or source-exclusivity conflicts are returned as audit warnings.
+Legacy mode retains the previous epistemic validator and full expert schema.
+In offline modular preparation, supported historical summary-only inputs
+remain inspectable through \code{units[[group]]$prompt}; such prompts are marked
+with \code{prompt_contract = "compatibility_preview"} and are never treated as
+generation-eligible evidence contracts.
+}
+\examples{
+\dontrun{
+stats <- nail_catdes_prep(catdes_result)
+text <- nail_textual_prep(
+  dataset, num.var = 1, num.text = 2,
+  analysis_scope = "consumer", generate = TRUE
+)
+integrated <- nail_textual_contextualized(
+  statistical_profiles = stats,
+  textual_preparation = text,
+  analysis_scope = "cross_functional",
+  comparison_mode = "joint",
+  generate = FALSE
+)
+integrated$contextualized_evidence$group_alignment
+}
+
 }

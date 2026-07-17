@@ -4,37 +4,58 @@ test_that("invalid and insufficient inputs fail explicitly", {
     text = c("first", "second")
   )
 
-  expect_error(
-    nail_textual(
-      dataset,
-      num.var = 1,
-      num.text = 1,
-      generate = FALSE
-    ),
-    "different"
+  one_verbatim_result <- nail_textual(
+    dataset,
+    num.var = 1,
+    num.text = 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
   )
+  expect_true(all(vapply(
+    one_verbatim_result$group_reports,
+    function(report) {
+      any(vapply(
+        report$interpretation_limits,
+        function(limit) {
+          grepl(
+            "Only one non-empty verbatim was available",
+            limit$text,
+            fixed = TRUE
+          )
+        },
+        logical(1)
+      ))
+    },
+    logical(1)
+  )))
 
-  expect_error(
-    nail_textual(
-      data.frame(
-        group = factor(c("A", "B")),
-        text = c("", NA_character_)
-      ),
-      num.var = 1,
-      num.text = 2,
-      generate = FALSE
+  empty_result <- nail_textual(
+    data.frame(
+      group = factor(c("A", "B")),
+      text = c("", NA_character_)
     ),
-    "No non-empty"
+    num.var = 1,
+    num.text = 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
   )
+  expect_identical(empty_result$metadata$report_status, "mechanical_only")
+  expect_true(all(
+    empty_result$textual_evidence$group_diagnostics$n_non_empty == 0L
+  ))
 
-  expect_error(
-    nail_catdes(
-      iris,
-      num.var = 5,
-      quali.sample = 0,
-      generate = FALSE
-    ),
-    "single numeric value"
+  zero_selection <- nail_catdes(
+    iris,
+    num.var = 5,
+    quali.sample = 0,
+    quanti.sample = 0,
+    generate = FALSE
+  )
+  expect_identical(
+    attr(zero_selection, "interpretation_evidence")$metadata$n_selected_evidence,
+    0L
   )
 
   expect_error(

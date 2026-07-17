@@ -1,0 +1,13 @@
+"check","passed"
+"Trois groupes statistiques disponibles",TRUE
+"Registre statistique non vide",TRUE
+"Identifiants statistiques uniques",TRUE
+"Registre textuel non vide",TRUE
+"Conservation exacte de textual_evidence dans nail_textual",TRUE
+"Appariement des groupes disponible",TRUE
+"Registre combiné non vide",TRUE
+"Absence de la colonne comment dans les preuves statistiques",TRUE
+"Rapport textuel non vide",TRUE
+"Rapport intégré non vide",TRUE
+"Aucun statut explicite d'erreur textuelle",FALSE
+"Aucun statut explicite d'erreur contextualisée",FALSE

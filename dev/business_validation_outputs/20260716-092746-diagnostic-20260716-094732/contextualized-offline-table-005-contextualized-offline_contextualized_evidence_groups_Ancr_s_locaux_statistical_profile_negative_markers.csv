@@ -1,0 +1,4 @@
+"evidence_id","group","marker_type","variable","modality","direction","v_test","p_value","abs_v_test","rank","source"
+"Ancrés locaux::quali::cooking_frequency::Rarement","Ancrés locaux","qualitative","cooking_frequency","Rarement","underrepresented",-3.14862484572071,0.00164040636497345,3.14862484572071,4,"FactoMineR::catdes()$category"
+"Ancrés locaux::quali::purchase_place::Hard-discount","Ancrés locaux","qualitative","purchase_place","Hard-discount","underrepresented",-2.40561992029815,0.0161450521184228,2.40561992029815,7,"FactoMineR::catdes()$category"
+"Ancrés locaux::quanti::price_constraint","Ancrés locaux","quantitative","price_constraint",NA,"lower",-3.75266666288958,0.000174963436232695,3.75266666288958,3,"FactoMineR::catdes()$quanti"

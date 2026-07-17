@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$textual_preparation$textual_profiles$metadata$parse_status
+FIELD: parse_status
+TYPEOF: character
+CLASS: character
+
+success

@@ -1,0 +1,36 @@
+INTERNAL HELPER: .textual_prep_validate_claim_safety
+
+FORMALS:
+as.pairlist(alist(text = , evidence_ids = , registry = , context = ))
+
+BODY:
+function(text,
+                                                evidence_ids,
+                                                registry,
+                                                context) {
+  if (.textual_prep_contains_diagnostic_claim(text)) {
+    stop("Psychological diagnoses of individuals or groups are not allowed.", call. = FALSE)
+  }
+
+  evidence_text <- registry$original_text[
+    match(evidence_ids, registry$evidence_id, nomatch = 0L)
+  ]
+  context_text <- if (length(context) > 0L) {
+    paste(unlist(context, recursive = TRUE, use.names = FALSE), collapse = "\n")
+  } else {
+    ""
+  }
+  source_text <- c(evidence_text, context_text)
+
+  if (.textual_prep_claim_has_unsupported_number(text, source_text)) {
+    stop("A textual claim contains a numerical statement not present in its cited evidence or context.", call. = FALSE)
+  }
+
+  if (.textual_prep_contains_demographic_claim(text) &&
+      !.textual_prep_contains_demographic_claim(paste(source_text, collapse = "\n"))) {
+    stop("A demographic claim is not supported by the cited verbatim or user context.", call. = FALSE)
+  }
+
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

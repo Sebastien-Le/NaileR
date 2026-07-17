@@ -1,0 +1,4 @@
+"canonical_group","statistical_group","textual_group","has_statistical_profile","has_textual_evidence","has_textual_profile","alignment_status","alignment_basis"
+"Ancrés locaux","Ancrés locaux","Ancrés locaux",TRUE,TRUE,FALSE,"matched_without_textual_profile","exact_name"
+"Curieux flexibles","Curieux flexibles","Curieux flexibles",TRUE,TRUE,FALSE,"matched_without_textual_profile","exact_name"
+"Pragmatiques contraints","Pragmatiques contraints","Pragmatiques contraints",TRUE,TRUE,FALSE,"matched_without_textual_profile","exact_name"

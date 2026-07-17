@@ -1,0 +1,6 @@
+PATH: textual-analysis$preparation$units$joint$response$model
+FIELD: model
+TYPEOF: character
+CLASS: character
+
+mistral-small3.2

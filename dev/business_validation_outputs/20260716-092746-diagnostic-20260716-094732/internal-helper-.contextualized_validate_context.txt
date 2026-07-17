@@ -1,0 +1,21 @@
+INTERNAL HELPER: .contextualized_validate_context
+
+FORMALS:
+as.pairlist(alist(context = ))
+
+BODY:
+function(context) {
+  if (is.null(context)) return(list())
+  if (is.character(context) && length(context) == 1L && !is.na(context)) {
+    return(list(general = context))
+  }
+  if (!is.list(context) || is.data.frame(context)) {
+    stop("`context` must be NULL, a character scalar, or a named list.", call. = FALSE)
+  }
+  if (length(context) > 0L &&
+      (is.null(names(context)) || any(is.na(names(context))) || any(!nzchar(names(context))))) {
+    stop("`context` must be a named list.", call. = FALSE)
+  }
+  context
+}
+<environment: namespace:NaileR>

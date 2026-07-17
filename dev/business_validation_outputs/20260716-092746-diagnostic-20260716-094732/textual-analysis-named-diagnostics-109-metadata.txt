@@ -1,0 +1,21 @@
+PATH: textual-analysis$metadata
+FIELD: metadata
+TYPEOF: list
+CLASS: list
+
+List of 14
+ $ source_type           : chr "prepared"
+ $ report_format         : chr "markdown"
+ $ report_status         : chr "error"
+ $ semantic_status       : chr "error"
+ $ profile_source        : chr "none"
+ $ analysis_scope        : chr "general"
+ $ comparison_mode       : chr "joint"
+ $ preparation_request   : chr "Caractérisez la manière dont chaque groupe parle de ses pratiques, de ses contraintes et de ses arbitrages. Rep"| __truncated__
+ $ report_request        : NULL
+ $ preparation_context   :List of 1
+  ..$ general: chr "Étude exploratoire sur les comportements alimentaires. Les trois groupes proviennent d'une typologie déjà const"| __truncated__
+ $ report_context        : list()
+ $ preparation_calls     : int 0
+ $ llm_calls             : int 0
+ $ generated_in_this_call: logi FALSE

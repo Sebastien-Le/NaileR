@@ -1,0 +1,29 @@
+INTERNAL HELPER: .textual_prep_validate_claim_list
+
+FORMALS:
+as.pairlist(alist(x = , field = , registry = , group = NULL, context = list(), allow_user_context = FALSE))
+
+BODY:
+function(x,
+                                              field,
+                                              registry,
+                                              group = NULL,
+                                              context = list(),
+                                              allow_user_context = FALSE) {
+  if (is.null(x) || length(x) == 0L) return(list())
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a JSON array of claim objects.", field), call. = FALSE)
+  }
+
+  unname(lapply(seq_along(x), function(i) {
+    .textual_prep_validate_claim(
+      x[[i]],
+      field = sprintf("%s[[%d]]", field, i),
+      registry = registry,
+      group = group,
+      context = context,
+      allow_user_context = allow_user_context
+    )
+  }))
+}
+<environment: namespace:NaileR>

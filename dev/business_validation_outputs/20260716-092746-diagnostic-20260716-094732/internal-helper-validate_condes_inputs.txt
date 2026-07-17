@@ -1,0 +1,43 @@
+INTERNAL HELPER: validate_condes_inputs
+
+FORMALS:
+as.pairlist(alist(dataset = , num.var = , quanti.threshold = 1, quanti.cat = c("High score", 
+    "Low score", "Intermediate score"), sample.pct = 1, weights = NULL, proba = 0.05, generate = FALSE, interpretation_mode = c("standard", 
+    "latent"), prompt_style = c("detailed", "compact")))
+
+BODY:
+function(dataset,
+                                   num.var,
+                                   quanti.threshold = 1,
+                                   quanti.cat = c("High score", "Low score", "Intermediate score"),
+                                   sample.pct = 1,
+                                   weights = NULL,
+                                   proba = 0.05,
+                                   generate = FALSE,
+                                   interpretation_mode = c("standard", "latent"),
+                                   prompt_style = c("detailed", "compact")) {
+  interpretation_mode <- match.arg(interpretation_mode)
+  prompt_style <- match.arg(prompt_style)
+
+  assert_data_frame(dataset, "dataset")
+  if (ncol(dataset) < 2) {
+    stop("`dataset` must contain at least two columns.", call. = FALSE)
+  }
+  assert_column_index(num.var, ncol(dataset), "num.var")
+  if (!is.numeric(dataset[[num.var]])) {
+    stop("`num.var` must refer to a numeric target variable for `FactoMineR::condes()`.", call. = FALSE)
+  }
+  assert_numeric_scalar(quanti.threshold, "quanti.threshold", lower = 0, inclusive = TRUE)
+  if (!is.character(quanti.cat) || length(quanti.cat) != 3 || any(is.na(quanti.cat)) || any(!nzchar(quanti.cat))) {
+    stop("`quanti.cat` must be a character vector of exactly three non-empty labels.", call. = FALSE)
+  }
+  assert_proportion(sample.pct, "sample.pct")
+  assert_proportion(proba, "proba")
+  assert_single_logical(generate, "generate")
+  if (!is.null(weights) && (!is.numeric(weights) || length(weights) != nrow(dataset) || any(is.na(weights)))) {
+    stop("`weights` must be NULL or a numeric vector with one non-missing value per row of `dataset`.", call. = FALSE)
+  }
+
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

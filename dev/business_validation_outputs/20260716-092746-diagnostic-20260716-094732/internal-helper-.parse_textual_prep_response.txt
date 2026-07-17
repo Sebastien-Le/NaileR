@@ -1,0 +1,53 @@
+INTERNAL HELPER: .parse_textual_prep_response
+
+FORMALS:
+as.pairlist(alist(text = , expected_groups = , textual_evidence = , context = , analysis_scope = , comparison_mode = ))
+
+BODY:
+function(text,
+                                         expected_groups,
+                                         textual_evidence,
+                                         context,
+                                         analysis_scope,
+                                         comparison_mode) {
+  tryCatch({
+    text <- paste(text, collapse = "\n")
+    text <- gsub("\r\n", "\n", text, fixed = TRUE)
+    text <- gsub("\r", "\n", text, fixed = TRUE)
+    trimmed <- trimws(text)
+
+    if (!nzchar(trimmed)) {
+      stop("The LLM response is empty.", call. = FALSE)
+    }
+    if (grepl("```", trimmed, fixed = TRUE)) {
+      stop("The LLM response contains a Markdown fence; strict JSON was required.", call. = FALSE)
+    }
+    if (substr(trimmed, 1L, 1L) != "{" ||
+        substr(trimmed, nchar(trimmed), nchar(trimmed)) != "}") {
+      stop("The LLM response must contain one strict JSON object and no surrounding text.", call. = FALSE)
+    }
+
+    parsed <- jsonlite::fromJSON(trimmed, simplifyDataFrame = FALSE)
+    profiles <- .validate_textual_prep_parsed(
+      parsed = parsed,
+      expected_groups = expected_groups,
+      registry = textual_evidence$evidence_registry,
+      context = context,
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode
+    )
+
+    list(
+      parse_status = "success",
+      parse_error = NULL,
+      textual_profiles = profiles
+    )
+  }, error = function(e) {
+    list(
+      parse_status = "error",
+      parse_error = conditionMessage(e),
+      textual_profiles = NULL
+    )
+  })
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$textual_preparation$textual_evidence$sampling$max_prompt_characters_per_group
+FIELD: max_prompt_characters_per_group
+TYPEOF: double
+CLASS: numeric
+
+Inf

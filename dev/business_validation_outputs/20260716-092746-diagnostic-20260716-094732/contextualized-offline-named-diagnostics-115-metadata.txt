@@ -1,0 +1,21 @@
+PATH: contextualized-offline$textual_preparation$metadata
+FIELD: metadata
+TYPEOF: list
+CLASS: list
+
+List of 14
+ $ analysis_scope           : chr "general"
+ $ comparison_mode          : chr "joint"
+ $ provider                 : chr "ollama"
+ $ model                    : chr "mistral-small3.2"
+ $ generate                 : logi TRUE
+ $ context_supplied         : logi TRUE
+ $ context                  :List of 1
+  ..$ general: chr "Étude exploratoire sur les comportements alimentaires. Les trois groupes proviennent d'une typologie déjà const"| __truncated__
+ $ preparation_request      : chr "Caractérisez la manière dont chaque groupe parle de ses pratiques, de ses contraintes et de ses arbitrages. Rep"| __truncated__
+ $ prompt_style             : chr "detailed"
+ $ text_role                : chr "responses"
+ $ attach_selected_verbatims: logi TRUE
+ $ n_central_verbatims      : int 2
+ $ n_tension_verbatims      : int 1
+ $ max_verbatim_chars       : int 220

@@ -1,0 +1,10 @@
+"path","field","typeof","class","value"
+"statistical-profiles$metadata","metadata","list","list","List of 5
+ $ schema        : chr ""NaileR::statistical_profiles""
+ $ schema_version: chr ""1.0.0""
+ $ source        : chr ""FactoMineR::catdes""
+ $ input         :List of 3
+  ..$ source                   : chr ""x""
+  ..$ proba_applied_by_function: logi FALSE
+  ..$ declared_proba           : num 0.05
+ $ llm_used      : logi FALSE"

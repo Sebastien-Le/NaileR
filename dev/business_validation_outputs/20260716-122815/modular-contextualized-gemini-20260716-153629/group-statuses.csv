@@ -1,0 +1,10 @@
+"group","parse_status","parse_error","elapsed_seconds"
+"Ancrés locaux","error","Failed to perform HTTP request.
+[1mCaused by error in `curl::curl_fetch_memory()`:[22m
+[33m![39m Error in the HTTP2 framing layer [generativelanguage.googleapis.com]",NA
+"Curieux flexibles","error","[38;5;255mHTTP 503 Service Unavailable.
+[36mℹ[38;5;255m { ""error"": { ""code"": 503, ""message"": ""This model is currently experiencing high demand. Spikes in demand are usually
+  temporary. Please try again later."", ""status"": ""UNAVAILABLE"" } }[39m",NA
+"Pragmatiques contraints","error","Failed to perform HTTP request.
+[1mCaused by error in `curl::curl_fetch_memory()`:[22m
+[33m![39m Error in the HTTP2 framing layer [generativelanguage.googleapis.com]",NA

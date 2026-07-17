@@ -1,0 +1,31 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"text\": \"Test claim\",\n  \"status\": \"expert_interpretation\",\n  \"statistical_evidence_ids\": [\"S1\"],\n  \"textual_evidence_ids\": [],\n  \"relationship\": \"convergence\",\n  \"quotations\": [],\n  \"validation_needed\": null\n}",
+            "thoughtSignature": "EjQKMgERTTIP9UJI6RA2sNVLDJYjoglmrNyqXeRTe+vSad2iJ1oInXmGCvrz1HOcnoj4vBeq"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 60,
+    "candidatesTokenCount": 69,
+    "totalTokenCount": 129,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 60
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.1-flash-lite",
+  "responseId": "B8xYaoHDGKL_vdIPo-H6sAY"
+}

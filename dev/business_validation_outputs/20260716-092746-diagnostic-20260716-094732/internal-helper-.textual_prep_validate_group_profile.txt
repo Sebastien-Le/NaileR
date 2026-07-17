@@ -1,0 +1,90 @@
+INTERNAL HELPER: .textual_prep_validate_group_profile
+
+FORMALS:
+as.pairlist(alist(x = , group_name = , registry = , context = ))
+
+BODY:
+function(x,
+                                                 group_name,
+                                                 registry,
+                                                 context) {
+  field <- paste0("groups$", group_name)
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+  missing_fields <- setdiff(.textual_prep_group_fields, names(x))
+  unknown_fields <- setdiff(names(x), .textual_prep_group_fields)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field, paste(unknown_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (!.textual_prep_is_scalar_string(x$group) || !identical(as.character(x$group), group_name)) {
+    stop(sprintf("`%s$group` must equal `%s`.", field, group_name), call. = FALSE)
+  }
+
+  scalar_fields <- c(
+    "core_textual_profile",
+    "tone_or_stance",
+    "intra_group_consistency"
+  )
+  list_fields <- c(
+    "main_themes",
+    "dominant_concerns",
+    "narrative_frames",
+    "motivations",
+    "barriers",
+    "perceived_benefits",
+    "social_norms",
+    "identity_cues",
+    "contradictions",
+    "minority_positions"
+  )
+
+  out <- list(group = group_name)
+  for (name in scalar_fields) {
+    out[[name]] <- .textual_prep_validate_claim(
+      x[[name]],
+      field = paste0(field, "$", name),
+      registry = registry,
+      group = group_name,
+      context = context,
+      allow_user_context = FALSE
+    )
+  }
+  for (name in list_fields) {
+    out[[name]] <- .textual_prep_validate_claim_list(
+      x[[name]],
+      field = paste0(field, "$", name),
+      registry = registry,
+      group = group_name,
+      context = context,
+      allow_user_context = FALSE
+    )
+  }
+
+  out$representative_verbatims <- .textual_prep_validate_quote_list(
+    x$representative_verbatims,
+    field = paste0(field, "$representative_verbatims"),
+    registry = registry,
+    group = group_name
+  )
+  out$tension_verbatims <- .textual_prep_validate_quote_list(
+    x$tension_verbatims,
+    field = paste0(field, "$tension_verbatims"),
+    registry = registry,
+    group = group_name
+  )
+  out$interpretation_limits <- .textual_prep_validate_claim_list(
+    x$interpretation_limits,
+    field = paste0(field, "$interpretation_limits"),
+    registry = registry,
+    group = group_name,
+    context = context,
+    allow_user_context = length(context) > 0L
+  )
+
+  out[.textual_prep_group_fields]
+}
+<environment: namespace:NaileR>

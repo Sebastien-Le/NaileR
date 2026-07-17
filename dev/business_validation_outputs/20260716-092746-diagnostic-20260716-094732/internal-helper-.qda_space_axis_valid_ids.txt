@@ -1,0 +1,27 @@
+INTERNAL HELPER: .qda_space_axis_valid_ids
+
+FORMALS:
+as.pairlist(alist(evidence = , axis = ))
+
+BODY:
+function(evidence, axis) {
+  axis_obj <- evidence$axes[[paste0("Dim", axis)]]
+  selected <- axis_obj$selected_for_interpretation
+  products <- .qda_space_selected_products(selected)
+  profile_ids <- evidence$evidence_registry$evidence_id[
+    evidence$evidence_registry$evidence_type %in% c(
+      "product_adjusted_mean", "product_retained_marker"
+    ) & vapply(evidence$evidence_registry$entity, function(entity) {
+      any(startsWith(entity, paste0(products, "::")))
+    }, logical(1))
+  ]
+  unique(c(
+    paste0("Dim", axis, "::inertia"),
+    selected$negative_variables$evidence_id,
+    selected$positive_variables$evidence_id,
+    selected$negative_products$evidence_id,
+    selected$positive_products$evidence_id,
+    profile_ids
+  ))
+}
+<environment: namespace:NaileR>

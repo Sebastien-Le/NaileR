@@ -1,0 +1,98 @@
+FUNCTION: nail_catdes_prep
+
+FORMALS:
+as.pairlist(alist(x = NULL, dataset = NULL, num.var = NULL, exclude = NULL, proba = 0.05, sample.pct = 1, top_n_quanti = 5, top_n_quali = 5, profile_mode = c("balanced", 
+    "categorical", "quantitative"), prompt_style = c("compact", 
+    "detailed"), include_metrics_in_prompt = TRUE, introduction = NULL, request = NULL, conclusion = NULL, model = "llama3", provider = c("ollama", 
+    "gemini"), row.w = NULL, generate = FALSE, ... = ))
+
+BODY:
+function(x = NULL,
+                              dataset = NULL,
+                              num.var = NULL,
+                              exclude = NULL,
+                              proba = 0.05,
+                              sample.pct = 1,
+                              top_n_quanti = 5,
+                              top_n_quali = 5,
+                              profile_mode = c("balanced", "categorical", "quantitative"),
+                              prompt_style = c("compact", "detailed"),
+                              include_metrics_in_prompt = TRUE,
+                              introduction = NULL,
+                              request = NULL,
+                              conclusion = NULL,
+                              model = "llama3",
+                              provider = c("ollama", "gemini"),
+                              row.w = NULL,
+                              generate = FALSE,
+                              ...) {
+  legacy_arguments <- character(0)
+
+  if (!missing(sample.pct)) legacy_arguments <- c(legacy_arguments, "sample.pct")
+  if (!missing(top_n_quanti)) legacy_arguments <- c(legacy_arguments, "top_n_quanti")
+  if (!missing(top_n_quali)) legacy_arguments <- c(legacy_arguments, "top_n_quali")
+  if (!missing(profile_mode)) legacy_arguments <- c(legacy_arguments, "profile_mode")
+  if (!missing(prompt_style)) legacy_arguments <- c(legacy_arguments, "prompt_style")
+  if (!missing(include_metrics_in_prompt)) legacy_arguments <- c(legacy_arguments, "include_metrics_in_prompt")
+  if (!missing(introduction)) legacy_arguments <- c(legacy_arguments, "introduction")
+  if (!missing(request)) legacy_arguments <- c(legacy_arguments, "request")
+  if (!missing(conclusion)) legacy_arguments <- c(legacy_arguments, "conclusion")
+  if (!missing(model)) legacy_arguments <- c(legacy_arguments, "model")
+  if (!missing(provider)) legacy_arguments <- c(legacy_arguments, "provider")
+  if (!missing(generate)) legacy_arguments <- c(legacy_arguments, "generate")
+
+  dots <- list(...)
+  if (length(dots) > 0L) {
+    dot_names <- names(dots)
+    if (is.null(dot_names)) {
+      dot_names <- rep("...", length(dots))
+    }
+    dot_names[!nzchar(dot_names)] <- "..."
+    legacy_arguments <- c(legacy_arguments, dot_names)
+  }
+
+  .warn_ignored_catdes_prep_arguments(legacy_arguments)
+
+  .validate_catdes_prep_core_inputs(
+    x = x,
+    dataset = dataset,
+    num.var = num.var,
+    exclude = exclude,
+    proba = proba,
+    row.w = row.w
+  )
+
+  extracted <- .extract_catdes_input_catdesprep(
+    x = x,
+    dataset = dataset,
+    num.var = num.var,
+    exclude = exclude,
+    proba = proba,
+    row.w = row.w
+  )
+
+  if (!is.null(extracted$already_prepared)) {
+    return(extracted$already_prepared)
+  }
+
+  extracted$catdes_result <- .canonicalize_catdes_result_catdesprep(
+    extracted$catdes_result
+  )
+
+  statistical_profiles <- .build_statistical_profiles_catdesprep(
+    catdes_result = extracted$catdes_result,
+    group_names = extracted$group_names,
+    input_metadata = extracted$input_metadata,
+    proba = proba
+  )
+
+  attr(statistical_profiles, "catdes_result") <- extracted$catdes_result
+  attr(statistical_profiles, "catdes_profiles") <- .as_legacy_catdes_profiles(
+    statistical_profiles
+  )
+  attr(statistical_profiles, "catdes_input") <- extracted$input_metadata
+  attr(statistical_profiles, "catdes_settings") <- statistical_profiles$settings
+
+  statistical_profiles
+}
+<environment: namespace:NaileR>

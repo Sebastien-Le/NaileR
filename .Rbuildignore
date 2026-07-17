@@ -18,3 +18,6 @@
 ^R_old(/.*)?$
 ^R_old_old(/.*)?$
 ^NaileR-.*-audit\.zip$
+
+^dev$
+^examples$

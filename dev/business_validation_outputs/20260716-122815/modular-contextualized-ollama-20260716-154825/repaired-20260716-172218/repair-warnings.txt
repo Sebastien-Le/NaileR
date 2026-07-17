@@ -1,0 +1,5 @@
+Group `Curieux flexibles`: statistical-only evidence is also used in an integrated, convergence, or tension claim: Curieux flexibles::quali::organic_purchase::Parfois. Review source exclusivity.
+Group `Curieux flexibles`: textual-only evidence is also used in an integrated, convergence, or tension claim: Curieux flexibles::verbatim::35. Review source exclusivity.
+Group `Curieux flexibles`: at least one tension uses speculative wording. Check that it is an observed mismatch rather than a forced section.
+Group `Pragmatiques contraints`: at least one tension uses speculative wording. Check that it is an observed mismatch rather than a forced section.
+cross_group$shared_patterns[[2]]$relationship normalized from `tension` to `convergence`.

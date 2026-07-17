@@ -1,0 +1,32 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n          }\n          ,\n      \"Curieux flexibles\": {\n          }\n        ,\n      \"Pragmatiques contraints\": {\n          }\n      },\n    \"cross_group_analysis\": {\n      \"shared_patterns\": [\n        {\n          }\n      ],\n      \"major_group_contrasts\": [\n        {\n          }\n      ],\n      \"different_statistical_textual_relationships\": [\n        {\n          }\n      ],\n      \"cross_group_social_interpretations\": [\n        {\n          }\n      ],\n      \"consumer_segments_hypotheses\": [\n        {\n          }\n      ],\n      \"psychological_mechanisms_hypotheses\": [\n        {\n          }\n      ],\n      \"marketing_priorities\": [\n        {\n          }\n      ],\n      \"innovation_priorities\": [\n        {\n          }\n      ],\n      \"validation_priorities\": [\n        {\n          }\n      ],\n      \"interpretation_limits\": [\n        {\n          }\n      ]\n    }\n}",
+            "thoughtSignature": "EjQKMgERTTIPM41OYC/LEXQN1hVrmCr2r3krwPnd0oIIqCTnxxQ4N6mNsrnVftFvsUYFYGGi"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 20245,
+    "candidatesTokenCount": 272,
+    "totalTokenCount": 20517,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 20245
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-3.5-flash",
+  "responseId": "TNRYaqyZMqWbvdIPhfi9-Q0"
+}
+

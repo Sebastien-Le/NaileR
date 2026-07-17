@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$textual_preparation$legacy_groups$Ancrés locaux$response$model
+FIELD: model
+TYPEOF: character
+CLASS: character
+
+mistral-small3.2

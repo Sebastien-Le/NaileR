@@ -1,0 +1,6 @@
+PATH: textual-analysis$textual_evidence$groups$Pragmatiques contraints$diagnostics$n_included_in_prompt
+FIELD: n_included_in_prompt
+TYPEOF: integer
+CLASS: integer
+
+15

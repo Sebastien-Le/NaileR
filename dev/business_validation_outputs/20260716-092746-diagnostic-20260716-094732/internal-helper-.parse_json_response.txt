@@ -1,0 +1,11 @@
+INTERNAL HELPER: .parse_json_response
+
+FORMALS:
+as.pairlist(alist(text = , simplifyDataFrame = TRUE))
+
+BODY:
+function(text, simplifyDataFrame = TRUE) {
+  candidate <- .extract_json_candidate(text)
+  jsonlite::fromJSON(candidate, simplifyDataFrame = simplifyDataFrame)
+}
+<environment: namespace:NaileR>

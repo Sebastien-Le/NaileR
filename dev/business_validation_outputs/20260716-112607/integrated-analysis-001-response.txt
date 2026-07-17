@@ -1,0 +1,750 @@
+PATH: integrated-analysis$response
+FIELD: response
+
+```json
+{
+  "groups": {
+    "Ancrés locaux": {
+      "group": "Ancrés locaux",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "text": "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attention à la provenance et aux producteurs proches. Les répondants valorisent la confiance et la saisonnalité davantage que la nouveauté.",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "Ancrés locaux::quali::cooking_frequency::Quotidienne",
+          "Ancrés locaux::quali::organic_purchase::Souvent",
+          "Ancrés locaux::quanti::territorial_engagement"
+        ],
+        "textual_evidence_ids": [
+          "Ancrés locaux::verbatim::1",
+          "Ancrés locaux::verbatim::4",
+          "Ancrés locaux::verbatim::2"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      },
+      "statistical_textual_convergences": [
+        {
+          "text": "Les répondants cuisinent souvent et privilégient les produits locaux, ce qui est confirmé par leur fréquence de cuisine quotidienne et leur engagement territorial élevé.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Ancrés locaux::quali::cooking_frequency::Quotidienne",
+            "Ancrés locaux::quanti::territorial_engagement"
+          ],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::4"
+          ],
+          "relationship": "complement",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_textual_divergences": [
+        {
+          "text": "Bien que les répondants expriment une forte préférence pour les produits locaux, certains font des compromis lorsque l'offre locale est peu pratique.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Ancrés locaux::quali::purchase_place::Marché/local"
+          ],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::13"
+          ],
+          "relationship": "tension",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_only_findings": [
+        {
+          "text": "Le groupe a un engagement territorial et une connaissance alimentaire plus élevés que la moyenne, ainsi qu'une contrainte de prix plus faible.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Ancrés locaux::quanti::territorial_engagement",
+            "Ancrés locaux::quanti::food_knowledge",
+            "Ancrés locaux::quanti::price_constraint"
+          ],
+          "textual_evidence_ids": [],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "textual_only_findings": [
+        {
+          "text": "Les répondants expriment un manque de temps en semaine pour maintenir leurs pratiques locales.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::7",
+            "Ancrés locaux::verbatim::8"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "social_interpretations": [
+        {
+          "text": "Les normes sociales de soutien à l'économie locale et de préférence pour les produits de proximité pourraient expliquer la cohésion du groupe.",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::7"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude qualitative approfondie sur les normes sociales"
+        }
+      ],
+      "consumer_insights": [
+        {
+          "text": "Les répondants sont sensibles à la qualité et à la provenance des produits, ce qui pourrait les rendre réceptifs à des innovations axées sur la transparence et la traçabilité.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Ancrés locaux::quali::purchase_place::Marché/local"
+          ],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::4"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "psychological_hypotheses": [
+        {
+          "text": "La préférence pour les produits locaux pourrait être liée à une identité sociale forte et à un sentiment d'appartenance au territoire.",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "Ancrés locaux::quanti::territorial_engagement"
+          ],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::7"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude psychologique sur l'identité sociale et les comportements alimentaires"
+        }
+      ],
+      "marketing_implications": [
+        {
+          "text": "Mettre en avant l'origine locale et la saisonnalité des produits pourrait renforcer l'engagement de ce groupe.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "Ancrés locaux::quali::local_preference::Forte"
+          ],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::4",
+            "Ancrés locaux::verbatim::9"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Test de campagnes marketing axées sur la localisation et la saisonnalité"
+        }
+      ],
+      "innovation_opportunities": [
+        {
+          "text": "Développer des solutions pour faciliter l'accès aux produits locaux, comme des plateformes de livraison de produits locaux, pourrait répondre à leurs besoins.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::7",
+            "Ancrés locaux::verbatim::8"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude de faisabilité sur les solutions de livraison de produits locaux"
+        }
+      ],
+      "operational_implications": [
+        {
+          "text": "Proposer des ateliers ou des formations sur la cuisine locale et saisonnière pourrait renforcer leurs pratiques.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "Ancrés locaux::quali::cooking_frequency::Quotidienne"
+          ],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::12"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Test de programmes éducatifs sur la cuisine locale et saisonnière"
+        }
+      ],
+      "validation_priorities": [
+        {
+          "text": "Valider l'impact des solutions proposées pour faciliter l'accès aux produits locaux.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::7",
+            "Ancrés locaux::verbatim::8"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude de cas sur l'impact des solutions proposées"
+        }
+      ],
+      "interpretation_limits": [
+        {
+          "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ]
+    },
+    "Curieux flexibles": {
+      "group": "Curieux flexibles",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "text": "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants combinent plusieurs circuits et sont ouverts aux innovations, tout en cherchant un équilibre entre curiosité, prix et cohérence.",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "Curieux flexibles::quali::organic_purchase::Parfois",
+          "Curieux flexibles::quanti::openness_to_innovation"
+        ],
+        "textual_evidence_ids": [
+          "Curieux flexibles::verbatim::31",
+          "Curieux flexibles::verbatim::32"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      },
+      "statistical_textual_convergences": [
+        {
+          "text": "Les répondants combinent plusieurs circuits selon les occasions et sont ouverts aux innovations, ce qui est confirmé par leur ouverture à l'innovation élevée.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Curieux flexibles::quali::purchase_place::En ligne/mixte",
+            "Curieux flexibles::quanti::openness_to_innovation"
+          ],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::31",
+            "Curieux flexibles::verbatim::32"
+          ],
+          "relationship": "complement",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_textual_divergences": [
+        {
+          "text": "Bien que les répondants expriment une ouverture aux innovations, certains font des compromis lorsque l'offre locale est peu pratique.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Curieux flexibles::quali::organic_purchase::Parfois"
+          ],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::35"
+          ],
+          "relationship": "tension",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_only_findings": [
+        {
+          "text": "Le groupe a une ouverture à l'innovation plus élevée que la moyenne.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Curieux flexibles::quanti::openness_to_innovation"
+          ],
+          "textual_evidence_ids": [],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "textual_only_findings": [
+        {
+          "text": "Les répondants expriment une difficulté à trouver un équilibre entre curiosité, prix et cohérence.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::35",
+            "Curieux flexibles::verbatim::39"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "social_interpretations": [
+        {
+          "text": "Les normes sociales de découverte et d'adaptation des pratiques alimentaires pourraient expliquer la cohésion du groupe.",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude qualitative approfondie sur les normes sociales"
+        }
+      ],
+      "consumer_insights": [
+        {
+          "text": "Les répondants sont sensibles aux innovations utiles et pratiques, ce qui pourrait les rendre réceptifs à des solutions flexibles et adaptables.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Curieux flexibles::quanti::openness_to_innovation"
+          ],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "psychological_hypotheses": [
+        {
+          "text": "La curiosité et la flexibilité pourraient être liées à un besoin de variété et de nouveauté, ainsi qu'à une ouverture à l'expérience.",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "Curieux flexibles::quanti::openness_to_innovation"
+          ],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude psychologique sur la curiosité et les comportements alimentaires"
+        }
+      ],
+      "marketing_implications": [
+        {
+          "text": "Mettre en avant la flexibilité et l'adaptabilité des solutions pourrait renforcer l'engagement de ce groupe.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "Curieux flexibles::quali::purchase_place::En ligne/mixte"
+          ],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::31",
+            "Curieux flexibles::verbatim::36"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Test de campagnes marketing axées sur la flexibilité et l'adaptabilité"
+        }
+      ],
+      "innovation_opportunities": [
+        {
+          "text": "Développer des solutions innovantes et flexibles, comme des applications de recommandation de produits locaux, pourrait répondre à leurs besoins.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "Curieux flexibles::quanti::openness_to_innovation"
+          ],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude de faisabilité sur les solutions innovantes et flexibles"
+        }
+      ],
+      "operational_implications": [
+        {
+          "text": "Proposer des ateliers ou des formations sur la découverte de nouvelles façons de manger pourrait renforcer leurs pratiques.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Test de programmes éducatifs sur la découverte de nouvelles façons de manger"
+        }
+      ],
+      "validation_priorities": [
+        {
+          "text": "Valider l'impact des solutions proposées pour faciliter la découverte de nouvelles façons de manger.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude de cas sur l'impact des solutions proposées"
+        }
+      ],
+      "interpretation_limits": [
+        {
+          "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::31"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ]
+    },
+    "Pragmatiques contraints": {
+      "group": "Pragmatiques contraints",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "text": "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions accessibles et moins coûteuses, tout en exprimant un intérêt pour le local lorsqu'il est disponible.",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "Pragmatiques contraints::quali::purchase_place::Hard-discount",
+          "Pragmatiques contraints::quanti::price_constraint"
+        ],
+        "textual_evidence_ids": [
+          "Pragmatiques contraints::verbatim::16",
+          "Pragmatiques contraints::verbatim::20"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      },
+      "statistical_textual_convergences": [
+        {
+          "text": "Les répondants privilégient les hard-discounts et sont sensibles au prix, ce qui est confirmé par leur contrainte de prix élevée.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Pragmatiques contraints::quali::purchase_place::Hard-discount",
+            "Pragmatiques contraints::quanti::price_constraint"
+          ],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": "complement",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_textual_divergences": [
+        {
+          "text": "Bien que les répondants expriment un intérêt pour le local, ils sont sous-représentés dans l'achat de produits locaux.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Pragmatiques contraints::quali::purchase_place::Marché/local"
+          ],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": "tension",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_only_findings": [
+        {
+          "text": "Le groupe a une contrainte de prix et un engagement territorial plus élevés que la moyenne, ainsi qu'une ouverture à l'innovation plus faible.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Pragmatiques contraints::quanti::price_constraint",
+            "Pragmatiques contraints::quanti::territorial_engagement",
+            "Pragmatiques contraints::quanti::openness_to_innovation"
+          ],
+          "textual_evidence_ids": [],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "textual_only_findings": [
+        {
+          "text": "Les répondants expriment un manque d'informations simples pour arbitrer les choix alimentaires.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::18",
+            "Pragmatiques contraints::verbatim::25"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "social_interpretations": [
+        {
+          "text": "Les normes sociales de recherche de praticité et d'accessibilité pourraient expliquer la cohésion du groupe.",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude qualitative approfondie sur les normes sociales"
+        }
+      ],
+      "consumer_insights": [
+        {
+          "text": "Les répondants sont sensibles aux prix et à la praticité, ce qui pourrait les rendre réceptifs à des solutions économiques et accessibles.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "Pragmatiques contraints::quanti::price_constraint"
+          ],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "psychological_hypotheses": [
+        {
+          "text": "La recherche de solutions pratiques et économiques pourrait être liée à un sentiment de contrainte et de pression budgétaire.",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "Pragmatiques contraints::quanti::price_constraint"
+          ],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude psychologique sur les contraintes budgétaires et les comportements alimentaires"
+        }
+      ],
+      "marketing_implications": [
+        {
+          "text": "Mettre en avant des solutions économiques et accessibles pourrait renforcer l'engagement de ce groupe.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "Pragmatiques contraints::quanti::price_constraint"
+          ],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Test de campagnes marketing axées sur les solutions économiques et accessibles"
+        }
+      ],
+      "innovation_opportunities": [
+        {
+          "text": "Développer des solutions pour faciliter l'accès aux produits locaux à prix abordable, comme des subventions ou des programmes d'aide, pourrait répondre à leurs besoins.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude de faisabilité sur les solutions pour faciliter l'accès aux produits locaux à prix abordable"
+        }
+      ],
+      "operational_implications": [
+        {
+          "text": "Proposer des ateliers ou des formations sur la gestion budgétaire et la cuisine économique pourrait renforcer leurs pratiques.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "Pragmatiques contraints::quanti::price_constraint"
+          ],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Test de programmes éducatifs sur la gestion budgétaire et la cuisine économique"
+        }
+      ],
+      "validation_priorities": [
+        {
+          "text": "Valider l'impact des solutions proposées pour faciliter l'accès aux produits locaux à prix abordable.",
+          "status": "recommendation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "Étude de cas sur l'impact des solutions proposées"
+        }
+      ],
+      "interpretation_limits": [
+        {
+          "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [],
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ]
+    }
+  },
+  "cross_group_analysis": {
+    "shared_patterns": [
+      {
+        "text": "Tous les groupes expriment un intérêt pour les produits locaux, mais avec des niveaux d'engagement et de contraintes différents.",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "Ancrés locaux::quanti::territorial_engagement",
+          "Curieux flexibles::quali::purchase_place::En ligne/mixte",
+          "Pragmatiques contraints::quali::purchase_place::Hard-discount"
+        ],
+        "textual_evidence_ids": [
+          "Ancrés locaux::verbatim::2",
+          "Curieux flexibles::verbatim::31",
+          "Pragmatiques contraints::verbatim::16"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      }
+    ],
+    "major_group_contrasts": [
+      {
+        "text": "Les Ancrés locaux ont un engagement territorial et une connaissance alimentaire plus élevés que les autres groupes, tandis que les Pragmatiques contraints ont des contraintes de prix plus élevées.",
+        "status": "hypothesis",
+        "statistical_evidence_ids": [
+          "Ancrés locaux::quanti::territorial_engagement",
+          "Ancrés locaux::quanti::food_knowledge",
+          "Pragmatiques contraints::quanti::price_constraint"
+        ],
+        "textual_evidence_ids": [],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "Étude comparative approfondie sur les différences entre les groupes"
+      }
+    ],
+    "different_statistical_textual_relationships": [
+      {
+        "text": "Les Ancrés locaux et les Pragmatiques contraints ont des relations statistiques-textuelles différentes concernant l'achat de produits locaux.",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "Ancrés locaux::quali::purchase_place::Marché/local",
+          "Pragmatiques contraints::quali::purchase_place::Hard-discount"
+        ],
+        "textual_evidence_ids": [
+          "Ancrés locaux::verbatim::2",
+          "Pragmatiques contraints::verbatim::16"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      }
+    ],
+    "cross_group_social_interpretations": [
+      {
+        "text": "Les normes sociales de soutien à l'économie locale pourraient être plus fortes chez les Ancrés locaux que chez les autres groupes.",
+        "status": "hypothesis",
+        "statistical_evidence_ids": [],
+        "textual_evidence_ids": [
+          "Ancrés locaux::verbatim::2",
+          "Curieux flexibles::verbatim::31",
+          "Pragmatiques contraints::verbatim::16"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "Étude qualitative approfondie sur les normes sociales entre les groupes"
+      }
+    ],
+    "consumer_segments_hypotheses": [
+      {
+        "text": "Les Ancrés locaux pourraient être considérés comme un segment de consommateurs engagés et informés, tandis que les Pragmatiques contraints pourraient être considérés comme un segment de consommateurs contraints et économiques.",
+        "status": "hypothesis",
+        "statistical_evidence_ids": [
+          "Ancrés locaux::quanti::food_knowledge",
+          "Pragmatiques contraints::quanti::price_constraint"
+        ],
+        "textual_evidence_ids": [],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "Étude de segmentation des consommateurs"
+      }
+    ],
+    "psychological_mechanisms_hypotheses": [
+      {
+        "text": "Les différences d'engagement territorial et de contrainte de prix pourraient être liées à des mécanismes psychologiques différents, tels que l'identité sociale et le sentiment de contrainte.",
+        "status": "hypothesis",
+        "statistical_evidence_ids": [
+          "Ancrés locaux::quanti::territorial_engagement",
+          "Pragmatiques contraints::quanti::price_constraint"
+        ],
+        "textual_evidence_ids": [],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "Étude psychologique sur les mécanismes sous-jacents aux comportements alimentaires"
+      }
+    ],
+    "marketing_priorities": [
+      {
+        "text": "Adapter les stratégies marketing en fonction des segments de consommateurs identifiés pourrait améliorer l'engagement et la satisfaction des différents groupes.",
+        "status": "recommendation",
+        "statistical_evidence_ids": [],
+        "textual_evidence_ids": [],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "Test de stratégies marketing adaptées aux segments de consommateurs"
+      }
+    ],
+    "innovation_priorities": [
+      {
+        "text": "Développer des innovations spécifiques pour chaque segment de consommateurs pourrait répondre à leurs besoins spécifiques.",
+        "status": "recommendation",
+        "statistical_evidence_ids": [],
+        "textual_evidence_ids": [],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "Étude de faisabilité sur les innovations spécifiques pour chaque segment"
+      }
+    ],
+    "validation_priorities": [
+      {
+        "text": "Valider l'impact des stratégies marketing et des innovations proposées pour chaque segment de consommateurs.",
+        "status": "recommendation",
+        "statistical_evidence_ids": [],
+        "textual_evidence_ids": [],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "Étude de cas sur l'impact des stratégies marketing et des innovations proposées"
+      }
+    ],
+    "interpretation_limits": [
+      {
+        "text": "Les analyses croisées sont basées sur les données disponibles et pourraient être approfondies avec une étude plus complète.",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [],
+        "textual_evidence_ids": [],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      }
+    ]
+  }
+}
+```

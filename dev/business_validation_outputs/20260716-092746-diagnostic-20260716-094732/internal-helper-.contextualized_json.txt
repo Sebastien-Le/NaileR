@@ -1,0 +1,17 @@
+INTERNAL HELPER: .contextualized_json
+
+FORMALS:
+as.pairlist(alist(x = ))
+
+BODY:
+function(x) {
+  jsonlite::toJSON(
+    x,
+    auto_unbox = TRUE,
+    null = "null",
+    na = "null",
+    pretty = TRUE,
+    dataframe = "rows"
+  )
+}
+<environment: namespace:NaileR>

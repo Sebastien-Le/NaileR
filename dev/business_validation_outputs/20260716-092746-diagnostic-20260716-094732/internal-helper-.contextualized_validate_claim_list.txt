@@ -1,0 +1,34 @@
+INTERNAL HELPER: .contextualized_validate_claim_list
+
+FORMALS:
+as.pairlist(alist(x = , field = , registry = , group = NULL, context = list(), source_requirement = "any", allowed_statuses = .contextualized_statuses, allowed_relationships = NULL, require_multiple_groups = FALSE))
+
+BODY:
+function(x,
+                                                field,
+                                                registry,
+                                                group = NULL,
+                                                context = list(),
+                                                source_requirement = "any",
+                                                allowed_statuses = .contextualized_statuses,
+                                                allowed_relationships = NULL,
+                                                require_multiple_groups = FALSE) {
+  if (is.null(x) || length(x) == 0L) return(list())
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a JSON array of claim objects.", field), call. = FALSE)
+  }
+  unname(lapply(seq_along(x), function(i) {
+    .contextualized_validate_claim(
+      x[[i]],
+      field = sprintf("%s[[%d]]", field, i),
+      registry = registry,
+      group = group,
+      context = context,
+      source_requirement = source_requirement,
+      allowed_statuses = allowed_statuses,
+      allowed_relationships = allowed_relationships,
+      require_multiple_groups = require_multiple_groups
+    )
+  }))
+}
+<environment: namespace:NaileR>

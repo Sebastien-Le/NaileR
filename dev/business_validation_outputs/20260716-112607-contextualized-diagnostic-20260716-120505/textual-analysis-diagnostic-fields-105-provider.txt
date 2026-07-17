@@ -1,0 +1,6 @@
+PATH: textual-analysis$preparation$metadata$provider
+FIELD: provider
+TYPEOF: character
+CLASS: character
+
+ollama

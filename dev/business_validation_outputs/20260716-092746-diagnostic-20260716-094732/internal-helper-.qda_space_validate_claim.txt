@@ -1,0 +1,18 @@
+INTERNAL HELPER: .qda_space_validate_claim
+
+FORMALS:
+as.pairlist(alist(claim = , field = , valid_evidence_ids = , context_present = ))
+
+BODY:
+function(claim,
+                                     field,
+                                     valid_evidence_ids,
+                                     context_present) {
+  .qda_spaceprep_validate_claim(
+    claim = claim,
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+}
+<environment: namespace:NaileR>

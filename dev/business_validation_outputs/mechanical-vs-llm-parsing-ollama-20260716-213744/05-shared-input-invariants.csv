@@ -1,0 +1,5 @@
+"invariant","result","explanation"
+"Same statistical profiles feed both branches",TRUE,"Both branches use the single object `statistical_profiles`."
+"Same mechanical textual preparation starts both branches",TRUE,"The LLM textual branch starts from `textual_preparation_mechanical`."
+"Textual evidence registry is unchanged by LLM generation",TRUE,"The LLM adds semantic profiles but must not alter verbatims or evidence IDs."
+"Combined evidence registry is unchanged by contextualized LLM generation",TRUE,"The LLM adds integrated claims but must not alter the combined source-of-truth registry."

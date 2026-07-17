@@ -1,0 +1,39 @@
+INTERNAL HELPER: .contextualized_validate_textual_evidence
+
+FORMALS:
+as.pairlist(alist(x = ))
+
+BODY:
+function(x) {
+  if (!is.list(x) || !is.list(x$groups) || !is.data.frame(x$evidence_registry)) {
+    stop(
+      paste(
+        "The textual source must contain a valid `textual_evidence` object",
+        "with `groups` and an `evidence_registry`."
+      ),
+      call. = FALSE
+    )
+  }
+  if (is.null(names(x$groups)) || any(!nzchar(names(x$groups))) || anyDuplicated(names(x$groups))) {
+    stop("Textual evidence groups must have unique, non-empty names.", call. = FALSE)
+  }
+  required <- c(
+    "evidence_id", "group", "row_index", "original_text",
+    "included_in_prompt", "source"
+  )
+  missing_fields <- setdiff(required, names(x$evidence_registry))
+  if (length(missing_fields) > 0L) {
+    stop(
+      sprintf(
+        "The textual evidence registry is missing: %s.",
+        paste(missing_fields, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  if (anyDuplicated(x$evidence_registry$evidence_id)) {
+    stop("The textual evidence registry contains duplicated evidence IDs.", call. = FALSE)
+  }
+  x
+}
+<environment: namespace:NaileR>

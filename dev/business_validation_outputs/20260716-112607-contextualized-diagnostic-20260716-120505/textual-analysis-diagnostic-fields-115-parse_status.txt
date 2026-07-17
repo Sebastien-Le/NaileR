@@ -1,0 +1,6 @@
+PATH: textual-analysis$legacy_output$parsed$textual_profiles$metadata$parse_status
+FIELD: parse_status
+TYPEOF: character
+CLASS: character
+
+success

@@ -1,0 +1,6 @@
+"path","field","value"
+"integrated_analysis$parsed","parse_status","error"
+"integrated_analysis$textual_preparation$parsed","parse_status","error"
+"integrated_analysis$textual_preparation$units$joint$parsed","parse_status","error"
+"integrated_analysis$units$joint$parsed","parse_status","error"
+"integrated_analysis$metadata","parse_status","error"

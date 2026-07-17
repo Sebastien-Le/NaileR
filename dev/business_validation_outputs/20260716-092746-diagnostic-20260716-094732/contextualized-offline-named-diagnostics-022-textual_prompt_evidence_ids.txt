@@ -1,0 +1,20 @@
+PATH: contextualized-offline$contextualized_evidence$groups$Pragmatiques contraints$textual_prompt_evidence_ids
+FIELD: textual_prompt_evidence_ids
+TYPEOF: character
+CLASS: character
+
+Pragmatiques contraints::verbatim::16
+Pragmatiques contraints::verbatim::17
+Pragmatiques contraints::verbatim::18
+Pragmatiques contraints::verbatim::19
+Pragmatiques contraints::verbatim::20
+Pragmatiques contraints::verbatim::21
+Pragmatiques contraints::verbatim::22
+Pragmatiques contraints::verbatim::23
+Pragmatiques contraints::verbatim::24
+Pragmatiques contraints::verbatim::25
+Pragmatiques contraints::verbatim::26
+Pragmatiques contraints::verbatim::27
+Pragmatiques contraints::verbatim::28
+Pragmatiques contraints::verbatim::29
+Pragmatiques contraints::verbatim::30

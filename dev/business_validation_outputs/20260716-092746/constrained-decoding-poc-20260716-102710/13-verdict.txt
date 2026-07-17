@@ -1,0 +1,1 @@
+SUCCÈS COMPLET : le constrained decoding Ollama produit une réponse acceptée par le parseur et le validateur actuels de NaileR.

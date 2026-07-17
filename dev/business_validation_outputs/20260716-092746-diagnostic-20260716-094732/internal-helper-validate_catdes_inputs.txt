@@ -1,0 +1,52 @@
+INTERNAL HELPER: validate_catdes_inputs
+
+FORMALS:
+pairlist(dataset = NULL, num.var = NULL, x = NULL, isolate.groups = FALSE, quali.sample = 1, quanti.sample = 1, drop.negative = FALSE, proba = 0.05, generate = FALSE, interpretation_mode = c("standard", 
+    "latent"), prompt_style = c("detailed", "compact"))
+
+BODY:
+function(dataset = NULL,
+                                   num.var = NULL,
+                                   x = NULL,
+                                   isolate.groups = FALSE,
+                                   quali.sample = 1,
+                                   quanti.sample = 1,
+                                   drop.negative = FALSE,
+                                   proba = 0.05,
+                                   generate = FALSE,
+                                   interpretation_mode = c("standard", "latent"),
+                                   prompt_style = c("detailed", "compact")) {
+  match.arg(interpretation_mode)
+  match.arg(prompt_style)
+
+  if (!is.null(x) && !is.null(dataset)) {
+    stop("Provide only one of `x` and `dataset`.", call. = FALSE)
+  }
+  if (is.null(x) && is.null(dataset)) {
+    stop("Provide either `x` or `dataset`.", call. = FALSE)
+  }
+
+  if (!is.null(dataset)) {
+    assert_data_frame(dataset, "dataset")
+    if (ncol(dataset) < 2L) {
+      stop("`dataset` must contain at least two columns.", call. = FALSE)
+    }
+    assert_column_index(num.var, ncol(dataset), "num.var")
+  } else if (!is.null(num.var)) {
+    stop("`num.var` cannot be used when `x` is supplied.", call. = FALSE)
+  }
+
+  assert_single_logical(isolate.groups, "isolate.groups")
+  assert_single_logical(drop.negative, "drop.negative")
+  assert_single_logical(generate, "generate")
+  .validate_zero_one_nail_catdes(quali.sample, "quali.sample")
+  .validate_zero_one_nail_catdes(quanti.sample, "quanti.sample")
+
+  if (!is.numeric(proba) || length(proba) != 1L || is.na(proba) ||
+      !is.finite(proba) || proba <= 0 || proba > 1) {
+    stop("`proba` must be a single numeric value in (0, 1].", call. = FALSE)
+  }
+
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,111 @@
+INTERNAL HELPER: .extract_llm_profile_summaries
+
+FORMALS:
+as.pairlist(alist(llm_product_summaries = ))
+
+BODY:
+function(llm_product_summaries) {
+  if (is.null(llm_product_summaries)) {
+    return(NULL)
+  }
+
+  expertise <- .extract_product_expertise_object(llm_product_summaries)
+  if (!is.null(expertise)) {
+    out <- lapply(names(expertise$products), function(product_name) {
+      product <- expertise$products[[product_name]]
+      proposed_name <- .qda_space_claim_text(product$proposed_name)
+      identity <- .qda_space_claim_text(product$sensory_identity)
+      archetype <- .qda_space_claim_text(product$sensory_archetype)
+      role <- .qda_space_claim_text(product$differentiation_role)
+
+      summary_parts <- c(
+        if (!is.na(proposed_name)) proposed_name else NULL,
+        if (!is.na(identity)) identity else NULL
+      )
+      injectable <- if (length(summary_parts) > 0L) {
+        paste(summary_parts, collapse = ": ")
+      } else {
+        NA_character_
+      }
+
+      list(
+        injectable_summary = injectable,
+        positioning_cues = if (!is.na(role)) role else archetype,
+        profile_clarity = NA_character_,
+        core_profile = identity,
+        above_average_traits = character(0),
+        below_average_traits = character(0)
+      )
+    })
+    names(out) <- names(expertise$products)
+    return(out)
+  }
+
+  if (!is.list(llm_product_summaries)) {
+    return(list())
+  }
+
+  out <- list()
+
+  for (nm in names(llm_product_summaries)) {
+    item <- llm_product_summaries[[nm]]
+
+    parsed <- NULL
+    if (is.list(item) && !is.null(item$parsed)) {
+      parsed <- item$parsed
+    } else if (is.list(item)) {
+      has_new_names <- all(c(
+        "core_profile",
+        "above_average_traits",
+        "below_average_traits",
+        "positioning_cues",
+        "profile_clarity",
+        "injectable_summary"
+      ) %in% names(item))
+
+      has_legacy_names <- all(c(
+        "core_profile",
+        "positive_traits",
+        "negative_traits",
+        "positioning_cues",
+        "profile_clarity",
+        "injectable_summary"
+      ) %in% names(item))
+
+      if (has_new_names || has_legacy_names) {
+        parsed <- item
+      }
+    }
+
+    if (is.null(parsed)) {
+      next
+    }
+
+    above_traits <- parsed$above_average_traits
+    below_traits <- parsed$below_average_traits
+    if (is.null(above_traits)) {
+      above_traits <- parsed$positive_traits
+    }
+    if (is.null(below_traits)) {
+      below_traits <- parsed$negative_traits
+    }
+    if (is.null(above_traits)) {
+      above_traits <- character(0)
+    }
+    if (is.null(below_traits)) {
+      below_traits <- character(0)
+    }
+
+    out[[nm]] <- list(
+      injectable_summary = parsed$injectable_summary,
+      positioning_cues = parsed$positioning_cues,
+      profile_clarity = parsed$profile_clarity,
+      core_profile = parsed$core_profile,
+      above_average_traits = above_traits,
+      below_average_traits = below_traits
+    )
+  }
+
+  out
+}
+<environment: namespace:NaileR>

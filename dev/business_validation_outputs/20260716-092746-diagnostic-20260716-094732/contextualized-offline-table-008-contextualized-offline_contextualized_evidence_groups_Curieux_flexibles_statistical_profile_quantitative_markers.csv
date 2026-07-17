@@ -1,0 +1,2 @@
+"evidence_id","group","variable","direction","direction_basis","group_mean","overall_mean","standard_deviation","overall_standard_deviation","coefficient","v_test","p_value","abs_v_test","rank","source_row","source"
+"Curieux flexibles::quanti::openness_to_innovation","Curieux flexibles","openness_to_innovation","higher","v_test",7.80295018610927,5.62424399139844,0.55914657932288,1.9585969575747,NA,5.21752973840552,1.81325118297787e-07,5.21752973840552,1,1,"FactoMineR::catdes()$quanti"

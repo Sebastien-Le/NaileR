@@ -1,0 +1,48 @@
+INTERNAL HELPER: sim_llm
+
+FORMALS:
+as.pairlist(alist(textA = , textB = , model = "llama3", max_attempts = 3, ... = ))
+
+BODY:
+function(textA, textB, model = "llama3", max_attempts = 3, ...) {
+  if (!is.character(textA) || length(textA) != 1 || is.na(textA)) {
+    stop("`textA` must be a single character string.", call. = FALSE)
+  }
+  if (!is.character(textB) || length(textB) != 1 || is.na(textB)) {
+    stop("`textB` must be a single character string.", call. = FALSE)
+  }
+  assert_positive_integerish(max_attempts, "max_attempts")
+
+  prompt <- glue::glue(
+    "Two experts have each provided a short report. Please identify only the similarities in meaning between the two reports and give a score for the similarity between the two reports: 0 means totally different, 100 means identical.\n\n",
+    "# The first report is:\n{textA}\n\n",
+    "# The second report is:\n{textB}\n\n",
+    "At the very end of your answer, write the score using exactly this format:\n",
+    "The similarity between the two reports is: <score>"
+  )
+
+  ollama_api_options <- filter_ollama_options(list(...))
+
+  for (attempt in seq_len(max_attempts)) {
+    response <- tryCatch({
+      res <- .call_ollama_base(
+        model = model,
+        prompt = prompt,
+        output = "df",
+        ollama_api_options = ollama_api_options
+      )
+      paste(res$response, collapse = "\n")
+    }, error = function(e) {
+      if (attempt == max_attempts) stop(e)
+      NA_character_
+    })
+
+    if (is.na(response)) next
+
+    score <- .extract_llm_score_0_100(response)
+    if (!is.na(score)) return(score)
+  }
+
+  stop("The LLM did not return a valid numeric similarity score between 0 and 100.", call. = FALSE)
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,27 @@
+PATH: contextualized-offline$metadata
+FIELD: metadata
+TYPEOF: list
+CLASS: list
+
+List of 16
+ $ schema                   : chr "NaileR::nail_textual_contextualized"
+ $ analysis_scope           : chr "cross_functional"
+ $ comparison_mode          : chr "joint"
+ $ report_format            : chr "structured"
+ $ generate                 : logi FALSE
+ $ provider                 : chr "ollama"
+ $ model                    : chr "llama3"
+ $ parse_status             : chr "not_generated"
+ $ groups                   : chr [1:3] "Ancrés locaux" "Curieux flexibles" "Pragmatiques contraints"
+ $ group_map                : Named chr(0) 
+  ..- attr(*, "names")= chr(0) 
+ $ raw_input_used           : logi FALSE
+ $ upstream_calls           :List of 3
+  ..$ nail_catdes_prep : int 0
+  ..$ nail_textual_prep: int 0
+  ..$ catdes           : int 0
+ $ integration_llm_calls    : int 0
+ $ textual_generation_status: chr "success"
+ $ context                  :List of 1
+  ..$ general: chr "Étude exploratoire sur les comportements alimentaires. Les trois groupes proviennent d'une typologie déjà const"| __truncated__
+ $ request                  : chr "Produisez une véritable synthèse statistique-textuelle. Distinguez les convergences, les nuances, les tensions,"| __truncated__

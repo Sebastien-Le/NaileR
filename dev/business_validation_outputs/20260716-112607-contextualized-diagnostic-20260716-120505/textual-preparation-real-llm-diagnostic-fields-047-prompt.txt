@@ -1,0 +1,1205 @@
+PATH: textual-preparation-real-llm$legacy_groups$Ancrés locaux$prompt
+FIELD: prompt
+TYPEOF: character
+CLASS: character
+
+# ROLE
+You are an expert in qualitative textual analysis working across social science, consumer research, psychology, marketing, and innovation.
+Do not diagnose individuals and do not invent facts that are absent from the evidence.
+
+# TEXTUAL EVIDENCE
+The JSON below is data produced mechanically by R. The field `original_text` must be treated as immutable responses.
+{
+  "groups": {
+    "Ancrés locaux": {
+      "group": "Ancrés locaux",
+      "diagnostics": {
+        "group": "Ancrés locaux",
+        "n_total": 15,
+        "n_missing": 0,
+        "n_empty": 0,
+        "n_whitespace": 0,
+        "n_non_empty": 15,
+        "n_included_in_prompt": 15,
+        "n_excluded_from_prompt": 0,
+        "n_not_sampled": 0,
+        "n_prompt_budget": 0,
+        "total_characters": 2753,
+        "total_words": 441,
+        "median_words": 29,
+        "min_words": 27,
+        "max_words": 35,
+        "sampling_fraction": 1,
+        "prompt_character_count": 3194
+      },
+      "lexical_indicators": {
+        "frequent_terms": ["répondant", "avant", "comparer", "marques", "producteurs"],
+        "overrepresented": [
+          {
+            "term": "regarde",
+            "within_group_percent": 2.8,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0008,
+            "v_test": 3.3598,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "provenance",
+            "within_group_percent": 2.8,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0008,
+            "v_test": 3.3598,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "producteurs",
+            "within_group_percent": 2.8,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0008,
+            "v_test": 3.3598,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "marques",
+            "within_group_percent": 2.8,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0008,
+            "v_test": 3.3598,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "comparer",
+            "within_group_percent": 2.8,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0008,
+            "v_test": 3.3598,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "avant",
+            "within_group_percent": 2.8,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0008,
+            "v_test": 3.3598,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "partie",
+            "within_group_percent": 2.4,
+            "global_percent": 0.7884,
+            "within_group_frequency": 6,
+            "global_frequency": 6,
+            "p_value": 0.0024,
+            "v_test": 3.0339,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "marché",
+            "within_group_percent": 2.4,
+            "global_percent": 0.7884,
+            "within_group_frequency": 6,
+            "global_frequency": 6,
+            "p_value": 0.0024,
+            "v_test": 3.0339,
+            "direction": "overrepresented"
+          }
+        ],
+        "underrepresented": [
+          {
+            "term": "peux",
+            "within_group_percent": 0,
+            "global_percent": 2.1025,
+            "within_group_frequency": 0,
+            "global_frequency": 16,
+            "p_value": 0.0032,
+            "v_test": -2.9518,
+            "direction": "underrepresented"
+          },
+          {
+            "term": "local",
+            "within_group_percent": 0,
+            "global_percent": 1.9711,
+            "within_group_frequency": 0,
+            "global_frequency": 15,
+            "p_value": 0.0048,
+            "v_test": -2.8234,
+            "direction": "underrepresented"
+          },
+          {
+            "term": "intéresse",
+            "within_group_percent": 0,
+            "global_percent": 1.5769,
+            "within_group_frequency": 0,
+            "global_frequency": 12,
+            "p_value": 0.0161,
+            "v_test": -2.4067,
+            "direction": "underrepresented"
+          },
+          {
+            "term": "acheter",
+            "within_group_percent": 0,
+            "global_percent": 1.3141,
+            "within_group_frequency": 0,
+            "global_frequency": 10,
+            "p_value": 0.0362,
+            "v_test": -2.0947,
+            "direction": "underrepresented"
+          }
+        ],
+        "interpretation_note": "Lexical indicators are mechanical comparative indicators. They do not prove that every person used a term and they do not measure textual quality."
+      },
+      "verbatims": [
+        {
+          "evidence_id": "Ancrés locaux::verbatim::1",
+          "row_index": 1,
+          "original_text": "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne cherche pas forcément les produits les plus innovants. [répondant 1]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::2",
+          "row_index": 2,
+          "original_text": "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes achats. Je ne cherche pas forcément les produits les plus innovants. [répondant 2]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::3",
+          "row_index": 3,
+          "original_text": "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix restent un point de vigilance pour certains produits. [répondant 3]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::4",
+          "row_index": 4,
+          "original_text": "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage que la nouveauté. Je fais quelques compromis quand l'offre locale est peu pratique. [répondant 4]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::5",
+          "row_index": 5,
+          "original_text": "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. En revanche, je manque parfois de temps en semaine. [répondant 5]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::6",
+          "row_index": 6,
+          "original_text": "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Je ne cherche pas forcément les produits les plus innovants. [répondant 6]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::7",
+          "row_index": 7,
+          "original_text": "Le marché fait partie de mes habitudes. Soutenir l'économie locale donne du sens à mes achats. En revanche, je manque parfois de temps en semaine. [répondant 7]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::8",
+          "row_index": 8,
+          "original_text": "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marques. En revanche, je manque parfois de temps en semaine. [répondant 8]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::9",
+          "row_index": 9,
+          "original_text": "Le marché fait partie de mes habitudes. La confiance et la saisonnalité comptent davantage que la nouveauté. Les prix restent un point de vigilance pour certains produits. [répondant 9]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::10",
+          "row_index": 10,
+          "original_text": "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage que la nouveauté. En revanche, je manque parfois de temps en semaine. [répondant 10]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::11",
+          "row_index": 11,
+          "original_text": "J'essaie de garder un lien direct avec l'origine des aliments. La confiance et la saisonnalité comptent davantage que la nouveauté. Je fais quelques compromis quand l'offre locale est peu pratique. [répondant 11]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::12",
+          "row_index": 12,
+          "original_text": "Je connais plusieurs producteurs du territoire. Je cuisine souvent, car cela me permet de contrôler la qualité. En revanche, je manque parfois de temps en semaine. [répondant 12]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::13",
+          "row_index": 13,
+          "original_text": "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marques. Je fais quelques compromis quand l'offre locale est peu pratique. [répondant 13]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::14",
+          "row_index": 14,
+          "original_text": "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marques. Je ne cherche pas forcément les produits les plus innovants. [répondant 14]"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::15",
+          "row_index": 15,
+          "original_text": "Je connais plusieurs producteurs du territoire. Je regarde la provenance avant de comparer les marques. Je ne cherche pas forcément les produits les plus innovants. [répondant 15]"
+        }
+      ]
+    },
+    "Pragmatiques contraints": {
+      "group": "Pragmatiques contraints",
+      "diagnostics": {
+        "group": "Pragmatiques contraints",
+        "n_total": 15,
+        "n_missing": 0,
+        "n_empty": 0,
+        "n_whitespace": 0,
+        "n_non_empty": 15,
+        "n_included_in_prompt": 15,
+        "n_excluded_from_prompt": 0,
+        "n_not_sampled": 0,
+        "n_prompt_budget": 0,
+        "total_characters": 2566,
+        "total_words": 418,
+        "median_words": 29,
+        "min_words": 23,
+        "max_words": 31,
+        "sampling_fraction": 1,
+        "prompt_character_count": 3166
+      },
+      "lexical_indicators": {
+        "frequent_terms": ["répondant", "accessible", "faire", "intéresse", "local"],
+        "overrepresented": [
+          {
+            "term": "simples",
+            "within_group_percent": 3.252,
+            "global_percent": 1.0512,
+            "within_group_frequency": 8,
+            "global_frequency": 8,
+            "p_value": 0.0002,
+            "v_test": 3.6942,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "reste",
+            "within_group_percent": 3.252,
+            "global_percent": 1.0512,
+            "within_group_frequency": 8,
+            "global_frequency": 8,
+            "p_value": 0.0002,
+            "v_test": 3.6942,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "lorsqu",
+            "within_group_percent": 3.252,
+            "global_percent": 1.0512,
+            "within_group_frequency": 8,
+            "global_frequency": 8,
+            "p_value": 0.0002,
+            "v_test": 3.6942,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "faire",
+            "within_group_percent": 3.252,
+            "global_percent": 1.0512,
+            "within_group_frequency": 8,
+            "global_frequency": 8,
+            "p_value": 0.0002,
+            "v_test": 3.6942,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "accessible",
+            "within_group_percent": 3.252,
+            "global_percent": 1.0512,
+            "within_group_frequency": 8,
+            "global_frequency": 8,
+            "p_value": 0.0002,
+            "v_test": 3.6942,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "moins",
+            "within_group_percent": 2.439,
+            "global_percent": 0.7884,
+            "within_group_frequency": 6,
+            "global_frequency": 6,
+            "p_value": 0.0022,
+            "v_test": 3.0633,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "informations",
+            "within_group_percent": 2.0325,
+            "global_percent": 0.657,
+            "within_group_frequency": 5,
+            "global_frequency": 5,
+            "p_value": 0.0069,
+            "v_test": 2.7032,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "disponible",
+            "within_group_percent": 2.0325,
+            "global_percent": 0.657,
+            "within_group_frequency": 5,
+            "global_frequency": 5,
+            "p_value": 0.0069,
+            "v_test": 2.7032,
+            "direction": "overrepresented"
+          }
+        ],
+        "underrepresented": [
+          {
+            "term": "semaine",
+            "within_group_percent": 0,
+            "global_percent": 1.5769,
+            "within_group_frequency": 0,
+            "global_frequency": 12,
+            "p_value": 0.0177,
+            "v_test": -2.3719,
+            "direction": "underrepresented"
+          },
+          {
+            "term": "habitudes",
+            "within_group_percent": 0,
+            "global_percent": 1.3141,
+            "within_group_frequency": 0,
+            "global_frequency": 10,
+            "p_value": 0.0392,
+            "v_test": -2.0625,
+            "direction": "underrepresented"
+          }
+        ],
+        "interpretation_note": "Lexical indicators are mechanical comparative indicators. They do not prove that every person used a term and they do not measure textual quality."
+      },
+      "verbatims": [
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::16",
+          "row_index": 16,
+          "original_text": "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 1]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::17",
+          "row_index": 17,
+          "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 2]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::18",
+          "row_index": 18,
+          "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Je manque d'informations simples pour arbitrer. [répondant 3]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::19",
+          "row_index": 19,
+          "original_text": "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Je cuisine surtout des plats simples et rapides. Le week-end, je peux faire davantage d'efforts. [répondant 4]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::20",
+          "row_index": 20,
+          "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 5]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::21",
+          "row_index": 21,
+          "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Le week-end, je peux faire davantage d'efforts. [répondant 6]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::22",
+          "row_index": 22,
+          "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 7]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::23",
+          "row_index": 23,
+          "original_text": "Je dois d'abord respecter mon budget. Les circuits spécialisés me paraissent parfois compliqués. Je ne veux pas culpabiliser quand je choisis le moins cher. [répondant 8]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::24",
+          "row_index": 24,
+          "original_text": "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués. Je manque d'informations simples pour arbitrer. [répondant 9]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::25",
+          "row_index": 25,
+          "original_text": "Je dois d'abord respecter mon budget. Je cuisine surtout des plats simples et rapides. Je manque d'informations simples pour arbitrer. [répondant 10]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::26",
+          "row_index": 26,
+          "original_text": "Je dois d'abord respecter mon budget. Le local m'intéresse lorsqu'il reste accessible. Je manque d'informations simples pour arbitrer. [répondant 11]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::27",
+          "row_index": 27,
+          "original_text": "Je fais mes courses là où c'est rapide et abordable. Je cuisine surtout des plats simples et rapides. Le week-end, je peux faire davantage d'efforts. [répondant 12]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::28",
+          "row_index": 28,
+          "original_text": "Je dois d'abord respecter mon budget. Les circuits spécialisés me paraissent parfois compliqués. Je manque d'informations simples pour arbitrer. [répondant 13]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::29",
+          "row_index": 29,
+          "original_text": "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués. Je ne veux pas culpabiliser quand je choisis le moins cher. [répondant 14]"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::30",
+          "row_index": 30,
+          "original_text": "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessible. Le week-end, je peux faire davantage d'efforts. [répondant 15]"
+        }
+      ]
+    },
+    "Curieux flexibles": {
+      "group": "Curieux flexibles",
+      "diagnostics": {
+        "group": "Curieux flexibles",
+        "n_total": 15,
+        "n_missing": 0,
+        "n_empty": 0,
+        "n_whitespace": 0,
+        "n_non_empty": 15,
+        "n_included_in_prompt": 15,
+        "n_excluded_from_prompt": 0,
+        "n_not_sampled": 0,
+        "n_prompt_budget": 0,
+        "total_characters": 2816,
+        "total_words": 435,
+        "median_words": 29,
+        "min_words": 26,
+        "max_words": 32,
+        "sampling_fraction": 1,
+        "prompt_character_count": 3326
+      },
+      "lexical_indicators": {
+        "frequent_terms": ["répondant", "peux", "acheter", "commander", "encore"],
+        "overrepresented": [
+          {
+            "term": "suivante",
+            "within_group_percent": 2.6415,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0012,
+            "v_test": 3.244,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "puis",
+            "within_group_percent": 2.6415,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0012,
+            "v_test": 3.244,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "ligne",
+            "within_group_percent": 2.6415,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0012,
+            "v_test": 3.244,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "encore",
+            "within_group_percent": 2.6415,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0012,
+            "v_test": 3.244,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "commander",
+            "within_group_percent": 2.6415,
+            "global_percent": 0.9198,
+            "within_group_frequency": 7,
+            "global_frequency": 7,
+            "p_value": 0.0012,
+            "v_test": 3.244,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "peux",
+            "within_group_percent": 4.5283,
+            "global_percent": 2.1025,
+            "within_group_frequency": 12,
+            "global_frequency": 16,
+            "p_value": 0.0022,
+            "v_test": 3.0605,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "nouvelles",
+            "within_group_percent": 2.2642,
+            "global_percent": 0.7884,
+            "within_group_frequency": 6,
+            "global_frequency": 6,
+            "p_value": 0.0034,
+            "v_test": 2.9258,
+            "direction": "overrepresented"
+          },
+          {
+            "term": "manger",
+            "within_group_percent": 2.2642,
+            "global_percent": 0.7884,
+            "within_group_frequency": 6,
+            "global_frequency": 6,
+            "p_value": 0.0034,
+            "v_test": 2.9258,
+            "direction": "overrepresented"
+          }
+        ],
+        "underrepresented": [
+          {
+            "term": "temps",
+            "within_group_percent": 0,
+            "global_percent": 1.3141,
+            "within_group_frequency": 0,
+            "global_frequency": 10,
+            "p_value": 0.0268,
+            "v_test": -2.2144,
+            "direction": "underrepresented"
+          },
+          {
+            "term": "manque",
+            "within_group_percent": 0,
+            "global_percent": 1.3141,
+            "within_group_frequency": 0,
+            "global_frequency": 10,
+            "p_value": 0.0268,
+            "v_test": -2.2144,
+            "direction": "underrepresented"
+          },
+          {
+            "term": "parfois",
+            "within_group_percent": 0,
+            "global_percent": 1.1827,
+            "within_group_frequency": 0,
+            "global_frequency": 9,
+            "p_value": 0.0414,
+            "v_test": -2.0397,
+            "direction": "underrepresented"
+          }
+        ],
+        "interpretation_note": "Lexical indicators are mechanical comparative indicators. They do not prove that every person used a term and they do not measure textual quality."
+      },
+      "verbatims": [
+        {
+          "evidence_id": "Curieux flexibles::verbatim::31",
+          "row_index": 31,
+          "original_text": "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine suivante. Je peux changer rapidement si l'expérience est convaincante. [répondant 1]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::32",
+          "row_index": 32,
+          "original_text": "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une innovation doit rester simple à utiliser. [répondant 2]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::33",
+          "row_index": 33,
+          "original_text": "Je teste volontiers de nouveaux produits et services. Je m'intéresse aux alternatives, même si mes habitudes évoluent encore. Une innovation doit rester simple à utiliser. [répondant 3]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::34",
+          "row_index": 34,
+          "original_text": "J'aime découvrir de nouvelles façons de manger. Je m'intéresse aux alternatives, même si mes habitudes évoluent encore. Une innovation doit rester simple à utiliser. [répondant 4]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::35",
+          "row_index": 35,
+          "original_text": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je cherche encore un équilibre entre curiosité, prix et cohérence. [répondant 5]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::36",
+          "row_index": 36,
+          "original_text": "Je combine plusieurs circuits selon les occasions. Je suis sensible aux innovations utiles, pas seulement au discours. Je ne suis pas toujours régulier dans mes pratiques. [répondant 6]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::37",
+          "row_index": 37,
+          "original_text": "Les applications et les recommandations m'aident à explorer. Je peux acheter local puis commander en ligne la semaine suivante. Je cherche encore un équilibre entre curiosité, prix et cohérence. [répondant 7]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::38",
+          "row_index": 38,
+          "original_text": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je ne suis pas toujours régulier dans mes pratiques. [répondant 8]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::39",
+          "row_index": 39,
+          "original_text": "Je teste volontiers de nouveaux produits et services. La diversité et la praticité sont importantes pour moi. Je cherche encore un équilibre entre curiosité, prix et cohérence. [répondant 9]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::40",
+          "row_index": 40,
+          "original_text": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je peux changer rapidement si l'expérience est convaincante. [répondant 10]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::41",
+          "row_index": 41,
+          "original_text": "Je combine plusieurs circuits selon les occasions. Je m'intéresse aux alternatives, même si mes habitudes évoluent encore. Je peux changer rapidement si l'expérience est convaincante. [répondant 11]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::42",
+          "row_index": 42,
+          "original_text": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je peux changer rapidement si l'expérience est convaincante. [répondant 12]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::43",
+          "row_index": 43,
+          "original_text": "Je combine plusieurs circuits selon les occasions. Je m'intéresse aux alternatives, même si mes habitudes évoluent encore. Je ne suis pas toujours régulier dans mes pratiques. [répondant 13]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::44",
+          "row_index": 44,
+          "original_text": "Les applications et les recommandations m'aident à explorer. La diversité et la praticité sont importantes pour moi. Je peux changer rapidement si l'expérience est convaincante. [répondant 14]"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::45",
+          "row_index": 45,
+          "original_text": "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine suivante. Une innovation doit rester simple à utiliser. [répondant 15]"
+        }
+      ]
+    }
+  }
+}
+
+# USER-PROVIDED CONTEXT
+This section is external context. It is not evidence extracted from the verbatims.
+{
+  "general": "Étude exploratoire sur les comportements alimentaires. Les trois groupes proviennent d'une typologie déjà constituée. L'analyste souhaite comprendre les logiques de pratiques, les contraintes, les discours et les implications possibles pour la conception d'actions d'éducation alimentaire, de services territoriaux et d'innovations. Les résultats doivent rester descriptifs et non causaux."
+}
+
+# ANALYTICAL TASK
+Describe themes, expressed concerns, tone, contradictions, and minority positions. Stay close to the explicit textual content.
+Compare the groups while preserving a complete group-level profile for each group. Cross-group claims may cite evidence from several groups.
+Provide concise but sufficiently explicit claims to show how the cited verbatims support the interpretation.
+Select at most 2 representative verbatim(s) and at most 1 tension or contrastive verbatim(s) per group.
+
+# ADDITIONAL USER REQUEST
+Caractérisez la manière dont chaque groupe parle de ses pratiques, de ses contraintes et de ses arbitrages. Repérez les thèmes centraux, les positions minoritaires, les contradictions et les formulations qui peuvent éclairer l'analyse métier. Restez strictement ancré dans les verbatims cités.
+The additional request cannot remove the output schema, evidence rules, or validation requirements.
+
+# EPISTEMIC RULES
+- Return strict JSON only: no Markdown fence, no introduction, no comment, and no text after the JSON object.
+- Use only these statuses: expert_interpretation, hypothesis, recommendation, user_context.
+- Every interpretation, hypothesis, or recommendation must cite one or more evidence_ids actually shown above.
+- Group-level claims may cite only verbatims from that group.
+- A hypothesis or recommendation must include a non-empty validation_needed field.
+- Do not quote a paraphrase. Every quotation must reproduce original_text exactly, including punctuation and line breaks.
+- Do not cite a verbatim that was not included in this prompt.
+- Do not infer age, gender, income, social class, frequency, or another demographic characteristic unless it is explicitly supported by the cited text or user context.
+- Do not make an individual psychological diagnosis.
+- Do not invent counts, percentages, scores, or other numerical results.
+- Response length and lexical indicators are descriptive mechanical information; they are not measures of textual quality, coherence, or evidential strength.
+- When only part of a group corpus is included, state the sampling limitation in interpretation_limits.
+- Use null or an empty array when a field is not supported. Do not create unknown fields.
+
+# OUTPUT SCHEMA
+Replace every placeholder below while preserving exactly the same field names and nesting.
+{
+  "groups": {
+    "Ancrés locaux": {
+      "group": "Ancrés locaux",
+      "core_textual_profile": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "hypothesis",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": "<additional evidence or study needed>"
+        }
+      ],
+      "minority_positions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ]
+    },
+    "Pragmatiques contraints": {
+      "group": "Pragmatiques contraints",
+      "core_textual_profile": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "hypothesis",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": "<additional evidence or study needed>"
+        }
+      ],
+      "minority_positions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ]
+    },
+    "Curieux flexibles": {
+      "group": "Curieux flexibles",
+      "core_textual_profile": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "hypothesis",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": "<additional evidence or study needed>"
+        }
+      ],
+      "minority_positions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ]
+    }
+  },
+  "cross_group": {
+    "shared_themes": [
+      {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      }
+    ],
+    "group_contrasts": [
+      {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      }
+    ],
+    "minority_patterns": [
+      {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "hypothesis",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": "<additional evidence or study needed>"
+      }
+    ],
+    "interpretation_limits": [
+      {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      }
+    ]
+  }
+}

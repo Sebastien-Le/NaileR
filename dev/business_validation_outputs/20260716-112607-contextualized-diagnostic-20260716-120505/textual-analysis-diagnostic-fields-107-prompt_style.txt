@@ -1,0 +1,6 @@
+PATH: textual-analysis$preparation$metadata$prompt_style
+FIELD: prompt_style
+TYPEOF: character
+CLASS: character
+
+detailed

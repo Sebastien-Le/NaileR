@@ -1,0 +1,27 @@
+INTERNAL HELPER: .qda_spaceprep_validate_product_claim_ownership
+
+FORMALS:
+as.pairlist(alist(claim = , product_name = , field = ))
+
+BODY:
+function(claim,
+                                                        product_name,
+                                                        field) {
+  if (is.null(claim) || identical(claim$status, "user_context")) {
+    return(invisible(TRUE))
+  }
+
+  prefix <- paste0(product_name, "::")
+  if (!any(startsWith(claim$evidence_ids, prefix))) {
+    stop(
+      sprintf(
+        "`%s` must cite at least one evidence ID belonging to product `%s`.",
+        field, product_name
+      ),
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,6 @@
+PATH: contextualized-offline$contextualized_evidence$metadata$statistical_schema
+FIELD: statistical_schema
+TYPEOF: character
+CLASS: character
+
+NaileR::statistical_profiles

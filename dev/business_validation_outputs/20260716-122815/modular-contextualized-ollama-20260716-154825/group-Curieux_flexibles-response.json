@@ -1,0 +1,96 @@
+{
+  "group": "Curieux flexibles",
+  "integrated_profile": {
+    "text": "Le groupe Curieux flexibles se caractérise par une curiosité et une flexibilité dans les pratiques alimentaires, avec une ouverture marquée aux innovations. Ils combinent plusieurs circuits d'achat selon les occasions et recherchent un équilibre entre curiosité, prix et cohérence.",
+    "status": "expert_interpretation",
+    "statistical_evidence_ids": [
+      "Curieux flexibles::quali::organic_purchase::Parfois",
+      "Curieux flexibles::quanti::openness_to_innovation"
+    ],
+    "textual_evidence_ids": [
+      "Curieux flexibles::verbatim::31",
+      "Curieux flexibles::verbatim::32"
+    ],
+    "relationship": "convergence",
+    "validation_needed": null
+  },
+  "convergences": [
+    {
+      "text": "L'ouverture aux innovations est à la fois quantitativement élevée (moyenne de 7.803) et qualitativement soulignée par les verbatims, où les répondants expriment une volonté de découvrir de nouvelles façons de manger.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Curieux flexibles::quanti::openness_to_innovation"
+      ],
+      "textual_evidence_ids": [
+        "Curieux flexibles::verbatim::32",
+        "Curieux flexibles::verbatim::34"
+      ],
+      "relationship": "convergence",
+      "validation_needed": null
+    },
+    {
+      "text": "La combinaison de plusieurs circuits d'achat est à la fois statistiquement marquée (33.33% achats en ligne/mixte) et qualitativement décrite par les répondants, qui mentionnent alterner entre achats locaux et en ligne selon les occasions.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Curieux flexibles::quali::purchase_place::En ligne/mixte"
+      ],
+      "textual_evidence_ids": [
+        "Curieux flexibles::verbatim::31",
+        "Curieux flexibles::verbatim::36"
+      ],
+      "relationship": "convergence",
+      "validation_needed": null
+    }
+  ],
+  "tensions": [
+    {
+      "text": "Bien que les achats en hard-discount soient sous-représentés (0%), certains verbatims évoquent une recherche d'équilibre entre curiosité et praticité, ce qui pourrait inclure des considérations de prix.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Curieux flexibles::quali::purchase_place::Hard-discount"
+      ],
+      "textual_evidence_ids": [
+        "Curieux flexibles::verbatim::35",
+        "Curieux flexibles::verbatim::39"
+      ],
+      "relationship": "tension",
+      "validation_needed": null
+    }
+  ],
+  "statistical_only_findings": [
+    {
+      "text": "Le groupe a une fréquence d'achat bio occasionnelle (80%) significativement plus élevée que la moyenne globale (44.44%).",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Curieux flexibles::quali::organic_purchase::Parfois"
+      ],
+      "textual_evidence_ids": [],
+      "relationship": "statistical_only",
+      "validation_needed": null
+    }
+  ],
+  "textual_only_findings": [
+    {
+      "text": "Certains répondants expriment une difficulté à trouver un équilibre entre curiosité et praticité, ce qui n'est pas directement reflété dans les données quantitatives.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [],
+      "textual_evidence_ids": [
+        "Curieux flexibles::verbatim::35"
+      ],
+      "relationship": "textual_only",
+      "validation_needed": null
+    }
+  ],
+  "interpretation_limits": [
+    {
+      "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [],
+      "textual_evidence_ids": [
+        "Curieux flexibles::verbatim::31"
+      ],
+      "relationship": "scope_limit",
+      "validation_needed": null
+    }
+  ]
+}

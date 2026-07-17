@@ -1,0 +1,62 @@
+INTERNAL HELPER: .validate_qda_space_inputs
+
+FORMALS:
+as.pairlist(alist(ncp = , scale.unit = , min_inertia_pct = , top_n_var = , top_n_products = , interpretation_level = , expertise_scope = , generate = , request = , introduction = , conclusion = ))
+
+BODY:
+function(ncp,
+                                       scale.unit,
+                                       min_inertia_pct,
+                                       top_n_var,
+                                       top_n_products,
+                                       interpretation_level,
+                                       expertise_scope,
+                                       generate,
+                                       request,
+                                       introduction,
+                                       conclusion) {
+  ncp <- .qda_space_integerish(ncp, "ncp")
+  top_n_var <- .qda_space_integerish(top_n_var, "top_n_var")
+  top_n_products <- .qda_space_integerish(top_n_products, "top_n_products")
+
+  if (!is.logical(scale.unit) || length(scale.unit) != 1L || is.na(scale.unit)) {
+    stop("`scale.unit` must be a single non-missing logical value.", call. = FALSE)
+  }
+  if (!is.numeric(min_inertia_pct) || length(min_inertia_pct) != 1L ||
+      is.na(min_inertia_pct) || !is.finite(min_inertia_pct) ||
+      min_inertia_pct < 0 || min_inertia_pct > 100) {
+    stop("`min_inertia_pct` must be a single numeric value in [0, 100].", call. = FALSE)
+  }
+  if (!is.logical(generate) || length(generate) != 1L || is.na(generate)) {
+    stop("`generate` must be a single non-missing logical value.", call. = FALSE)
+  }
+  if (!interpretation_level %in% .qda_space_levels) {
+    stop(
+      sprintf("`interpretation_level` must be one of: %s.",
+              paste(.qda_space_levels, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  if (!expertise_scope %in% .qda_space_scopes) {
+    stop(
+      sprintf("`expertise_scope` must be one of: %s.",
+              paste(.qda_space_scopes, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  for (item in c("request", "introduction", "conclusion")) {
+    value <- get(item, inherits = FALSE)
+    if (!is.null(value) && !.qda_space_nonempty_scalar(value)) {
+      stop(sprintf("`%s` must be NULL or a single non-empty character string.", item),
+           call. = FALSE)
+    }
+  }
+
+  list(
+    ncp = ncp,
+    top_n_var = top_n_var,
+    top_n_products = top_n_products
+  )
+}
+<environment: namespace:NaileR>

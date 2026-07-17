@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$contextualized_evidence$groups$Curieux flexibles$textual_diagnostics$prompt_character_count
+FIELD: prompt_character_count
+TYPEOF: integer
+CLASS: integer
+
+3326

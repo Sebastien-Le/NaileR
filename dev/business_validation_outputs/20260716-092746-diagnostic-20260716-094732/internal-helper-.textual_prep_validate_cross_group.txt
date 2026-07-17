@@ -1,0 +1,41 @@
+INTERNAL HELPER: .textual_prep_validate_cross_group
+
+FORMALS:
+as.pairlist(alist(x = , registry = , context = , comparison_mode = ))
+
+BODY:
+function(x,
+                                               registry,
+                                               context,
+                                               comparison_mode) {
+  if (!is.list(x) || is.data.frame(x)) {
+    stop("`cross_group` must be an object.", call. = FALSE)
+  }
+  missing_fields <- setdiff(.textual_prep_cross_group_fields, names(x))
+  unknown_fields <- setdiff(names(x), .textual_prep_cross_group_fields)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`cross_group` is missing: %s.", paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`cross_group` contains unexpected field(s): %s.", paste(unknown_fields, collapse = ", ")), call. = FALSE)
+  }
+
+  out <- lapply(.textual_prep_cross_group_fields, function(name) {
+    .textual_prep_validate_claim_list(
+      x[[name]],
+      field = paste0("cross_group$", name),
+      registry = registry,
+      group = NULL,
+      context = context,
+      allow_user_context = length(context) > 0L
+    )
+  })
+  names(out) <- .textual_prep_cross_group_fields
+
+  if (comparison_mode == "isolated" && any(lengths(out) > 0L)) {
+    stop("All `cross_group` arrays must be empty in isolated mode.", call. = FALSE)
+  }
+
+  out
+}
+<environment: namespace:NaileR>

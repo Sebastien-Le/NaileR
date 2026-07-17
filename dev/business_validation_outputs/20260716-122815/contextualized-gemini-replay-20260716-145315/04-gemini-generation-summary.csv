@@ -1,0 +1,2 @@
+"generation_mode","schema_used","http_status","elapsed_seconds","finish_reason","prompt_token_count","candidates_token_count","thoughts_token_count","total_token_count","response_characters","json_valid","markdown_fence_absent"
+"full-light-schema",TRUE,200,69.0426969528198,"STOP",20245,272,NA,20517,895,TRUE,TRUE

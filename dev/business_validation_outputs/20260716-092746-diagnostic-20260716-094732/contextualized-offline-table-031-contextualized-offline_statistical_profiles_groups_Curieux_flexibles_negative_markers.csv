@@ -1,0 +1,3 @@
+"evidence_id","group","marker_type","variable","modality","direction","v_test","p_value","abs_v_test","rank","source"
+"Curieux flexibles::quali::purchase_place::Hard-discount","Curieux flexibles","qualitative","purchase_place","Hard-discount","underrepresented",-2.40561992029815,0.0161450521184228,2.40561992029815,3,"FactoMineR::catdes()$category"
+"Curieux flexibles::quali::organic_purchase::Rarement","Curieux flexibles","qualitative","organic_purchase","Rarement","underrepresented",-2.30705271236448,0.0210518816838259,2.30705271236448,4,"FactoMineR::catdes()$category"

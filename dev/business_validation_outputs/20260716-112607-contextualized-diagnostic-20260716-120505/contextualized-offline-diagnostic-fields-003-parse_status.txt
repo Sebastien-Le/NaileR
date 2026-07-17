@@ -1,0 +1,6 @@
+PATH: contextualized-offline$parsed$parse_status
+FIELD: parse_status
+TYPEOF: character
+CLASS: character
+
+not_generated

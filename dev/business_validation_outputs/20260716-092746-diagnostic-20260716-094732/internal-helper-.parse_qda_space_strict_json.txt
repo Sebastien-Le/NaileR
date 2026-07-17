@@ -1,0 +1,22 @@
+INTERNAL HELPER: .parse_qda_space_strict_json
+
+FORMALS:
+as.pairlist(alist(text = ))
+
+BODY:
+function(text) {
+  if (!is.character(text) || length(text) == 0L || anyNA(text)) {
+    stop("The LLM response must be a non-missing character string containing one strict JSON object.",
+         call. = FALSE)
+  }
+  text <- trimws(paste(text, collapse = "
+"))
+  if (!nzchar(text) || !startsWith(text, "{") || !endsWith(text, "}")) {
+    stop(
+      "The LLM response must contain one strict JSON object with no Markdown fence or surrounding text.",
+      call. = FALSE
+    )
+  }
+  jsonlite::fromJSON(text, simplifyDataFrame = FALSE)
+}
+<environment: namespace:NaileR>

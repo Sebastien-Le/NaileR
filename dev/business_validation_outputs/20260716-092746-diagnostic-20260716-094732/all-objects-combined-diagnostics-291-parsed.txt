@@ -1,0 +1,9 @@
+PATH: contextualized-offline$units$joint$parsed
+FIELD: parsed
+TYPEOF: list
+CLASS: list
+
+List of 3
+ $ parse_status           : chr "not_generated"
+ $ parse_error            : NULL
+ $ contextualized_analysis: NULL

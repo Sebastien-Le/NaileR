@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$textual_preparation$textual_evidence$corpus_metrics$Curieux flexibles$response_rate
+FIELD: response_rate
+TYPEOF: double
+CLASS: numeric
+
+1

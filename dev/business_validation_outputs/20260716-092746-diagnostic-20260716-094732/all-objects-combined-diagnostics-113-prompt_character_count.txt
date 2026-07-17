@@ -1,0 +1,6 @@
+PATH: textual-analysis$preparation$textual_evidence$groups$Ancrés locaux$diagnostics$prompt_character_count
+FIELD: prompt_character_count
+TYPEOF: integer
+CLASS: integer
+
+3194

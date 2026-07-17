@@ -1,0 +1,30 @@
+INTERNAL HELPER: .call_llm_base
+
+FORMALS:
+as.pairlist(alist(provider = c("ollama", "gemini"), model = , prompt = , output = "df", llm_api_options = list()))
+
+BODY:
+function(provider = c("ollama", "gemini"),
+                           model,
+                           prompt,
+                           output = "df",
+                           llm_api_options = list()) {
+  provider <- .match_llm_provider(provider)
+
+  switch(
+    provider,
+    ollama = .call_ollama_base(
+      model = model,
+      prompt = prompt,
+      output = output,
+      ollama_api_options = llm_api_options
+    ),
+    gemini = .call_gemini_base(
+      model = model,
+      prompt = prompt,
+      output = output,
+      gemini_api_options = llm_api_options
+    )
+  )
+}
+<environment: namespace:NaileR>

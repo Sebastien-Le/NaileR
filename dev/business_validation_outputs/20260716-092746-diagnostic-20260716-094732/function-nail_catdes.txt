@@ -1,0 +1,200 @@
+FUNCTION: nail_catdes
+
+FORMALS:
+as.pairlist(alist(dataset = NULL, num.var = NULL, introduction = NULL, request = NULL, model = "llama3", provider = c("ollama", 
+    "gemini"), isolate.groups = FALSE, quali.sample = 1, quanti.sample = 1, drop.negative = FALSE, proba = 0.05, row.w = NULL, interpretation_mode = c("standard", 
+    "latent"), prompt_style = c("detailed", "compact"), generate = FALSE, x = NULL, ... = ))
+
+BODY:
+function(dataset = NULL,
+                        num.var = NULL,
+                        introduction = NULL,
+                        request = NULL,
+                        model = "llama3",
+                        provider = c("ollama", "gemini"),
+                        isolate.groups = FALSE,
+                        quali.sample = 1,
+                        quanti.sample = 1,
+                        drop.negative = FALSE,
+                        proba = 0.05,
+                        row.w = NULL,
+                        interpretation_mode = c("standard", "latent"),
+                        prompt_style = c("detailed", "compact"),
+                        generate = FALSE,
+                        x = NULL,
+                        ...) {
+  interpretation_mode <- match.arg(interpretation_mode)
+  prompt_style <- match.arg(prompt_style)
+  provider <- match.arg(provider)
+
+  validate_catdes_inputs(
+    dataset = dataset,
+    num.var = num.var,
+    x = x,
+    isolate.groups = isolate.groups,
+    quali.sample = quali.sample,
+    quanti.sample = quanti.sample,
+    drop.negative = drop.negative,
+    proba = proba,
+    generate = generate,
+    interpretation_mode = interpretation_mode,
+    prompt_style = prompt_style
+  )
+
+  normalized <- .normalize_nail_catdes_input(
+    x = x,
+    dataset = dataset,
+    num.var = num.var,
+    proba = proba,
+    row.w = row.w
+  )
+  profiles <- normalized$statistical_profiles
+
+  interpretation_evidence <- .build_interpretation_evidence_nail_catdes(
+    statistical_profiles = profiles,
+    quali_sample = quali.sample,
+    quanti_sample = quanti.sample,
+    drop_negative = drop.negative
+  )
+
+  if (is.null(introduction)) {
+    introduction <- if (interpretation_mode == "standard") {
+      "For this study, observations were described according to an explicit categorical variable."
+    } else {
+      "For this study, observations were grouped according to their similarities."
+    }
+  }
+
+  if (is.null(request)) {
+    request <- build_request_catdes(
+      interpretation_mode = interpretation_mode,
+      isolate_groups = isolate.groups,
+      prompt_style = prompt_style
+    )
+  }
+
+  guide <- build_guide_catdes(
+    interpretation_mode = interpretation_mode,
+    target_label = normalized$target_label,
+    prompt_style = prompt_style,
+    isolate_groups = isolate.groups
+  )
+  introduction_with_guide <- paste(
+    introduction,
+    guide,
+    sep = "\n\n---\n\n"
+  )
+
+  prompts <- .build_prompts_from_interpretation_evidence(
+    interpretation_evidence = interpretation_evidence,
+    introduction = introduction_with_guide,
+    request = request,
+    isolate_groups = isolate.groups,
+    interpretation_mode = interpretation_mode,
+    target_label = normalized$target_label,
+    prompt_style = prompt_style
+  )
+
+  n_ready_groups <- interpretation_evidence$metadata$n_ready_groups
+  n_selected <- interpretation_evidence$metadata$n_selected_evidence
+  llm_calls <- if (!isTRUE(generate)) {
+    0L
+  } else if (!isTRUE(isolate.groups)) {
+    as.integer(n_selected > 0L)
+  } else {
+    as.integer(n_ready_groups)
+  }
+
+  catdes_settings <- list(
+    source_type = normalized$source_type,
+    preparation_performed = normalized$preparation_performed,
+    nail_catdes_prep_calls = normalized$metadata$nail_catdes_prep_calls,
+    direct_catdes_calls_in_nail_catdes = 0L,
+    proba = profiles$settings$proba,
+    requested_proba = proba,
+    proba_reapplied_to_prepared_profiles = FALSE,
+    interpretation_mode = interpretation_mode,
+    prompt_style = prompt_style,
+    isolate_groups = isolate.groups,
+    quali_sample = quali.sample,
+    quanti_sample = quanti.sample,
+    drop_negative = drop.negative,
+    generate = generate,
+    provider = provider,
+    model = model,
+    llm_calls = llm_calls,
+    target_label = normalized$target_label,
+    preparation_input = normalized$metadata$preparation_input,
+    statistical_profiles_canonicalized = isTRUE(
+      normalized$metadata$statistical_profiles_canonicalized
+    )
+  )
+
+  if (!generate) {
+    return(.attach_nail_catdes_artifacts(
+      prompts,
+      normalized,
+      interpretation_evidence,
+      catdes_settings
+    ))
+  }
+
+  llm_api_options <- list(...)
+  call_llm <- function(prompt) {
+    response <- .call_llm_base(
+      provider = provider,
+      model = model,
+      prompt = prompt,
+      output = "df",
+      llm_api_options = llm_api_options
+    )
+    response$prompt <- prompt
+    response
+  }
+
+  if (!isolate.groups) {
+    result <- if (n_selected == 0L) {
+      message("Execution halted: No selected statistical evidence. Nothing to generate.")
+      .catdes_no_results_data_frame(
+        model = model,
+        prompt = prompts,
+        response = "No selected statistical evidence found."
+      )
+    } else {
+      call_llm(prompts)
+    }
+
+    return(.attach_nail_catdes_artifacts(
+      result,
+      normalized,
+      interpretation_evidence,
+      catdes_settings
+    ))
+  }
+
+  result <- stats::setNames(vector("list", length(prompts)), names(prompts))
+  for (group_name in names(prompts)) {
+    group_evidence <- interpretation_evidence$groups[[group_name]]
+    result[[group_name]] <- if (identical(group_evidence$status, "ready")) {
+      call_llm(prompts[[group_name]])
+    } else {
+      .catdes_no_results_data_frame(
+        model = model,
+        prompt = prompts[[group_name]],
+        response = paste0(
+          "No selected statistical evidence found for group '",
+          group_name,
+          "'."
+        )
+      )
+    }
+  }
+
+  .attach_nail_catdes_artifacts(
+    result,
+    normalized,
+    interpretation_evidence,
+    catdes_settings
+  )
+}
+<environment: namespace:NaileR>

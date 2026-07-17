@@ -1,0 +1,6 @@
+PATH: textual-analysis$preparation$legacy_groups$Curieux flexibles$response$model
+FIELD: model
+TYPEOF: character
+CLASS: character
+
+mistral-small3.2

@@ -1,0 +1,9 @@
+PATH: textual-analysis$preparation$response
+FIELD: response
+TYPEOF: list
+CLASS: tbl_df | tbl | data.frame
+
+tibble [1 × 3] (S3: tbl_df/tbl/data.frame)
+ $ model     : chr "mistral-small3.2"
+ $ response  : chr "```json\n{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textua"| __truncated__
+ $ created_at: chr "2026-07-16T07:41:03.496905Z"

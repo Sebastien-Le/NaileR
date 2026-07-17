@@ -1,0 +1,247 @@
+INTERNAL HELPER: .validate_qda_spaceprep_parsed
+
+FORMALS:
+as.pairlist(alist(parsed = , expected_products = , valid_evidence_ids = , context = , expertise_scope = , comparison_mode = , metadata = ))
+
+BODY:
+function(parsed,
+                                           expected_products,
+                                           valid_evidence_ids,
+                                           context,
+                                           expertise_scope,
+                                           comparison_mode,
+                                           metadata) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The JSON root must be an object.", call. = FALSE)
+  }
+
+  unknown_top <- setdiff(names(parsed), c("portfolio", "products"))
+  if (length(unknown_top) > 0L) {
+    stop(
+      sprintf("Unexpected top-level JSON field(s): %s.", paste(unknown_top, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  if (is.null(parsed$portfolio) || !is.list(parsed$portfolio) || is.data.frame(parsed$portfolio)) {
+    stop("The JSON output must contain a `portfolio` object.", call. = FALSE)
+  }
+  if (is.null(parsed$products) || !is.list(parsed$products) || is.data.frame(parsed$products)) {
+    stop("The JSON output must contain a named `products` object.", call. = FALSE)
+  }
+
+  expected_portfolio_fields <- c(
+    "overall_reading",
+    "product_families",
+    "differentiation_issues",
+    "cross_functional_priorities"
+  )
+  unknown_portfolio <- setdiff(names(parsed$portfolio), expected_portfolio_fields)
+  if (length(unknown_portfolio) > 0L) {
+    stop(
+      sprintf("Unexpected `portfolio` field(s): %s.", paste(unknown_portfolio, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  product_names <- names(parsed$products)
+  if (is.null(product_names) || any(!nzchar(product_names))) {
+    stop("The JSON `products` object must be named by product identifiers.", call. = FALSE)
+  }
+
+  missing_products <- setdiff(expected_products, product_names)
+  extra_products <- setdiff(product_names, expected_products)
+  if (length(missing_products) > 0L || length(extra_products) > 0L) {
+    stop(
+      paste0(
+        "The JSON `products` object must contain exactly: ",
+        paste(expected_products, collapse = ", "), "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  context_present <- .is_qda_spaceprep_context_present(context)
+  consumer_context_present <- .is_qda_spaceprep_context_present(list(consumers = context$consumers))
+
+  portfolio <- .qda_spaceprep_empty_portfolio()
+  portfolio$overall_reading <- .qda_spaceprep_validate_claim(
+    parsed$portfolio$overall_reading,
+    field = "portfolio$overall_reading",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  families <- parsed$portfolio$product_families
+  if (is.null(families)) families <- list()
+  if (!is.list(families) || is.data.frame(families)) {
+    stop("`portfolio$product_families` must be a JSON array.", call. = FALSE)
+  }
+  portfolio$product_families <- lapply(seq_along(families), function(i) {
+    .qda_spaceprep_validate_family(
+      families[[i]],
+      index = i,
+      expected_products = expected_products,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present
+    )
+  })
+
+  portfolio$differentiation_issues <- .qda_spaceprep_validate_claim_list(
+    parsed$portfolio$differentiation_issues,
+    field = "portfolio$differentiation_issues",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  portfolio$cross_functional_priorities <- .qda_spaceprep_validate_claim_list(
+    parsed$portfolio$cross_functional_priorities,
+    field = "portfolio$cross_functional_priorities",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  if (identical(comparison_mode, "isolated")) {
+    has_portfolio_content <- !is.null(portfolio$overall_reading) ||
+      length(portfolio$product_families) > 0L ||
+      length(portfolio$differentiation_issues) > 0L ||
+      length(portfolio$cross_functional_priorities) > 0L
+
+    if (has_portfolio_content) {
+      stop(
+        paste(
+          "Portfolio-level claims are not allowed when",
+          "`comparison_mode = \"isolated\"`; use null or empty arrays."
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  products <- lapply(expected_products, function(product_name) {
+    item <- parsed$products[[product_name]]
+    field <- paste0("products$", product_name)
+
+    if (!is.list(item) || is.data.frame(item)) {
+      stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+    }
+
+    unknown_fields <- setdiff(names(item), .qda_spaceprep_product_fields)
+    if (length(unknown_fields) > 0L) {
+      stop(
+        sprintf("Unexpected field(s) in `%s`: %s.", field, paste(unknown_fields, collapse = ", ")),
+        call. = FALSE
+      )
+    }
+
+    if (!.qda_spaceprep_is_nonempty_character_scalar(item$product) || !identical(item$product, product_name)) {
+      stop(
+        sprintf("`%s$product` must be exactly `%s`.", field, product_name),
+        call. = FALSE
+      )
+    }
+
+    out <- .qda_spaceprep_empty_product(product_name)
+
+    for (claim_field in c(
+      "proposed_name",
+      "sensory_identity",
+      "sensory_archetype",
+      "differentiation_role",
+      "communication_territory"
+    )) {
+      claim_path <- paste0(field, "$", claim_field)
+      out[[claim_field]] <- .qda_spaceprep_validate_claim(
+        item[[claim_field]],
+        field = claim_path,
+        valid_evidence_ids = valid_evidence_ids,
+        context_present = context_present
+      )
+      .qda_spaceprep_validate_product_claim_ownership(
+        out[[claim_field]],
+        product_name = product_name,
+        field = claim_path
+      )
+    }
+
+    out$formulation_directions <- .qda_spaceprep_validate_claim_list(
+      item$formulation_directions,
+      field = paste0(field, "$formulation_directions"),
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      required_status = "recommendation"
+    )
+
+    out$consumer_preference_hypotheses <- .qda_spaceprep_validate_claim_list(
+      item$consumer_preference_hypotheses,
+      field = paste0(field, "$consumer_preference_hypotheses"),
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      required_status = "hypothesis"
+    )
+
+    out$usage_hypotheses <- .qda_spaceprep_validate_claim_list(
+      item$usage_hypotheses,
+      field = paste0(field, "$usage_hypotheses"),
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      required_status = "hypothesis"
+    )
+
+    for (claim_field in c(
+      "formulation_directions",
+      "consumer_preference_hypotheses",
+      "usage_hypotheses"
+    )) {
+      claims <- out[[claim_field]]
+      for (i in seq_along(claims)) {
+        .qda_spaceprep_validate_product_claim_ownership(
+          claims[[i]],
+          product_name = product_name,
+          field = sprintf("%s$%s[[%d]]", field, claim_field, i)
+        )
+      }
+    }
+
+    out$validation_needs <- .qda_spaceprep_as_character_vector(
+      item$validation_needs,
+      paste0(field, "$validation_needs")
+    )
+
+    out
+  })
+  names(products) <- expected_products
+
+  expertise_metadata <- metadata
+  expertise_metadata$expertise_scope <- expertise_scope
+  expertise_metadata$comparison_mode <- comparison_mode
+  expertise_metadata$parse_status <- "success"
+
+  product_expertise <- list(
+    portfolio = portfolio,
+    products = products,
+    metadata = expertise_metadata
+  )
+
+  if (!consumer_context_present) {
+    all_text <- .qda_spaceprep_collect_claim_texts(product_expertise)
+    demographic_text <- all_text[vapply(
+      all_text,
+      .qda_spaceprep_contains_demographic_claim,
+      logical(1)
+    )]
+
+    if (length(demographic_text) > 0L) {
+      stop(
+        paste(
+          "The response contains a demographic or observed-frequency consumer claim,",
+          "but no explicit `context$consumers` was supplied."
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  product_expertise
+}
+<environment: namespace:NaileR>

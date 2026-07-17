@@ -1660,6 +1660,17 @@ nail_qda_spaceprep <- function(dataset = NULL,
     product_knowledge = product_knowledge
   )
 
+  all_evidence_ids <- unlist(lapply(source$product_profiles, function(p) {
+    p$retained_markers$evidence_id
+  }), use.names = FALSE)
+
+  if (length(all_evidence_ids) == 0L) {
+    stop(
+      "Execution halted: No significant sensory differences (retained_markers) found in the provided object. There is no statistical evidence for the LLM to interpret.",
+      call. = FALSE
+    )
+  }
+
   units <- .build_qda_spaceprep_units(
     product_profiles = source$product_profiles,
     request = request,

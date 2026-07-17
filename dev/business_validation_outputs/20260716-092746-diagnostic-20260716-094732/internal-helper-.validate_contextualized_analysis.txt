@@ -1,0 +1,63 @@
+INTERNAL HELPER: .validate_contextualized_analysis
+
+FORMALS:
+as.pairlist(alist(parsed = , expected_groups = , contextualized_evidence = , context = , analysis_scope = , comparison_mode = ))
+
+BODY:
+function(parsed,
+                                              expected_groups,
+                                              contextualized_evidence,
+                                              context,
+                                              analysis_scope,
+                                              comparison_mode) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The JSON root must be an object.", call. = FALSE)
+  }
+  required <- c("groups", "cross_group_analysis")
+  missing_fields <- setdiff(required, names(parsed))
+  unknown_fields <- setdiff(names(parsed), required)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("The JSON root is missing: %s.", paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("The JSON root contains unexpected field(s): %s.", paste(unknown_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (!is.list(parsed$groups) || is.null(names(parsed$groups))) {
+    stop("`groups` must be a named JSON object.", call. = FALSE)
+  }
+  if (!setequal(names(parsed$groups), expected_groups)) {
+    stop("The parsed group names do not match the generation unit.", call. = FALSE)
+  }
+
+  registry <- contextualized_evidence$combined_evidence_registry
+  groups <- stats::setNames(
+    lapply(expected_groups, function(group_name) {
+      .contextualized_validate_group_analysis(
+        parsed$groups[[group_name]],
+        group_name,
+        registry,
+        context
+      )
+    }),
+    expected_groups
+  )
+  cross <- .contextualized_validate_cross_analysis(
+    parsed$cross_group_analysis,
+    registry,
+    context,
+    comparison_mode
+  )
+
+  list(
+    groups = groups,
+    cross_group_analysis = cross,
+    metadata = list(
+      schema = "NaileR::contextualized_analysis",
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode,
+      groups = expected_groups,
+      parse_status = "success"
+    )
+  )
+}
+<environment: namespace:NaileR>

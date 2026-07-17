@@ -1,0 +1,54 @@
+INTERNAL HELPER: .qda_space_validate_representative_product
+
+FORMALS:
+as.pairlist(alist(item = , field = , analyzed_products = , valid_evidence_ids = , context_present = , axis = ))
+
+BODY:
+function(item,
+                                                       field,
+                                                       analyzed_products,
+                                                       valid_evidence_ids,
+                                                       context_present,
+                                                       axis) {
+  if (!is.list(item) || is.data.frame(item)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+  required <- c("product", "text", "status", "evidence_ids", "validation_needed")
+  missing <- setdiff(required, names(item))
+  unknown <- setdiff(names(item), required)
+  if (length(missing)) {
+    stop(sprintf("`%s` is missing required field(s): %s.", field,
+                 paste(missing, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field,
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+  if (!.qda_space_nonempty_scalar(item$product) || !item$product %in% analyzed_products) {
+    stop(sprintf("`%s$product` must identify a product analyzed in the PCA.", field),
+         call. = FALSE)
+  }
+  claim <- .qda_space_validate_claim(
+    item[setdiff(names(item), "product")],
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+  product <- item$product
+  product_prefixes <- c(
+    paste0("Dim", axis, "::product::", product),
+    paste0("product_profile::", product, "::"),
+    paste0(product, "::")
+  )
+  if (claim$status != "user_context" &&
+      !any(vapply(claim$evidence_ids, function(id) {
+        any(id == product_prefixes[[1L]] |
+              startsWith(id, product_prefixes[[2L]]) |
+              startsWith(id, product_prefixes[[3L]]))
+      }, logical(1)))) {
+    stop(sprintf("`%s` must cite at least one evidence ID for product `%s`.", field, product),
+         call. = FALSE)
+  }
+  c(list(product = product), claim)
+}
+<environment: namespace:NaileR>

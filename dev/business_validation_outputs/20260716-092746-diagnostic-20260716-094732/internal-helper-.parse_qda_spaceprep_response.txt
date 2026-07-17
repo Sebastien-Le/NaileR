@@ -1,0 +1,42 @@
+INTERNAL HELPER: .parse_qda_spaceprep_response
+
+FORMALS:
+as.pairlist(alist(text = , expected_products = , valid_evidence_ids = , context = , expertise_scope = , comparison_mode = , metadata = list()))
+
+BODY:
+function(text,
+                                          expected_products,
+                                          valid_evidence_ids,
+                                          context,
+                                          expertise_scope,
+                                          comparison_mode,
+                                          metadata = list()) {
+  tryCatch(
+    {
+      parsed <- .parse_json_response(text, simplifyDataFrame = FALSE)
+      expertise <- .validate_qda_spaceprep_parsed(
+        parsed = parsed,
+        expected_products = expected_products,
+        valid_evidence_ids = valid_evidence_ids,
+        context = context,
+        expertise_scope = expertise_scope,
+        comparison_mode = comparison_mode,
+        metadata = metadata
+      )
+
+      list(
+        parse_status = "success",
+        parse_error = NULL,
+        product_expertise = expertise
+      )
+    },
+    error = function(e) {
+      list(
+        parse_status = "error",
+        parse_error = conditionMessage(e),
+        product_expertise = NULL
+      )
+    }
+  )
+}
+<environment: namespace:NaileR>

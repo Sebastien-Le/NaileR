@@ -1,0 +1,6 @@
+PATH: textual-analysis$group_reports$Pragmatiques contraints$diagnostics$prompt_character_count
+FIELD: prompt_character_count
+TYPEOF: integer
+CLASS: integer
+
+3166

@@ -1,0 +1,6 @@
+PATH: contextualized-offline$metadata$provider
+FIELD: provider
+TYPEOF: character
+CLASS: character
+
+ollama

@@ -1,0 +1,159 @@
+INTERNAL HELPER: .contextualized_validate_group_analysis
+
+FORMALS:
+as.pairlist(alist(x = , group_name = , registry = , context = ))
+
+BODY:
+function(x,
+                                                    group_name,
+                                                    registry,
+                                                    context) {
+  field <- paste0("groups$", group_name)
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+  missing_fields <- setdiff(.contextualized_group_fields, names(x))
+  unknown_fields <- setdiff(names(x), .contextualized_group_fields)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`%s` contains unexpected fields.", field), call. = FALSE)
+  }
+  if (!.contextualized_is_scalar_string(x$group) || !identical(as.character(x$group), group_name)) {
+    stop(sprintf("`%s$group` must equal `%s`.", field, group_name), call. = FALSE)
+  }
+  if (!identical(as.character(x$availability), "available")) {
+    stop(sprintf("`%s$availability` must be `available` in generated JSON.", field), call. = FALSE)
+  }
+  if (!is.null(x$parse_error)) {
+    stop(sprintf("`%s$parse_error` must be null in generated JSON.", field), call. = FALSE)
+  }
+
+  out <- list(
+    group = group_name,
+    availability = "available",
+    parse_error = NULL,
+    integrated_profile = .contextualized_validate_claim(
+      x$integrated_profile,
+      paste0(field, "$integrated_profile"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = c("expert_interpretation", "hypothesis", "user_context")
+    ),
+    statistical_textual_convergences = .contextualized_validate_claim_list(
+      x$statistical_textual_convergences,
+      paste0(field, "$statistical_textual_convergences"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "both",
+      allowed_statuses = c("expert_interpretation", "hypothesis"),
+      allowed_relationships = c("complement", "nuance")
+    ),
+    statistical_textual_divergences = .contextualized_validate_claim_list(
+      x$statistical_textual_divergences,
+      paste0(field, "$statistical_textual_divergences"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "both",
+      allowed_statuses = c("expert_interpretation", "hypothesis"),
+      allowed_relationships = c("tension", "apparent_divergence", "direct_contradiction")
+    ),
+    statistical_only_findings = .contextualized_validate_claim_list(
+      x$statistical_only_findings,
+      paste0(field, "$statistical_only_findings"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "statistical_only",
+      allowed_statuses = c("expert_interpretation", "hypothesis")
+    ),
+    textual_only_findings = .contextualized_validate_claim_list(
+      x$textual_only_findings,
+      paste0(field, "$textual_only_findings"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "textual_only",
+      allowed_statuses = c("expert_interpretation", "hypothesis")
+    ),
+    social_interpretations = .contextualized_validate_claim_list(
+      x$social_interpretations,
+      paste0(field, "$social_interpretations"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = c("expert_interpretation", "hypothesis", "user_context")
+    ),
+    consumer_insights = .contextualized_validate_claim_list(
+      x$consumer_insights,
+      paste0(field, "$consumer_insights"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = c("expert_interpretation", "hypothesis", "user_context")
+    ),
+    psychological_hypotheses = .contextualized_validate_claim_list(
+      x$psychological_hypotheses,
+      paste0(field, "$psychological_hypotheses"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = "hypothesis"
+    ),
+    marketing_implications = .contextualized_validate_claim_list(
+      x$marketing_implications,
+      paste0(field, "$marketing_implications"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = "recommendation"
+    ),
+    innovation_opportunities = .contextualized_validate_claim_list(
+      x$innovation_opportunities,
+      paste0(field, "$innovation_opportunities"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = "recommendation"
+    ),
+    operational_implications = .contextualized_validate_claim_list(
+      x$operational_implications,
+      paste0(field, "$operational_implications"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = "recommendation"
+    ),
+    validation_priorities = .contextualized_validate_claim_list(
+      x$validation_priorities,
+      paste0(field, "$validation_priorities"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = "recommendation"
+    ),
+    interpretation_limits = .contextualized_validate_claim_list(
+      x$interpretation_limits,
+      paste0(field, "$interpretation_limits"),
+      registry,
+      group_name,
+      context,
+      source_requirement = "any",
+      allowed_statuses = c("expert_interpretation", "hypothesis", "user_context")
+    )
+  )
+  out[.contextualized_group_fields]
+}
+<environment: namespace:NaileR>

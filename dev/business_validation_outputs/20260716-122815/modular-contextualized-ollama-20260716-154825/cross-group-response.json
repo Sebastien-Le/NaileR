@@ -1,0 +1,121 @@
+{
+  "shared_patterns": [
+    {
+      "text": "Les trois groupes expriment des contraintes pratiques dans leurs choix alimentaires, bien que de nature différente.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Ancrés locaux::quanti::price_constraint",
+        "Pragmatiques contraints::quanti::price_constraint"
+      ],
+      "textual_evidence_ids": [
+        "Ancrés locaux::verbatim::7",
+        "Curieux flexibles::verbatim::35",
+        "Pragmatiques contraints::verbatim::29"
+      ],
+      "relationship": "convergence",
+      "validation_needed": null
+    },
+    {
+      "text": "Tous les groupes montrent une tension entre leurs valeurs alimentaires et des compromis pratiques ou économiques.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Ancrés locaux::quali::purchase_place::Hard-discount",
+        "Curieux flexibles::quali::purchase_place::Hard-discount",
+        "Pragmatiques contraints::quali::purchase_place::Hard-discount"
+      ],
+      "textual_evidence_ids": [
+        "Ancrés locaux::verbatim::13",
+        "Curieux flexibles::verbatim::39",
+        "Pragmatiques contraints::verbatim::20"
+      ],
+      "relationship": "tension",
+      "validation_needed": null
+    }
+  ],
+  "major_group_contrasts": [
+    {
+      "text": "Les Ancrés locaux et les Pragmatiques contraints présentent des profils opposés en termes d'engagement territorial, avec une forte implication pour le premier groupe (moyenne de 8.04) contre un désintérêt total pour le second (0%).",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Ancrés locaux::quanti::territorial_engagement",
+        "Pragmatiques contraints::quali::purchase_place::Marché/local"
+      ],
+      "textual_evidence_ids": [
+        "Ancrés locaux::verbatim::2",
+        "Pragmatiques contraints::verbatim::16"
+      ],
+      "relationship": "tension",
+      "validation_needed": null
+    },
+    {
+      "text": "Les Curieux flexibles se distinguent par leur ouverture aux innovations (moyenne de 7.803) et leur fréquence d'achat bio occasionnelle (80%), contrastant avec les autres groupes qui montrent moins d'intérêt pour ces aspects.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Curieux flexibles::quanti::openness_to_innovation",
+        "Curieux flexibles::quali::organic_purchase::Parfois"
+      ],
+      "textual_evidence_ids": [
+        "Curieux flexibles::verbatim::32",
+        "Pragmatiques contraints::verbatim::17"
+      ],
+      "relationship": "tension",
+      "validation_needed": null
+    }
+  ],
+  "different_relationships": [
+    {
+      "text": "Pour les Ancrés locaux, la fréquence de cuisson quotidienne converge avec leurs valeurs territoriales (86.67%), tandis que pour les Pragmatiques contraints, cette pratique n'est pas statistiquement marquée et leur contrainte de prix prime.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Ancrés locaux::quali::cooking_frequency::Quotidienne",
+        "Pragmatiques contraints::quanti::price_constraint"
+      ],
+      "textual_evidence_ids": [
+        "Ancrés locaux::verbatim::1",
+        "Pragmatiques contraints::verbatim::25"
+      ],
+      "relationship": "tension",
+      "validation_needed": null
+    },
+    {
+      "text": "Les Curieux flexibles montrent une convergence entre leur ouverture aux innovations et leurs pratiques d'achat variées (33.33% en ligne/mixte), alors que les Pragmatiques contraints présentent une tension entre leur faible connaissance alimentaire et leur besoin exprimé d'informations.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Curieux flexibles::quanti::openness_to_innovation",
+        "Pragmatiques contraints::quanti::food_knowledge"
+      ],
+      "textual_evidence_ids": [
+        "Curieux flexibles::verbatim::36",
+        "Pragmatiques contraints::verbatim::18"
+      ],
+      "relationship": "tension",
+      "validation_needed": null
+    }
+  ],
+  "interpretation_limits": [
+    {
+      "text": "Les conclusions reposent sur des échantillons de verbatims limités pour chaque groupe, ce qui pourrait biaiser la généralisation des résultats.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [],
+      "textual_evidence_ids": [
+        "Ancrés locaux::verbatim::1",
+        "Curieux flexibles::verbatim::31",
+        "Pragmatiques contraints::verbatim::16"
+      ],
+      "relationship": "scope_limit",
+      "validation_needed": null
+    },
+    {
+      "text": "Les données quantitatives et qualitatives ne couvrent pas nécessairement les mêmes dimensions, limitant la possibilité d'une intégration complète.",
+      "status": "expert_interpretation",
+      "statistical_evidence_ids": [
+        "Ancrés locaux::quanti::price_constraint"
+      ],
+      "textual_evidence_ids": [
+        "Pragmatiques contraints::verbatim::29"
+      ],
+      "relationship": "scope_limit",
+      "validation_needed": null
+    }
+  ]
+}

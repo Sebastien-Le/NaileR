@@ -1,0 +1,93 @@
+{
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "Return one JSON claim object. Use text \"Test claim\". Use status \"expert_interpretation\". Use statistical_evidence_ids [\"S1\"]. Use textual_evidence_ids as an empty array. Use relationship \"convergence\". Use quotations as an empty array. Use validation_needed as null."
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "maxOutputTokens": 1024,
+    "responseMimeType": "application/json",
+    "responseJsonSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "status",
+        "statistical_evidence_ids",
+        "textual_evidence_ids",
+        "relationship",
+        "quotations",
+        "validation_needed"
+      ],
+      "propertyOrdering": [
+        "text",
+        "status",
+        "statistical_evidence_ids",
+        "textual_evidence_ids",
+        "relationship",
+        "quotations",
+        "validation_needed"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A concise interpretation grounded only in the cited evidence IDs."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "expert_interpretation",
+            "hypothesis",
+            "recommendation",
+            "user_context"
+          ]
+        },
+        "statistical_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "textual_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "relationship": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "quotations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 3
+        },
+        "validation_needed": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "thinkingConfig": {
+      "thinkingLevel": "low"
+    }
+  }
+}

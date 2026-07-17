@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$metadata$schema
+FIELD: schema
+TYPEOF: character
+CLASS: character
+
+NaileR::nail_textual_contextualized

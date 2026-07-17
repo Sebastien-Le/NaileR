@@ -1,0 +1,694 @@
+{
+  "groups": {
+    "Ancrés locaux": {
+      "group": "Ancrés locaux",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      },
+      "statistical_textual_convergences": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": "complement",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_textual_divergences": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": "tension",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_only_findings": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "textual_only_findings": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "social_interpretations": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "consumer_insights": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "psychological_hypotheses": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "marketing_implications": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "innovation_opportunities": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "operational_implications": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "validation_priorities": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "interpretation_limits": []
+    },
+    "Curieux flexibles": {
+      "group": "Curieux flexibles",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      },
+      "statistical_textual_convergences": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": "complement",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_textual_divergences": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": "tension",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_only_findings": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "textual_only_findings": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "social_interpretations": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "consumer_insights": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "psychological_hypotheses": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "marketing_implications": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "innovation_opportunities": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "operational_implications": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "validation_priorities": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "interpretation_limits": []
+    },
+    "Pragmatiques contraints": {
+      "group": "Pragmatiques contraints",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      },
+      "statistical_textual_convergences": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": "complement",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_textual_divergences": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": "tension",
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "statistical_only_findings": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "textual_only_findings": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "social_interpretations": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "consumer_insights": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "expert_interpretation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": null
+        }
+      ],
+      "psychological_hypotheses": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "hypothesis",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "marketing_implications": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "innovation_opportunities": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "operational_implications": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "validation_priorities": [
+        {
+          "text": "<integrated interpretation grounded in the cited evidence IDs>",
+          "status": "recommendation",
+          "statistical_evidence_ids": [
+            "<statistical_evidence_id>"
+          ],
+          "textual_evidence_ids": [
+            "<verbatim_evidence_id>"
+          ],
+          "relationship": null,
+          "quotations": [],
+          "validation_needed": "<additional study or evidence needed>"
+        }
+      ],
+      "interpretation_limits": []
+    }
+  },
+  "cross_group_analysis": {
+    "shared_patterns": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      }
+    ],
+    "major_group_contrasts": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "hypothesis",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "<additional study or evidence needed>"
+      }
+    ],
+    "different_statistical_textual_relationships": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "expert_interpretation",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": null
+      }
+    ],
+    "cross_group_social_interpretations": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "hypothesis",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "<additional study or evidence needed>"
+      }
+    ],
+    "consumer_segments_hypotheses": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "hypothesis",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "<additional study or evidence needed>"
+      }
+    ],
+    "psychological_mechanisms_hypotheses": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "hypothesis",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "<additional study or evidence needed>"
+      }
+    ],
+    "marketing_priorities": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "recommendation",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "<additional study or evidence needed>"
+      }
+    ],
+    "innovation_priorities": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "recommendation",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "<additional study or evidence needed>"
+      }
+    ],
+    "validation_priorities": [
+      {
+        "text": "<integrated interpretation grounded in the cited evidence IDs>",
+        "status": "recommendation",
+        "statistical_evidence_ids": [
+          "<statistical_evidence_id>"
+        ],
+        "textual_evidence_ids": [
+          "<verbatim_evidence_id>"
+        ],
+        "relationship": null,
+        "quotations": [],
+        "validation_needed": "<additional study or evidence needed>"
+      }
+    ],
+    "interpretation_limits": []
+  }
+}

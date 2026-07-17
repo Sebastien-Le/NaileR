@@ -1,0 +1,6 @@
+PATH: contextualized-offline$metadata$model
+FIELD: model
+TYPEOF: character
+CLASS: character
+
+llama3

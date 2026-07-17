@@ -1,0 +1,4 @@
+"evidence_id","group","marker_type","variable","modality","direction","v_test","p_value","abs_v_test","rank","source"
+"Curieux flexibles::quali::organic_purchase::Parfois","Curieux flexibles","qualitative","organic_purchase","Parfois","overrepresented",3.29600533785232,0.00098070151864088,3.29600533785232,1,"FactoMineR::catdes()$category"
+"Curieux flexibles::quali::purchase_place::En ligne/mixte","Curieux flexibles","qualitative","purchase_place","En ligne/mixte","overrepresented",3.02847285793016,0.00245793155605975,3.02847285793016,2,"FactoMineR::catdes()$category"
+"Curieux flexibles::quanti::openness_to_innovation","Curieux flexibles","quantitative","openness_to_innovation",NA,"higher",5.21752973840552,1.81325118297787e-07,5.21752973840552,1,"FactoMineR::catdes()$quanti"

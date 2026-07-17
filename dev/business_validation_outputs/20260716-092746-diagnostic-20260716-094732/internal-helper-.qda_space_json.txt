@@ -1,0 +1,18 @@
+INTERNAL HELPER: .qda_space_json
+
+FORMALS:
+as.pairlist(alist(x = ))
+
+BODY:
+function(x) {
+  jsonlite::toJSON(
+    x,
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    na = "null",
+    null = "null",
+    dataframe = "rows",
+    digits = NA
+  )
+}
+<environment: namespace:NaileR>

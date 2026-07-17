@@ -1,0 +1,14 @@
+INTERNAL HELPER: .qda_space_validate_context
+
+FORMALS:
+as.pairlist(alist(context = ))
+
+BODY:
+function(context) {
+  if (is.null(context)) {
+    return(stats::setNames(vector("list", length(.qda_spaceprep_context_fields)),
+                    .qda_spaceprep_context_fields))
+  }
+  .validate_qda_spaceprep_context(context)
+}
+<environment: namespace:NaileR>

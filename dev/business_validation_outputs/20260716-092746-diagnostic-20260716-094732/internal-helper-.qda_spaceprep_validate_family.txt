@@ -1,0 +1,78 @@
+INTERNAL HELPER: .qda_spaceprep_validate_family
+
+FORMALS:
+as.pairlist(alist(family = , index = , expected_products = , valid_evidence_ids = , context_present = ))
+
+BODY:
+function(family,
+                                           index,
+                                           expected_products,
+                                           valid_evidence_ids,
+                                           context_present) {
+  field <- sprintf("portfolio$product_families[[%d]]", index)
+  if (!is.list(family) || is.data.frame(family)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+
+  required <- c("label", "products", "text", "status", "evidence_ids", "validation_needed")
+  missing_fields <- setdiff(required, names(family))
+  if (length(missing_fields) > 0L) {
+    stop(
+      sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  unknown_fields <- setdiff(names(family), required)
+  if (length(unknown_fields) > 0L) {
+    stop(
+      sprintf(
+        "`%s` contains unexpected field(s): %s.",
+        field,
+        paste(unknown_fields, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (!.qda_spaceprep_is_nonempty_character_scalar(family$label)) {
+    stop(sprintf("`%s$label` must be a non-empty string.", field), call. = FALSE)
+  }
+
+  products <- .qda_spaceprep_as_character_vector(family$products, paste0(field, "$products"))
+  if (length(products) == 0L || length(setdiff(products, expected_products)) > 0L) {
+    stop(
+      sprintf("`%s$products` must contain only products included in this generation unit.", field),
+      call. = FALSE
+    )
+  }
+
+  claim <- .qda_spaceprep_validate_claim(
+    family[c("text", "status", "evidence_ids", "validation_needed")],
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  products <- unique(products)
+  if (!identical(claim$status, "user_context")) {
+    evidence_products <- sub("::.*$", "", claim$evidence_ids)
+    unsupported_products <- setdiff(products, evidence_products)
+    if (length(unsupported_products) > 0L) {
+      stop(
+        sprintf(
+          "`%s` must cite at least one evidence ID for every listed product. Missing: %s.",
+          field,
+          paste(unsupported_products, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  c(
+    list(label = trimws(family$label), products = products),
+    claim
+  )
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,4 @@
+"evidence_id","group","marker_type","variable","modality","direction","v_test","p_value","abs_v_test","rank","source"
+"Pragmatiques contraints::quali::purchase_place::Hard-discount","Pragmatiques contraints","qualitative","purchase_place","Hard-discount","overrepresented",4.53915748532627,5.64794426931334e-06,4.53915748532627,1,"FactoMineR::catdes()$category"
+"Pragmatiques contraints::quali::organic_purchase::Rarement","Pragmatiques contraints","qualitative","organic_purchase","Rarement","overrepresented",3.74051278792407,0.00018364520189969,3.74051278792407,2,"FactoMineR::catdes()$category"
+"Pragmatiques contraints::quanti::price_constraint","Pragmatiques contraints","quantitative","price_constraint",NA,"higher",5.17803218339021,2.24238554460203e-07,5.17803218339021,2,"FactoMineR::catdes()$quanti"

@@ -1,0 +1,265 @@
+FUNCTION: nail_textual
+
+FORMALS:
+as.pairlist(alist(dataset = NULL, num.var = NULL, num.text = NULL, x = NULL, introduction = NULL, request = NULL, conclusion = NULL, model = "llama3", provider = c("ollama", 
+    "gemini"), isolate.groups = NULL, sample.pct = 1, seed = NULL, prompt_style = c("detailed", 
+    "compact"), text_role = c("responses", "comments", "verbatims"), generate = FALSE, analysis_scope = NULL, comparison_mode = NULL, report_format = c("structured", 
+    "markdown", "compact"), report_request = NULL, context = NULL, report_context = NULL, ... = ))
+
+BODY:
+function(dataset = NULL,
+                         num.var = NULL,
+                         num.text = NULL,
+                         x = NULL,
+                         introduction = NULL,
+                         request = NULL,
+                         conclusion = NULL,
+                         model = "llama3",
+                         provider = c("ollama", "gemini"),
+                         isolate.groups = NULL,
+                         sample.pct = 1,
+                         seed = NULL,
+                         prompt_style = c("detailed", "compact"),
+                         text_role = c("responses", "comments", "verbatims"),
+                         generate = FALSE,
+                         analysis_scope = NULL,
+                         comparison_mode = NULL,
+                         report_format = c("structured", "markdown", "compact"),
+                         report_request = NULL,
+                         context = NULL,
+                         report_context = NULL,
+                         ...) {
+  provider <- match.arg(provider)
+  prompt_style <- match.arg(prompt_style)
+  text_role <- match.arg(text_role)
+  report_format <- match.arg(report_format)
+
+  if (!is.logical(generate) || length(generate) != 1L || is.na(generate)) {
+    stop("`generate` must be a single non-missing logical value.", call. = FALSE)
+  }
+  if (!is.null(report_request) && !.nail_textual_is_scalar_string(report_request)) {
+    stop("`report_request` must be NULL or a non-empty character scalar.", call. = FALSE)
+  }
+  if (!is.null(introduction) && !.nail_textual_is_scalar_string(introduction)) {
+    stop("`introduction` must be NULL or a non-empty character scalar.", call. = FALSE)
+  }
+  if (!is.null(conclusion) && !.nail_textual_is_scalar_string(conclusion)) {
+    stop("`conclusion` must be NULL or a non-empty character scalar.", call. = FALSE)
+  }
+  report_context <- .nail_textual_as_context(report_context, "report_context")
+
+  if (!is.null(x) && !is.null(dataset)) {
+    stop("Supply either `x` or `dataset`, not both.", call. = FALSE)
+  }
+  input <- if (!is.null(x)) x else dataset
+  if (is.null(input)) {
+    stop("Supply raw `dataset` data or a prepared object through `x`.", call. = FALSE)
+  }
+
+  # `x` is reserved for an already prepared object.  Treating any invalid
+  # list supplied through `x` as raw input obscures the intended contract and
+  # produces a misleading data-frame error.
+  prepared_input <- !is.null(x)
+  preparation_calls <- 0L
+  llm_calls <- 0L
+  source_type <- if (prepared_input) "prepared" else "raw"
+
+  if (prepared_input) {
+    .nail_textual_validate_preparation(input)
+    preparation <- input
+
+    if (!is.null(num.var) || !is.null(num.text)) {
+      warning("`num.var` and `num.text` are ignored for a prepared input.", call. = FALSE)
+    }
+    if (!is.null(request)) {
+      stop(
+        paste(
+          "`request` cannot retroactively modify existing textual profiles.",
+          "Use `report_request` for presentation-only instructions or create a new preparation."
+        ),
+        call. = FALSE
+      )
+    }
+    if (!is.null(context)) {
+      stop(
+        paste(
+          "`context` cannot retroactively modify existing textual profiles.",
+          "Use `report_context` for report-stage context or create a new preparation."
+        ),
+        call. = FALSE
+      )
+    }
+
+    stored_scope <- preparation$metadata$analysis_scope
+    if (!is.null(analysis_scope) && !identical(analysis_scope, stored_scope)) {
+      stop(
+        sprintf(
+          "The preparation used analysis_scope = '%s'; create a new preparation for '%s'.",
+          stored_scope,
+          analysis_scope
+        ),
+        call. = FALSE
+      )
+    }
+    analysis_scope <- stored_scope
+
+    stored_mode <- preparation$metadata$comparison_mode
+    if (!is.null(comparison_mode) && !identical(comparison_mode, stored_mode)) {
+      stop(
+        sprintf(
+          "The preparation used comparison_mode = '%s'; its evidence units cannot be relabelled as '%s'.",
+          stored_mode,
+          comparison_mode
+        ),
+        call. = FALSE
+      )
+    }
+    comparison_mode <- stored_mode
+
+    if (!is.null(isolate.groups)) {
+      mapped <- if (isTRUE(isolate.groups)) "isolated" else "joint"
+      warning("`isolate.groups` is deprecated; use `comparison_mode`.", call. = FALSE)
+      if (!identical(mapped, stored_mode)) {
+        stop("`isolate.groups` conflicts with the prepared comparison mode.", call. = FALSE)
+      }
+    }
+
+    if (!is.null(introduction)) {
+      warning(
+        "`introduction` cannot alter an existing preparation and is retained only as report-stage context.",
+        call. = FALSE
+      )
+      report_context$legacy_introduction <- introduction
+    }
+    if (!is.null(conclusion)) {
+      warning(
+        "`conclusion` is deprecated and is retained only as a report-stage request.",
+        call. = FALSE
+      )
+      if (is.null(report_request)) report_request <- conclusion
+    }
+
+    if (generate && identical(preparation$parsed$parse_status, "not_generated")) {
+      resumed <- .nail_textual_resume_preparation(
+        preparation = preparation,
+        provider = provider,
+        model = model,
+        llm_api_options = list(...)
+      )
+      preparation <- resumed$preparation
+      llm_calls <- resumed$llm_calls
+    }
+  } else {
+    if (!is.data.frame(input)) {
+      stop("Raw input must be a data frame or a valid `nail_textual_prep` object.", call. = FALSE)
+    }
+    if (is.null(num.var) || is.null(num.text)) {
+      stop("`num.var` and `num.text` are required for raw input.", call. = FALSE)
+    }
+
+    if (is.null(analysis_scope)) analysis_scope <- "general"
+    analysis_scope <- match.arg(analysis_scope, .textual_prep_scopes)
+
+    comparison_mode_missing <- is.null(comparison_mode)
+    if (comparison_mode_missing) comparison_mode <- "isolated"
+    comparison_mode <- match.arg(comparison_mode, .textual_prep_comparison_modes)
+
+    if (!is.null(isolate.groups)) {
+      if (!is.logical(isolate.groups) || length(isolate.groups) != 1L || is.na(isolate.groups)) {
+        stop("`isolate.groups` must be NULL or a single logical value.", call. = FALSE)
+      }
+      mapped <- if (isolate.groups) "isolated" else "joint"
+      if (!comparison_mode_missing && !identical(comparison_mode, mapped)) {
+        stop("`isolate.groups` and `comparison_mode` specify conflicting modes.", call. = FALSE)
+      }
+      warning("`isolate.groups` is deprecated; use `comparison_mode`.", call. = FALSE)
+      comparison_mode <- mapped
+    }
+
+    preparation_context <- .nail_textual_as_context(context, "context")
+    if (!is.null(introduction)) {
+      warning(
+        "`introduction` is deprecated; its value is preserved as preparation context.",
+        call. = FALSE
+      )
+      preparation_context$legacy_introduction <- introduction
+    }
+    if (!is.null(conclusion)) {
+      warning(
+        "`conclusion` is deprecated; its value is preserved as a report-stage request.",
+        call. = FALSE
+      )
+      if (is.null(report_request)) report_request <- conclusion
+    }
+
+    preparation <- nail_textual_prep(
+      dataset = input,
+      num.var = num.var,
+      num.text = num.text,
+      model = model,
+      provider = provider,
+      sample.pct = sample.pct,
+      seed = seed,
+      prompt_style = prompt_style,
+      text_role = text_role,
+      generate = generate,
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode,
+      request = request,
+      context = preparation_context,
+      ...
+    )
+    preparation_calls <- 1L
+    if (generate) {
+      llm_calls <- sum(vapply(
+        preparation$units,
+        function(unit) isTRUE(unit$has_evidence),
+        logical(1)
+      ))
+    }
+  }
+
+  built <- .nail_textual_build_reports(preparation)
+  report <- .nail_textual_render_report(
+    group_reports = built$group_reports,
+    cross_group_report = built$cross_group_report,
+    report_format = report_format,
+    report_request = report_request,
+    report_context = report_context
+  )
+
+  result <- list(
+    report = report,
+    group_reports = built$group_reports,
+    cross_group_report = built$cross_group_report,
+    textual_profiles = preparation$textual_profiles,
+    textual_evidence = preparation$textual_evidence,
+    preparation = preparation,
+    legacy_output = .nail_textual_legacy_output(preparation),
+    metadata = list(
+      source_type = source_type,
+      report_format = report_format,
+      report_status = built$report_status,
+      semantic_status = preparation$parsed$parse_status,
+      profile_source = built$profile_source,
+      analysis_scope = preparation$metadata$analysis_scope,
+      comparison_mode = preparation$metadata$comparison_mode,
+      preparation_request = preparation$metadata$preparation_request,
+      report_request = report_request,
+      preparation_context = preparation$metadata$context,
+      report_context = report_context,
+      preparation_calls = preparation_calls,
+      llm_calls = llm_calls,
+      generated_in_this_call = llm_calls > 0L
+    )
+  )
+  class(result) <- c("nail_textual", "list")
+
+  attr(result, "textual_evidence") <- result$textual_evidence
+  attr(result, "textual_profiles") <- result$textual_profiles
+  attr(result, "textual_preparation") <- result$preparation
+  attr(result, "textual_data_summary") <- result$textual_evidence$group_diagnostics
+  attr(result, "legacy_output") <- result$legacy_output
+  result
+}
+<environment: namespace:NaileR>

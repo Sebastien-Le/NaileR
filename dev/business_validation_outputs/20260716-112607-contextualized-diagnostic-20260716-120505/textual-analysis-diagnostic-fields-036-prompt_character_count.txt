@@ -1,0 +1,8 @@
+PATH: textual-analysis$textual_evidence$sampling$by_group$prompt_character_count
+FIELD: prompt_character_count
+TYPEOF: integer
+CLASS: integer
+
+3194
+3166
+3326

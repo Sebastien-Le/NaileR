@@ -1,0 +1,6 @@
+PATH: contextualized-offline$contextualized_evidence$groups$Curieux flexibles$textual_diagnostics$n_prompt_budget
+FIELD: n_prompt_budget
+TYPEOF: integer
+CLASS: integer
+
+0

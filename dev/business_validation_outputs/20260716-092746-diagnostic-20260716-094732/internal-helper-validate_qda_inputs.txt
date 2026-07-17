@@ -1,0 +1,74 @@
+INTERNAL HELPER: validate_qda_inputs
+
+FORMALS:
+as.pairlist(alist(dataset = , formul = , firstvar = , lastvar = , isolate.groups = , drop.negative = , proba = , generate = , sample.pct = , prompt_style = , product_knowledge = ))
+
+BODY:
+function(dataset, formul, firstvar, lastvar,
+                                isolate.groups, drop.negative,
+                                proba, generate, sample.pct,
+                                prompt_style, product_knowledge) {
+  if (!is.data.frame(dataset)) {
+    stop("`dataset` must be a data frame.", call. = FALSE)
+  }
+
+  if (ncol(dataset) < 2) {
+    stop("`dataset` must contain at least two columns.", call. = FALSE)
+  }
+
+  assert_index_range(firstvar, lastvar, ncol(dataset))
+  assert_proportion(proba, "proba")
+  assert_proportion(sample.pct, "sample.pct")
+  assert_single_logical(isolate.groups, "isolate.groups")
+  assert_single_logical(drop.negative, "drop.negative")
+  assert_single_logical(generate, "generate")
+
+  if (!prompt_style %in% c("detailed", "compact")) {
+    stop("`prompt_style` must be one of: 'detailed', 'compact'.", call. = FALSE)
+  }
+
+  if (!product_knowledge %in% c("known", "unknown")) {
+    stop("`product_knowledge` must be one of: 'known', 'unknown'.", call. = FALSE)
+  }
+
+  if (missing(formul) || is.null(formul) || !nzchar(trimws(paste(formul, collapse = " ")))) {
+    stop("`formul` must be provided and non-empty.", call. = FALSE)
+  }
+
+  formula_obj <- tryCatch(
+    stats::as.formula(paste(formul, collapse = " ")),
+    error = function(e) {
+      stop("`formul` could not be parsed as a valid formula.", call. = FALSE)
+    }
+  )
+
+  rhs_terms <- attr(stats::terms(formula_obj), "term.labels")
+
+  if (length(rhs_terms) < 1) {
+    stop("`formul` must contain at least one right-hand-side term.", call. = FALSE)
+  }
+
+  product_var <- trimws(rhs_terms[1])
+
+  if (!product_var %in% colnames(dataset)) {
+    stop(sprintf(
+      "The first right-hand-side term in `formul` ('%s') was not found in `dataset`.",
+      product_var
+    ), call. = FALSE)
+  }
+
+  product_col <- dataset[[product_var]]
+  if (!is.factor(product_col)) {
+    product_col <- as.factor(product_col)
+  }
+
+  if (nlevels(product_col) < 2) {
+    stop(sprintf(
+      "The product factor '%s' must have at least 2 levels.",
+      product_var
+    ), call. = FALSE)
+  }
+
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

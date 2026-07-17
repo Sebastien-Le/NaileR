@@ -1,0 +1,16 @@
+PATH: contextualized-offline$textual_preparation$legacy_groups$Ancrés locaux$parsed
+FIELD: parsed
+TYPEOF: list
+CLASS: list
+
+List of 10
+ $ core_textual_profile       : chr NA
+ $ main_themes                : chr(0) 
+ $ dominant_concerns          : chr(0) 
+ $ tone_or_stance             : chr(0) 
+ $ intra_group_consistency    : chr NA
+ $ intra_group_consistency_raw: chr NA
+ $ injectable_summary         : chr NA
+ $ central_verbatim_cues      : chr(0) 
+ $ contrastive_verbatim_cues  : chr(0) 
+ $ tension_verbatim_cues      : chr(0) 

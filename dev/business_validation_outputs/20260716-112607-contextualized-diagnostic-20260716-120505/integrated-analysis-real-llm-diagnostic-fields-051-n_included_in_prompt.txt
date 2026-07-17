@@ -1,0 +1,8 @@
+PATH: integrated-analysis-real-llm$textual_evidence$sampling$by_group$n_included_in_prompt
+FIELD: n_included_in_prompt
+TYPEOF: integer
+CLASS: integer
+
+15
+15
+15

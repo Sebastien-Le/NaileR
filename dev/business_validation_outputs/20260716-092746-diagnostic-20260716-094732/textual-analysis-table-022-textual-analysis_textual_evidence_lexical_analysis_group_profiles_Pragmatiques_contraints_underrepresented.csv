@@ -1,0 +1,3 @@
+"term","within_group_percent","global_percent","within_group_frequency","global_frequency","p_value","v_test","direction"
+"semaine",0,1.57687253613666,0,12,0.0176962567656829,-2.37191300516414,"underrepresented"
+"habitudes",0,1.31406044678055,0,10,0.0391616243252824,-2.06248457807383,"underrepresented"

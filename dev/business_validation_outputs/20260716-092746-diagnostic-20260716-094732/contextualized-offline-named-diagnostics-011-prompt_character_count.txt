@@ -1,0 +1,6 @@
+PATH: contextualized-offline$contextualized_evidence$groups$Ancrés locaux$textual_diagnostics$prompt_character_count
+FIELD: prompt_character_count
+TYPEOF: integer
+CLASS: integer
+
+3194

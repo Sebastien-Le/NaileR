@@ -1,0 +1,6 @@
+PATH: statistical-profiles$metadata$schema_version
+FIELD: schema_version
+TYPEOF: character
+CLASS: character
+
+1.0.0

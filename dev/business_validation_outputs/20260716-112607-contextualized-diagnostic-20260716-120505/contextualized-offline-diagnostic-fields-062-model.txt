@@ -1,0 +1,6 @@
+PATH: contextualized-offline$textual_preparation$response$model
+FIELD: model
+TYPEOF: character
+CLASS: character
+
+mistral-small3.2

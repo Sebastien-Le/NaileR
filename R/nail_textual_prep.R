@@ -1,16 +1,86 @@
 # ---------------------------------------------------------------------------
-# nail_textual_prep(): structured textual preparation and lexical indicators
+# nail_textual_prep(): traceable textual evidence and semantic profiles
 # ---------------------------------------------------------------------------
 
-# This file contains only the helpers and exported function required by
-# nail_textual_prep(). It depends on nail_textual() for prompt construction and
-# on internal NaileR helpers .call_llm_base() and .strip_markdown_fences().
+.textual_prep_scopes <- c(
+  "general",
+  "sociological",
+  "consumer",
+  "psychological",
+  "marketing",
+  "innovation",
+  "cross_functional"
+)
 
-# ---------------------------------------------------------------------------
-# Validation and generic helpers
-# ---------------------------------------------------------------------------
+.textual_prep_comparison_modes <- c("isolated", "joint")
 
-.validate_textual_prep_options <- function(include_verbatims_in_prompt,
+.textual_prep_statuses <- c(
+  "expert_interpretation",
+  "hypothesis",
+  "recommendation",
+  "user_context"
+)
+
+.textual_prep_group_fields <- c(
+  "group",
+  "core_textual_profile",
+  "main_themes",
+  "dominant_concerns",
+  "tone_or_stance",
+  "narrative_frames",
+  "motivations",
+  "barriers",
+  "perceived_benefits",
+  "social_norms",
+  "identity_cues",
+  "contradictions",
+  "minority_positions",
+  "representative_verbatims",
+  "tension_verbatims",
+  "intra_group_consistency",
+  "interpretation_limits"
+)
+
+.textual_prep_cross_group_fields <- c(
+  "shared_themes",
+  "group_contrasts",
+  "minority_patterns",
+  "interpretation_limits"
+)
+
+.textual_prep_is_scalar_string <- function(x, allow_empty = FALSE) {
+  is.character(x) && length(x) == 1L && !is.na(x) &&
+    (allow_empty || nzchar(trimws(x)))
+}
+
+.textual_prep_validate_context <- function(context) {
+  if (is.null(context)) {
+    return(list())
+  }
+
+  if (is.character(context) && length(context) == 1L && !is.na(context)) {
+    return(list(general = context))
+  }
+
+  if (!is.list(context) || is.data.frame(context)) {
+    stop("`context` must be NULL, a character scalar, or a named list.", call. = FALSE)
+  }
+
+  if (length(context) > 0L &&
+      (is.null(names(context)) || any(!nzchar(names(context))))) {
+    stop("`context` must be a named list.", call. = FALSE)
+  }
+
+  context
+}
+
+.validate_textual_prep_options <- function(dataset,
+                                           num.var,
+                                           num.text,
+                                           sample.pct,
+                                           seed,
+                                           max_prompt_characters,
+                                           include_verbatims_in_prompt,
                                            attach_selected_verbatims,
                                            n_central_verbatims,
                                            n_tension_verbatims,
@@ -22,24 +92,68 @@
                                            top_n_characteristic_words,
                                            top_n_frequent_terms,
                                            include_indicators_in_prompt,
-                                           compute_length_analysis) {
+                                           compute_length_analysis,
+                                           generate,
+                                           request,
+                                           context) {
+  if (!is.data.frame(dataset)) {
+    stop("`dataset` must be a data frame.", call. = FALSE)
+  }
+
+  validate_index <- function(x, name) {
+    if (!is.numeric(x) || length(x) != 1L || is.na(x) || !is.finite(x) ||
+        x != floor(x) || x < 1L || x > ncol(dataset)) {
+      stop(sprintf("`%s` must be a valid column index.", name), call. = FALSE)
+    }
+  }
+
+  validate_index(num.var, "num.var")
+  validate_index(num.text, "num.text")
+
+  if (num.var == num.text) {
+    stop("`num.var` and `num.text` must refer to different columns.", call. = FALSE)
+  }
+
+  if (!is.numeric(sample.pct) || length(sample.pct) != 1L || is.na(sample.pct) ||
+      !is.finite(sample.pct) || sample.pct < 0 || sample.pct > 1) {
+    stop("`sample.pct` must be a single numeric value in [0, 1].", call. = FALSE)
+  }
+
+  if (!is.null(seed) &&
+      (!is.numeric(seed) || length(seed) != 1L || is.na(seed) ||
+       !is.finite(seed) || seed != floor(seed))) {
+    stop("`seed` must be NULL or a single finite integer.", call. = FALSE)
+  }
+
+  if (is.null(max_prompt_characters)) {
+    max_prompt_characters <- Inf
+  }
+  if (!is.numeric(max_prompt_characters) || length(max_prompt_characters) != 1L ||
+      is.na(max_prompt_characters) || max_prompt_characters < 0) {
+    stop(
+      "`max_prompt_characters` must be NULL, Inf, or a single non-negative number.",
+      call. = FALSE
+    )
+  }
+
   logical_args <- list(
     include_verbatims_in_prompt = include_verbatims_in_prompt,
     attach_selected_verbatims = attach_selected_verbatims,
     lexical_analysis = lexical_analysis,
     include_indicators_in_prompt = include_indicators_in_prompt,
-    compute_length_analysis = compute_length_analysis
+    compute_length_analysis = compute_length_analysis,
+    generate = generate
   )
 
   invalid_logicals <- names(logical_args)[
     !vapply(
       logical_args,
-      function(x) is.logical(x) && length(x) == 1 && !is.na(x),
+      function(x) is.logical(x) && length(x) == 1L && !is.na(x),
       logical(1)
     )
   ]
 
-  if (length(invalid_logicals) > 0) {
+  if (length(invalid_logicals) > 0L) {
     stop(
       sprintf(
         "The following arguments must be single non-missing logical values: %s.",
@@ -65,50 +179,35 @@
       "n_tension_verbatims",
       "top_n_characteristic_words",
       "top_n_frequent_terms"
-    )) 0 else 1
+    )) 0L else 1L
 
-    if (!is.numeric(value) || length(value) != 1 || is.na(value) ||
+    if (!is.numeric(value) || length(value) != 1L || is.na(value) ||
         !is.finite(value) || value != floor(value) || value < minimum) {
       stop(
-        sprintf(
-          "`%s` must be a single integer >= %d.",
-          arg_name,
-          minimum
-        ),
+        sprintf("`%s` must be a single integer >= %d.", arg_name, minimum),
         call. = FALSE
       )
     }
   }
 
-  if (!is.numeric(max_verbatim_chars) || length(max_verbatim_chars) != 1 ||
+  if (!is.numeric(max_verbatim_chars) || length(max_verbatim_chars) != 1L ||
       is.na(max_verbatim_chars) || !is.finite(max_verbatim_chars) ||
-      max_verbatim_chars != floor(max_verbatim_chars) ||
-      max_verbatim_chars < 4) {
+      max_verbatim_chars != floor(max_verbatim_chars) || max_verbatim_chars < 4L) {
     stop("`max_verbatim_chars` must be a single integer >= 4.", call. = FALSE)
   }
 
-  if (!is.numeric(lexical_proba) || length(lexical_proba) != 1 ||
+  if (!is.numeric(lexical_proba) || length(lexical_proba) != 1L ||
       is.na(lexical_proba) || !is.finite(lexical_proba) ||
       lexical_proba <= 0 || lexical_proba > 1) {
     stop("`lexical_proba` must be a single numeric value in ]0, 1].", call. = FALSE)
   }
 
-  invisible(TRUE)
-}
+  if (!is.null(request) && !.textual_prep_is_scalar_string(request)) {
+    stop("`request` must be NULL or a non-empty character scalar.", call. = FALSE)
+  }
 
-.empty_parsed_textprep <- function() {
-  list(
-    core_textual_profile = NA_character_,
-    main_themes = character(0),
-    dominant_concerns = character(0),
-    tone_or_stance = character(0),
-    intra_group_consistency = NA_character_,
-    intra_group_consistency_raw = NA_character_,
-    injectable_summary = NA_character_,
-    central_verbatim_cues = character(0),
-    contrastive_verbatim_cues = character(0),
-    tension_verbatim_cues = character(0)
-  )
+  .textual_prep_validate_context(context)
+  invisible(TRUE)
 }
 
 .empty_characteristic_terms_textprep <- function() {
@@ -953,282 +1052,6 @@
 # Representative and contrastive verbatims
 # ---------------------------------------------------------------------------
 
-.text_keyword_score_textprep <- function(text, keywords) {
-  if (length(keywords) == 0) return(0)
-
-  text_tokens <- .tokenize_one_text_textprep(
-    text,
-    min_word_length = 1,
-    stopwords = character(0),
-    unique_only = TRUE
-  )
-
-  sum(keywords %in% text_tokens)
-}
-
-.lexical_distance_to_set_textprep <- function(text, set_texts) {
-  if (length(set_texts) == 0) return(0)
-
-  tokenize <- function(x) {
-    .tokenize_one_text_textprep(
-      x,
-      min_word_length = 3,
-      stopwords = character(0),
-      unique_only = TRUE
-    )
-  }
-
-  tokens_a <- tokenize(text)
-  if (length(tokens_a) == 0) return(1)
-
-  distances <- vapply(set_texts, function(reference_text) {
-    tokens_b <- tokenize(reference_text)
-    if (length(tokens_b) == 0) return(1)
-
-    intersection_size <- length(intersect(tokens_a, tokens_b))
-    union_size <- length(unique(c(tokens_a, tokens_b)))
-
-    if (union_size == 0) 1 else 1 - intersection_size / union_size
-  }, numeric(1))
-
-  min(distances, na.rm = TRUE)
-}
-
-.select_representative_verbatims_textprep <- function(dataset,
-                                                      num.var,
-                                                      num.text,
-                                                      textual_summary = NULL,
-                                                      lexical_profiles = NULL,
-                                                      n_central = 2,
-                                                      n_tension = 1,
-                                                      min_chars = 25,
-                                                      max_chars = 220) {
-  var_name <- colnames(dataset)[num.var]
-  text_name <- colnames(dataset)[num.text]
-
-  group_values <- dataset[[var_name]]
-  keep_group <- !is.na(group_values)
-  working <- dataset[keep_group, , drop = FALSE]
-  working[[var_name]] <- droplevels(as.factor(working[[var_name]]))
-  split_data <- split(working, working[[var_name]], drop = TRUE)
-  out <- list()
-
-  for (group_name in names(split_data)) {
-    group_data <- split_data[[group_name]]
-    corpus <- .extract_nonempty_texts_textprep(group_data[[text_name]])
-    corpus <- .deduplicate_texts_textprep(corpus)
-    corpus <- corpus[nchar(corpus) >= min_chars]
-
-    if (length(corpus) == 0) {
-      out[[group_name]] <- list(
-        central = character(0),
-        contrastive = character(0),
-        tension = character(0)
-      )
-      next
-    }
-
-    parsed <- if (!is.null(textual_summary) && group_name %in% names(textual_summary)) {
-      textual_summary[[group_name]]
-    } else {
-      NULL
-    }
-
-    characteristic_words <- character(0)
-    if (!is.null(lexical_profiles) && group_name %in% names(lexical_profiles)) {
-      characteristic_words <- lexical_profiles[[group_name]]$characteristic_words
-    }
-
-    keywords <- .tokenize_keywords_textprep(c(
-      if (!is.null(parsed)) parsed$main_themes else NULL,
-      if (!is.null(parsed)) parsed$dominant_concerns else NULL,
-      if (!is.null(parsed)) parsed$core_textual_profile else NULL,
-      characteristic_words
-    ))
-
-    character_lengths <- nchar(corpus)
-    median_length <- stats::median(character_lengths)
-
-    keyword_scores <- vapply(
-      corpus,
-      .text_keyword_score_textprep,
-      numeric(1),
-      keywords = keywords
-    )
-    length_scores <- -abs(character_lengths - median_length)
-
-    ranking <- data.frame(
-      text = corpus,
-      keyword_score = keyword_scores,
-      length_score = length_scores,
-      stringsAsFactors = FALSE
-    )
-    ranking <- ranking[
-      order(-ranking$keyword_score, -ranking$length_score),
-      ,
-      drop = FALSE
-    ]
-
-    central <- utils::head(ranking$text, n_central)
-    remainder <- setdiff(corpus, central)
-    contrastive <- character(0)
-
-    if (length(remainder) > 0 && n_tension > 0) {
-      contrastive_ranking <- data.frame(
-        text = remainder,
-        keyword_score = vapply(
-          remainder,
-          .text_keyword_score_textprep,
-          numeric(1),
-          keywords = keywords
-        ),
-        lexical_distance = vapply(
-          remainder,
-          .lexical_distance_to_set_textprep,
-          numeric(1),
-          set_texts = central
-        ),
-        stringsAsFactors = FALSE
-      )
-
-      contrastive_ranking <- contrastive_ranking[
-        order(
-          contrastive_ranking$keyword_score,
-          -contrastive_ranking$lexical_distance
-        ),
-        ,
-        drop = FALSE
-      ]
-
-      contrastive <- utils::head(contrastive_ranking$text, n_tension)
-    }
-
-    central <- .truncate_verbatim_textprep(central, max_chars = max_chars)
-    contrastive <- .truncate_verbatim_textprep(
-      contrastive,
-      max_chars = max_chars
-    )
-
-    out[[group_name]] <- list(
-      central = central,
-      contrastive = contrastive,
-      # Backward-compatible alias. The selected texts are contrastive
-      # candidates and are not evidence of a demonstrated internal tension.
-      tension = contrastive
-    )
-  }
-
-  out
-}
-
-# ---------------------------------------------------------------------------
-# Structured prompt builders
-# ---------------------------------------------------------------------------
-
-build_request_textual_prep <- function(include_verbatims = TRUE,
-                                       include_indicators = TRUE) {
-  base <- c(
-    "Using only the evidence below, produce a short structured summary of this group.",
-    "",
-    "The goal is to prepare a later comparison between:",
-    "- what this group expresses in its texts,",
-    "- which words statistically characterize this group relative to the other groups, when lexical indicators are supplied,",
-    "- and how this group is characterized by external statistical descriptors in a later analysis.",
-    "",
-    "Interpretive rules:",
-    "- Start from recurring themes before proposing a broader interpretation.",
-    "- Treat individual phrases as illustrative evidence, not as standalone proof.",
-    "- Treat recurring patterns as group-level textual evidence, not as properties shared by every individual.",
-    "- Distinguish central themes from secondary or marginal elements.",
-    "- Distinguish demonstrated internal tensions from isolated contrastive or atypical contributions.",
-    "- Report an internal tension only when it is supported by several elements of the corpus.",
-    "- A minority, atypical, or less central contribution may still be reported as a contrastive cue, but it must not be presented as proof of an internal contradiction.",
-    "- Do not infer hidden motives, unexpressed intentions, deep personality traits, or moral qualities.",
-    "- Summarize reasons only when they are explicitly expressed in the texts.",
-    "- Do not treat the absence or under-representation of a word as proof that the group rejects or does not care about the corresponding topic.",
-    "- Stay close to the texts."
-  )
-
-  if (include_indicators) {
-    base <- c(
-      base,
-      "- Use mechanical indicators as supporting evidence, not as a substitute for reading the texts.",
-      "- A statistically over-represented word is comparatively frequent in this group; it is not necessarily used by every individual and does not by itself define a theme.",
-      "- Response length describes quantity of expression only and must not be interpreted as textual quality, richness, or evidential strength."
-    )
-  }
-
-  base <- c(
-    base,
-    "- Use the exact output format below.",
-    "",
-    "Output format:",
-    "Core textual profile:",
-    "[One short sentence summarizing what mainly characterizes this group in the texts.]",
-    "",
-    "Main themes:",
-    "[3 to 5 short themes separated by semicolons.]",
-    "",
-    "Dominant concerns or expressed reasons:",
-    "[1 to 3 short phrases separated by semicolons. Include reasons only when they are explicitly expressed. If unclear, write: unclear]",
-    "",
-    "Tone or stance:",
-    "[One short expression such as supportive / critical / ambivalent / pragmatic / engaged / hesitant / resigned / mixed]",
-    "",
-    "Intra-group consistency:",
-    "[Choose exactly one: strong / moderate / mixed / weak, according to how consistently the main themes recur across the available texts.]",
-    "",
-    "Injectable summary:",
-    "[One short sentence reusable later in a contextualized cross-group interpretation.]"
-  )
-
-  if (!include_verbatims) {
-    return(paste(base, collapse = "\n"))
-  }
-
-  paste(
-    c(
-      base,
-      "",
-      "Central verbatim cues:",
-      "[1 to 2 very short quoted excerpts or paraphrased cues separated by semicolons. Use them only as illustrative cues, not as proof.]",
-      "",
-      "Potential tension or contrastive verbatim cues:",
-      "[0 to 2 very short quoted excerpts or paraphrased cues separated by semicolons. Retain a cue when the corpus contains a clearly minority, atypical, less central, or contrasting contribution. Describe it cautiously and do not treat it as proof of a contradiction. If no such contribution is identifiable, write: none]"
-    ),
-    collapse = "\n"
-  )
-}
-
-build_conclusion_textual_prep <- function(include_verbatims = TRUE) {
-  fields <- c(
-    "Core textual profile:",
-    "Main themes:",
-    "Dominant concerns or expressed reasons:",
-    "Tone or stance:",
-    "Intra-group consistency:",
-    "Injectable summary:"
-  )
-
-  if (include_verbatims) {
-    fields <- c(
-      fields,
-      "Central verbatim cues:",
-      "Potential tension or contrastive verbatim cues:"
-    )
-  }
-
-  paste(
-    c(
-      "# Output constraint",
-      "Your answer must contain exactly the following field labels and nothing else.",
-      "Do not number the fields.",
-      "Write each field label exactly as shown below:",
-      fields
-    ),
-    collapse = "\n"
-  )
-}
 
 .format_number_textprep <- function(x, digits = 3) {
   if (length(x) == 0 || is.na(x) || !is.finite(x)) {
@@ -1260,633 +1083,1744 @@ build_conclusion_textual_prep <- function(include_verbatims = TRUE) {
   )
 }
 
-.build_indicator_block_textprep <- function(group_name,
-                                            corpus_metrics,
-                                            lexical_profile,
-                                            lexical_settings,
-                                            sample.pct,
-                                            max_terms = 8) {
-  lines <- c(
-    "## Mechanical corpus and lexical indicators",
-    "The indicators in this section were calculated directly from the complete non-empty corpus, independently of the language model."
+
+
+# ---------------------------------------------------------------------------
+# Mechanical textual evidence
+# ---------------------------------------------------------------------------
+
+.textual_prep_group_levels <- function(x) {
+  if (is.factor(x)) {
+    return(as.character(levels(x)))
+  }
+
+  x <- as.character(x)
+  x <- x[!is.na(x) & nzchar(trimws(x))]
+  unique(x)
+}
+
+.textual_prep_text_status <- function(x) {
+  if (is.na(x)) return("missing")
+  if (identical(x, "")) return("empty")
+  if (!nzchar(trimws(x))) return("whitespace")
+  "non_empty"
+}
+
+.textual_prep_escape_component <- function(x) {
+  x <- enc2utf8(as.character(x))
+  x <- gsub("%", "%25", x, fixed = TRUE)
+  gsub(":", "%3A", x, fixed = TRUE)
+}
+
+.textual_prep_make_verbatim_id <- function(group, row_index) {
+  group_component <- if (is.na(group) || !nzchar(trimws(group))) {
+    "<missing_group>"
+  } else {
+    group
+  }
+
+  paste0(
+    .textual_prep_escape_component(group_component),
+    "::verbatim::",
+    as.integer(row_index)
+  )
+}
+
+.textual_prep_stable_hash <- function(x) {
+  ints <- utf8ToInt(enc2utf8(paste(x, collapse = "|")))
+  if (length(ints) == 0L) return(0)
+
+  modulus <- 2147483647
+  hash <- 2166136261 %% modulus
+  for (i in seq_along(ints)) {
+    hash <- (hash * 16777619 + as.numeric(ints[[i]]) + i) %% modulus
+  }
+  hash
+}
+
+.textual_prep_word_count <- function(x) {
+  if (length(x) == 0L || is.na(x) || !nzchar(trimws(x))) return(0L)
+  length(
+    .tokenize_one_text_textprep(
+      x,
+      min_word_length = 1L,
+      stopwords = character(0),
+      unique_only = FALSE
+    )
+  )
+}
+
+.textual_prep_empty_lexical_results <- function(lexical_unit,
+                                                language,
+                                                lexical_proba,
+                                                min_word_frequency,
+                                                min_word_length,
+                                                top_n_characteristic_words,
+                                                reason = NULL) {
+  list(
+    settings = list(
+      lexical_unit = lexical_unit,
+      language = language,
+      lexical_proba = lexical_proba,
+      min_word_frequency = min_word_frequency,
+      min_word_length = min_word_length,
+      top_n_characteristic_words = top_n_characteristic_words,
+      multiple_testing_adjustment = "none",
+      available = FALSE,
+      reason = reason
+    ),
+    contingency_table = matrix(numeric(0), nrow = 0, ncol = 0),
+    occurrence_table = matrix(numeric(0), nrow = 0, ncol = 0),
+    raw_occurrence_table = matrix(numeric(0), nrow = 0, ncol = 0),
+    retained_occurrence_rate = NA_real_,
+    textual_result = NULL,
+    descfreq_result = NULL,
+    group_profiles = list(),
+    global_association = .compute_global_lexical_association_textprep(
+      matrix(numeric(0), nrow = 0, ncol = 0)
+    )
+  )
+}
+
+.textual_prep_build_verbatim_table <- function(dataset,
+                                               num.var,
+                                               num.text,
+                                               sample.pct,
+                                               seed,
+                                               max_prompt_characters) {
+  group_raw <- dataset[[num.var]]
+  group <- as.character(group_raw)
+  original_text <- as.character(dataset[[num.text]])
+  row_index <- seq_len(nrow(dataset))
+
+  valid_group <- !is.na(group) & nzchar(trimws(group))
+  text_status <- unname(vapply(
+    original_text,
+    .textual_prep_text_status,
+    character(1),
+    USE.NAMES = FALSE
+  ))
+  character_count <- unname(vapply(
+    original_text,
+    function(x) if (is.na(x)) 0L else nchar(x, type = "chars"),
+    integer(1),
+    USE.NAMES = FALSE
+  ))
+  word_count <- unname(vapply(
+    original_text,
+    .textual_prep_word_count,
+    integer(1),
+    USE.NAMES = FALSE
+  ))
+  evidence_id <- unname(vapply(
+    seq_along(row_index),
+    function(i) .textual_prep_make_verbatim_id(group[[i]], row_index[[i]]),
+    character(1),
+    USE.NAMES = FALSE
+  ))
+
+  out <- data.frame(
+    verbatim_id = evidence_id,
+    group = group,
+    original_text = original_text,
+    row_index = as.integer(row_index),
+    character_count = as.integer(character_count),
+    word_count = as.integer(word_count),
+    text_status = text_status,
+    missing_or_empty = text_status != "non_empty",
+    included_in_prompt = FALSE,
+    sampling_rank = rep(NA_integer_, length(row_index)),
+    exclusion_reason = rep(NA_character_, length(row_index)),
+    prompt_character_cost = rep(NA_integer_, length(row_index)),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
   )
 
-  if (!is.null(corpus_metrics)) {
-    lines <- c(
-      lines,
-      paste0(
-        "Corpus volume for group '", group_name, "': ",
-        corpus_metrics$n_texts, " non-empty texts out of ",
-        corpus_metrics$n_rows, " rows (response rate = ",
-        .format_number_textprep(100 * corpus_metrics$response_rate), "%); ",
-        "median length = ",
-        .format_number_textprep(corpus_metrics$median_characters),
-        " characters and ",
-        .format_number_textprep(corpus_metrics$median_words),
-        " word-like tokens."
+  out$exclusion_reason[!valid_group] <- "invalid_group"
+  out$exclusion_reason[valid_group & text_status == "missing"] <- "missing"
+  out$exclusion_reason[valid_group & text_status == "empty"] <- "empty"
+  out$exclusion_reason[valid_group & text_status == "whitespace"] <- "empty"
+
+  group_levels <- .textual_prep_group_levels(group_raw)
+  seed_key <- if (is.null(seed)) "0" else format(seed, scientific = FALSE, trim = TRUE)
+  budget <- if (is.null(max_prompt_characters)) Inf else max_prompt_characters
+
+  for (group_name in group_levels) {
+    eligible <- which(
+      valid_group &
+        !is.na(group) &
+        group == group_name &
+        text_status == "non_empty"
+    )
+
+    if (length(eligible) == 0L) next
+
+    scores <- vapply(
+      eligible,
+      function(i) {
+        .textual_prep_stable_hash(c(seed_key, group_name, row_index[[i]]))
+      },
+      numeric(1)
+    )
+    ordered <- eligible[order(scores, row_index[eligible])]
+    out$sampling_rank[ordered] <- seq_along(ordered)
+
+    n_available <- length(ordered)
+    n_sample <- if (sample.pct <= 0) {
+      0L
+    } else if (sample.pct >= 1) {
+      n_available
+    } else {
+      min(n_available, max(1L, as.integer(round(n_available * sample.pct))))
+    }
+
+    candidates <- if (n_sample > 0L) ordered[seq_len(n_sample)] else integer(0)
+    not_sampled <- setdiff(ordered, candidates)
+    out$exclusion_reason[not_sampled] <- "not_sampled"
+
+    cumulative <- 0
+    for (i in candidates) {
+      line_cost <- nchar(
+        paste0("[", out$verbatim_id[[i]], "] ", out$original_text[[i]]),
+        type = "chars"
+      )
+      out$prompt_character_cost[[i]] <- as.integer(line_cost)
+
+      if (is.infinite(budget) || cumulative + line_cost <= budget) {
+        out$included_in_prompt[[i]] <- TRUE
+        out$exclusion_reason[[i]] <- NA_character_
+        cumulative <- cumulative + line_cost
+      } else {
+        out$exclusion_reason[[i]] <- "prompt_budget"
+      }
+    }
+  }
+
+  if (anyDuplicated(out$verbatim_id)) {
+    stop("Internal error: textual evidence identifiers are not unique.", call. = FALSE)
+  }
+
+  out
+}
+
+.textual_prep_group_diagnostics <- function(verbatims, group_levels) {
+  rows <- lapply(group_levels, function(group_name) {
+    idx <- which(!is.na(verbatims$group) & verbatims$group == group_name)
+    block <- verbatims[idx, , drop = FALSE]
+    non_empty <- block$text_status == "non_empty"
+    words <- block$word_count[non_empty]
+    chars <- block$character_count[non_empty]
+
+    data.frame(
+      group = group_name,
+      n_total = nrow(block),
+      n_missing = sum(block$text_status == "missing"),
+      n_empty = sum(block$text_status == "empty"),
+      n_whitespace = sum(block$text_status == "whitespace"),
+      n_non_empty = sum(non_empty),
+      n_included_in_prompt = sum(block$included_in_prompt),
+      n_excluded_from_prompt = nrow(block) - sum(block$included_in_prompt),
+      n_not_sampled = sum(block$exclusion_reason == "not_sampled", na.rm = TRUE),
+      n_prompt_budget = sum(block$exclusion_reason == "prompt_budget", na.rm = TRUE),
+      total_characters = if (length(chars) > 0L) sum(chars) else 0L,
+      total_words = if (length(words) > 0L) sum(words) else 0L,
+      median_words = if (length(words) > 0L) stats::median(words) else NA_real_,
+      min_words = if (length(words) > 0L) min(words) else NA_real_,
+      max_words = if (length(words) > 0L) max(words) else NA_real_,
+      sampling_fraction = if (sum(non_empty) > 0L) {
+        sum(block$included_in_prompt) / sum(non_empty)
+      } else {
+        NA_real_
+      },
+      prompt_character_count = sum(
+        block$prompt_character_cost[block$included_in_prompt],
+        na.rm = TRUE
+      ),
+      stringsAsFactors = FALSE,
+      check.names = FALSE
+    )
+  })
+
+  if (length(rows) == 0L) {
+    return(data.frame(
+      group = character(0),
+      n_total = integer(0),
+      n_missing = integer(0),
+      n_empty = integer(0),
+      n_whitespace = integer(0),
+      n_non_empty = integer(0),
+      n_included_in_prompt = integer(0),
+      n_excluded_from_prompt = integer(0),
+      n_not_sampled = integer(0),
+      n_prompt_budget = integer(0),
+      total_characters = integer(0),
+      total_words = integer(0),
+      median_words = numeric(0),
+      min_words = numeric(0),
+      max_words = numeric(0),
+      sampling_fraction = numeric(0),
+      prompt_character_count = numeric(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
+.build_textual_evidence <- function(dataset,
+                                    num.var,
+                                    num.text,
+                                    sample.pct,
+                                    seed,
+                                    max_prompt_characters,
+                                    language,
+                                    lexical_analysis,
+                                    lexical_unit,
+                                    lexical_proba,
+                                    min_word_frequency,
+                                    min_word_length,
+                                    top_n_characteristic_words,
+                                    top_n_frequent_terms,
+                                    compute_length_analysis) {
+  group_levels <- .textual_prep_group_levels(dataset[[num.var]])
+  verbatims <- .textual_prep_build_verbatim_table(
+    dataset = dataset,
+    num.var = num.var,
+    num.text = num.text,
+    sample.pct = sample.pct,
+    seed = seed,
+    max_prompt_characters = max_prompt_characters
+  )
+
+  group_diagnostics <- .textual_prep_group_diagnostics(
+    verbatims = verbatims,
+    group_levels = group_levels
+  )
+
+  corpus_metrics <- .compute_corpus_metrics_textprep(
+    dataset = dataset,
+    num.var = num.var,
+    num.text = num.text
+  )
+
+  length_group_analysis <- if (compute_length_analysis) {
+    tryCatch(
+      .compute_length_group_analysis_textprep(
+        dataset = dataset,
+        num.var = num.var,
+        num.text = num.text
+      ),
+      error = function(e) {
+        .empty_length_analysis_textprep(
+          paste("Length analysis failed:", conditionMessage(e))
+        )
+      }
+    )
+  } else {
+    .empty_length_analysis_textprep(
+      "The analysis was disabled by `compute_length_analysis = FALSE`."
+    )
+  }
+
+  lexical_results <- if (lexical_analysis) {
+    tryCatch(
+      .compute_lexical_analysis_textprep(
+        dataset = dataset,
+        num.var = num.var,
+        num.text = num.text,
+        lexical_unit = lexical_unit,
+        language = language,
+        lexical_proba = lexical_proba,
+        min_word_frequency = min_word_frequency,
+        min_word_length = min_word_length,
+        top_n_characteristic_words = top_n_characteristic_words
+      ),
+      error = function(e) {
+        .textual_prep_empty_lexical_results(
+          lexical_unit = lexical_unit,
+          language = language,
+          lexical_proba = lexical_proba,
+          min_word_frequency = min_word_frequency,
+          min_word_length = min_word_length,
+          top_n_characteristic_words = top_n_characteristic_words,
+          reason = conditionMessage(e)
+        )
+      }
+    )
+  } else {
+    .textual_prep_empty_lexical_results(
+      lexical_unit = lexical_unit,
+      language = language,
+      lexical_proba = lexical_proba,
+      min_word_frequency = min_word_frequency,
+      min_word_length = min_word_length,
+      top_n_characteristic_words = top_n_characteristic_words,
+      reason = "The lexical analysis was disabled."
+    )
+  }
+
+  frequent_terms <- .extract_frequent_terms_textprep(
+    dataset = dataset,
+    num.var = num.var,
+    num.text = num.text,
+    top_n = top_n_frequent_terms,
+    min_word_length = min_word_length,
+    language = language
+  )
+
+  groups <- stats::setNames(
+    lapply(group_levels, function(group_name) {
+      idx <- which(!is.na(verbatims$group) & verbatims$group == group_name)
+      diag_row <- group_diagnostics[
+        group_diagnostics$group == group_name,
+        ,
+        drop = FALSE
+      ]
+
+      list(
+        group = group_name,
+        evidence_ids = verbatims$verbatim_id[idx],
+        non_empty_evidence_ids = verbatims$verbatim_id[
+          idx[verbatims$text_status[idx] == "non_empty"]
+        ],
+        included_evidence_ids = verbatims$verbatim_id[
+          idx[verbatims$included_in_prompt[idx]]
+        ],
+        diagnostics = diag_row,
+        lexical_profile = if (group_name %in% names(lexical_results$group_profiles)) {
+          lexical_results$group_profiles[[group_name]]
+        } else {
+          .empty_lexical_profile_textprep(unit = lexical_unit)
+        },
+        frequent_terms = if (group_name %in% names(frequent_terms)) {
+          frequent_terms[[group_name]]
+        } else {
+          character(0)
+        }
+      )
+    }),
+    group_levels
+  )
+
+  evidence_registry <- verbatims[, c(
+    "verbatim_id",
+    "group",
+    "row_index",
+    "original_text",
+    "character_count",
+    "word_count",
+    "text_status",
+    "missing_or_empty",
+    "included_in_prompt",
+    "sampling_rank",
+    "exclusion_reason"
+  ), drop = FALSE]
+  names(evidence_registry)[names(evidence_registry) == "verbatim_id"] <- "evidence_id"
+  evidence_registry$source <- colnames(dataset)[num.text]
+
+  corpus <- verbatims[, c(
+    "row_index",
+    "group",
+    "original_text",
+    "text_status"
+  ), drop = FALSE]
+
+  sampling_by_group <- group_diagnostics[, c(
+    "group",
+    "n_non_empty",
+    "n_included_in_prompt",
+    "n_not_sampled",
+    "n_prompt_budget",
+    "sampling_fraction",
+    "prompt_character_count"
+  ), drop = FALSE]
+
+  out <- list(
+    corpus = corpus,
+    groups = groups,
+    verbatims = verbatims,
+    group_diagnostics = group_diagnostics,
+    sampling = list(
+      method = "deterministic_hash_within_group",
+      sample_pct = sample.pct,
+      seed = seed,
+      max_prompt_characters_per_group = if (is.null(max_prompt_characters)) {
+        Inf
+      } else {
+        max_prompt_characters
+      },
+      by_group = sampling_by_group
+    ),
+    evidence_registry = evidence_registry,
+    lexical_analysis = lexical_results,
+    length_group_analysis = length_group_analysis,
+    corpus_metrics = corpus_metrics,
+    settings = list(
+      group_column_index = as.integer(num.var),
+      group_column = colnames(dataset)[num.var],
+      text_column_index = as.integer(num.text),
+      text_column = colnames(dataset)[num.text],
+      sample_pct = sample.pct,
+      seed = seed,
+      max_prompt_characters_per_group = if (is.null(max_prompt_characters)) {
+        Inf
+      } else {
+        max_prompt_characters
+      },
+      lexical_analysis = lexical_analysis,
+      lexical_unit = lexical_unit,
+      language = language,
+      lexical_proba = lexical_proba,
+      min_word_frequency = as.integer(min_word_frequency),
+      min_word_length = as.integer(min_word_length),
+      top_n_characteristic_words = as.integer(top_n_characteristic_words),
+      top_n_frequent_terms = as.integer(top_n_frequent_terms),
+      compute_length_analysis = compute_length_analysis
+    ),
+    metadata = list(
+      source = "dataset",
+      n_rows = nrow(dataset),
+      n_groups = length(group_levels),
+      n_invalid_group_rows = sum(
+        is.na(as.character(dataset[[num.var]])) |
+          !nzchar(trimws(as.character(dataset[[num.var]])))
+      )
+    )
+  )
+
+  class(out) <- c("textual_evidence", "list")
+  out
+}
+
+# ---------------------------------------------------------------------------
+# Prompt construction
+# ---------------------------------------------------------------------------
+
+.textual_prep_scope_mission <- function(analysis_scope) {
+  switch(
+    analysis_scope,
+    general = paste(
+      "Describe themes, expressed concerns, tone, contradictions, and minority positions.",
+      "Stay close to the explicit textual content."
+    ),
+    sociological = paste(
+      "Examine social norms, legitimacy, institutional relationships, ordinary practices,",
+      "social constraints, territorial anchoring, cultural distance, and tensions between",
+      "prescriptions and practical possibilities."
+    ),
+    consumer = paste(
+      "Examine sought benefits, barriers, decision criteria, trade-offs, trust, perceived",
+      "value, routines, rejection motives, and cautious behavioral hypotheses."
+    ),
+    psychological = paste(
+      "Examine expressed motivations, emotions, ambivalence, perceived control, self-efficacy,",
+      "value-practice dissonance, and resistance to change. Never diagnose an individual or group."
+    ),
+    marketing = paste(
+      "Identify unmet needs, benefits to communicate, barriers to address, consumer vocabulary,",
+      "positioning territories, and propositions that require validation."
+    ),
+    innovation = paste(
+      "Identify category tensions, weak signals, emerging expectations, possible new uses,",
+      "and concept hypotheses that require validation."
+    ),
+    cross_functional = paste(
+      "Integrate sociological, consumer, psychological, marketing, and innovation perspectives,",
+      "while distinguishing direct interpretation from hypotheses and recommendations."
+    )
+  )
+}
+
+.textual_prep_records <- function(x) {
+  if (is.null(x) || nrow(x) == 0L) return(list())
+  unname(lapply(seq_len(nrow(x)), function(i) as.list(x[i, , drop = FALSE])))
+}
+
+.textual_prep_lexical_prompt_view <- function(group_info, include_indicators) {
+  if (!include_indicators) return(NULL)
+
+  profile <- group_info$lexical_profile
+  list(
+    frequent_terms = unname(as.character(group_info$frequent_terms)),
+    overrepresented = .textual_prep_records(profile$overrepresented),
+    underrepresented = .textual_prep_records(profile$underrepresented),
+    interpretation_note = paste(
+      "Lexical indicators are mechanical comparative indicators.",
+      "They do not prove that every person used a term and they do not measure textual quality."
+    )
+  )
+}
+
+.textual_prep_claim_template <- function(status = "expert_interpretation") {
+  list(
+    text = "<interpretation grounded in the cited verbatims>",
+    status = status,
+    evidence_ids = list("<verbatim_id>"),
+    validation_needed = if (status %in% c("hypothesis", "recommendation")) {
+      "<additional evidence or study needed>"
+    } else {
+      NULL
+    }
+  )
+}
+
+.textual_prep_quote_template <- function() {
+  list(
+    evidence_id = "<verbatim_id>",
+    quotation = "<exact original_text>",
+    rationale = "<why this verbatim is representative or contrastive>",
+    status = "expert_interpretation"
+  )
+}
+
+.textual_prep_group_schema <- function(group_name) {
+  claim <- .textual_prep_claim_template()
+  list(
+    group = group_name,
+    core_textual_profile = claim,
+    main_themes = list(claim),
+    dominant_concerns = list(claim),
+    tone_or_stance = claim,
+    narrative_frames = list(claim),
+    motivations = list(claim),
+    barriers = list(claim),
+    perceived_benefits = list(claim),
+    social_norms = list(claim),
+    identity_cues = list(claim),
+    contradictions = list(.textual_prep_claim_template("hypothesis")),
+    minority_positions = list(claim),
+    representative_verbatims = list(.textual_prep_quote_template()),
+    tension_verbatims = list(.textual_prep_quote_template()),
+    intra_group_consistency = claim,
+    interpretation_limits = list(claim)
+  )
+}
+
+.textual_prep_output_schema <- function(groups, comparison_mode) {
+  group_schema <- stats::setNames(
+    lapply(groups, .textual_prep_group_schema),
+    groups
+  )
+
+  cross_group <- if (comparison_mode == "joint") {
+    list(
+      shared_themes = list(.textual_prep_claim_template()),
+      group_contrasts = list(.textual_prep_claim_template()),
+      minority_patterns = list(.textual_prep_claim_template("hypothesis")),
+      interpretation_limits = list(.textual_prep_claim_template())
+    )
+  } else {
+    list(
+      shared_themes = list(),
+      group_contrasts = list(),
+      minority_patterns = list(),
+      interpretation_limits = list()
+    )
+  }
+
+  jsonlite::toJSON(
+    list(groups = group_schema, cross_group = cross_group),
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    na = "null",
+    null = "null"
+  )
+}
+
+.textual_prep_build_evidence_payload <- function(textual_evidence,
+                                                 groups,
+                                                 include_indicators) {
+  group_payload <- stats::setNames(
+    lapply(groups, function(group_name) {
+      group_info <- textual_evidence$groups[[group_name]]
+      diagnostics <- group_info$diagnostics
+      if (nrow(diagnostics) > 0L) diagnostics <- as.list(diagnostics[1, , drop = FALSE])
+
+      rows <- textual_evidence$verbatims[
+        !is.na(textual_evidence$verbatims$group) &
+          textual_evidence$verbatims$group == group_name &
+          textual_evidence$verbatims$included_in_prompt,
+        ,
+        drop = FALSE
+      ]
+
+      verbatims <- lapply(seq_len(nrow(rows)), function(i) {
+        list(
+          evidence_id = rows$verbatim_id[[i]],
+          row_index = rows$row_index[[i]],
+          original_text = rows$original_text[[i]]
+        )
+      })
+
+      list(
+        group = group_name,
+        diagnostics = diagnostics,
+        lexical_indicators = .textual_prep_lexical_prompt_view(
+          group_info,
+          include_indicators = include_indicators
+        ),
+        verbatims = verbatims
+      )
+    }),
+    groups
+  )
+
+  list(groups = group_payload)
+}
+
+.textual_prep_build_prompt <- function(textual_evidence,
+                                       groups,
+                                       analysis_scope,
+                                       comparison_mode,
+                                       request,
+                                       context,
+                                       prompt_style,
+                                       text_role,
+                                       include_indicators_in_prompt,
+                                       n_central_verbatims,
+                                       n_tension_verbatims) {
+  evidence_payload <- .textual_prep_build_evidence_payload(
+    textual_evidence = textual_evidence,
+    groups = groups,
+    include_indicators = include_indicators_in_prompt
+  )
+
+  evidence_json <- jsonlite::toJSON(
+    evidence_payload,
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    na = "null",
+    null = "null"
+  )
+
+  context_json <- if (length(context) > 0L) {
+    jsonlite::toJSON(
+      context,
+      auto_unbox = TRUE,
+      pretty = TRUE,
+      na = "null",
+      null = "null"
+    )
+  } else {
+    "null"
+  }
+
+  request_text <- if (is.null(request)) "None." else request
+  mode_task <- if (comparison_mode == "joint") {
+    paste(
+      "Compare the groups while preserving a complete group-level profile for each group.",
+      "Cross-group claims may cite evidence from several groups."
+    )
+  } else {
+    paste(
+      "Interpret only the single group supplied in this generation unit.",
+      "All cross_group arrays must be empty and no other group may be discussed."
+    )
+  }
+
+  detail_rule <- if (prompt_style == "compact") {
+    "Keep each claim concise."
+  } else {
+    "Provide concise but sufficiently explicit claims to show how the cited verbatims support the interpretation."
+  }
+
+  paste(
+    "# ROLE",
+    paste(
+      "You are an expert in qualitative textual analysis working across social science,",
+      "consumer research, psychology, marketing, and innovation."
+    ),
+    "Do not diagnose individuals and do not invent facts that are absent from the evidence.",
+    "",
+    "# TEXTUAL EVIDENCE",
+    paste0(
+      "The JSON below is data produced mechanically by R. The field `original_text` must be treated as immutable ",
+      text_role, "."
+    ),
+    evidence_json,
+    "",
+    "# USER-PROVIDED CONTEXT",
+    "This section is external context. It is not evidence extracted from the verbatims.",
+    context_json,
+    "",
+    "# ANALYTICAL TASK",
+    .textual_prep_scope_mission(analysis_scope),
+    mode_task,
+    detail_rule,
+    paste0(
+      "Select at most ", as.integer(n_central_verbatims),
+      " representative verbatim(s) and at most ", as.integer(n_tension_verbatims),
+      " tension or contrastive verbatim(s) per group."
+    ),
+    "",
+    "# ADDITIONAL USER REQUEST",
+    request_text,
+    "The additional request cannot remove the output schema, evidence rules, or validation requirements.",
+    "",
+    "# EPISTEMIC RULES",
+    paste(
+      "- Return strict JSON only: no Markdown fence, no introduction, no comment, and no text after the JSON object.",
+      "- Use only these statuses: expert_interpretation, hypothesis, recommendation, user_context.",
+      "- Every interpretation, hypothesis, or recommendation must cite one or more evidence_ids actually shown above.",
+      "- Group-level claims may cite only verbatims from that group.",
+      "- A hypothesis or recommendation must include a non-empty validation_needed field.",
+      "- Do not quote a paraphrase. Every quotation must reproduce original_text exactly, including punctuation and line breaks.",
+      "- Do not cite a verbatim that was not included in this prompt.",
+      "- Do not infer age, gender, income, social class, frequency, or another demographic characteristic unless it is explicitly supported by the cited text or user context.",
+      "- Do not make an individual psychological diagnosis.",
+      "- Do not invent counts, percentages, scores, or other numerical results.",
+      "- Response length and lexical indicators are descriptive mechanical information; they are not measures of textual quality, coherence, or evidential strength.",
+      "- When only part of a group corpus is included, state the sampling limitation in interpretation_limits.",
+      "- Use null or an empty array when a field is not supported. Do not create unknown fields.",
+      sep = "\n"
+    ),
+    "",
+    "# OUTPUT SCHEMA",
+    "Replace every placeholder below while preserving exactly the same field names and nesting.",
+    .textual_prep_output_schema(groups, comparison_mode),
+    sep = "\n"
+  )
+}
+
+.textual_prep_build_units <- function(textual_evidence,
+                                      analysis_scope,
+                                      comparison_mode,
+                                      request,
+                                      context,
+                                      prompt_style,
+                                      text_role,
+                                      include_indicators_in_prompt,
+                                      n_central_verbatims,
+                                      n_tension_verbatims) {
+  groups <- names(textual_evidence$groups)
+
+  if (comparison_mode == "joint") {
+    active_groups <- groups[vapply(
+      groups,
+      function(group_name) {
+        group_rows <- textual_evidence$verbatims[
+          !is.na(textual_evidence$verbatims$group) &
+            textual_evidence$verbatims$group == group_name,
+          ,
+          drop = FALSE
+        ]
+        any(group_rows$included_in_prompt)
+      },
+      logical(1)
+    )]
+
+    return(list(
+      joint = list(
+        groups = active_groups,
+        has_evidence = length(active_groups) > 0L,
+        prompt = .textual_prep_build_prompt(
+          textual_evidence = textual_evidence,
+          groups = active_groups,
+          analysis_scope = analysis_scope,
+          comparison_mode = comparison_mode,
+          request = request,
+          context = context,
+          prompt_style = prompt_style,
+          text_role = text_role,
+          include_indicators_in_prompt = include_indicators_in_prompt,
+          n_central_verbatims = n_central_verbatims,
+          n_tension_verbatims = n_tension_verbatims
+        )
+      )
+    ))
+  }
+
+  units <- lapply(groups, function(group_name) {
+    group_rows <- textual_evidence$verbatims[
+      !is.na(textual_evidence$verbatims$group) &
+        textual_evidence$verbatims$group == group_name,
+      ,
+      drop = FALSE
+    ]
+
+    list(
+      groups = group_name,
+      has_evidence = any(group_rows$included_in_prompt),
+      prompt = .textual_prep_build_prompt(
+        textual_evidence = textual_evidence,
+        groups = group_name,
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode,
+        request = request,
+        context = context,
+        prompt_style = prompt_style,
+        text_role = text_role,
+        include_indicators_in_prompt = include_indicators_in_prompt,
+        n_central_verbatims = n_central_verbatims,
+        n_tension_verbatims = n_tension_verbatims
+      )
+    )
+  })
+  names(units) <- groups
+  units
+}
+
+# ---------------------------------------------------------------------------
+# Strict JSON parsing and epistemic validation
+# ---------------------------------------------------------------------------
+
+.textual_prep_as_character_vector <- function(x, field) {
+  if (is.null(x) || length(x) == 0L) return(character(0))
+  if (is.list(x) && !is.data.frame(x)) {
+    x <- unlist(x, recursive = TRUE, use.names = FALSE)
+  }
+  if (!is.atomic(x)) {
+    stop(sprintf("`%s` must be a character array.", field), call. = FALSE)
+  }
+  x <- as.character(x)
+  x <- x[!is.na(x) & nzchar(trimws(x))]
+  unname(x)
+}
+
+.textual_prep_claim_has_unsupported_number <- function(text, source_text) {
+  matches <- regmatches(
+    text,
+    gregexpr("\\b[0-9]+(?:[.,][0-9]+)?%?\\b", text, perl = TRUE)
+  )[[1]]
+  if (length(matches) == 0L || identical(matches, "")) return(FALSE)
+
+  source_text <- paste(source_text, collapse = "\n")
+  any(!vapply(matches, grepl, logical(1), x = source_text, fixed = TRUE))
+}
+
+.textual_prep_contains_demographic_claim <- function(text) {
+  patterns <- c(
+    "\\b(men|women|male|female|boys|girls|gender|sex)\\b",
+    "\\b(age|aged|years? old|teenagers?|seniors?|millennials?|gen[ -]?z)\\b",
+    "\\b(social class|socioeconomic|income|low-income|high-income)\\b",
+    "\\b(hommes?|femmes?|genre|sexe|age|ans|revenu|classe sociale)\\b"
+  )
+  any(vapply(patterns, grepl, logical(1), x = text, ignore.case = TRUE, perl = TRUE))
+}
+
+.textual_prep_contains_diagnostic_claim <- function(text) {
+  patterns <- c(
+    "\\b(is|are|has|have|suffers? from|diagnos(?:ed|is|ing))[^.!?]{0,35}\\b(depress(?:ed|ion)|anxiety disorder|bipolar|narciss(?:ist|istic)|psychotic|autis(?:m|tic)|adhd)\\b",
+    "\\b(est|sont|a|ont|souffre(?:nt)? de)[^.!?]{0,35}\\b(depressif|depression|trouble anxieux|bipolaire|narcissique|psychotique|autiste)\\b"
+  )
+  any(vapply(patterns, grepl, logical(1), x = text, ignore.case = TRUE, perl = TRUE))
+}
+
+.textual_prep_validate_claim_safety <- function(text,
+                                                evidence_ids,
+                                                registry,
+                                                context) {
+  if (.textual_prep_contains_diagnostic_claim(text)) {
+    stop("Psychological diagnoses of individuals or groups are not allowed.", call. = FALSE)
+  }
+
+  evidence_text <- registry$original_text[
+    match(evidence_ids, registry$evidence_id, nomatch = 0L)
+  ]
+  context_text <- if (length(context) > 0L) {
+    paste(unlist(context, recursive = TRUE, use.names = FALSE), collapse = "\n")
+  } else {
+    ""
+  }
+  source_text <- c(evidence_text, context_text)
+
+  if (.textual_prep_claim_has_unsupported_number(text, source_text)) {
+    stop("A textual claim contains a numerical statement not present in its cited evidence or context.", call. = FALSE)
+  }
+
+  if (.textual_prep_contains_demographic_claim(text) &&
+      !.textual_prep_contains_demographic_claim(paste(source_text, collapse = "\n"))) {
+    stop("A demographic claim is not supported by the cited verbatim or user context.", call. = FALSE)
+  }
+
+  invisible(TRUE)
+}
+
+.textual_prep_validate_claim <- function(claim,
+                                         field,
+                                         registry,
+                                         group = NULL,
+                                         context = list(),
+                                         allow_user_context = FALSE) {
+  if (is.null(claim)) return(NULL)
+  if (!is.list(claim) || is.data.frame(claim)) {
+    stop(sprintf("`%s` must be null or a claim object.", field), call. = FALSE)
+  }
+
+  required <- c("text", "status", "evidence_ids", "validation_needed")
+  missing_fields <- setdiff(required, names(claim))
+  unknown_fields <- setdiff(names(claim), required)
+  if (length(missing_fields) > 0L) {
+    stop(
+      sprintf("`%s` is missing required field(s): %s.", field, paste(missing_fields, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(
+      sprintf("`%s` contains unexpected field(s): %s.", field, paste(unknown_fields, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  if (!.textual_prep_is_scalar_string(claim$text)) {
+    stop(sprintf("`%s$text` must be a non-empty string.", field), call. = FALSE)
+  }
+  status <- as.character(claim$status)
+  if (length(status) != 1L || is.na(status) || !status %in% .textual_prep_statuses) {
+    stop(
+      sprintf("`%s$status` must be one of: %s.", field, paste(.textual_prep_statuses, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  evidence_ids <- .textual_prep_as_character_vector(
+    claim$evidence_ids,
+    paste0(field, "$evidence_ids")
+  )
+
+  if (status == "user_context") {
+    if (!allow_user_context || length(context) == 0L) {
+      stop(
+        sprintf("`%s` cannot use status `user_context` in this field.", field),
+        call. = FALSE
+      )
+    }
+    if (length(evidence_ids) > 0L) {
+      stop(
+        sprintf("`%s` with status `user_context` must use an empty evidence_ids array.", field),
+        call. = FALSE
+      )
+    }
+  } else {
+    if (length(evidence_ids) == 0L) {
+      stop(sprintf("`%s` must cite at least one verbatim evidence_id.", field), call. = FALSE)
+    }
+
+    invalid <- setdiff(evidence_ids, registry$evidence_id[registry$included_in_prompt])
+    if (length(invalid) > 0L) {
+      stop(
+        sprintf("`%s` cites unknown or non-presented evidence ID(s): %s.", field, paste(invalid, collapse = ", ")),
+        call. = FALSE
+      )
+    }
+
+    if (!is.null(group)) {
+      evidence_groups <- registry$group[match(evidence_ids, registry$evidence_id)]
+      if (any(is.na(evidence_groups) | evidence_groups != group)) {
+        stop(
+          sprintf("`%s` cites evidence belonging to another group.", field),
+          call. = FALSE
+        )
+      }
+    }
+  }
+
+  validation_needed <- claim$validation_needed
+  if (is.null(validation_needed) ||
+      (is.character(validation_needed) && length(validation_needed) == 1L &&
+       (is.na(validation_needed) || !nzchar(trimws(validation_needed))))) {
+    validation_needed <- NULL
+  } else if (!.textual_prep_is_scalar_string(validation_needed)) {
+    stop(
+      sprintf("`%s$validation_needed` must be null or a non-empty string.", field),
+      call. = FALSE
+    )
+  } else {
+    validation_needed <- trimws(validation_needed)
+  }
+
+  if (status %in% c("hypothesis", "recommendation") && is.null(validation_needed)) {
+    stop(
+      sprintf("`%s` has status `%s` and requires validation_needed.", field, status),
+      call. = FALSE
+    )
+  }
+
+  .textual_prep_validate_claim_safety(
+    text = claim$text,
+    evidence_ids = evidence_ids,
+    registry = registry,
+    context = context
+  )
+
+  list(
+    text = trimws(claim$text),
+    status = status,
+    evidence_ids = unique(evidence_ids),
+    validation_needed = validation_needed
+  )
+}
+
+.textual_prep_validate_claim_list <- function(x,
+                                              field,
+                                              registry,
+                                              group = NULL,
+                                              context = list(),
+                                              allow_user_context = FALSE) {
+  if (is.null(x) || length(x) == 0L) return(list())
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a JSON array of claim objects.", field), call. = FALSE)
+  }
+
+  unname(lapply(seq_along(x), function(i) {
+    .textual_prep_validate_claim(
+      x[[i]],
+      field = sprintf("%s[[%d]]", field, i),
+      registry = registry,
+      group = group,
+      context = context,
+      allow_user_context = allow_user_context
+    )
+  }))
+}
+
+.textual_prep_validate_quote <- function(x, field, registry, group) {
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a quotation object.", field), call. = FALSE)
+  }
+  required <- c("evidence_id", "quotation", "rationale", "status")
+  missing_fields <- setdiff(required, names(x))
+  unknown_fields <- setdiff(names(x), required)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field, paste(unknown_fields, collapse = ", ")), call. = FALSE)
+  }
+
+  if (!.textual_prep_is_scalar_string(x$evidence_id) ||
+      !x$evidence_id %in% registry$evidence_id[registry$included_in_prompt]) {
+    stop(sprintf("`%s$evidence_id` is unknown or was not included in the prompt.", field), call. = FALSE)
+  }
+
+  row <- registry[match(x$evidence_id, registry$evidence_id), , drop = FALSE]
+  if (is.na(row$group[[1]]) || row$group[[1]] != group) {
+    stop(sprintf("`%s` cites a verbatim from another group.", field), call. = FALSE)
+  }
+  if (!.textual_prep_is_scalar_string(x$quotation, allow_empty = TRUE) ||
+      !identical(as.character(x$quotation), as.character(row$original_text[[1]]))) {
+    stop(sprintf("`%s$quotation` must exactly match original_text.", field), call. = FALSE)
+  }
+  if (!.textual_prep_is_scalar_string(x$rationale)) {
+    stop(sprintf("`%s$rationale` must be a non-empty string.", field), call. = FALSE)
+  }
+  if (!identical(as.character(x$status), "expert_interpretation")) {
+    stop(sprintf("`%s$status` must be `expert_interpretation`.", field), call. = FALSE)
+  }
+
+  list(
+    evidence_id = x$evidence_id,
+    quotation = x$quotation,
+    rationale = trimws(x$rationale),
+    status = "expert_interpretation"
+  )
+}
+
+.textual_prep_validate_quote_list <- function(x, field, registry, group) {
+  if (is.null(x) || length(x) == 0L) return(list())
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a JSON array of quotation objects.", field), call. = FALSE)
+  }
+
+  unname(lapply(seq_along(x), function(i) {
+    .textual_prep_validate_quote(
+      x[[i]],
+      field = sprintf("%s[[%d]]", field, i),
+      registry = registry,
+      group = group
+    )
+  }))
+}
+
+.textual_prep_validate_group_profile <- function(x,
+                                                 group_name,
+                                                 registry,
+                                                 context) {
+  field <- paste0("groups$", group_name)
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+  missing_fields <- setdiff(.textual_prep_group_fields, names(x))
+  unknown_fields <- setdiff(names(x), .textual_prep_group_fields)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field, paste(unknown_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (!.textual_prep_is_scalar_string(x$group) || !identical(as.character(x$group), group_name)) {
+    stop(sprintf("`%s$group` must equal `%s`.", field, group_name), call. = FALSE)
+  }
+
+  scalar_fields <- c(
+    "core_textual_profile",
+    "tone_or_stance",
+    "intra_group_consistency"
+  )
+  list_fields <- c(
+    "main_themes",
+    "dominant_concerns",
+    "narrative_frames",
+    "motivations",
+    "barriers",
+    "perceived_benefits",
+    "social_norms",
+    "identity_cues",
+    "contradictions",
+    "minority_positions"
+  )
+
+  out <- list(group = group_name)
+  for (name in scalar_fields) {
+    out[[name]] <- .textual_prep_validate_claim(
+      x[[name]],
+      field = paste0(field, "$", name),
+      registry = registry,
+      group = group_name,
+      context = context,
+      allow_user_context = FALSE
+    )
+  }
+  for (name in list_fields) {
+    out[[name]] <- .textual_prep_validate_claim_list(
+      x[[name]],
+      field = paste0(field, "$", name),
+      registry = registry,
+      group = group_name,
+      context = context,
+      allow_user_context = FALSE
+    )
+  }
+
+  out$representative_verbatims <- .textual_prep_validate_quote_list(
+    x$representative_verbatims,
+    field = paste0(field, "$representative_verbatims"),
+    registry = registry,
+    group = group_name
+  )
+  out$tension_verbatims <- .textual_prep_validate_quote_list(
+    x$tension_verbatims,
+    field = paste0(field, "$tension_verbatims"),
+    registry = registry,
+    group = group_name
+  )
+  out$interpretation_limits <- .textual_prep_validate_claim_list(
+    x$interpretation_limits,
+    field = paste0(field, "$interpretation_limits"),
+    registry = registry,
+    group = group_name,
+    context = context,
+    allow_user_context = length(context) > 0L
+  )
+
+  out[.textual_prep_group_fields]
+}
+
+.textual_prep_validate_cross_group <- function(x,
+                                               registry,
+                                               context,
+                                               comparison_mode) {
+  if (!is.list(x) || is.data.frame(x)) {
+    stop("`cross_group` must be an object.", call. = FALSE)
+  }
+  missing_fields <- setdiff(.textual_prep_cross_group_fields, names(x))
+  unknown_fields <- setdiff(names(x), .textual_prep_cross_group_fields)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`cross_group` is missing: %s.", paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`cross_group` contains unexpected field(s): %s.", paste(unknown_fields, collapse = ", ")), call. = FALSE)
+  }
+
+  out <- lapply(.textual_prep_cross_group_fields, function(name) {
+    .textual_prep_validate_claim_list(
+      x[[name]],
+      field = paste0("cross_group$", name),
+      registry = registry,
+      group = NULL,
+      context = context,
+      allow_user_context = length(context) > 0L
+    )
+  })
+  names(out) <- .textual_prep_cross_group_fields
+
+  if (comparison_mode == "isolated" && any(lengths(out) > 0L)) {
+    stop("All `cross_group` arrays must be empty in isolated mode.", call. = FALSE)
+  }
+
+  out
+}
+
+.validate_textual_prep_parsed <- function(parsed,
+                                          expected_groups,
+                                          registry,
+                                          context,
+                                          analysis_scope,
+                                          comparison_mode) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The JSON root must be an object.", call. = FALSE)
+  }
+  unknown_top <- setdiff(names(parsed), c("groups", "cross_group"))
+  missing_top <- setdiff(c("groups", "cross_group"), names(parsed))
+  if (length(missing_top) > 0L) {
+    stop(sprintf("The JSON root is missing: %s.", paste(missing_top, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_top) > 0L) {
+    stop(sprintf("Unexpected top-level JSON field(s): %s.", paste(unknown_top, collapse = ", ")), call. = FALSE)
+  }
+  if (!is.list(parsed$groups) || is.data.frame(parsed$groups)) {
+    stop("`groups` must be a named object.", call. = FALSE)
+  }
+  if (is.null(names(parsed$groups)) || !setequal(names(parsed$groups), expected_groups)) {
+    stop("The parsed group names do not match the generation unit.", call. = FALSE)
+  }
+
+  groups <- stats::setNames(
+    lapply(expected_groups, function(group_name) {
+      .textual_prep_validate_group_profile(
+        parsed$groups[[group_name]],
+        group_name = group_name,
+        registry = registry,
+        context = context
+      )
+    }),
+    expected_groups
+  )
+
+  cross_group <- .textual_prep_validate_cross_group(
+    parsed$cross_group,
+    registry = registry,
+    context = context,
+    comparison_mode = comparison_mode
+  )
+
+  list(
+    groups = groups,
+    cross_group = cross_group,
+    metadata = list(
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode,
+      groups = expected_groups,
+      parse_status = "success"
+    )
+  )
+}
+
+.parse_textual_prep_response <- function(text,
+                                         expected_groups,
+                                         textual_evidence,
+                                         context,
+                                         analysis_scope,
+                                         comparison_mode) {
+  tryCatch({
+    text <- paste(text, collapse = "\n")
+    text <- gsub("\r\n", "\n", text, fixed = TRUE)
+    text <- gsub("\r", "\n", text, fixed = TRUE)
+    trimmed <- trimws(text)
+
+    if (!nzchar(trimmed)) {
+      stop("The LLM response is empty.", call. = FALSE)
+    }
+    if (grepl("```", trimmed, fixed = TRUE)) {
+      stop("The LLM response contains a Markdown fence; strict JSON was required.", call. = FALSE)
+    }
+    if (substr(trimmed, 1L, 1L) != "{" ||
+        substr(trimmed, nchar(trimmed), nchar(trimmed)) != "}") {
+      stop("The LLM response must contain one strict JSON object and no surrounding text.", call. = FALSE)
+    }
+
+    parsed <- jsonlite::fromJSON(trimmed, simplifyDataFrame = FALSE)
+    profiles <- .validate_textual_prep_parsed(
+      parsed = parsed,
+      expected_groups = expected_groups,
+      registry = textual_evidence$evidence_registry,
+      context = context,
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode
+    )
+
+    list(
+      parse_status = "success",
+      parse_error = NULL,
+      textual_profiles = profiles
+    )
+  }, error = function(e) {
+    list(
+      parse_status = "error",
+      parse_error = conditionMessage(e),
+      textual_profiles = NULL
+    )
+  })
+}
+
+.textual_prep_response_text <- function(response) {
+  if (is.null(response)) return("")
+  if (is.data.frame(response) && "response" %in% names(response)) {
+    return(paste(response$response, collapse = "\n"))
+  }
+  if (is.list(response) && !is.null(response$response)) {
+    return(paste(response$response, collapse = "\n"))
+  }
+  paste(response, collapse = "\n")
+}
+
+# ---------------------------------------------------------------------------
+# Output assembly and compatibility
+# ---------------------------------------------------------------------------
+
+.textual_prep_empty_cross_group <- function() {
+  stats::setNames(
+    lapply(.textual_prep_cross_group_fields, function(x) list()),
+    .textual_prep_cross_group_fields
+  )
+}
+
+.textual_prep_mechanical_limit_claim <- function(text) {
+  list(
+    text = text,
+    status = "user_context",
+    evidence_ids = character(0),
+    validation_needed = NULL
+  )
+}
+
+.textual_prep_empty_group_profile <- function(group, reason) {
+  out <- list(
+    group = group,
+    core_textual_profile = NULL,
+    main_themes = list(),
+    dominant_concerns = list(),
+    tone_or_stance = NULL,
+    narrative_frames = list(),
+    motivations = list(),
+    barriers = list(),
+    perceived_benefits = list(),
+    social_norms = list(),
+    identity_cues = list(),
+    contradictions = list(),
+    minority_positions = list(),
+    representative_verbatims = list(),
+    tension_verbatims = list(),
+    intra_group_consistency = NULL,
+    interpretation_limits = list(.textual_prep_mechanical_limit_claim(reason))
+  )
+  out[.textual_prep_group_fields]
+}
+
+.textual_prep_add_sampling_limits <- function(textual_profiles, textual_evidence) {
+  for (group_name in names(textual_profiles$groups)) {
+    diag <- textual_evidence$group_diagnostics[
+      textual_evidence$group_diagnostics$group == group_name,
+      ,
+      drop = FALSE
+    ]
+    if (nrow(diag) == 0L) next
+
+    if (diag$n_non_empty[[1]] == 0L) {
+      textual_profiles$groups[[group_name]] <- .textual_prep_empty_group_profile(
+        group_name,
+        "No non-empty verbatim was available for this group."
+      )
+      next
+    }
+
+    if (diag$n_included_in_prompt[[1]] == 0L) {
+      textual_profiles$groups[[group_name]] <- .textual_prep_empty_group_profile(
+        group_name,
+        "No verbatim from this group was included in the prompt."
+      )
+      next
+    }
+
+    if (is.finite(diag$sampling_fraction[[1]]) && diag$sampling_fraction[[1]] < 1) {
+      limit <- .textual_prep_mechanical_limit_claim(
+        paste0(
+          "Only ", diag$n_included_in_prompt[[1]], " of ",
+          diag$n_non_empty[[1]],
+          " non-empty verbatims from this group were included in the prompt; minority positions may therefore be omitted."
+        )
+      )
+      textual_profiles$groups[[group_name]]$interpretation_limits <- c(
+        textual_profiles$groups[[group_name]]$interpretation_limits,
+        list(limit)
+      )
+    }
+  }
+
+  textual_profiles
+}
+
+.textual_prep_combine_units <- function(unit_results,
+                                        all_groups,
+                                        textual_evidence,
+                                        analysis_scope,
+                                        comparison_mode) {
+  statuses <- vapply(
+    unit_results,
+    function(x) x$parsed$parse_status,
+    character(1)
+  )
+
+  if (length(statuses) == 0L || all(statuses == "no_evidence")) {
+    return(list(
+      parse_status = "no_evidence",
+      parse_error = "No verbatim was included in any generation unit.",
+      textual_profiles = NULL
+    ))
+  }
+
+  if (any(statuses == "error")) {
+    errors <- vapply(
+      unit_results[statuses == "error"],
+      function(x) x$parsed$parse_error,
+      character(1)
+    )
+    return(list(
+      parse_status = "error",
+      parse_error = paste(unique(errors), collapse = " | "),
+      textual_profiles = NULL
+    ))
+  }
+
+  if (comparison_mode == "joint") {
+    profiles <- unit_results[[1]]$parsed$textual_profiles
+  } else {
+    groups <- list()
+    for (unit in unit_results) {
+      if (unit$parsed$parse_status == "success") {
+        groups <- c(groups, unit$parsed$textual_profiles$groups)
+      }
+    }
+    profiles <- list(
+      groups = groups,
+      cross_group = .textual_prep_empty_cross_group(),
+      metadata = list(
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode,
+        groups = all_groups,
+        parse_status = "success"
       )
     )
   }
 
-  if (!is.null(lexical_profile)) {
-    unit_label <- if (identical(lexical_profile$unit, "document")) {
-      "number of individual texts containing each word"
-    } else {
-      "number of word occurrences"
-    }
-
-    lines <- c(
-      lines,
-      paste0(
-        "Lexical unit used for the group-by-word table: ",
-        unit_label,
-        "."
-      ),
-      paste0(
-        "Statistically over-represented words according to FactoMineR::descfreq() at p <= ",
-        .format_number_textprep(lexical_settings$lexical_proba),
-        ": ",
-        .format_characteristic_terms_textprep(
-          lexical_profile$overrepresented,
-          max_terms = max_terms
-        ),
-        "."
-      ),
-      paste0(
-        "Statistically under-represented words at the same threshold: ",
-        .format_characteristic_terms_textprep(
-          lexical_profile$underrepresented,
-          max_terms = max_terms
-        ),
-        "."
-      ),
-      "These tests are exploratory and no multiple-testing adjustment has been applied."
+  missing_groups <- setdiff(all_groups, names(profiles$groups))
+  for (group_name in missing_groups) {
+    profiles$groups[[group_name]] <- .textual_prep_empty_group_profile(
+      group_name,
+      "No semantic profile was generated for this group."
     )
   }
-
-  if (sample.pct < 1) {
-    lines <- c(
-      lines,
-      "Important: the mechanical indicators use the complete corpus, whereas the raw texts displayed below are only a sample of that corpus."
-    )
-  }
-
-  paste(lines, collapse = "\n")
-}
-
-.inject_indicator_block_textprep <- function(prompt, indicator_block) {
-  if (is.null(indicator_block) || !nzchar(trimws(indicator_block))) {
-    return(prompt)
-  }
-
-  marker <- "# Output constraint"
-  marker_position <- regexpr(marker, prompt, fixed = TRUE)[1]
-
-  if (marker_position < 0) {
-    return(paste(prompt, indicator_block, sep = "\n\n"))
-  }
-
-  before <- substr(prompt, 1, marker_position - 1)
-  after <- substr(prompt, marker_position, nchar(prompt))
-
-  paste0(before, indicator_block, "\n\n", after)
-}
-
-# ---------------------------------------------------------------------------
-# Structured response parser
-# ---------------------------------------------------------------------------
-
-.extract_field_block_textual <- function(text, field, next_fields = NULL) {
-  escaped_field <- gsub(
-    "([][{}()+*^$|\\\\?.])",
-    "\\\\\\1",
-    field
-  )
-
-  field_prefix <- "(?:(?:\\*\\*|__|#{1,6}|[-*+]|\\d+[.)])\\s*)*"
-
-  if (is.null(next_fields) || length(next_fields) == 0) {
-    pattern <- paste0(
-      "(?is)",
-      "(?:^|\\n)\\s*",
-      field_prefix,
-      escaped_field,
-      "\\s*(?:\\*\\*|__)?\\s*:?\\s*\\n?",
-      "(.*)$"
-    )
-  } else {
-    escaped_next <- vapply(
-      next_fields,
-      function(x) {
-        gsub(
-          "([][{}()+*^$|\\\\?.])",
-          "\\\\\\1",
-          x
-        )
-      },
-      character(1)
-    )
-
-    next_pattern <- paste(
-      paste0(
-        field_prefix,
-        escaped_next,
-        "\\s*(?:\\*\\*|__)?\\s*:?"
-      ),
-      collapse = "|"
-    )
-
-    pattern <- paste0(
-      "(?is)",
-      "(?:^|\\n)\\s*",
-      field_prefix,
-      escaped_field,
-      "\\s*(?:\\*\\*|__)?\\s*:?\\s*\\n?",
-      "(.*?)",
-      "(?=\\n\\s*(?:", next_pattern, ")|$)"
-    )
-  }
-
-  match_object <- regexec(pattern, text, perl = TRUE)
-  matched_text <- regmatches(text, match_object)[[1]]
-
-  if (length(matched_text) >= 2) {
-    trimws(matched_text[2])
-  } else {
-    NA_character_
-  }
-}
-
-.clean_field_textual <- function(x) {
-  if (is.na(x) || !nzchar(trimws(x))) {
-    return(NA_character_)
-  }
-
-  x <- trimws(x)
-  x <- gsub("^[-*+]\\s*", "", x)
-  x <- gsub("\\n+", " ", x)
-  x <- gsub("[[:space:]]+", " ", x)
-  trimws(x)
-}
-
-.split_field_textual <- function(x, none_words = NULL) {
-  if (is.na(x) || !nzchar(trimws(x))) {
-    return(character(0))
-  }
-
-  values <- unlist(strsplit(x, ";|\\n", perl = TRUE), use.names = FALSE)
-  values <- trimws(values)
-  values <- values[nzchar(values)]
-  values <- gsub("^[-*+]\\s*", "", values)
-  values <- gsub("^[[:punct:][:space:]]+", "", values)
-  values <- gsub("[[:punct:][:space:]]+$", "", values)
-  values <- trimws(values)
-  values <- values[nzchar(values)]
-
-  if (!is.null(none_words) && length(values) == 1 &&
-      tolower(values) %in% tolower(none_words)) {
-    return(character(0))
-  }
-
-  values
-}
-
-parse_textual_prep_response <- function(text, include_verbatims = TRUE) {
-  text <- paste(text, collapse = "\n")
-  text <- gsub("\r\n", "\n", text, fixed = TRUE)
-  text <- gsub("\r", "\n", text, fixed = TRUE)
-  text <- .strip_markdown_fences(text)
-
-  text <- gsub(
-    "(?im)^\\s*here is the output\\s*:?\\s*\\n?",
-    "",
-    text,
-    perl = TRUE
-  )
-  text <- gsub(
-    "(?im)^\\s*output\\s*:?\\s*\\n?",
-    "",
-    text,
-    perl = TRUE
-  )
-
-  # Backward compatibility with former field labels.
-  text <- gsub(
-    "Dominant concerns or motives",
-    "Dominant concerns or expressed reasons",
-    text,
-    ignore.case = TRUE
-  )
-  text <- gsub(
-    "Tension verbatim cues",
-    "Potential tension or contrastive verbatim cues",
-    text,
-    ignore.case = TRUE
-  )
-
-  field_order <- c(
-    "Core textual profile",
-    "Main themes",
-    "Dominant concerns or expressed reasons",
-    "Tone or stance",
-    "Intra-group consistency",
-    "Injectable summary"
-  )
-
-  if (include_verbatims) {
-    field_order <- c(
-      field_order,
-      "Central verbatim cues",
-      "Potential tension or contrastive verbatim cues"
-    )
-  }
-
-  get_block <- function(field) {
-    index <- match(field, field_order)
-    next_fields <- if (index < length(field_order)) {
-      field_order[(index + 1):length(field_order)]
-    } else {
-      NULL
-    }
-
-    .extract_field_block_textual(text, field, next_fields = next_fields)
-  }
-
-  core_textual_profile <- .clean_field_textual(
-    get_block("Core textual profile")
-  )
-  main_themes_raw <- get_block("Main themes")
-  dominant_concerns_raw <- get_block(
-    "Dominant concerns or expressed reasons"
-  )
-  tone_or_stance_raw <- .clean_field_textual(get_block("Tone or stance"))
-  intra_group_consistency_raw <- .clean_field_textual(
-    get_block("Intra-group consistency")
-  )
-  injectable_summary <- .clean_field_textual(
-    get_block("Injectable summary")
-  )
-
-  central_verbatim_cues_raw <- if (include_verbatims) {
-    get_block("Central verbatim cues")
-  } else {
-    NA_character_
-  }
-
-  contrastive_verbatim_cues_raw <- if (include_verbatims) {
-    get_block("Potential tension or contrastive verbatim cues")
-  } else {
-    NA_character_
-  }
-
-  main_themes <- .split_field_textual(main_themes_raw)
-  dominant_concerns <- .split_field_textual(
-    dominant_concerns_raw,
-    none_words = c("unclear")
-  )
-  central_verbatim_cues <- .split_field_textual(
-    central_verbatim_cues_raw
-  )
-  contrastive_verbatim_cues <- .split_field_textual(
-    contrastive_verbatim_cues_raw,
-    none_words = c("none")
-  )
-  tone_or_stance <- .split_field_textual(tone_or_stance_raw)
-
-  normalize_consistency <- function(x) {
-    if (is.na(x) || !nzchar(trimws(x))) {
-      return(NA_character_)
-    }
-
-    x_lower <- tolower(trimws(x))
-
-    if (grepl("\\bstrong\\b", x_lower)) return("strong")
-    if (grepl("\\bmoderate\\b|\\bmedium\\b", x_lower)) return("moderate")
-    if (grepl("\\bmixed\\b", x_lower)) return("mixed")
-    if (grepl("\\bweak\\b", x_lower)) return("weak")
-
-    NA_character_
-  }
+  profiles$groups <- profiles$groups[all_groups]
+  profiles <- .textual_prep_add_sampling_limits(profiles, textual_evidence)
 
   list(
-    core_textual_profile = core_textual_profile,
-    main_themes = main_themes,
-    dominant_concerns = dominant_concerns,
-    tone_or_stance = tone_or_stance,
-    intra_group_consistency = normalize_consistency(
-      intra_group_consistency_raw
-    ),
-    intra_group_consistency_raw = intra_group_consistency_raw,
-    injectable_summary = injectable_summary,
-    central_verbatim_cues = central_verbatim_cues,
-    contrastive_verbatim_cues = contrastive_verbatim_cues,
-    # Backward-compatible alias.
-    tension_verbatim_cues = contrastive_verbatim_cues
+    parse_status = "success",
+    parse_error = NULL,
+    textual_profiles = profiles
   )
 }
 
-# ---------------------------------------------------------------------------
-# Main function
-# ---------------------------------------------------------------------------
+.textual_profile_claim_text <- function(x) {
+  if (is.null(x) || !is.list(x) || is.null(x$text)) return(NA_character_)
+  as.character(x$text)
+}
 
-#' Prepare structured textual profiles and statistical lexical indicators
+.textual_profile_claim_texts <- function(x) {
+  if (is.null(x) || length(x) == 0L) return(character(0))
+  out <- vapply(x, .textual_profile_claim_text, character(1))
+  out[!is.na(out) & nzchar(out)]
+}
+
+.textual_profile_group_to_legacy <- function(group_profile) {
+  representative <- if (length(group_profile$representative_verbatims) > 0L) {
+    vapply(group_profile$representative_verbatims, function(x) x$quotation, character(1))
+  } else {
+    character(0)
+  }
+  tension <- if (length(group_profile$tension_verbatims) > 0L) {
+    vapply(group_profile$tension_verbatims, function(x) x$quotation, character(1))
+  } else {
+    character(0)
+  }
+  core <- .textual_profile_claim_text(group_profile$core_textual_profile)
+  consistency <- .textual_profile_claim_text(group_profile$intra_group_consistency)
+
+  list(
+    core_textual_profile = core,
+    main_themes = .textual_profile_claim_texts(group_profile$main_themes),
+    dominant_concerns = .textual_profile_claim_texts(group_profile$dominant_concerns),
+    tone_or_stance = .textual_profile_claim_texts(list(group_profile$tone_or_stance)),
+    intra_group_consistency = consistency,
+    intra_group_consistency_raw = consistency,
+    injectable_summary = core,
+    central_verbatim_cues = representative,
+    contrastive_verbatim_cues = tension,
+    tension_verbatim_cues = tension
+  )
+}
+
+.build_textual_prep_legacy_groups <- function(result,
+                                              attach_selected_verbatims,
+                                              n_central_verbatims,
+                                              n_tension_verbatims,
+                                              max_verbatim_chars) {
+  groups <- names(result$textual_evidence$groups)
+  profiles <- if (!is.null(result$textual_profiles)) result$textual_profiles$groups else list()
+
+  stats::setNames(lapply(groups, function(group_name) {
+    profile <- profiles[[group_name]]
+    parsed <- if (is.null(profile)) {
+      list(
+        core_textual_profile = NA_character_,
+        main_themes = character(0),
+        dominant_concerns = character(0),
+        tone_or_stance = character(0),
+        intra_group_consistency = NA_character_,
+        intra_group_consistency_raw = NA_character_,
+        injectable_summary = NA_character_,
+        central_verbatim_cues = character(0),
+        contrastive_verbatim_cues = character(0),
+        tension_verbatim_cues = character(0)
+      )
+    } else {
+      .textual_profile_group_to_legacy(profile)
+    }
+
+    selected <- if (attach_selected_verbatims && !is.null(profile)) {
+      central <- utils::head(parsed$central_verbatim_cues, n_central_verbatims)
+      tension <- utils::head(parsed$tension_verbatim_cues, n_tension_verbatims)
+      list(
+        central = .truncate_verbatim_textprep(central, max_chars = max_verbatim_chars),
+        contrastive = .truncate_verbatim_textprep(tension, max_chars = max_verbatim_chars),
+        tension = .truncate_verbatim_textprep(tension, max_chars = max_verbatim_chars)
+      )
+    } else {
+      list(central = character(0), contrastive = character(0), tension = character(0))
+    }
+
+    unit_name <- if (result$metadata$comparison_mode == "joint") "joint" else group_name
+    unit <- result$units[[unit_name]]
+    group_info <- result$textual_evidence$groups[[group_name]]
+
+    list(
+      prompt = if (!is.null(unit)) unit$prompt else NULL,
+      response = if (!is.null(unit)) unit$response else NULL,
+      parsed = parsed,
+      corpus_metrics = result$textual_evidence$corpus_metrics[[group_name]],
+      lexical_profile = group_info$lexical_profile,
+      selected_verbatims = selected,
+      frequent_terms = group_info$frequent_terms,
+      notable_expressions = group_info$frequent_terms
+    )
+  }), groups)
+}
+
+#' Prepare traceable textual evidence and semantic group profiles
 #'
-#' Builds one structured textual profile for each level of a grouping variable.
-#' The function combines three complementary layers of evidence:
+#' @description
+#' `nail_textual_prep()` separates two layers. R first builds a complete and
+#' deterministic `textual_evidence` object containing every source row,
+#' verbatim identifier, volume diagnostic, sampling decision, lexical indicator,
+#' and evidence registry. An optional language model then produces structured
+#' `textual_profiles` whose claims must cite verbatim identifiers that were
+#' actually included in the prompt.
 #'
-#' 1. a language-model synthesis of the raw texts;
-#' 2. explicit corpus-volume and response-length indicators;
-#' 3. a statistical lexical characterization based on a group-by-word
-#'    contingency table and [FactoMineR::descfreq()].
+#' The function is a preparation workflow rather than a final narrative report.
+#' Its outputs are intended for later use by `nail_textual()` and
+#' `nail_textual_contextualized()`.
 #'
-#' The output is intended for later triangulation with a statistical group
-#' profile in [nail_textual_contextualized()]. The function does not collapse
-#' these different layers into a single score, because response quantity,
-#' lexical specificity, internal diversity, and semantic interpretation do not
-#' measure the same construct.
+#' @param dataset A data frame containing a grouping column and a textual column.
+#' @param num.var Integer index of the grouping column.
+#' @param num.text Integer index of the textual column.
+#' @param model Character scalar naming the LLM model.
+#' @param provider LLM provider, either `"ollama"` or `"gemini"`.
+#' @param sample.pct Fraction of non-empty verbatims retained within each group.
+#'   Values in `[0, 1]` are accepted. Sampling is deterministic for a given data
+#'   set and `seed`; all source rows remain in `textual_evidence`.
+#' @param seed Optional integer used by the deterministic within-group sampling
+#'   rank. The implementation does not alter R's global random-number state.
+#' @param language Stop-word language used by the optional lexical analysis.
+#' @param prompt_style Prompt verbosity, either `"detailed"` or `"compact"`.
+#' @param text_role Label describing the text column: responses, comments, or
+#'   verbatims.
+#' @param include_verbatims_in_prompt Deprecated compatibility argument.
+#'   Traceable semantic profiles always require the sampled verbatims to be
+#'   included. Supplying `FALSE` produces a warning and is otherwise ignored.
+#' @param attach_selected_verbatims Whether to populate the legacy
+#'   `selected_verbatims` compatibility view.
+#' @param n_central_verbatims Maximum number of representative verbatims
+#'   requested per group and retained in the legacy view.
+#' @param n_tension_verbatims Maximum number of tension or contrastive verbatims
+#'   requested per group and retained in the legacy view.
+#' @param max_verbatim_chars Maximum displayed length in the legacy compatibility
+#'   view. Exact quotations in `textual_profiles` are never truncated.
+#' @param lexical_analysis Whether to compute mechanical lexical indicators from
+#'   the complete non-empty corpus.
+#' @param lexical_unit Lexical unit used by `FactoMineR::descfreq()`:
+#'   occurrences or documents.
+#' @param lexical_proba Exploratory p-value threshold used for lexical markers.
+#' @param min_word_frequency Minimum retained frequency for a lexical term.
+#' @param min_word_length Minimum retained word length.
+#' @param top_n_characteristic_words Maximum number of positive and negative
+#'   lexical markers retained per group.
+#' @param top_n_frequent_terms Number of mechanically frequent terms retained per
+#'   group.
+#' @param include_indicators_in_prompt Whether mechanical diagnostics and lexical
+#'   indicators are included in the LLM prompt. This does not modify
+#'   `textual_evidence`.
+#' @param compute_length_analysis Whether to compute the mechanical response-
+#'   length analysis.
+#' @param generate Logical. When `FALSE`, all evidence and prompts are built but
+#'   no LLM call is made.
+#' @param analysis_scope Analytical prism: `"general"`, `"sociological"`,
+#'   `"consumer"`, `"psychological"`, `"marketing"`, `"innovation"`, or
+#'   `"cross_functional"`.
+#' @param comparison_mode `"isolated"` creates one generation unit per group;
+#'   `"joint"` creates one unit containing all groups that have at least one
+#'   verbatim included in the prompt. Groups without usable prompt evidence
+#'   remain fully represented in `textual_evidence`.
+#' @param isolate.groups Deprecated logical alias for `comparison_mode`.
+#' @param request Optional additional analytical request. It supplements but
+#'   cannot replace the mandatory evidence and JSON rules.
+#' @param context Optional external context supplied as a character scalar or a
+#'   named list. It is displayed separately from the textual evidence.
+#' @param max_prompt_characters Maximum number of characters of verbatim evidence
+#'   included per group after sampling. This is a character budget, not a token
+#'   count. Use `Inf` for no budget.
+#' @param ... Additional provider-specific LLM options.
 #'
-#' @param dataset A data frame containing a grouping variable and an
-#'   open-ended textual variable. Rows generally correspond to individuals,
-#'   observations, or textual contributions.
-#' @param num.var A single integer giving the column index of the grouping
-#'   variable in `dataset`.
-#' @param num.text A single integer giving the column index of the textual
-#'   variable in `dataset`. `num.var` and `num.text` must be different.
-#' @param model Character string giving the model used by the selected LLM
-#'   provider. The default is `"llama3"`.
-#' @param provider LLM backend used when `generate = TRUE`. One of
-#'   `"ollama"` or `"gemini"`.
-#' @param sample.pct Numeric value in ]0, 1] giving the proportion of non-empty
-#'   texts shown to the LLM within each group. Statistical indicators are
-#'   always calculated from the complete non-empty corpus.
-#' @param seed Optional seed controlling only within-group text sampling.
-#' @param language Language used for the basic stopword list in the mechanical
-#'   lexical analysis. One of `"en"`, `"fr"`, or `"none"`. This argument
-#'   does not translate the texts or control the language of the LLM response.
-#' @param prompt_style Prompt style passed to [nail_textual()]. One of
-#'   `"detailed"` or `"compact"`.
-#' @param text_role Name used for textual units in the prompt. One of
-#'   `"responses"`, `"comments"`, or `"verbatims"`.
-#' @param include_verbatims_in_prompt Logical indicating whether the LLM should
-#'   return central and contrastive verbatim cues.
-#' @param attach_selected_verbatims Logical indicating whether verbatims should
-#'   also be selected mechanically from the original corpus after generation.
-#' @param n_central_verbatims Maximum number of mechanically selected central
-#'   verbatims per group.
-#' @param n_tension_verbatims Maximum number of mechanically selected
-#'   contrastive verbatims per group. The historical argument name is retained
-#'   for compatibility; these texts are not evidence of a demonstrated
-#'   internal tension.
-#' @param max_verbatim_chars Maximum number of characters retained for each
-#'   mechanically selected verbatim.
-#' @param lexical_analysis Logical indicating whether to build a group-by-word
-#'   table and run [FactoMineR::descfreq()].
-#' @param lexical_unit Unit used in the group-by-word table passed to
-#'   [FactoMineR::descfreq()]. One of:
+#' @return A list of class `nail_textual_prep` containing:
+#'   * `prompt`, `response`, and `parsed`;
+#'   * `textual_profiles`, the validated semantic artifact or `NULL`;
+#'   * `textual_evidence`, the complete mechanical artifact;
+#'   * `units`, one generation record per group or one joint record;
+#'   * `legacy_groups`, a transitional view of the historical fields;
+#'   * `metadata`, including the preparation scope, comparison mode, stored
+#'     context, preparation request, and compatibility settings required to
+#'     resume an offline preparation without rebuilding its evidence.
 #'
-#'   - `"occurrence"`: each cell is the total number of occurrences of a word
-#'     in the group;
-#'   - `"document"`: each cell is the number of individual texts in the group
-#'     containing the word at least once.
-#'
-#'   The document-based option limits the influence of highly verbose
-#'   individuals, whereas the occurrence-based option describes the complete
-#'   lexical mass of each group.
-#'   This argument controls the contingency table passed to `descfreq()` and
-#'   the global group-by-word association analysis.
-#'
-#'   It does not change the lexical diversity indicators stored in
-#'   `lexical_profile$occurrence_metrics`. These indicators are always
-#'   calculated from the retained word-occurrence table.
-#'
-#' @param lexical_proba Significance threshold passed to
-#'   [FactoMineR::descfreq()]. No multiple-testing adjustment is added by this
-#'   function; lexical markers should therefore be treated as exploratory.
-#' @param min_word_frequency Minimum global frequency required for a word to be
-#'   retained in the lexical contingency table. With `lexical_unit =
-#'   "document"`, this is a minimum number of texts containing the word.
-#' @param min_word_length Minimum number of characters required for a word to
-#'   be retained after tokenization.
-#' @param top_n_characteristic_words Maximum number of over-represented and
-#'   under-represented words retained per group from `descfreq()`.
-#' @param top_n_frequent_terms Number of simple frequency-ranked terms returned
-#'   per group. These terms are not necessarily statistically characteristic.
-#' @param include_indicators_in_prompt Logical indicating whether group-specific
-#'   corpus metrics and lexical markers should be inserted into the prompt.
-#'   This gives the isolated LLM prompt comparative lexical evidence even
-#'   though the raw texts of the other groups are not displayed.
-#' @param compute_length_analysis Logical indicating whether to analyse the
-#'   association between group membership and response length. The outcome is
-#'   `log1p(number of characters)`. The returned analysis includes classical
-#'   ANOVA, Welch's test, eta-squared, and omega-squared.
-#' @param generate Logical. If `FALSE`, the enriched prompts and mechanical
-#'   indicators are returned without calling an LLM. If `TRUE`, one request is
-#'   sent independently for each group and the responses are parsed.
-#' @param ... Additional provider-specific arguments passed to the selected LLM
-#'   backend.
-#'
-#' @details
-#' ## Separation from `nail_textual()`
-#'
-#' `nail_textual()` remains the general-purpose function for free narrative
-#' interpretation of grouped texts. `nail_textual_prep()` is a preparation
-#' function: it creates a stable, parseable object intended for reuse by a
-#' later workflow.
-#'
-#' Internally, `nail_textual_prep()` first calls [nail_textual()] with
-#' `isolate.groups = TRUE` and `generate = FALSE` to construct one base prompt
-#' per group. It then adds group-specific mechanical indicators and performs
-#' generation itself when requested.
-#'
-#' ## Corpus metrics
-#'
-#' For each group, `corpus_metrics` reports explicit quantities rather than an
-#' undocumented `evidence_strength` label:
-#'
-#' - number of rows and number of non-empty texts;
-#' - response rate;
-#' - total, mean, median, interquartile range, minimum, and maximum numbers of
-#'   characters;
-#' - the same descriptive indicators for word-like tokens.
-#'
-#' These metrics describe corpus volume only. They do not measure quality,
-#' richness, representativeness, validity, or saturation.
-#'
-#' ## Response-length group effect
-#'
-#' When `compute_length_analysis = TRUE`, a one-way model is fitted to
-#' `log1p(number of characters)`. The analysis reports:
-#'
-#' - the classical ANOVA F-test;
-#' - Welch's heteroscedastic one-way test;
-#' - eta-squared and omega-squared effect sizes;
-#' - group-level descriptive statistics.
-#'
-#' This analysis answers whether groups differ in quantity of expression. It
-#' must not be interpreted as a test of textual content or quality.
-#'
-#' ## Statistical lexical profile
-#'
-#' The occurrence table is constructed with [FactoMineR::textual()]. After
-#' stopword, length, and global-frequency filtering, the selected contingency
-#' table is analysed with [FactoMineR::descfreq()]. For each group, the function
-#' separates:
-#'
-#' - over-represented words, which occur comparatively more often than in the
-#'   complete corpus;
-#' - under-represented words, which occur comparatively less often.
-#'
-#' A characteristic word is a comparative lexical marker. It is not
-#' necessarily used by every individual, it is not by itself a complete theme,
-#' and its absence must not be interpreted as rejection of the corresponding
-#' topic.
-#'
-#' The complete lexical analysis also reports a global chi-square association,
-#' total correspondence-analysis inertia, Cramer's V, and expected-count
-#' diagnostics. The asymptotic p-value may be unreliable when the word table is
-#' sparse; the diagnostics are returned so that this limitation remains
-#' visible.
-#'
-#' ## Occurrence-based lexical indicators
-#'
-#' Independently of `lexical_unit`, the function calculates several
-#' descriptive indicators from the retained group-by-word occurrence table.
-#'
-#' These indicators are stored in:
-#'
-#' ```
-#' lexical_profile$occurrence_metrics
-#' ```
-#'
-#' They include:
-#'
-#' - `total_retained_word_occurrences`: total number of retained word
-#'   occurrences after stopword, word-length, and frequency filtering;
-#' - `retained_vocabulary_size`: number of retained distinct word forms;
-#' - `type_token_ratio`: ratio between retained vocabulary size and retained
-#'   word occurrences;
-#' - `shannon_entropy`: entropy of the retained word-frequency distribution;
-#' - `normalized_shannon_entropy`: Shannon entropy divided by its theoretical
-#'   maximum for the retained vocabulary.
-#'
-#' These indicators are always calculated from word occurrences, including
-#' when `lexical_unit = "document"`. In that case, the document-frequency
-#' table is used for `descfreq()`, whereas the occurrence table is used for
-#' these descriptive indicators.
-#'
-#' The word `retained` is important: these quantities concern only terms that
-#' remain after lexical filtering. They are therefore different from the
-#' unfiltered word counts reported in `corpus_metrics`.
-#'
-#' The type-token ratio and entropy depend on corpus size and preprocessing.
-#' They must not be interpreted as intrinsic measures of intellectual,
-#' linguistic, or evidential quality.
-#'
-#' ## LLM and mechanical evidence
-#'
-#' The parsed LLM response contains a core textual profile, main themes,
-#' expressed concerns or reasons, tone or stance, intra-group consistency, and
-#' an injectable summary. Optional LLM verbatim cues may be paraphrased.
-#'
-#' Mechanically selected verbatims are taken directly from the original corpus.
-#' Central selection uses both the parsed themes and statistically
-#' over-represented words. Contrastive selection favors texts that are less
-#' aligned with the central keywords and lexically more distant from the
-#' selected central texts.
-#'
-#' Neither procedure demonstrates that a text is representative of every group
-#' member or that a contrastive text constitutes an internal contradiction.
-#'
-#' ## Sampling
-#'
-#' `sample.pct` affects only the texts displayed to the LLM. Corpus metrics,
-#' lexical tables, `descfreq()` results, frequent terms, and mechanically
-#' selected verbatims are calculated from the complete available corpus. The
-#' prompt states this explicitly when sampling is used.
-#'
-#' @return
-#' With `generate = FALSE`, a named list of enriched character prompts is
-#' returned. With `generate = TRUE`, a named list is returned with one element
-#' per group. Each group element contains:
-#'
-#' - `prompt`: exact prompt sent to the LLM;
-#' - `response`: raw LLM response;
-#' - `parsed`: structured fields extracted from the response;
-#' - `corpus_metrics`: explicit group-level corpus indicators;
-#' - `lexical_profile`: the lexical analysis unit, over-represented and
-#'   under-represented words, marker counts, and occurrence-based descriptive
-#'   indicators;
-#' - `selected_verbatims`: `central`, `contrastive`, and the backward-compatible
-#'   alias `tension`;
-#' - `frequent_terms`: most frequent filtered terms;
-#' - `notable_expressions`: backward-compatible alias of `frequent_terms`.
-#'
-#' The complete returned object has the following attributes:
-#'
-#' - `corpus_metrics`;
-#' - `length_group_analysis`;
-#' - `lexical_analysis`, containing the contingency tables, raw
-#'   [FactoMineR::descfreq()] result, group lexical profiles, global association,
-#'   and analysis settings;
-#' - `textual_data_summary`, inherited from [nail_textual()] for backward
-#'   compatibility.
-#'
-#' @seealso [nail_textual()], [nail_textual_contextualized()],
-#'   [FactoMineR::textual()], [FactoMineR::descfreq()]
-#'
-#' @export
+#' `textual_evidence` is invariant to model, provider, request, context,
+#' `analysis_scope`, `comparison_mode`, prompt style, and `generate` when the
+#' data and mechanical settings are unchanged.
 #'
 #' @examples
-#' textual_example <- data.frame(
-#'   group = factor(c(
-#'     rep("Local orientation", 4),
-#'     rep("Convenience orientation", 4)
-#'   )),
-#'   response = c(
-#'     "I prefer the local market and seasonal products.",
-#'     "Buying directly from nearby producers matters to me.",
-#'     "I try to support local shops and regional food.",
-#'     "Knowing where products come from is important.",
-#'     "Shopping must be fast and easy after work.",
-#'     "The supermarket is practical because everything is available.",
-#'     "Opening hours and convenience guide my choices.",
-#'     "I use the drive service because it saves time."
-#'   ),
-#'   stringsAsFactors = FALSE
-#' )
-#'
-#' prep_prompts <- nail_textual_prep(
-#'   textual_example,
+#' prep <- nail_textual_prep(
+#'   dataset = local_food,
 #'   num.var = 1,
 #'   num.text = 2,
-#'   language = "en",
-#'   lexical_unit = "document",
-#'   min_word_frequency = 1,
+#'   sample.pct = 0.5,
+#'   seed = 123,
+#'   lexical_analysis = FALSE,
 #'   generate = FALSE
 #' )
 #'
-#' names(prep_prompts)
-#' attr(prep_prompts, "corpus_metrics")
-#' attr(prep_prompts, "length_group_analysis")
-#' attr(prep_prompts, "lexical_analysis")$group_profiles
+#' prep$textual_evidence$group_diagnostics
+#' prep$prompt
 #'
-#' \dontrun{
-#' textual_result <- nail_textual_prep(
-#'   textual_example,
-#'   num.var = 1,
-#'   num.text = 2,
-#'   model = "llama3",
-#'   provider = "ollama",
-#'   language = "en",
-#'   lexical_unit = "document",
-#'   min_word_frequency = 1,
-#'   generate = TRUE
-#' )
-#'
-#' textual_result[["Local orientation"]]$parsed
-#' textual_result[["Local orientation"]]$lexical_profile
-#' textual_result[["Local orientation"]]$selected_verbatims
-#' }
+#' @export
 nail_textual_prep <- function(dataset,
                               num.var,
                               num.text,
@@ -1912,14 +2846,65 @@ nail_textual_prep <- function(dataset,
                               include_indicators_in_prompt = TRUE,
                               compute_length_analysis = TRUE,
                               generate = FALSE,
+                              analysis_scope = c(
+                                "general",
+                                "sociological",
+                                "consumer",
+                                "psychological",
+                                "marketing",
+                                "innovation",
+                                "cross_functional"
+                              ),
+                              comparison_mode = c("isolated", "joint"),
+                              isolate.groups = NULL,
+                              request = NULL,
+                              context = NULL,
+                              max_prompt_characters = Inf,
                               ...) {
+  comparison_mode_missing <- missing(comparison_mode)
+
+  provider <- match.arg(provider)
+  language <- match.arg(language)
   prompt_style <- match.arg(prompt_style)
   text_role <- match.arg(text_role)
-  language <- match.arg(language)
-  provider <- match.arg(provider)
   lexical_unit <- match.arg(lexical_unit)
+  analysis_scope <- match.arg(analysis_scope)
+  comparison_mode <- match.arg(comparison_mode)
 
+  if (!is.null(isolate.groups)) {
+    if (!is.logical(isolate.groups) || length(isolate.groups) != 1L || is.na(isolate.groups)) {
+      stop("`isolate.groups` must be NULL or a single logical value.", call. = FALSE)
+    }
+    mapped_mode <- if (isolate.groups) "isolated" else "joint"
+    if (!comparison_mode_missing && !identical(comparison_mode, mapped_mode)) {
+      stop("`isolate.groups` and `comparison_mode` specify conflicting modes.", call. = FALSE)
+    }
+    warning(
+      "`isolate.groups` is deprecated; use `comparison_mode` instead.",
+      call. = FALSE
+    )
+    comparison_mode <- mapped_mode
+  }
+
+  if (!isTRUE(include_verbatims_in_prompt)) {
+    warning(
+      paste(
+        "`include_verbatims_in_prompt = FALSE` is deprecated and ignored.",
+        "Traceable semantic profiles require the sampled verbatims in the prompt."
+      ),
+      call. = FALSE
+    )
+    include_verbatims_in_prompt <- TRUE
+  }
+
+  context <- .textual_prep_validate_context(context)
   .validate_textual_prep_options(
+    dataset = dataset,
+    num.var = num.var,
+    num.text = num.text,
+    sample.pct = sample.pct,
+    seed = seed,
+    max_prompt_characters = max_prompt_characters,
     include_verbatims_in_prompt = include_verbatims_in_prompt,
     attach_selected_verbatims = attach_selected_verbatims,
     n_central_verbatims = n_central_verbatims,
@@ -1932,235 +2917,165 @@ nail_textual_prep <- function(dataset,
     top_n_characteristic_words = top_n_characteristic_words,
     top_n_frequent_terms = top_n_frequent_terms,
     include_indicators_in_prompt = include_indicators_in_prompt,
+    compute_length_analysis = compute_length_analysis,
+    generate = generate,
+    request = request,
+    context = context
+  )
+
+  textual_evidence <- .build_textual_evidence(
+    dataset = dataset,
+    num.var = num.var,
+    num.text = num.text,
+    sample.pct = sample.pct,
+    seed = seed,
+    max_prompt_characters = max_prompt_characters,
+    language = language,
+    lexical_analysis = lexical_analysis,
+    lexical_unit = lexical_unit,
+    lexical_proba = lexical_proba,
+    min_word_frequency = min_word_frequency,
+    min_word_length = min_word_length,
+    top_n_characteristic_words = top_n_characteristic_words,
+    top_n_frequent_terms = top_n_frequent_terms,
     compute_length_analysis = compute_length_analysis
   )
 
-  intro <- paste(
-    "The texts below come from one specific group.",
-    "The goal is to summarize this group's textual profile in a short structured format that can later be combined with external statistical descriptors."
-  )
-
-  request <- build_request_textual_prep(
-    include_verbatims = include_verbatims_in_prompt,
-    include_indicators = include_indicators_in_prompt
-  )
-  conclusion <- build_conclusion_textual_prep(
-    include_verbatims = include_verbatims_in_prompt
-  )
-
-  # Prompt construction and validation are delegated to nail_textual().
-  base_prompts <- nail_textual(
-    dataset = dataset,
-    num.var = num.var,
-    num.text = num.text,
-    introduction = intro,
+  units <- .textual_prep_build_units(
+    textual_evidence = textual_evidence,
+    analysis_scope = analysis_scope,
+    comparison_mode = comparison_mode,
     request = request,
-    conclusion = conclusion,
-    model = model,
-    provider = provider,
-    isolate.groups = TRUE,
-    sample.pct = sample.pct,
-    seed = seed,
+    context = context,
     prompt_style = prompt_style,
     text_role = text_role,
-    generate = FALSE
+    include_indicators_in_prompt = include_indicators_in_prompt,
+    n_central_verbatims = n_central_verbatims,
+    n_tension_verbatims = n_tension_verbatims
   )
-
-  corpus_metrics <- .compute_corpus_metrics_textprep(
-    dataset = dataset,
-    num.var = num.var,
-    num.text = num.text
-  )
-
-  length_group_analysis <- if (compute_length_analysis) {
-    .compute_length_group_analysis_textprep(
-      dataset = dataset,
-      num.var = num.var,
-      num.text = num.text
-    )
-  } else {
-    .empty_length_analysis_textprep(
-      "The analysis was disabled by `compute_length_analysis = FALSE`."
-    )
-  }
-
-  lexical_results <- if (lexical_analysis) {
-    .compute_lexical_analysis_textprep(
-      dataset = dataset,
-      num.var = num.var,
-      num.text = num.text,
-      lexical_unit = lexical_unit,
-      language = language,
-      lexical_proba = lexical_proba,
-      min_word_frequency = min_word_frequency,
-      min_word_length = min_word_length,
-      top_n_characteristic_words = top_n_characteristic_words
-    )
-  } else {
-    list(
-      settings = list(
-        lexical_unit = lexical_unit,
-        language = language,
-        lexical_proba = lexical_proba,
-        min_word_frequency = min_word_frequency,
-        min_word_length = min_word_length,
-        top_n_characteristic_words = top_n_characteristic_words,
-        multiple_testing_adjustment = "none",
-        disabled = TRUE
-      ),
-      contingency_table = matrix(numeric(0), nrow = 0, ncol = 0),
-      occurrence_table = matrix(numeric(0), nrow = 0, ncol = 0),
-      raw_occurrence_table = matrix(numeric(0), nrow = 0, ncol = 0),
-      retained_occurrence_rate = NA_real_,
-      textual_result = NULL,
-      descfreq_result = NULL,
-      group_profiles = list(),
-      global_association = .compute_global_lexical_association_textprep(
-        matrix(numeric(0), nrow = 0, ncol = 0)
-      )
-    )
-  }
-
-  frequent_terms <- .extract_frequent_terms_textprep(
-    dataset = dataset,
-    num.var = num.var,
-    num.text = num.text,
-    top_n = top_n_frequent_terms,
-    min_word_length = min_word_length,
-    language = language
-  )
-
-  enriched_prompts <- base_prompts
-
-  if (include_indicators_in_prompt) {
-    for (group_name in names(enriched_prompts)) {
-      group_lexical_profile <- if (
-        group_name %in% names(lexical_results$group_profiles)
-      ) {
-        lexical_results$group_profiles[[group_name]]
-      } else {
-        NULL
-      }
-
-      indicator_block <- .build_indicator_block_textprep(
-        group_name = group_name,
-        corpus_metrics = corpus_metrics[[group_name]],
-        lexical_profile = group_lexical_profile,
-        lexical_settings = lexical_results$settings,
-        sample.pct = sample.pct,
-        max_terms = top_n_characteristic_words
-      )
-
-      enriched_prompts[[group_name]] <- .inject_indicator_block_textprep(
-        enriched_prompts[[group_name]],
-        indicator_block
-      )
-    }
-  }
-
-  attach_result_attributes <- function(x) {
-    attr(x, "corpus_metrics") <- corpus_metrics
-    attr(x, "length_group_analysis") <- length_group_analysis
-    attr(x, "lexical_analysis") <- lexical_results
-    class(x) <- unique(c("nail_textual_prep", class(x)))
-    x
-  }
 
   if (!generate) {
-    return(attach_result_attributes(enriched_prompts))
-  }
-
-  llm_api_options <- list(...)
-
-  generated_results <- lapply(enriched_prompts, function(prompt) {
-    result <- .call_llm_base(
-      provider = provider,
-      model = model,
-      prompt = prompt,
-      output = "df",
-      llm_api_options = llm_api_options
-    )
-    result$prompt <- prompt
-    result
-  })
-  names(generated_results) <- names(enriched_prompts)
-
-  parsed_only <- lapply(generated_results, function(x) {
-    response_text <- if (!is.null(x$response)) {
-      paste(x$response, collapse = "\n")
-    } else {
-      ""
+    for (name in names(units)) {
+      units[[name]]$response <- NULL
+      units[[name]]$parsed <- list(
+        parse_status = "not_generated",
+        parse_error = NULL,
+        textual_profiles = NULL
+      )
     }
 
-    tryCatch(
-      parse_textual_prep_response(
-        response_text,
-        include_verbatims = include_verbatims_in_prompt
+    result <- list(
+      prompt = if (comparison_mode == "joint") units$joint$prompt else lapply(units, `[[`, "prompt"),
+      response = NULL,
+      parsed = list(
+        parse_status = "not_generated",
+        parse_error = NULL,
+        textual_profiles = NULL
       ),
-      error = function(e) .empty_parsed_textprep()
-    )
-  })
-  names(parsed_only) <- names(generated_results)
-
-  selected_verbatims <- if (attach_selected_verbatims) {
-    .select_representative_verbatims_textprep(
-      dataset = dataset,
-      num.var = num.var,
-      num.text = num.text,
-      textual_summary = parsed_only,
-      lexical_profiles = lexical_results$group_profiles,
-      n_central = n_central_verbatims,
-      n_tension = n_tension_verbatims,
-      max_chars = max_verbatim_chars
+      textual_profiles = NULL,
+      textual_evidence = textual_evidence,
+      units = units,
+      legacy_groups = NULL,
+      metadata = list(
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode,
+        provider = provider,
+        model = model,
+        generate = FALSE,
+        context_supplied = length(context) > 0L,
+        context = context,
+        preparation_request = request,
+        prompt_style = prompt_style,
+        text_role = text_role,
+        attach_selected_verbatims = attach_selected_verbatims,
+        n_central_verbatims = as.integer(n_central_verbatims),
+        n_tension_verbatims = as.integer(n_tension_verbatims),
+        max_verbatim_chars = as.integer(max_verbatim_chars)
+      )
     )
   } else {
-    stats::setNames(
-      lapply(seq_along(parsed_only), function(i) {
-        list(
-          central = character(0),
-          contrastive = character(0),
-          tension = character(0)
+    llm_api_options <- list(...)
+    unit_results <- lapply(units, function(unit) {
+      if (!isTRUE(unit$has_evidence)) {
+        unit$response <- NULL
+        unit$parsed <- list(
+          parse_status = "no_evidence",
+          parse_error = "No verbatim was included in this generation unit.",
+          textual_profiles = NULL
         )
-      }),
-      names(parsed_only)
+        return(unit)
+      }
+
+      raw_response <- .call_llm_base(
+        provider = provider,
+        model = model,
+        prompt = unit$prompt,
+        output = "df",
+        llm_api_options = llm_api_options
+      )
+      response_text <- .textual_prep_response_text(raw_response)
+      unit$response <- raw_response
+      unit$parsed <- .parse_textual_prep_response(
+        text = response_text,
+        expected_groups = unit$groups,
+        textual_evidence = textual_evidence,
+        context = context,
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode
+      )
+      unit
+    })
+    names(unit_results) <- names(units)
+
+    combined <- .textual_prep_combine_units(
+      unit_results = unit_results,
+      all_groups = names(textual_evidence$groups),
+      textual_evidence = textual_evidence,
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode
+    )
+
+    result <- list(
+      prompt = if (comparison_mode == "joint") unit_results$joint$prompt else lapply(unit_results, `[[`, "prompt"),
+      response = if (comparison_mode == "joint") unit_results$joint$response else lapply(unit_results, `[[`, "response"),
+      parsed = combined,
+      textual_profiles = combined$textual_profiles,
+      textual_evidence = textual_evidence,
+      units = unit_results,
+      legacy_groups = NULL,
+      metadata = list(
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode,
+        provider = provider,
+        model = model,
+        generate = TRUE,
+        context_supplied = length(context) > 0L,
+        context = context,
+        preparation_request = request,
+        prompt_style = prompt_style,
+        text_role = text_role,
+        attach_selected_verbatims = attach_selected_verbatims,
+        n_central_verbatims = as.integer(n_central_verbatims),
+        n_tension_verbatims = as.integer(n_tension_verbatims),
+        max_verbatim_chars = as.integer(max_verbatim_chars)
+      )
     )
   }
 
-  out <- lapply(names(generated_results), function(group_name) {
-    generated <- generated_results[[group_name]]
-    response_text <- if (!is.null(generated$response)) {
-      paste(generated$response, collapse = "\n")
-    } else {
-      ""
-    }
+  class(result) <- c("nail_textual_prep", "list")
+  result$legacy_groups <- .build_textual_prep_legacy_groups(
+    result = result,
+    attach_selected_verbatims = attach_selected_verbatims,
+    n_central_verbatims = n_central_verbatims,
+    n_tension_verbatims = n_tension_verbatims,
+    max_verbatim_chars = max_verbatim_chars
+  )
 
-    lexical_profile <- if (
-      group_name %in% names(lexical_results$group_profiles)
-    ) {
-      lexical_results$group_profiles[[group_name]]
-    } else {
-      .empty_lexical_profile_textprep(unit = lexical_unit)
-    }
-
-    terms <- if (group_name %in% names(frequent_terms)) {
-      frequent_terms[[group_name]]
-    } else {
-      character(0)
-    }
-
-    list(
-      prompt = enriched_prompts[[group_name]],
-      response = response_text,
-      parsed = parsed_only[[group_name]],
-      corpus_metrics = corpus_metrics[[group_name]],
-      lexical_profile = lexical_profile,
-      selected_verbatims = selected_verbatims[[group_name]],
-      frequent_terms = terms,
-      # Backward-compatible alias.
-      notable_expressions = terms
-    )
-  })
-
-  names(out) <- names(generated_results)
-  attach_result_attributes(out)
+  attr(result, "textual_evidence") <- result$textual_evidence
+  attr(result, "textual_profiles") <- result$textual_profiles
+  attr(result, "legacy_textual_prep") <- result$legacy_groups
+  attr(result, "corpus_metrics") <- result$textual_evidence$corpus_metrics
+  attr(result, "length_group_analysis") <- result$textual_evidence$length_group_analysis
+  attr(result, "lexical_analysis") <- result$textual_evidence$lexical_analysis
+  result
 }

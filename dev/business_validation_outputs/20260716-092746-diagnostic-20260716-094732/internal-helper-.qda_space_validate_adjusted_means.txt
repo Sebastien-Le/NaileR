@@ -1,0 +1,40 @@
+INTERNAL HELPER: .qda_space_validate_adjusted_means
+
+FORMALS:
+as.pairlist(alist(adjusted_means = ))
+
+BODY:
+function(adjusted_means) {
+  adjusted_means <- as.data.frame(adjusted_means, stringsAsFactors = FALSE)
+
+  if (nrow(adjusted_means) < 2L) {
+    stop("The adjusted-mean table must contain at least 2 products.", call. = FALSE)
+  }
+  if (ncol(adjusted_means) < 2L) {
+    stop("The adjusted-mean table must contain at least 2 sensory attributes.", call. = FALSE)
+  }
+  if (is.null(rownames(adjusted_means)) || any(!nzchar(rownames(adjusted_means))) ||
+      anyDuplicated(rownames(adjusted_means)) > 0L) {
+    stop("The adjusted-mean table must have unique non-empty product row names.", call. = FALSE)
+  }
+  if (is.null(colnames(adjusted_means)) || any(!nzchar(colnames(adjusted_means))) ||
+      anyDuplicated(colnames(adjusted_means)) > 0L) {
+    stop("The adjusted-mean table must have unique non-empty sensory-attribute names.", call. = FALSE)
+  }
+
+  numeric_columns <- vapply(adjusted_means, is.numeric, logical(1))
+  if (!all(numeric_columns)) {
+    stop(
+      sprintf("All adjusted-mean columns must be numeric. Non-numeric column(s): %s.",
+              paste(names(adjusted_means)[!numeric_columns], collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  values <- as.matrix(adjusted_means)
+  if (any(!is.finite(values))) {
+    stop("The adjusted-mean table must contain only finite numeric values.", call. = FALSE)
+  }
+
+  adjusted_means
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,14 @@
+NAME                           ID              SIZE      MODIFIED      
+nomic-embed-text:latest        0a109f422b47    274 MB    8 weeks ago      
+mistral-small3.2:latest        5a408ab55df5    15 GB     3 months ago     
+mistral-nemo:latest            e7e06d107c6c    7.1 GB    3 months ago     
+gemma3:4b                      a2af6cc3eb7f    3.3 GB    13 months ago    
+deepseek-coder:6.7b            ce298d984115    3.8 GB    14 months ago    
+mistral:latest                 f974a74358d6    4.1 GB    17 months ago    
+cniongolo/biomistral:latest    e0733a4eee80    4.4 GB    18 months ago    
+llava:latest                   8dd30f6b0cb1    4.7 GB    23 months ago    
+llama3.1:latest                75382d0899df    4.7 GB    23 months ago    
+llama3:latest                  365c0bd3c000    4.7 GB    2 years ago      
+bruce:latest                   4df99be1430f    3.8 GB    2 years ago      
+codellama:latest               8fdf8f752f6e    3.8 GB    2 years ago      
+llama2:latest                  fe938a131f40    3.8 GB    2 years ago      

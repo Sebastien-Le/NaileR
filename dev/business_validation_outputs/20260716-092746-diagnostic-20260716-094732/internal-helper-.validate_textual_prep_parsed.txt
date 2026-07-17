@@ -1,0 +1,61 @@
+INTERNAL HELPER: .validate_textual_prep_parsed
+
+FORMALS:
+as.pairlist(alist(parsed = , expected_groups = , registry = , context = , analysis_scope = , comparison_mode = ))
+
+BODY:
+function(parsed,
+                                          expected_groups,
+                                          registry,
+                                          context,
+                                          analysis_scope,
+                                          comparison_mode) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The JSON root must be an object.", call. = FALSE)
+  }
+  unknown_top <- setdiff(names(parsed), c("groups", "cross_group"))
+  missing_top <- setdiff(c("groups", "cross_group"), names(parsed))
+  if (length(missing_top) > 0L) {
+    stop(sprintf("The JSON root is missing: %s.", paste(missing_top, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_top) > 0L) {
+    stop(sprintf("Unexpected top-level JSON field(s): %s.", paste(unknown_top, collapse = ", ")), call. = FALSE)
+  }
+  if (!is.list(parsed$groups) || is.data.frame(parsed$groups)) {
+    stop("`groups` must be a named object.", call. = FALSE)
+  }
+  if (is.null(names(parsed$groups)) || !setequal(names(parsed$groups), expected_groups)) {
+    stop("The parsed group names do not match the generation unit.", call. = FALSE)
+  }
+
+  groups <- stats::setNames(
+    lapply(expected_groups, function(group_name) {
+      .textual_prep_validate_group_profile(
+        parsed$groups[[group_name]],
+        group_name = group_name,
+        registry = registry,
+        context = context
+      )
+    }),
+    expected_groups
+  )
+
+  cross_group <- .textual_prep_validate_cross_group(
+    parsed$cross_group,
+    registry = registry,
+    context = context,
+    comparison_mode = comparison_mode
+  )
+
+  list(
+    groups = groups,
+    cross_group = cross_group,
+    metadata = list(
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode,
+      groups = expected_groups,
+      parse_status = "success"
+    )
+  )
+}
+<environment: namespace:NaileR>

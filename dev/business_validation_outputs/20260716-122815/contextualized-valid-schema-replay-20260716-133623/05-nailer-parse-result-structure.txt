@@ -1,0 +1,486 @@
+List of 3
+ $ parse_status           : chr "success"
+ $ parse_error            : NULL
+ $ contextualized_analysis:List of 3
+  ..$ groups              :List of 3
+  .. ..$ Ancrés locaux          :List of 16
+  .. .. ..$ group                           : chr "Ancrés locaux"
+  .. .. ..$ availability                    : chr "available"
+  .. .. ..$ parse_error                     : NULL
+  .. .. ..$ integrated_profile              :List of 7
+  .. .. .. ..$ text                    : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:2] "Ancrés locaux::quali::cooking_frequency::Quotidienne" "Ancrés locaux::quanti::territorial_engagement"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_textual_convergences:List of 2
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "La fréquence de cuisson quotidienne est surreprésentée chez les Ancrés locaux, ce qui converge avec leurs décla"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quali::cooking_frequency::Quotidienne"
+  .. .. .. .. ..$ textual_evidence_ids    : chr "Ancrés locaux::verbatim::12"
+  .. .. .. .. ..$ relationship            : chr "complement"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "L'engagement territorial est plus élevé chez les Ancrés locaux, ce qui correspond à leurs déclarations sur le s"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quanti::territorial_engagement"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ relationship            : chr "complement"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_textual_divergences :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Bien que les Ancrés locaux déclarent valoriser la provenance et les producteurs proches, certains verbatims ind"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quali::purchase_place::Marché/local"
+  .. .. .. .. ..$ textual_evidence_ids    : chr "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ relationship            : chr "tension"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_only_findings       :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Ancrés locaux ont une contrainte de prix plus faible, ce qui n'est pas explicitement mentionné dans les verbatims."
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quanti::price_constraint"
+  .. .. .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ textual_only_findings           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Ancrés locaux expriment un manque de temps en semaine pour maintenir leurs pratiques, ce qui n'est pas capt"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::8"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ social_interpretations          :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Ancrés locaux pourraient avoir une identité sociale forte liée à la cuisine maison et au soutien à l'économie locale."
+  .. .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quali::cooking_frequency::Quotidienne"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude qualitative approfondie sur l'identité sociale"
+  .. .. ..$ consumer_insights               :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Ancrés locaux sont sensibles à la qualité et à la provenance des produits, ce qui pourrait les rendre récep"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quali::purchase_place::Marché/local"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::6"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ psychological_hypotheses        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "La préférence pour les produits locaux pourrait être liée à une motivation intrinsèque de soutien à la communauté."
+  .. .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quanti::territorial_engagement"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude psychologique sur les motivations intrinsèques"
+  .. .. ..$ marketing_implications          :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Cibler les Ancrés locaux avec des messages mettant en avant la provenance locale et la qualité des produits."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quali::purchase_place::Marché/local"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::6"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Test de campagnes marketing ciblées"
+  .. .. ..$ innovation_opportunities        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Développer des innovations axées sur la transparence et la traçabilité des produits pour répondre aux attentes "| __truncated__
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quali::purchase_place::Marché/local"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::6"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de marché sur les innovations en traçabilité"
+  .. .. ..$ operational_implications        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Proposer des solutions pour faciliter l'accès aux produits locaux, notamment en semaine."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::8"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de faisabilité sur les solutions d'accès aux produits locaux"
+  .. .. ..$ validation_priorities           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Valider l'impact des solutions proposées pour faciliter l'accès aux produits locaux."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::8"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de terrain sur l'impact des solutions proposées"
+  .. .. ..$ interpretation_limits           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr "Ancrés locaux::verbatim::1"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. ..$ Curieux flexibles      :List of 16
+  .. .. ..$ group                           : chr "Curieux flexibles"
+  .. .. ..$ availability                    : chr "available"
+  .. .. ..$ parse_error                     : NULL
+  .. .. ..$ integrated_profile              :List of 7
+  .. .. .. ..$ text                    : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:2] "Curieux flexibles::quali::organic_purchase::Parfois" "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_textual_convergences:List of 2
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "L'achat de produits bio parfois est surreprésenté chez les Curieux flexibles, ce qui correspond à leurs déclara"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quali::organic_purchase::Parfois"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::34"
+  .. .. .. .. ..$ relationship            : chr "complement"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "L'ouverture à l'innovation est plus élevée chez les Curieux flexibles, ce qui correspond à leurs déclarations s"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ relationship            : chr "complement"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_textual_divergences :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Bien que les Curieux flexibles déclarent être ouverts aux innovations, certains verbatims indiquent une difficu"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. .. ..$ textual_evidence_ids    : chr "Curieux flexibles::verbatim::35"
+  .. .. .. .. ..$ relationship            : chr "tension"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_only_findings       :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Curieux flexibles ont une sous-représentation des achats en hard-discount, ce qui n'est pas explicitement m"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quali::purchase_place::Hard-discount"
+  .. .. .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ textual_only_findings           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Curieux flexibles expriment une difficulté à trouver un équilibre entre curiosité, prix et cohérence, ce qu"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::35" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ social_interpretations          :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Curieux flexibles pourraient avoir une identité sociale liée à la découverte et à l'adaptation des pratiques alimentaires."
+  .. .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude qualitative approfondie sur l'identité sociale"
+  .. .. ..$ consumer_insights               :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Curieux flexibles sont sensibles aux innovations utiles et simples à utiliser, ce qui pourrait les rendre r"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ psychological_hypotheses        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "L'ouverture à l'innovation pourrait être liée à une motivation intrinsèque de découverte et d'exploration."
+  .. .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude psychologique sur les motivations intrinsèques"
+  .. .. ..$ marketing_implications          :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Cibler les Curieux flexibles avec des messages mettant en avant la praticité et la simplicité d'utilisation des innovations."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Test de campagnes marketing ciblées"
+  .. .. ..$ innovation_opportunities        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Développer des innovations axées sur la praticité et la simplicité d'utilisation pour répondre aux attentes des"| __truncated__
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de marché sur les innovations en praticité"
+  .. .. ..$ operational_implications        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Proposer des solutions pour faciliter la découverte et l'adoption de nouvelles pratiques alimentaires."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::35" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de faisabilité sur les solutions d'adoption de nouvelles pratiques"
+  .. .. ..$ validation_priorities           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Valider l'impact des solutions proposées pour faciliter la découverte et l'adoption de nouvelles pratiques alimentaires."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::35" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de terrain sur l'impact des solutions proposées"
+  .. .. ..$ interpretation_limits           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr "Curieux flexibles::verbatim::31"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. ..$ Pragmatiques contraints:List of 16
+  .. .. ..$ group                           : chr "Pragmatiques contraints"
+  .. .. ..$ availability                    : chr "available"
+  .. .. ..$ parse_error                     : NULL
+  .. .. ..$ integrated_profile              :List of 7
+  .. .. .. ..$ text                    : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:2] "Pragmatiques contraints::quali::purchase_place::Hard-discount" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_textual_convergences:List of 2
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "L'achat en hard-discount est surreprésenté chez les Pragmatiques contraints, ce qui correspond à leurs déclarat"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quali::purchase_place::Hard-discount"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ relationship            : chr "complement"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "La contrainte de prix est plus élevée chez les Pragmatiques contraints, ce qui correspond à leurs déclarations "| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::23"
+  .. .. .. .. ..$ relationship            : chr "complement"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_textual_divergences :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Bien que les Pragmatiques contraints déclarent être intéressés par le local lorsqu'il est accessible, certains "| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quali::purchase_place::Marché/local"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::24"
+  .. .. .. .. ..$ relationship            : chr "tension"
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ statistical_only_findings       :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Pragmatiques contraints ont une sous-représentation des achats en marché/local, ce qui n'est pas explicitem"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quali::purchase_place::Marché/local"
+  .. .. .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ textual_only_findings           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Pragmatiques contraints expriment un manque d'informations simples pour arbitrer leurs choix alimentaires, "| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::25"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ social_interpretations          :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Pragmatiques contraints pourraient avoir une identité sociale liée à la recherche de solutions pratiques et économiques."
+  .. .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::23" "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude qualitative approfondie sur l'identité sociale"
+  .. .. ..$ consumer_insights               :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les Pragmatiques contraints sont sensibles aux solutions pratiques et économiques, ce qui pourrait les rendre r"| __truncated__
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ psychological_hypotheses        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "La recherche de solutions pratiques et économiques pourrait être liée à une motivation intrinsèque de sécurité financière."
+  .. .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::23" "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude psychologique sur les motivations intrinsèques"
+  .. .. ..$ marketing_implications          :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Cibler les Pragmatiques contraints avec des messages mettant en avant la praticité et l'accessibilité des solutions proposées."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Test de campagnes marketing ciblées"
+  .. .. ..$ innovation_opportunities        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Développer des innovations axées sur l'accessibilité et la praticité pour répondre aux attentes des Pragmatiques contraints."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de marché sur les innovations en accessibilité"
+  .. .. ..$ operational_implications        :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Proposer des solutions pour faciliter l'accès aux produits locaux et économiques."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::24"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de faisabilité sur les solutions d'accès aux produits locaux et économiques"
+  .. .. ..$ validation_priorities           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Valider l'impact des solutions proposées pour faciliter l'accès aux produits locaux et économiques."
+  .. .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::24"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : chr "Étude de terrain sur l'impact des solutions proposées"
+  .. .. ..$ interpretation_limits           :List of 1
+  .. .. .. ..$ :List of 7
+  .. .. .. .. ..$ text                    : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. .. ..$ textual_evidence_ids    : chr "Pragmatiques contraints::verbatim::16"
+  .. .. .. .. ..$ relationship            : NULL
+  .. .. .. .. ..$ quotations              : list()
+  .. .. .. .. ..$ validation_needed       : NULL
+  ..$ cross_group_analysis:List of 10
+  .. ..$ shared_patterns                            :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Tous les groupes expriment une certaine sensibilité à la provenance et à la qualité des produits, bien que cela"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quali::purchase_place::Marché/local" "Curieux flexibles::quali::organic_purchase::Parfois" "Pragmatiques contraints::quali::purchase_place::Hard-discount"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::3" "Curieux flexibles::verbatim::32" "Pragmatiques contraints::verbatim::16"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ major_group_contrasts                      :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Les Ancrés locaux et les Curieux flexibles sont plus ouverts aux innovations et à la découverte de nouvelles fa"| __truncated__
+  .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Curieux flexibles::quanti::openness_to_innovation" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::2" "Curieux flexibles::verbatim::32" "Pragmatiques contraints::verbatim::17"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : chr "Étude comparative approfondie sur les motivations et contraintes des groupes"
+  .. ..$ different_statistical_textual_relationships:List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Les Ancrés locaux et les Curieux flexibles ont une relation complémentaire entre les marqueurs statistiques et "| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Curieux flexibles::quanti::openness_to_innovation" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::2" "Curieux flexibles::verbatim::32" "Pragmatiques contraints::verbatim::18"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ cross_group_social_interpretations         :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Les différences entre les groupes pourraient être liées à des identités sociales distinctes, avec les Ancrés lo"| __truncated__
+  .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Curieux flexibles::quanti::openness_to_innovation" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::2" "Curieux flexibles::verbatim::32" "Pragmatiques contraints::verbatim::23"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : chr "Étude qualitative approfondie sur les identités sociales des groupes"
+  .. ..$ consumer_segments_hypotheses               :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Les trois groupes pourraient représenter des segments de consommateurs distincts, avec des attentes et des beso"| __truncated__
+  .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Curieux flexibles::quanti::openness_to_innovation" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::2" "Curieux flexibles::verbatim::32" "Pragmatiques contraints::verbatim::16"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : chr "Étude de segmentation des consommateurs"
+  .. ..$ psychological_mechanisms_hypotheses        :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Les motivations intrinsèques pourraient différer entre les groupes, avec les Ancrés locaux valorisant la commun"| __truncated__
+  .. .. .. ..$ status                  : chr "hypothesis"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Curieux flexibles::quanti::openness_to_innovation" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::2" "Curieux flexibles::verbatim::32" "Pragmatiques contraints::verbatim::23"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : chr "Étude psychologique sur les motivations intrinsèques des groupes"
+  .. ..$ marketing_priorities                       :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Adapter les stratégies marketing en fonction des priorités de chaque groupe : transparence et traçabilité pour "| __truncated__
+  .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Curieux flexibles::quanti::openness_to_innovation" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::3" "Curieux flexibles::verbatim::32" "Pragmatiques contraints::verbatim::16"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : chr "Test de campagnes marketing ciblées pour chaque groupe"
+  .. ..$ innovation_priorities                      :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Prioriser les innovations en fonction des besoins spécifiques de chaque groupe : traçabilité pour les Ancrés lo"| __truncated__
+  .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Curieux flexibles::quanti::openness_to_innovation" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::3" "Curieux flexibles::verbatim::32" "Pragmatiques contraints::verbatim::16"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : chr "Étude de marché sur les innovations prioritaires pour chaque groupe"
+  .. ..$ validation_priorities                      :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Valider l'impact des solutions proposées pour chaque groupe en fonction de leurs priorités et contraintes spécifiques."
+  .. .. .. ..$ status                  : chr "recommendation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Curieux flexibles::quanti::openness_to_innovation" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::7" "Curieux flexibles::verbatim::35" "Pragmatiques contraints::verbatim::18"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : chr "Étude de terrain sur l'impact des solutions proposées pour chaque groupe"
+  .. ..$ interpretation_limits                      :List of 1
+  .. .. ..$ :List of 7
+  .. .. .. ..$ text                    : chr "Les analyses croisées sont basées sur les verbatims et marqueurs statistiques disponibles. Une analyse plus app"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::1" "Curieux flexibles::verbatim::31" "Pragmatiques contraints::verbatim::16"
+  .. .. .. ..$ relationship            : NULL
+  .. .. .. ..$ quotations              : list()
+  .. .. .. ..$ validation_needed       : NULL
+  ..$ metadata            :List of 5
+  .. ..$ schema         : chr "NaileR::contextualized_analysis"
+  .. ..$ analysis_scope : chr "cross_functional"
+  .. ..$ comparison_mode: chr "joint"
+  .. ..$ groups         : chr [1:3] "Ancrés locaux" "Curieux flexibles" "Pragmatiques contraints"
+  .. ..$ parse_status   : chr "success"

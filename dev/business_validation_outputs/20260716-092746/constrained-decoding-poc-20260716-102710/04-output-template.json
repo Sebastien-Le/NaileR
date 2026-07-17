@@ -1,0 +1,505 @@
+{
+  "groups": {
+    "Ancrés locaux": {
+      "group": "Ancrés locaux",
+      "core_textual_profile": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "hypothesis",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": "<additional evidence or study needed>"
+        }
+      ],
+      "minority_positions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ]
+    },
+    "Pragmatiques contraints": {
+      "group": "Pragmatiques contraints",
+      "core_textual_profile": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "hypothesis",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": "<additional evidence or study needed>"
+        }
+      ],
+      "minority_positions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ]
+    },
+    "Curieux flexibles": {
+      "group": "Curieux flexibles",
+      "core_textual_profile": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "hypothesis",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": "<additional evidence or study needed>"
+        }
+      ],
+      "minority_positions": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "<verbatim_id>",
+          "quotation": "<exact original_text>",
+          "rationale": "<why this verbatim is representative or contrastive>",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "<interpretation grounded in the cited verbatims>",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "<verbatim_id>"
+          ],
+          "validation_needed": null
+        }
+      ]
+    }
+  },
+  "cross_group": {
+    "shared_themes": [
+      {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      }
+    ],
+    "group_contrasts": [
+      {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      }
+    ],
+    "minority_patterns": [
+      {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "hypothesis",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": "<additional evidence or study needed>"
+      }
+    ],
+    "interpretation_limits": [
+      {
+        "text": "<interpretation grounded in the cited verbatims>",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "<verbatim_id>"
+        ],
+        "validation_needed": null
+      }
+    ]
+  }
+}

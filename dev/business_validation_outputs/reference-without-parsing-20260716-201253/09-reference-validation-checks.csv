@@ -1,0 +1,12 @@
+"check","passed"
+"Dataset has 45 rows",TRUE
+"Dataset has 3 groups",TRUE
+"Statistical evidence registry exists",TRUE
+"All 45 verbatims are preserved",TRUE
+"Mechanical nail_textual invents no profiles",TRUE
+"Manual textual profiles cover 3 groups",TRUE
+"Contextualized group alignment is exact",TRUE
+"All manual claims cite valid evidence IDs",TRUE
+"Manual result contains 3 group profiles",TRUE
+"No LLM call was used",TRUE
+"No JSON parser was used",TRUE

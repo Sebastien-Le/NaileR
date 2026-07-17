@@ -1,0 +1,52 @@
+INTERNAL HELPER: .extract_json_candidate
+
+FORMALS:
+as.pairlist(alist(text = ))
+
+BODY:
+function(text) {
+  text <- .strip_markdown_fences(text)
+  if (!nzchar(text)) return(text)
+
+  starts <- regexpr("[\\[{]", text, perl = TRUE)
+  if (starts[1] < 0) return(text)
+
+  first <- starts[1]
+  chars <- strsplit(substr(text, first, nchar(text)), "", fixed = TRUE)[[1]]
+  depth <- 0L
+  in_string <- FALSE
+  escape_next <- FALSE
+
+  for (i in seq_along(chars)) {
+    ch <- chars[[i]]
+
+    if (escape_next) {
+      escape_next <- FALSE
+      next
+    }
+    if (identical(ch, "\\") && in_string) {
+      escape_next <- TRUE
+      next
+    }
+    if (identical(ch, '"')) {
+      in_string <- !in_string
+      next
+    }
+    if (in_string) next
+
+    if (ch %in% c("{", "[")) depth <- depth + 1L
+    if (ch %in% c("}", "]")) depth <- depth - 1L
+
+    if (depth == 0L && ch %in% c("}", "]")) {
+      return(substr(text, first, first + i - 1L))
+    }
+  }
+
+  last_brace <- max(gregexpr("[\\]}]", text, perl = TRUE)[[1]])
+  if (is.finite(last_brace) && last_brace > first) {
+    return(substr(text, first, last_brace))
+  }
+
+  text
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,67 @@
+INTERNAL HELPER: .contextualized_validate_cross_analysis
+
+FORMALS:
+as.pairlist(alist(x = , registry = , context = , comparison_mode = ))
+
+BODY:
+function(x,
+                                                    registry,
+                                                    context,
+                                                    comparison_mode) {
+  if (comparison_mode == "isolated") {
+    if (!is.null(x)) {
+      stop("`cross_group_analysis` must be null in isolated mode.", call. = FALSE)
+    }
+    return(NULL)
+  }
+  if (!is.list(x) || is.data.frame(x)) {
+    stop("`cross_group_analysis` must be an object in joint mode.", call. = FALSE)
+  }
+  missing_fields <- setdiff(.contextualized_cross_fields, names(x))
+  unknown_fields <- setdiff(names(x), .contextualized_cross_fields)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`cross_group_analysis` is missing: %s.", paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop("`cross_group_analysis` contains unexpected fields.", call. = FALSE)
+  }
+
+  multi_fields <- c(
+    "major_group_contrasts",
+    "different_statistical_textual_relationships",
+    "consumer_segments_hypotheses",
+    "psychological_mechanisms_hypotheses"
+  )
+  recommendation_fields <- c(
+    "marketing_priorities",
+    "innovation_priorities",
+    "validation_priorities"
+  )
+  hypothesis_fields <- c(
+    "consumer_segments_hypotheses",
+    "psychological_mechanisms_hypotheses"
+  )
+
+  out <- list()
+  for (name in .contextualized_cross_fields) {
+    allowed_statuses <- if (name %in% recommendation_fields) {
+      "recommendation"
+    } else if (name %in% hypothesis_fields) {
+      "hypothesis"
+    } else {
+      c("expert_interpretation", "hypothesis", "user_context")
+    }
+    out[[name]] <- .contextualized_validate_claim_list(
+      x[[name]],
+      field = paste0("cross_group_analysis$", name),
+      registry = registry,
+      group = NULL,
+      context = context,
+      source_requirement = "any",
+      allowed_statuses = allowed_statuses,
+      require_multiple_groups = name %in% multi_fields
+    )
+  }
+  out[.contextualized_cross_fields]
+}
+<environment: namespace:NaileR>

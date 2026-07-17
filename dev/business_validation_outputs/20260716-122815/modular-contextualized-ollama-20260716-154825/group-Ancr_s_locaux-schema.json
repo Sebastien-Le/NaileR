@@ -1,0 +1,439 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "group",
+    "integrated_profile",
+    "convergences",
+    "tensions",
+    "statistical_only_findings",
+    "textual_only_findings",
+    "interpretation_limits"
+  ],
+  "propertyOrdering": [
+    "group",
+    "integrated_profile",
+    "convergences",
+    "tensions",
+    "statistical_only_findings",
+    "textual_only_findings",
+    "interpretation_limits"
+  ],
+  "properties": {
+    "group": {
+      "type": "string",
+      "enum": [
+        "Ancrés locaux"
+      ]
+    },
+    "integrated_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "status",
+        "statistical_evidence_ids",
+        "textual_evidence_ids",
+        "relationship",
+        "validation_needed"
+      ],
+      "propertyOrdering": [
+        "text",
+        "status",
+        "statistical_evidence_ids",
+        "textual_evidence_ids",
+        "relationship",
+        "validation_needed"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "expert_interpretation"
+          ]
+        },
+        "statistical_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "textual_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "relationship": {
+          "type": "string",
+          "enum": [
+            "convergence",
+            "tension",
+            "statistical_only",
+            "textual_only",
+            "scope_limit"
+          ]
+        },
+        "validation_needed": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "convergences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    },
+    "tensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    },
+    "statistical_only_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "textual_only_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "interpretation_limits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    }
+  }
+}

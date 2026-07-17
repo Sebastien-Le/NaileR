@@ -1,0 +1,6 @@
+PATH: textual-analysis$legacy_output$parsed$parse_status
+FIELD: parse_status
+TYPEOF: character
+CLASS: character
+
+error

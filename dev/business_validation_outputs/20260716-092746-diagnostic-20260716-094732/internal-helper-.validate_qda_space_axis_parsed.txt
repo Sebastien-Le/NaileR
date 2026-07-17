@@ -1,0 +1,74 @@
+INTERNAL HELPER: .validate_qda_space_axis_parsed
+
+FORMALS:
+as.pairlist(alist(parsed = , axis = , analyzed_products = , valid_evidence_ids = , context_present = ))
+
+BODY:
+function(parsed,
+                                           axis,
+                                           analyzed_products,
+                                           valid_evidence_ids,
+                                           context_present) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The axis response must be a JSON object.", call. = FALSE)
+  }
+  allowed <- c(
+    "dimension", "sensory_opposition", "negative_pole", "positive_pole",
+    "representative_products", "within_pole_nuances", "interpretation_limits"
+  )
+  missing <- setdiff(allowed, names(parsed))
+  unknown <- setdiff(names(parsed), allowed)
+  if (length(missing)) {
+    stop(sprintf("The axis response is missing required field(s): %s.",
+                 paste(missing, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(sprintf("The axis response contains unexpected field(s): %s.",
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+  if (!is.numeric(parsed$dimension) || length(parsed$dimension) != 1L ||
+      is.na(parsed$dimension) || as.integer(parsed$dimension) != axis) {
+    stop(sprintf("`dimension` must be exactly %d.", axis), call. = FALSE)
+  }
+
+  out <- list(dimension = as.integer(axis))
+  for (field in c("sensory_opposition", "negative_pole", "positive_pole")) {
+    out[[field]] <- .qda_space_validate_claim(
+      parsed[[field]],
+      field = field,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present
+    )
+  }
+
+  representatives <- parsed$representative_products
+  if (is.null(representatives)) representatives <- list()
+  if (!is.list(representatives) || is.data.frame(representatives)) {
+    stop("`representative_products` must be a JSON array.", call. = FALSE)
+  }
+  out$representative_products <- lapply(seq_along(representatives), function(i) {
+    .qda_space_validate_representative_product(
+      representatives[[i]],
+      field = sprintf("representative_products[[%d]]", i),
+      analyzed_products = analyzed_products,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      axis = axis
+    )
+  })
+
+  out$within_pole_nuances <- .qda_space_validate_claim_list(
+    parsed$within_pole_nuances,
+    field = "within_pole_nuances",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+  out$interpretation_limits <- .qda_space_validate_claim_list(
+    parsed$interpretation_limits,
+    field = "interpretation_limits",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+  out
+}
+<environment: namespace:NaileR>

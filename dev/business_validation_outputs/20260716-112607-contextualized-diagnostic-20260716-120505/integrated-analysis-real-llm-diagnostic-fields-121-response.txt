@@ -1,0 +1,564 @@
+PATH: integrated-analysis-real-llm$textual_preparation$legacy_groups$Curieux flexibles$response$response
+FIELD: response
+TYPEOF: character
+CLASS: character
+
+{
+  "groups": {
+    "Ancrés locaux": {
+      "group": "Ancrés locaux",
+      "core_textual_profile": {
+        "text": "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attention à la provenance et aux producteurs proches. Les répondants valorisent la confiance et la saisonnalité davantage que la nouveauté.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Ancrés locaux::verbatim::1",
+          "Ancrés locaux::verbatim::4"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "Importance des habitudes locales et de la provenance des produits.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::3",
+            "Ancrés locaux::verbatim::5"
+          ],
+          "validation_needed": null
+        },
+        {
+          "text": "Préférence pour les producteurs proches et la saisonnalité.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::4",
+            "Ancrés locaux::verbatim::9"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "Manque de temps en semaine pour maintenir ces pratiques.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::7",
+            "Ancrés locaux::verbatim::8"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "Tonalité positive et engagée, avec une volonté de soutenir l'économie locale.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Ancrés locaux::verbatim::2",
+          "Ancrés locaux::verbatim::7"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "Récits centrés sur la confiance et la qualité des produits locaux.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::4"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "Soutenir l'économie locale et contrôler la qualité des aliments.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::12"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "Manque de temps et compromis lorsque l'offre locale est peu pratique.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::7",
+            "Ancrés locaux::verbatim::13"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "Satisfaction de soutenir l'économie locale et d'avoir un lien direct avec les producteurs.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::15"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "Normes sociales de soutien à l'économie locale et de préférence pour les produits de proximité.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::7"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "Identité liée à la cuisine maison et au contrôle de la qualité des aliments.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::12"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [],
+      "minority_positions": [
+        {
+          "text": "Certains répondants font des compromis lorsque l'offre locale est peu pratique.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::13"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "Ancrés locaux::verbatim::2",
+          "quotation": "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes achats. Je ne cherche pas forcément les produits les plus innovants. [répondant 2]",
+          "rationale": "Illustre la préférence pour les produits locaux et le soutien à l'économie locale.",
+          "status": "expert_interpretation"
+        },
+        {
+          "evidence_id": "Ancrés locaux::verbatim::4",
+          "quotation": "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage que la nouveauté. Je fais quelques compromis quand l'offre locale est peu pratique. [répondant 4]",
+          "rationale": "Montre l'importance de la confiance et de la saisonnalité, ainsi que les compromis nécessaires.",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "Ancrés locaux::verbatim::13",
+          "quotation": "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marques. Je fais quelques compromis quand l'offre locale est peu pratique. [répondant 13]",
+          "rationale": "Contraste entre la préférence pour les produits locaux et les compromis nécessaires.",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, avec quelques variations dans les pratiques.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Ancrés locaux::verbatim::1",
+          "Ancrés locaux::verbatim::4"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Ancrés locaux::verbatim::1"
+          ],
+          "validation_needed": null
+        }
+      ]
+    },
+    "Pragmatiques contraints": {
+      "group": "Pragmatiques contraints",
+      "core_textual_profile": {
+        "text": "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions accessibles et moins coûteuses, tout en exprimant un intérêt pour le local lorsqu'il est disponible.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Pragmatiques contraints::verbatim::16",
+          "Pragmatiques contraints::verbatim::20"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "Importance du prix et du temps disponible dans les choix alimentaires.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::17",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "validation_needed": null
+        },
+        {
+          "text": "Intérêt pour le local lorsqu'il est accessible et moins coûteux.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::22"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "Manque d'informations simples pour arbitrer les choix alimentaires.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::18",
+            "Pragmatiques contraints::verbatim::25"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "Tonalité pragmatique et réaliste, avec une volonté de trouver des solutions accessibles.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Pragmatiques contraints::verbatim::16",
+          "Pragmatiques contraints::verbatim::23"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "Récits centrés sur les contraintes budgétaires et les difficultés à accéder aux produits locaux.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::23",
+            "Pragmatiques contraints::verbatim::29"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "Recherche de solutions pratiques et moins coûteuses pour les courses alimentaires.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "Manque d'informations et circuits spécialisés perçus comme compliqués.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::18",
+            "Pragmatiques contraints::verbatim::24"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "Satisfaction de trouver des solutions accessibles et moins coûteuses.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "Normes sociales de recherche de praticité et d'accessibilité.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "Identité liée à la recherche de solutions pratiques et économiques.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::23",
+            "Pragmatiques contraints::verbatim::29"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [],
+      "minority_positions": [
+        {
+          "text": "Certains répondants expriment une culpabilité lorsqu'ils choisissent le moins cher.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::29"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::16",
+          "quotation": "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 1]",
+          "rationale": "Illustre les contraintes pratiques et l'intérêt pour le local lorsqu'il est accessible.",
+          "status": "expert_interpretation"
+        },
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::20",
+          "quotation": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 5]",
+          "rationale": "Montre l'importance du prix et du temps disponible dans les choix alimentaires.",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "Pragmatiques contraints::verbatim::29",
+          "quotation": "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués. Je ne veux pas culpabiliser quand je choisis le moins cher. [répondant 14]",
+          "rationale": "Contraste entre la recherche de praticité et la culpabilité liée aux choix économiques.",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations dans les expressions de culpabilité.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Pragmatiques contraints::verbatim::16",
+          "Pragmatiques contraints::verbatim::20"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Pragmatiques contraints::verbatim::16"
+          ],
+          "validation_needed": null
+        }
+      ]
+    },
+    "Curieux flexibles": {
+      "group": "Curieux flexibles",
+      "core_textual_profile": {
+        "text": "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants combinent plusieurs circuits et sont ouverts aux innovations, tout en cherchant un équilibre entre curiosité, prix et cohérence.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Curieux flexibles::verbatim::31",
+          "Curieux flexibles::verbatim::32"
+        ],
+        "validation_needed": null
+      },
+      "main_themes": [
+        {
+          "text": "Combinaison de plusieurs circuits selon les occasions.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::31",
+            "Curieux flexibles::verbatim::36"
+          ],
+          "validation_needed": null
+        },
+        {
+          "text": "Ouverture aux innovations et découverte de nouvelles façons de manger.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::34"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "dominant_concerns": [
+        {
+          "text": "Recherche d'un équilibre entre curiosité, prix et cohérence.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::35",
+            "Curieux flexibles::verbatim::39"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "tone_or_stance": {
+        "text": "Tonalité ouverte et flexible, avec une volonté de découvrir et d'expérimenter.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Curieux flexibles::verbatim::32",
+          "Curieux flexibles::verbatim::38"
+        ],
+        "validation_needed": null
+      },
+      "narrative_frames": [
+        {
+          "text": "Récits centrés sur la découverte et l'adaptation des pratiques alimentaires.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "motivations": [
+        {
+          "text": "Découverte de nouvelles façons de manger et ouverture aux innovations.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::34"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "barriers": [
+        {
+          "text": "Manque de régularité dans les pratiques et difficulté à trouver un équilibre.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::36",
+            "Curieux flexibles::verbatim::43"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "perceived_benefits": [
+        {
+          "text": "Satisfaction de découvrir et d'expérimenter de nouvelles façons de manger.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "social_norms": [
+        {
+          "text": "Normes sociales de découverte et d'adaptation des pratiques alimentaires.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "identity_cues": [
+        {
+          "text": "Identité liée à la curiosité et à la flexibilité dans les pratiques alimentaires.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::32",
+            "Curieux flexibles::verbatim::38"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "contradictions": [],
+      "minority_positions": [
+        {
+          "text": "Certains répondants expriment une difficulté à trouver un équilibre entre curiosité et praticité.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::35"
+          ],
+          "validation_needed": null
+        }
+      ],
+      "representative_verbatims": [
+        {
+          "evidence_id": "Curieux flexibles::verbatim::31",
+          "quotation": "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine suivante. Je peux changer rapidement si l'expérience est convaincante. [répondant 1]",
+          "rationale": "Illustre la combinaison de plusieurs circuits et la flexibilité dans les pratiques.",
+          "status": "expert_interpretation"
+        },
+        {
+          "evidence_id": "Curieux flexibles::verbatim::32",
+          "quotation": "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une innovation doit rester simple à utiliser. [répondant 2]",
+          "rationale": "Montre l'ouverture aux innovations et la recherche de praticité.",
+          "status": "expert_interpretation"
+        }
+      ],
+      "tension_verbatims": [
+        {
+          "evidence_id": "Curieux flexibles::verbatim::35",
+          "quotation": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je cherche encore un équilibre entre curiosité, prix et cohérence. [répondant 5]",
+          "rationale": "Contraste entre la curiosité et la difficulté à trouver un équilibre.",
+          "status": "expert_interpretation"
+        }
+      ],
+      "intra_group_consistency": {
+        "text": "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dans les expressions de difficulté à trouver un équilibre.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Curieux flexibles::verbatim::31",
+          "Curieux flexibles::verbatim::32"
+        ],
+        "validation_needed": null
+      },
+      "interpretation_limits": [
+        {
+          "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+          "status": "expert_interpretation",
+          "evidence_ids": [
+            "Curieux flexibles::verbatim::31"
+          ],
+          "validation_needed": null
+        }
+      ]
+    }
+  },
+  "cross_group": {
+    "shared_themes": [
+      {
+        "text": "L'importance de la provenance et des produits locaux est un thème partagé par les trois groupes, bien que avec des nuances.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Ancrés locaux::verbatim::3",
+          "Pragmatiques contraints::verbatim::16",
+          "Curieux flexibles::verbatim::31"
+        ],
+        "validation_needed": null
+      }
+    ],
+    "group_contrasts": [
+      {
+        "text": "Les 'Ancrés locaux' valorisent la confiance et la saisonnalité, tandis que les 'Pragmatiques contraints' cherchent des solutions accessibles et moins coûteuses.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Ancrés locaux::verbatim::4",
+          "Pragmatiques contraints::verbatim::16"
+        ],
+        "validation_needed": null
+      },
+      {
+        "text": "Les 'Curieux flexibles' sont ouverts aux innovations et combinent plusieurs circuits, contrairement aux 'Ancrés locaux' qui privilégient les habitudes locales.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Curieux flexibles::verbatim::31",
+          "Ancrés locaux::verbatim::1"
+        ],
+        "validation_needed": null
+      }
+    ],
+    "minority_patterns": [],
+    "interpretation_limits": [
+      {
+        "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+        "status": "expert_interpretation",
+        "evidence_ids": [
+          "Ancrés locaux::verbatim::1"
+        ],
+        "validation_needed": null
+      }
+    ]
+  }
+}

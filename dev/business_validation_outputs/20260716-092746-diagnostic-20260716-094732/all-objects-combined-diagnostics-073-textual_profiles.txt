@@ -1,0 +1,6 @@
+PATH: textual-analysis$textual_profiles
+FIELD: textual_profiles
+TYPEOF: NULL
+CLASS: NULL
+
+ NULL

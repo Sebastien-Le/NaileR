@@ -1,0 +1,6 @@
+PATH: textual-preparation-real-llm$legacy_groups$Ancrés locaux$corpus_metrics$response_rate
+FIELD: response_rate
+TYPEOF: double
+CLASS: numeric
+
+1

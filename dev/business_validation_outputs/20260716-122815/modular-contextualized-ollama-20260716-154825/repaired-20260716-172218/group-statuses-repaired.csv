@@ -1,0 +1,4 @@
+"group","parse_status","parse_error","normalization_warning_count","audit_warning_count"
+"Ancrés locaux","success","",0,0
+"Curieux flexibles","success","",0,3
+"Pragmatiques contraints","success","",0,1

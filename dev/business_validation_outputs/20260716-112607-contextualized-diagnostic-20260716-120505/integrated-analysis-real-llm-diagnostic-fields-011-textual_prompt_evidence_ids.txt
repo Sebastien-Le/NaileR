@@ -1,0 +1,20 @@
+PATH: integrated-analysis-real-llm$contextualized_evidence$groups$Ancrés locaux$textual_prompt_evidence_ids
+FIELD: textual_prompt_evidence_ids
+TYPEOF: character
+CLASS: character
+
+Ancrés locaux::verbatim::1
+Ancrés locaux::verbatim::2
+Ancrés locaux::verbatim::3
+Ancrés locaux::verbatim::4
+Ancrés locaux::verbatim::5
+Ancrés locaux::verbatim::6
+Ancrés locaux::verbatim::7
+Ancrés locaux::verbatim::8
+Ancrés locaux::verbatim::9
+Ancrés locaux::verbatim::10
+Ancrés locaux::verbatim::11
+Ancrés locaux::verbatim::12
+Ancrés locaux::verbatim::13
+Ancrés locaux::verbatim::14
+Ancrés locaux::verbatim::15

@@ -1,0 +1,6 @@
+PATH: contextualized-offline$contextualized_evidence$settings$only_prompted_verbatims_may_ground_generated_analysis
+FIELD: only_prompted_verbatims_may_ground_generated_analysis
+TYPEOF: logical
+CLASS: logical
+
+TRUE

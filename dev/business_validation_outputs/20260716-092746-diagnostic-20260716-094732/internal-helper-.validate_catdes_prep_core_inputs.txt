@@ -1,0 +1,77 @@
+INTERNAL HELPER: .validate_catdes_prep_core_inputs
+
+FORMALS:
+pairlist(x = NULL, dataset = NULL, num.var = NULL, exclude = NULL, proba = 0.05, row.w = NULL)
+
+BODY:
+function(x = NULL,
+                                               dataset = NULL,
+                                               num.var = NULL,
+                                               exclude = NULL,
+                                               proba = 0.05,
+                                               row.w = NULL) {
+  if (is.null(x) == is.null(dataset)) {
+    stop("Provide exactly one of `x` or `dataset`.", call. = FALSE)
+  }
+
+  if (!is.null(dataset)) {
+    if (!is.data.frame(dataset)) {
+      stop("`dataset` must be a data frame.", call. = FALSE)
+    }
+    if (ncol(dataset) < 2L) {
+      stop("`dataset` must contain at least two columns.", call. = FALSE)
+    }
+    if (is.null(num.var) || !is.numeric(num.var) || length(num.var) != 1L ||
+        is.na(num.var) || !is.finite(num.var) || num.var != floor(num.var) ||
+        num.var < 1L || num.var > ncol(dataset)) {
+      stop(
+        "When `dataset` is supplied, `num.var` must be one valid integer column index.",
+        call. = FALSE
+      )
+    }
+  }
+
+  if (!is.null(x)) {
+    if (!is.null(exclude)) {
+      stop(
+        "`exclude` can only be used when `dataset` is supplied.",
+        call. = FALSE
+      )
+    }
+    if (!is.null(row.w)) {
+      stop(
+        "`row.w` can only be used when `dataset` is supplied.",
+        call. = FALSE
+      )
+    }
+  }
+
+  if (!is.null(exclude) && !(is.numeric(exclude) || is.character(exclude))) {
+    stop(
+      "`exclude` must be NULL, column indices, or column names.",
+      call. = FALSE
+    )
+  }
+
+  if (!is.numeric(proba) || length(proba) != 1L || is.na(proba) ||
+      !is.finite(proba) || proba <= 0 || proba > 1) {
+    stop("`proba` must be one numeric value in ]0, 1].", call. = FALSE)
+  }
+
+  if (!is.null(row.w)) {
+    if (!is.numeric(row.w) || length(row.w) != nrow(dataset) ||
+        anyNA(row.w) || any(!is.finite(row.w)) || any(row.w < 0) ||
+        sum(row.w) <= 0) {
+      stop(
+        paste(
+          "`row.w` must be a non-negative finite numeric vector",
+          "of length `nrow(dataset)` with a positive sum."
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

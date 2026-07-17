@@ -1,0 +1,158 @@
+"model","response","created_at","prompt"
+"mistral-small3.2","### Interprétation des groupes
+
+#### **Ancrés locaux**
+Ce groupe se caractérise par une forte ancrage territorial et des pratiques alimentaires structurées autour de la proximité, de la connaissance des produits et d'une relative insensitivity aux contraintes de prix.
+
+- **Pratiques culinaires régulières** : Cuisine quotidienne (86,67 % vs 40 % global), ce qui suggère une maîtrise technique et un attachement à la préparation maison.
+- **Préférence pour le local et l'artisanal** : Achats fréquents au marché ou en petits commerces (60 %), forte préférence locale (66,67 %). Cela reflète une logique de circuit court et une valorisation des producteurs locaux.
+- **Connaissances alimentaires élevées** : Score moyen de 8,11 vs 6,06 global, indiquant un intérêt marqué pour la qualité et l'origine des produits.
+- **Engagement territorial fort** : Score de 8,04 vs 5,64 global, montrant une implication dans les dynamiques locales (associations, événements, etc.).
+- **Moindre sensibilité au prix** : Contrainte tarifaire faible (4,30 vs 5,74), ce qui peut s'expliquer par un budget dédié ou des priorités autres que l'économie.
+
+**Tensions/limites** :
+- Risque de repli sur soi (peu d'ouverture aux innovations selon les données manquantes).
+- Dépendance aux structures locales (vulnérabilité en cas de disparition des petits commerces).
+
+---
+
+#### **Pragmatiques contraints**
+Ce groupe est marqué par des choix alimentaires guidés par la nécessité économique et un manque d'ancrage territorial ou de connaissances.
+
+- **Recours massif aux hard-discounts** : 60 % achètent dans ces enseignes (vs 20 % global), signe d'une recherche de prix bas.
+- **Faible fréquence de cuisine quotidienne** : Seulement 13,33 % cuisinent tous les jours (vs 40 %), ce qui peut indiquer un manque de temps ou de compétences.
+- **Achats bio rares** : 66,67 % achètent rarement des produits bio (vs 28,89 %), reflétant un budget serré ou une méconnaissance des enjeux.
+- **Connaissances alimentaires limitées** : Score de 3,93 vs 6,06 global, ce qui peut limiter les choix éclairés.
+- **Engagement territorial faible** : Score de 3,67 vs 5,64, montrant un désintérêt pour les dynamiques locales.
+
+**Tensions/limites** :
+- Difficulté à accéder à des produits frais ou locaux (sous-représentation des marchés).
+- Risque de malnutrition ou de déséquilibre alimentaire (cuisine rare + hard-discount).
+
+---
+
+#### **Curieux flexibles**
+Ce groupe allie ouverture aux innovations et pratiques hybrides, avec une approche moins rigide que les ""Ancrés locaux"".
+
+- **Achats en ligne/mixte** : 33,33 % utilisent ce canal (vs 11,11 %), signe d'adaptabilité.
+- **Achat bio occasionnel** : 80 % achètent parfois des produits bio (vs 44,44 global), montrant une sensibilité aux enjeux sans rigidité dogmatique.
+- **Ouverture à l'innovation** : Score de 7,80 vs 5,62, indiquant une curiosité pour les nouvelles tendances (applications, services).
+- **Évitement des hard-discounts** : Absence totale d'achats dans ces enseignes, préférant probablement la qualité.
+
+**Tensions/limites** :
+- Risque de fragmentation des pratiques (manque de cohérence entre bio et achats en ligne).
+- Dépendance aux plateformes numériques (frais supplémentaires, algorithmes influençant les choix).
+
+---
+
+### Synthèse pour l'analyste
+1. **Ancrés locaux** : Cible idéale pour des actions valorisant le patrimoine culinaire local (ateliers de cuisine, partenariats avec producteurs).
+2. **Pragmatiques contraints** : Nécessite des solutions économiques (subventions, épiceries solidaires) et éducatives (formations culinaires basiques).
+3. **Curieux flexibles** : Potentiel pour des innovations numériques (applications de traçabilité, livraisons locales).
+
+Chaque groupe a des besoins spécifiques liés à son rapport au territoire, aux connaissances et aux contraintes économiques. Les actions d'éducation alimentaire doivent s'adapter à ces logiques sans imposer de modèles uniques.","2026-07-16T07:29:56.491369Z","# Introduction
+
+Étude exploratoire sur les comportements alimentaires. Les trois groupes proviennent d'une typologie déjà constituée. L'analyste souhaite comprendre les logiques de pratiques, les contraintes, les discours et les implications possibles pour la conception d'actions d'éducation alimentaire, de services territoriaux et d'innovations. Les résultats doivent rester descriptifs et non causaux.
+
+---
+
+## How to Read the Tables
+The categories below correspond to the explicit categories of 'the target variable'.
+Use the results to understand what characterizes each category and what distinguishes it from the others.
+Do not reinterpret the categories as latent profiles and do not rename them.
+
+### Characteristic Qualitative Variables
+* **Cla/Mod**: Percentage of individuals who selected this modality AND belong to this category.
+* **Mod/Cla**: Percentage of individuals WITHIN this category who selected this modality.
+* **Global**: Overall percentage of individuals (all categories) who selected this modality.
+* **p.value**: Significance level of the test.
+* **v.test**: Test value. A positive value means the modality is overrepresented. A negative value means it is underrepresented.
+
+### Characteristic Quantitative Variables
+* **Mean in category**: The average value of the variable for this category.
+* **Overall mean**: The average value of the variable for the entire dataset.
+* **sd in category**: The standard deviation of the variable for this category.
+* **Overall sd**: The standard deviation of the variable for the entire dataset.
+* **p.value**: Significance level of the test.
+* **v.test**: A positive value means the category has a significantly higher mean. A negative value means a significantly lower mean.
+
+Use the tables as evidence to clarify the meaning of each category.
+Use positive and negative v.tests to understand what is overrepresented, underrepresented, higher, or lower in each category.
+Each displayed row includes a stable Evidence ID. Use that ID when referring to a marker.
+
+# Task
+
+Interprétez la combinaison des marqueurs statistiques de chaque groupe. Ne vous contentez pas d'énumérer les variables. Repérez les logiques d'ensemble, les tensions et les limites. Produisez une lecture utile à un analyste, sans causalité ni diagnostic.
+
+# Data
+
+The categories below correspond to the explicit categories of 'the target variable'.
+Use the results to understand what characterizes each category and what distinguishes it from the others.
+
+## Category ""Ancrés locaux"":
+
+Selected evidence: 7/7 qualitative marker(s) and 3/3 quantitative marker(s).
+
+### Characteristic qualitative variables for this category
+
+| Evidence ID | Variable | Modality | Direction | Cla/Mod | Mod/Cla | Global | p.value | v.test |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Ancrés locaux::quali::cooking_frequency::Quotidienne | cooking_frequency | Quotidienne | overrepresented | 72.22 | 86.67 | 40.00 | <0.001 | 4.44 |
+| Ancrés locaux::quali::organic_purchase::Souvent | organic_purchase | Souvent | overrepresented | 75.00 | 60.00 | 26.67 | <0.001 | 3.35 |
+| Ancrés locaux::quali::local_preference::Forte | local_preference | Forte | overrepresented | 66.67 | 66.67 | 33.33 | 0.001 | 3.18 |
+| Ancrés locaux::quali::cooking_frequency::Rarement | cooking_frequency | Rarement | underrepresented | 0.00 | 0.00 | 28.89 | 0.002 | -3.15 |
+| Ancrés locaux::quali::purchase_place::Marché/local | purchase_place | Marché/local | overrepresented | 64.29 | 60.00 | 31.11 | 0.005 | 2.79 |
+| Ancrés locaux::quali::purchase_place::Petit commerce | purchase_place | Petit commerce | overrepresented | 100.00 | 26.67 | 8.89 | 0.009 | 2.61 |
+| Ancrés locaux::quali::purchase_place::Hard-discount | purchase_place | Hard-discount | underrepresented | 0.00 | 0.00 | 20.00 | 0.016 | -2.41 |
+
+### Characteristic quantitative variables for this category
+
+| Evidence ID | Variable | Direction | Mean in category | Overall mean | sd in category | Overall sd | p.value | v.test |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Ancrés locaux::quanti::territorial_engagement | territorial_engagement | higher | 8.04 | 5.64 | 0.71 | 2.09 | <0.001 | 5.38 |
+| Ancrés locaux::quanti::food_knowledge | food_knowledge | higher | 8.11 | 6.06 | 0.65 | 1.92 | <0.001 | 5.00 |
+| Ancrés locaux::quanti::price_constraint | price_constraint | lower | 4.30 | 5.74 | 1.26 | 1.80 | <0.001 | -3.75 |
+
+## Category ""Pragmatiques contraints"":
+
+Selected evidence: 6/6 qualitative marker(s) and 4/4 quantitative marker(s).
+
+### Characteristic qualitative variables for this category
+
+| Evidence ID | Variable | Modality | Direction | Cla/Mod | Mod/Cla | Global | p.value | v.test |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Pragmatiques contraints::quali::purchase_place::Hard-discount | purchase_place | Hard-discount | overrepresented | 100.00 | 60.00 | 20.00 | <0.001 | 4.54 |
+| Pragmatiques contraints::quali::organic_purchase::Rarement | organic_purchase | Rarement | overrepresented | 76.92 | 66.67 | 28.89 | <0.001 | 3.74 |
+| Pragmatiques contraints::quali::purchase_place::Marché/local | purchase_place | Marché/local | underrepresented | 0.00 | 0.00 | 31.11 | <0.001 | -3.33 |
+| Pragmatiques contraints::quali::local_preference::Forte | local_preference | Forte | underrepresented | 6.67 | 6.67 | 33.33 | 0.007 | -2.69 |
+| Pragmatiques contraints::quali::cooking_frequency::Quotidienne | cooking_frequency | Quotidienne | underrepresented | 11.11 | 13.33 | 40.00 | 0.011 | -2.54 |
+| Pragmatiques contraints::quali::organic_purchase::Souvent | organic_purchase | Souvent | underrepresented | 8.33 | 6.67 | 26.67 | 0.035 | -2.11 |
+
+### Characteristic quantitative variables for this category
+
+| Evidence ID | Variable | Direction | Mean in category | Overall mean | sd in category | Overall sd | p.value | v.test |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Pragmatiques contraints::quanti::food_knowledge | food_knowledge | lower | 3.93 | 6.06 | 1.07 | 1.92 | <0.001 | -5.21 |
+| Pragmatiques contraints::quanti::price_constraint | price_constraint | higher | 7.73 | 5.74 | 0.97 | 1.80 | <0.001 | 5.18 |
+| Pragmatiques contraints::quanti::territorial_engagement | territorial_engagement | lower | 3.67 | 5.64 | 1.05 | 2.09 | <0.001 | -4.41 |
+| Pragmatiques contraints::quanti::openness_to_innovation | openness_to_innovation | lower | 4.07 | 5.62 | 1.19 | 1.96 | <0.001 | -3.72 |
+
+## Category ""Curieux flexibles"":
+
+Selected evidence: 4/4 qualitative marker(s) and 1/1 quantitative marker(s).
+
+### Characteristic qualitative variables for this category
+
+| Evidence ID | Variable | Modality | Direction | Cla/Mod | Mod/Cla | Global | p.value | v.test |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Curieux flexibles::quali::organic_purchase::Parfois | organic_purchase | Parfois | overrepresented | 60.00 | 80.00 | 44.44 | <0.001 | 3.30 |
+| Curieux flexibles::quali::purchase_place::En ligne/mixte | purchase_place | En ligne/mixte | overrepresented | 100.00 | 33.33 | 11.11 | 0.002 | 3.03 |
+| Curieux flexibles::quali::purchase_place::Hard-discount | purchase_place | Hard-discount | underrepresented | 0.00 | 0.00 | 20.00 | 0.016 | -2.41 |
+| Curieux flexibles::quali::organic_purchase::Rarement | organic_purchase | Rarement | underrepresented | 7.69 | 6.67 | 28.89 | 0.021 | -2.31 |
+
+### Characteristic quantitative variables for this category
+
+| Evidence ID | Variable | Direction | Mean in category | Overall mean | sd in category | Overall sd | p.value | v.test |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Curieux flexibles::quanti::openness_to_innovation | openness_to_innovation | higher | 7.80 | 5.62 | 0.56 | 1.96 | <0.001 | 5.22 |
+"

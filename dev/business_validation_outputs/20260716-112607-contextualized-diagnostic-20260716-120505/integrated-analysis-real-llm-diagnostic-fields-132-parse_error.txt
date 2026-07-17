@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$units$joint$parsed$parse_error
+FIELD: parse_error
+TYPEOF: character
+CLASS: character
+
+The LLM response contains a Markdown fence; strict JSON was required.

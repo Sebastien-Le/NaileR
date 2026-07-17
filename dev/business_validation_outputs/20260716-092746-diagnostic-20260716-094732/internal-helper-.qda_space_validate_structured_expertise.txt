@@ -1,0 +1,34 @@
+INTERNAL HELPER: .qda_space_validate_structured_expertise
+
+FORMALS:
+as.pairlist(alist(expertise = , valid_evidence_ids = ))
+
+BODY:
+function(expertise,
+                                                     valid_evidence_ids) {
+  if (!is.list(expertise) || !is.list(expertise$products)) {
+    stop("`product_expertise` must contain a `products` list.", call. = FALSE)
+  }
+  if (length(expertise$products) > 0L &&
+      (is.null(names(expertise$products)) || any(!nzchar(names(expertise$products))) ||
+       anyDuplicated(names(expertise$products)) > 0L)) {
+    stop("`product_expertise$products` must be uniquely named by product identifiers.",
+         call. = FALSE)
+  }
+  for (product in names(expertise$products)) {
+    item <- expertise$products[[product]]
+    if (!is.list(item)) {
+      stop(sprintf("`product_expertise$products$%s` must be a list.", product),
+           call. = FALSE)
+    }
+    if (!is.null(item$product) && !identical(as.character(item$product), product)) {
+      stop(
+        sprintf("`product_expertise$products$%s$product` does not match its list name.", product),
+        call. = FALSE
+      )
+    }
+  }
+  .qda_space_validate_prior_claims(expertise, valid_evidence_ids)
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

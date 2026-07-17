@@ -1,0 +1,66 @@
+INTERNAL HELPER: .parse_qda_space_response
+
+FORMALS:
+as.pairlist(alist(text = , unit_type = , valid_evidence_ids = , analyzed_products = , context_present = , consumer_context_present = , axis = NULL))
+
+BODY:
+function(text,
+                                     unit_type,
+                                     valid_evidence_ids,
+                                     analyzed_products,
+                                     context_present,
+                                     consumer_context_present,
+                                     axis = NULL) {
+  tryCatch(
+    {
+      parsed <- .parse_qda_space_strict_json(text)
+      interpretation <- if (identical(unit_type, "axis")) {
+        .validate_qda_space_axis_parsed(
+          parsed = parsed,
+          axis = axis,
+          analyzed_products = analyzed_products,
+          valid_evidence_ids = valid_evidence_ids,
+          context_present = context_present
+        )
+      } else {
+        .validate_qda_space_portfolio_parsed(
+          parsed = parsed,
+          analyzed_products = analyzed_products,
+          valid_evidence_ids = valid_evidence_ids,
+          context_present = context_present
+        )
+      }
+      if (!consumer_context_present) {
+        claim_texts <- .qda_space_collect_claim_texts(interpretation)
+        demographic <- claim_texts[vapply(
+          claim_texts,
+          .qda_spaceprep_contains_demographic_claim,
+          logical(1)
+        )]
+        if (length(demographic) > 0L) {
+          stop(
+            paste(
+              "The response contains a demographic or observed-frequency consumer claim,",
+              "but no explicit `context$consumers` was supplied."
+            ),
+            call. = FALSE
+          )
+        }
+      }
+
+      list(
+        parse_status = "success",
+        parse_error = NULL,
+        interpretation = interpretation
+      )
+    },
+    error = function(e) {
+      list(
+        parse_status = "error",
+        parse_error = conditionMessage(e),
+        interpretation = NULL
+      )
+    }
+  )
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,38 @@
+INTERNAL HELPER: .validate_qda_spaceprep_context
+
+FORMALS:
+as.pairlist(alist(context = ))
+
+BODY:
+function(context) {
+  if (is.null(context)) {
+    return(stats::setNames(vector("list", length(.qda_spaceprep_context_fields)),
+                    .qda_spaceprep_context_fields))
+  }
+
+  if (!is.list(context)) {
+    stop("`context` must be NULL or a named list.", call. = FALSE)
+  }
+
+  if (length(context) > 0L && (is.null(names(context)) || any(!nzchar(names(context))))) {
+    stop("Every non-empty element of `context` must be named.", call. = FALSE)
+  }
+
+  unknown <- setdiff(names(context), .qda_spaceprep_context_fields)
+  if (length(unknown) > 0L) {
+    stop(
+      paste0(
+        "Unknown `context` field(s): ", paste(unknown, collapse = ", "),
+        ". Allowed fields are: ",
+        paste(.qda_spaceprep_context_fields, collapse = ", "), "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  out <- stats::setNames(vector("list", length(.qda_spaceprep_context_fields)),
+                  .qda_spaceprep_context_fields)
+  out[names(context)] <- context
+  out
+}
+<environment: namespace:NaileR>

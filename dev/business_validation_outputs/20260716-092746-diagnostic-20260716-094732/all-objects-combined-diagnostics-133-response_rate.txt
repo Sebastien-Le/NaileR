@@ -1,0 +1,6 @@
+PATH: textual-analysis$preparation$textual_evidence$corpus_metrics$Ancrés locaux$response_rate
+FIELD: response_rate
+TYPEOF: double
+CLASS: numeric
+
+1

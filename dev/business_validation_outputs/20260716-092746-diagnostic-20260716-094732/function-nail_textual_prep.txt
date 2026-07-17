@@ -1,0 +1,272 @@
+FUNCTION: nail_textual_prep
+
+FORMALS:
+as.pairlist(alist(dataset = , num.var = , num.text = , model = "llama3", provider = c("ollama", 
+    "gemini"), sample.pct = 1, seed = NULL, language = c("en", 
+    "fr", "none"), prompt_style = c("detailed", "compact"), text_role = c("responses", 
+    "comments", "verbatims"), include_verbatims_in_prompt = TRUE, attach_selected_verbatims = TRUE, n_central_verbatims = 2, n_tension_verbatims = 1, max_verbatim_chars = 220, lexical_analysis = TRUE, lexical_unit = c("occurrence", 
+    "document"), lexical_proba = 0.05, min_word_frequency = 2, min_word_length = 4, top_n_characteristic_words = 8, top_n_frequent_terms = 5, include_indicators_in_prompt = TRUE, compute_length_analysis = TRUE, generate = FALSE, analysis_scope = c("general", 
+    "sociological", "consumer", "psychological", "marketing", 
+    "innovation", "cross_functional"), comparison_mode = c("isolated", 
+    "joint"), isolate.groups = NULL, request = NULL, context = NULL, max_prompt_characters = Inf, ... = ))
+
+BODY:
+function(dataset,
+                              num.var,
+                              num.text,
+                              model = "llama3",
+                              provider = c("ollama", "gemini"),
+                              sample.pct = 1,
+                              seed = NULL,
+                              language = c("en", "fr", "none"),
+                              prompt_style = c("detailed", "compact"),
+                              text_role = c("responses", "comments", "verbatims"),
+                              include_verbatims_in_prompt = TRUE,
+                              attach_selected_verbatims = TRUE,
+                              n_central_verbatims = 2,
+                              n_tension_verbatims = 1,
+                              max_verbatim_chars = 220,
+                              lexical_analysis = TRUE,
+                              lexical_unit = c("occurrence", "document"),
+                              lexical_proba = 0.05,
+                              min_word_frequency = 2,
+                              min_word_length = 4,
+                              top_n_characteristic_words = 8,
+                              top_n_frequent_terms = 5,
+                              include_indicators_in_prompt = TRUE,
+                              compute_length_analysis = TRUE,
+                              generate = FALSE,
+                              analysis_scope = c(
+                                "general",
+                                "sociological",
+                                "consumer",
+                                "psychological",
+                                "marketing",
+                                "innovation",
+                                "cross_functional"
+                              ),
+                              comparison_mode = c("isolated", "joint"),
+                              isolate.groups = NULL,
+                              request = NULL,
+                              context = NULL,
+                              max_prompt_characters = Inf,
+                              ...) {
+  comparison_mode_missing <- missing(comparison_mode)
+
+  provider <- match.arg(provider)
+  language <- match.arg(language)
+  prompt_style <- match.arg(prompt_style)
+  text_role <- match.arg(text_role)
+  lexical_unit <- match.arg(lexical_unit)
+  analysis_scope <- match.arg(analysis_scope)
+  comparison_mode <- match.arg(comparison_mode)
+
+  if (!is.null(isolate.groups)) {
+    if (!is.logical(isolate.groups) || length(isolate.groups) != 1L || is.na(isolate.groups)) {
+      stop("`isolate.groups` must be NULL or a single logical value.", call. = FALSE)
+    }
+    mapped_mode <- if (isolate.groups) "isolated" else "joint"
+    if (!comparison_mode_missing && !identical(comparison_mode, mapped_mode)) {
+      stop("`isolate.groups` and `comparison_mode` specify conflicting modes.", call. = FALSE)
+    }
+    warning(
+      "`isolate.groups` is deprecated; use `comparison_mode` instead.",
+      call. = FALSE
+    )
+    comparison_mode <- mapped_mode
+  }
+
+  if (!isTRUE(include_verbatims_in_prompt)) {
+    warning(
+      paste(
+        "`include_verbatims_in_prompt = FALSE` is deprecated and ignored.",
+        "Traceable semantic profiles require the sampled verbatims in the prompt."
+      ),
+      call. = FALSE
+    )
+    include_verbatims_in_prompt <- TRUE
+  }
+
+  context <- .textual_prep_validate_context(context)
+  .validate_textual_prep_options(
+    dataset = dataset,
+    num.var = num.var,
+    num.text = num.text,
+    sample.pct = sample.pct,
+    seed = seed,
+    max_prompt_characters = max_prompt_characters,
+    include_verbatims_in_prompt = include_verbatims_in_prompt,
+    attach_selected_verbatims = attach_selected_verbatims,
+    n_central_verbatims = n_central_verbatims,
+    n_tension_verbatims = n_tension_verbatims,
+    max_verbatim_chars = max_verbatim_chars,
+    lexical_analysis = lexical_analysis,
+    lexical_proba = lexical_proba,
+    min_word_frequency = min_word_frequency,
+    min_word_length = min_word_length,
+    top_n_characteristic_words = top_n_characteristic_words,
+    top_n_frequent_terms = top_n_frequent_terms,
+    include_indicators_in_prompt = include_indicators_in_prompt,
+    compute_length_analysis = compute_length_analysis,
+    generate = generate,
+    request = request,
+    context = context
+  )
+
+  textual_evidence <- .build_textual_evidence(
+    dataset = dataset,
+    num.var = num.var,
+    num.text = num.text,
+    sample.pct = sample.pct,
+    seed = seed,
+    max_prompt_characters = max_prompt_characters,
+    language = language,
+    lexical_analysis = lexical_analysis,
+    lexical_unit = lexical_unit,
+    lexical_proba = lexical_proba,
+    min_word_frequency = min_word_frequency,
+    min_word_length = min_word_length,
+    top_n_characteristic_words = top_n_characteristic_words,
+    top_n_frequent_terms = top_n_frequent_terms,
+    compute_length_analysis = compute_length_analysis
+  )
+
+  units <- .textual_prep_build_units(
+    textual_evidence = textual_evidence,
+    analysis_scope = analysis_scope,
+    comparison_mode = comparison_mode,
+    request = request,
+    context = context,
+    prompt_style = prompt_style,
+    text_role = text_role,
+    include_indicators_in_prompt = include_indicators_in_prompt,
+    n_central_verbatims = n_central_verbatims,
+    n_tension_verbatims = n_tension_verbatims
+  )
+
+  if (!generate) {
+    for (name in names(units)) {
+      units[[name]]$response <- NULL
+      units[[name]]$parsed <- list(
+        parse_status = "not_generated",
+        parse_error = NULL,
+        textual_profiles = NULL
+      )
+    }
+
+    result <- list(
+      prompt = if (comparison_mode == "joint") units$joint$prompt else lapply(units, `[[`, "prompt"),
+      response = NULL,
+      parsed = list(
+        parse_status = "not_generated",
+        parse_error = NULL,
+        textual_profiles = NULL
+      ),
+      textual_profiles = NULL,
+      textual_evidence = textual_evidence,
+      units = units,
+      legacy_groups = NULL,
+      metadata = list(
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode,
+        provider = provider,
+        model = model,
+        generate = FALSE,
+        context_supplied = length(context) > 0L,
+        context = context,
+        preparation_request = request,
+        prompt_style = prompt_style,
+        text_role = text_role,
+        attach_selected_verbatims = attach_selected_verbatims,
+        n_central_verbatims = as.integer(n_central_verbatims),
+        n_tension_verbatims = as.integer(n_tension_verbatims),
+        max_verbatim_chars = as.integer(max_verbatim_chars)
+      )
+    )
+  } else {
+    llm_api_options <- list(...)
+    unit_results <- lapply(units, function(unit) {
+      if (!isTRUE(unit$has_evidence)) {
+        unit$response <- NULL
+        unit$parsed <- list(
+          parse_status = "no_evidence",
+          parse_error = "No verbatim was included in this generation unit.",
+          textual_profiles = NULL
+        )
+        return(unit)
+      }
+
+      raw_response <- .call_llm_base(
+        provider = provider,
+        model = model,
+        prompt = unit$prompt,
+        output = "df",
+        llm_api_options = llm_api_options
+      )
+      response_text <- .textual_prep_response_text(raw_response)
+      unit$response <- raw_response
+      unit$parsed <- .parse_textual_prep_response(
+        text = response_text,
+        expected_groups = unit$groups,
+        textual_evidence = textual_evidence,
+        context = context,
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode
+      )
+      unit
+    })
+    names(unit_results) <- names(units)
+
+    combined <- .textual_prep_combine_units(
+      unit_results = unit_results,
+      all_groups = names(textual_evidence$groups),
+      textual_evidence = textual_evidence,
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode
+    )
+
+    result <- list(
+      prompt = if (comparison_mode == "joint") unit_results$joint$prompt else lapply(unit_results, `[[`, "prompt"),
+      response = if (comparison_mode == "joint") unit_results$joint$response else lapply(unit_results, `[[`, "response"),
+      parsed = combined,
+      textual_profiles = combined$textual_profiles,
+      textual_evidence = textual_evidence,
+      units = unit_results,
+      legacy_groups = NULL,
+      metadata = list(
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode,
+        provider = provider,
+        model = model,
+        generate = TRUE,
+        context_supplied = length(context) > 0L,
+        context = context,
+        preparation_request = request,
+        prompt_style = prompt_style,
+        text_role = text_role,
+        attach_selected_verbatims = attach_selected_verbatims,
+        n_central_verbatims = as.integer(n_central_verbatims),
+        n_tension_verbatims = as.integer(n_tension_verbatims),
+        max_verbatim_chars = as.integer(max_verbatim_chars)
+      )
+    )
+  }
+
+  class(result) <- c("nail_textual_prep", "list")
+  result$legacy_groups <- .build_textual_prep_legacy_groups(
+    result = result,
+    attach_selected_verbatims = attach_selected_verbatims,
+    n_central_verbatims = n_central_verbatims,
+    n_tension_verbatims = n_tension_verbatims,
+    max_verbatim_chars = max_verbatim_chars
+  )
+
+  attr(result, "textual_evidence") <- result$textual_evidence
+  attr(result, "textual_profiles") <- result$textual_profiles
+  attr(result, "legacy_textual_prep") <- result$legacy_groups
+  attr(result, "corpus_metrics") <- result$textual_evidence$corpus_metrics
+  attr(result, "length_group_analysis") <- result$textual_evidence$length_group_analysis
+  attr(result, "lexical_analysis") <- result$textual_evidence$lexical_analysis
+  result
+}
+<environment: namespace:NaileR>

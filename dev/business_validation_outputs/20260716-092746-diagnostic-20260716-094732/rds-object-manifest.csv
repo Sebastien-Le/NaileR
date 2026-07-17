@@ -1,0 +1,7 @@
+"object","file","class","typeof","length"
+"textual-preparation-real-llm","textual-preparation-real-llm.rds","nail_textual_prep | list","list",8
+"textual-analysis","textual-analysis.rds","nail_textual | list","list",8
+"catdes-analysis-real-llm","catdes-analysis-real-llm.rds","tbl_df | tbl | data.frame","list",4
+"statistical-profiles","statistical-profiles.rds","nail_catdes_prep | statistical_profiles | list","list",4
+"contextualized-offline","contextualized-offline.rds","nail_textual_contextualized | list","list",13
+"business-workflow-dataset","business-workflow-dataset.rds","data.frame","list",10

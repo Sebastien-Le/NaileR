@@ -1,0 +1,8 @@
+"stage","branch","success","parse_status","elapsed_seconds","llm_calls","error"
+"Common mechanical preparation","shared",TRUE,"not_applicable",NA,0,""
+"Mechanical nail_catdes","mechanical",TRUE,"not_applicable",NA,0,""
+"Mechanical nail_textual","mechanical",TRUE,"not_generated",NA,0,""
+"Mechanical nail_textual_contextualized","mechanical",TRUE,"not_generated",NA,0,""
+"LLM nail_catdes","llm",TRUE,"not_applicable",NA,1,""
+"LLM + parsing nail_textual","llm_parsing",TRUE,"error",NA,1,""
+"LLM + parsing nail_textual_contextualized","llm_parsing",TRUE,"partial",NA,4,""

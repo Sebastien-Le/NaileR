@@ -1,0 +1,43 @@
+"group","variable","modality","proportion"
+"Ancrés locaux","purchase_place","En ligne/mixte",0
+"Pragmatiques contraints","purchase_place","En ligne/mixte",0
+"Curieux flexibles","purchase_place","En ligne/mixte",0.208333333333333
+"Ancrés locaux","purchase_place","Hard-discount",0
+"Pragmatiques contraints","purchase_place","Hard-discount",0.375
+"Curieux flexibles","purchase_place","Hard-discount",0
+"Ancrés locaux","purchase_place","Marché/local",0.666666666666667
+"Pragmatiques contraints","purchase_place","Marché/local",0.125
+"Curieux flexibles","purchase_place","Marché/local",0.333333333333333
+"Ancrés locaux","purchase_place","Petit commerce",0.25
+"Pragmatiques contraints","purchase_place","Petit commerce",0
+"Curieux flexibles","purchase_place","Petit commerce",0
+"Ancrés locaux","purchase_place","Supermarché",0.0833333333333333
+"Pragmatiques contraints","purchase_place","Supermarché",0.5
+"Curieux flexibles","purchase_place","Supermarché",0.458333333333333
+"Ancrés locaux","cooking_frequency","Quotidienne",0.708333333333333
+"Pragmatiques contraints","cooking_frequency","Quotidienne",0.125
+"Curieux flexibles","cooking_frequency","Quotidienne",0.0416666666666667
+"Ancrés locaux","cooking_frequency","Rarement",0
+"Pragmatiques contraints","cooking_frequency","Rarement",0.375
+"Curieux flexibles","cooking_frequency","Rarement",0.291666666666667
+"Ancrés locaux","cooking_frequency","Souvent",0.291666666666667
+"Pragmatiques contraints","cooking_frequency","Souvent",0.5
+"Curieux flexibles","cooking_frequency","Souvent",0.666666666666667
+"Ancrés locaux","local_preference","Faible",0
+"Pragmatiques contraints","local_preference","Faible",0.541666666666667
+"Curieux flexibles","local_preference","Faible",0.0416666666666667
+"Ancrés locaux","local_preference","Forte",0.75
+"Pragmatiques contraints","local_preference","Forte",0
+"Curieux flexibles","local_preference","Forte",0.125
+"Ancrés locaux","local_preference","Modérée",0.25
+"Pragmatiques contraints","local_preference","Modérée",0.458333333333333
+"Curieux flexibles","local_preference","Modérée",0.833333333333333
+"Ancrés locaux","organic_purchase","Parfois",0.375
+"Pragmatiques contraints","organic_purchase","Parfois",0.208333333333333
+"Curieux flexibles","organic_purchase","Parfois",0.625
+"Ancrés locaux","organic_purchase","Rarement",0.0416666666666667
+"Pragmatiques contraints","organic_purchase","Rarement",0.666666666666667
+"Curieux flexibles","organic_purchase","Rarement",0.25
+"Ancrés locaux","organic_purchase","Souvent",0.583333333333333
+"Pragmatiques contraints","organic_purchase","Souvent",0.125
+"Curieux flexibles","organic_purchase","Souvent",0.125

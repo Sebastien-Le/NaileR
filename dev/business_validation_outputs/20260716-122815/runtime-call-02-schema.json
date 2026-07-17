@@ -1,0 +1,2972 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["groups", "cross_group_analysis"],
+  "properties": {
+    "groups": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Ancrés locaux", "Curieux flexibles", "Pragmatiques contraints"],
+      "properties": {
+        "Ancrés locaux": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["group", "availability", "parse_error", "integrated_profile", "statistical_textual_convergences", "statistical_textual_divergences", "statistical_only_findings", "textual_only_findings", "social_interpretations", "consumer_insights", "psychological_hypotheses", "marketing_implications", "innovation_opportunities", "operational_implications", "validation_priorities", "interpretation_limits"],
+          "properties": {
+            "group": {
+              "type": "string",
+              "minLength": 1,
+              "enum": "Ancrés locaux"
+            },
+            "availability": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parse_error": {
+              "type": ["string", "null"]
+            },
+            "integrated_profile": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                },
+                "statistical_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0
+                },
+                "textual_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0
+                },
+                "relationship": {
+                  "type": ["string", "null"]
+                },
+                "quotations": {
+                  "type": "array",
+                  "items": [],
+                  "minItems": 0
+                },
+                "validation_needed": {
+                  "type": ["string", "null"]
+                }
+              },
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "statistical_evidence_ids": {
+                      "minItems": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "textual_evidence_ids": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "statistical_textual_convergences": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "statistical_textual_divergences": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "statistical_only_findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "textual_only_findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "social_interpretations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "consumer_insights": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "psychological_hypotheses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "marketing_implications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "innovation_opportunities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "operational_implications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "validation_priorities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "interpretation_limits": {
+              "type": "array",
+              "items": [],
+              "minItems": 0
+            }
+          }
+        },
+        "Curieux flexibles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["group", "availability", "parse_error", "integrated_profile", "statistical_textual_convergences", "statistical_textual_divergences", "statistical_only_findings", "textual_only_findings", "social_interpretations", "consumer_insights", "psychological_hypotheses", "marketing_implications", "innovation_opportunities", "operational_implications", "validation_priorities", "interpretation_limits"],
+          "properties": {
+            "group": {
+              "type": "string",
+              "minLength": 1,
+              "enum": "Curieux flexibles"
+            },
+            "availability": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parse_error": {
+              "type": ["string", "null"]
+            },
+            "integrated_profile": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                },
+                "statistical_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0
+                },
+                "textual_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0
+                },
+                "relationship": {
+                  "type": ["string", "null"]
+                },
+                "quotations": {
+                  "type": "array",
+                  "items": [],
+                  "minItems": 0
+                },
+                "validation_needed": {
+                  "type": ["string", "null"]
+                }
+              },
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "statistical_evidence_ids": {
+                      "minItems": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "textual_evidence_ids": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "statistical_textual_convergences": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "statistical_textual_divergences": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "statistical_only_findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "textual_only_findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "social_interpretations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "consumer_insights": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "psychological_hypotheses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "marketing_implications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "innovation_opportunities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "operational_implications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "validation_priorities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "interpretation_limits": {
+              "type": "array",
+              "items": [],
+              "minItems": 0
+            }
+          }
+        },
+        "Pragmatiques contraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["group", "availability", "parse_error", "integrated_profile", "statistical_textual_convergences", "statistical_textual_divergences", "statistical_only_findings", "textual_only_findings", "social_interpretations", "consumer_insights", "psychological_hypotheses", "marketing_implications", "innovation_opportunities", "operational_implications", "validation_priorities", "interpretation_limits"],
+          "properties": {
+            "group": {
+              "type": "string",
+              "minLength": 1,
+              "enum": "Pragmatiques contraints"
+            },
+            "availability": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parse_error": {
+              "type": ["string", "null"]
+            },
+            "integrated_profile": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                },
+                "statistical_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0
+                },
+                "textual_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0
+                },
+                "relationship": {
+                  "type": ["string", "null"]
+                },
+                "quotations": {
+                  "type": "array",
+                  "items": [],
+                  "minItems": 0
+                },
+                "validation_needed": {
+                  "type": ["string", "null"]
+                }
+              },
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "statistical_evidence_ids": {
+                      "minItems": 1
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "textual_evidence_ids": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "statistical_textual_convergences": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "statistical_textual_divergences": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "statistical_only_findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "textual_only_findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "social_interpretations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "consumer_insights": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "psychological_hypotheses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "marketing_implications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "innovation_opportunities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "operational_implications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "validation_priorities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+                  },
+                  "statistical_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "textual_evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 0
+                  },
+                  "relationship": {
+                    "type": ["string", "null"]
+                  },
+                  "quotations": {
+                    "type": "array",
+                    "items": [],
+                    "minItems": 0
+                  },
+                  "validation_needed": {
+                    "type": ["string", "null"]
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "statistical_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "textual_evidence_ids": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "minItems": 0
+            },
+            "interpretation_limits": {
+              "type": "array",
+              "items": [],
+              "minItems": 0
+            }
+          }
+        }
+      }
+    },
+    "cross_group_analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shared_patterns", "major_group_contrasts", "different_statistical_textual_relationships", "cross_group_social_interpretations", "consumer_segments_hypotheses", "psychological_mechanisms_hypotheses", "marketing_priorities", "innovation_priorities", "validation_priorities", "interpretation_limits"],
+      "properties": {
+        "shared_patterns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "major_group_contrasts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "different_statistical_textual_relationships": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "cross_group_social_interpretations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "consumer_segments_hypotheses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "psychological_mechanisms_hypotheses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "marketing_priorities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "innovation_priorities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "validation_priorities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "status", "statistical_evidence_ids", "textual_evidence_ids", "relationship", "quotations", "validation_needed"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": ["expert_interpretation", "hypothesis", "recommendation", "user_context"]
+              },
+              "statistical_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "textual_evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 0
+              },
+              "relationship": {
+                "type": ["string", "null"]
+              },
+              "quotations": {
+                "type": "array",
+                "items": [],
+                "minItems": 0
+              },
+              "validation_needed": {
+                "type": ["string", "null"]
+              }
+            },
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "statistical_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "textual_evidence_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0
+        },
+        "interpretation_limits": {
+          "type": "array",
+          "items": [],
+          "minItems": 0
+        }
+      }
+    }
+  }
+}

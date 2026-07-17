@@ -1,0 +1,715 @@
+ROLE
+You are an evidence-integration analyst. You are not acting as a sociologist, psychologist, marketer, innovation consultant, or operational strategist.
+
+TASK
+Integrate the statistical and textual evidence for exactly one group. Describe only what the supplied evidence supports.
+
+REQUIRED OUTPUT
+- one concise integrated profile;
+- at most 2 statistical-textual convergence claims;
+- at most 2 statistical-textual tension claims;
+- at most one statistical-only finding;
+- at most one textual-only finding;
+- one or two interpretation limits.
+
+EVIDENCE RULES
+The integrated profile, every convergence, and every tension must cite at least one statistical and one textual evidence ID.
+A statistical-only finding must cite statistical evidence only. A textual-only finding must cite textual evidence only.
+Every interpretation limit must cite at least one supplied evidence ID showing the scope or coverage limitation.
+Use only exact IDs supplied below. Do not infer causality, demographics, social identity, psychological mechanisms, or recommendations.
+Set status to expert_interpretation. Use relationship values exactly as required by the section.
+
+OUTPUT SCHEMA
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "group",
+    "integrated_profile",
+    "convergences",
+    "tensions",
+    "statistical_only_findings",
+    "textual_only_findings",
+    "interpretation_limits"
+  ],
+  "propertyOrdering": [
+    "group",
+    "integrated_profile",
+    "convergences",
+    "tensions",
+    "statistical_only_findings",
+    "textual_only_findings",
+    "interpretation_limits"
+  ],
+  "properties": {
+    "group": {
+      "type": "string",
+      "enum": [
+        "Pragmatiques contraints"
+      ]
+    },
+    "integrated_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "status",
+        "statistical_evidence_ids",
+        "textual_evidence_ids",
+        "relationship",
+        "validation_needed"
+      ],
+      "propertyOrdering": [
+        "text",
+        "status",
+        "statistical_evidence_ids",
+        "textual_evidence_ids",
+        "relationship",
+        "validation_needed"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "expert_interpretation"
+          ]
+        },
+        "statistical_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "textual_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "relationship": {
+          "type": "string",
+          "enum": [
+            "convergence",
+            "tension",
+            "statistical_only",
+            "textual_only",
+            "scope_limit"
+          ]
+        },
+        "validation_needed": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "convergences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    },
+    "tensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    },
+    "statistical_only_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "textual_only_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "interpretation_limits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    }
+  }
+}
+
+GROUP DATA
+{
+  "group": "Pragmatiques contraints",
+  "integration_limits": [],
+  "statistical_profile": {
+    "factual_summary": "Group Pragmatiques contraints has 6 retained qualitative marker(s) and 4 retained quantitative marker(s): 3 positive-direction marker(s), 7 negative-direction marker(s), and 0 neutral marker(s).",
+    "qualitative_markers": [
+      {
+        "evidence_id": "Pragmatiques contraints::quali::purchase_place::Hard-discount",
+        "variable": "purchase_place",
+        "modality": "Hard-discount",
+        "direction": "overrepresented",
+        "percentage_in_group": 60,
+        "global_percentage": 20,
+        "v_test": 4.5392,
+        "p_value": 5.6479e-06,
+        "rank": 1
+      },
+      {
+        "evidence_id": "Pragmatiques contraints::quali::organic_purchase::Rarement",
+        "variable": "organic_purchase",
+        "modality": "Rarement",
+        "direction": "overrepresented",
+        "percentage_in_group": 66.6667,
+        "global_percentage": 28.8889,
+        "v_test": 3.7405,
+        "p_value": 0.0002,
+        "rank": 2
+      },
+      {
+        "evidence_id": "Pragmatiques contraints::quali::purchase_place::Marché/local",
+        "variable": "purchase_place",
+        "modality": "Marché/local",
+        "direction": "underrepresented",
+        "percentage_in_group": 0,
+        "global_percentage": 31.1111,
+        "v_test": -3.329,
+        "p_value": 0.0009,
+        "rank": 3
+      },
+      {
+        "evidence_id": "Pragmatiques contraints::quali::local_preference::Forte",
+        "variable": "local_preference",
+        "modality": "Forte",
+        "direction": "underrepresented",
+        "percentage_in_group": 6.6667,
+        "global_percentage": 33.3333,
+        "v_test": -2.6863,
+        "p_value": 0.0072,
+        "rank": 4
+      },
+      {
+        "evidence_id": "Pragmatiques contraints::quali::cooking_frequency::Quotidienne",
+        "variable": "cooking_frequency",
+        "modality": "Quotidienne",
+        "direction": "underrepresented",
+        "percentage_in_group": 13.3333,
+        "global_percentage": 40,
+        "v_test": -2.5397,
+        "p_value": 0.0111,
+        "rank": 5
+      },
+      {
+        "evidence_id": "Pragmatiques contraints::quali::organic_purchase::Souvent",
+        "variable": "organic_purchase",
+        "modality": "Souvent",
+        "direction": "underrepresented",
+        "percentage_in_group": 6.6667,
+        "global_percentage": 26.6667,
+        "v_test": -2.1141,
+        "p_value": 0.0345,
+        "rank": 6
+      }
+    ],
+    "quantitative_markers": [
+      {
+        "evidence_id": "Pragmatiques contraints::quanti::food_knowledge",
+        "variable": "food_knowledge",
+        "direction": "lower",
+        "group_mean": 3.9324,
+        "overall_mean": 6.0638,
+        "v_test": -5.208,
+        "p_value": 1.9084e-07,
+        "rank": 1
+      },
+      {
+        "evidence_id": "Pragmatiques contraints::quanti::price_constraint",
+        "variable": "price_constraint",
+        "direction": "higher",
+        "group_mean": 7.7263,
+        "overall_mean": 5.7396,
+        "v_test": 5.178,
+        "p_value": 2.2424e-07,
+        "rank": 2
+      },
+      {
+        "evidence_id": "Pragmatiques contraints::quanti::territorial_engagement",
+        "variable": "territorial_engagement",
+        "direction": "lower",
+        "group_mean": 3.6718,
+        "overall_mean": 5.6402,
+        "v_test": -4.4072,
+        "p_value": 0,
+        "rank": 3
+      },
+      {
+        "evidence_id": "Pragmatiques contraints::quanti::openness_to_innovation",
+        "variable": "openness_to_innovation",
+        "direction": "lower",
+        "group_mean": 4.0718,
+        "overall_mean": 5.6242,
+        "v_test": -3.7178,
+        "p_value": 0.0002,
+        "rank": 4
+      }
+    ]
+  },
+  "textual_profile": {
+    "core_textual_profile": {
+      "text": "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions accessibles et moins coûteuses, tout en exprimant un intérêt pour le local lorsqu'il est disponible.",
+      "status": "expert_interpretation",
+      "evidence_ids": ["Pragmatiques contraints::verbatim::16", "Pragmatiques contraints::verbatim::20"],
+      "validation_needed": null
+    },
+    "main_themes": [
+      {
+        "text": "Importance du prix et du temps disponible dans les choix alimentaires.",
+        "status": "expert_interpretation",
+        "evidence_ids": ["Pragmatiques contraints::verbatim::17", "Pragmatiques contraints::verbatim::20"],
+        "validation_needed": null
+      },
+      {
+        "text": "Intérêt pour le local lorsqu'il est accessible et moins coûteux.",
+        "status": "expert_interpretation",
+        "evidence_ids": ["Pragmatiques contraints::verbatim::16", "Pragmatiques contraints::verbatim::22"],
+        "validation_needed": null
+      }
+    ],
+    "dominant_concerns": [
+      {
+        "text": "Manque d'informations simples pour arbitrer les choix alimentaires.",
+        "status": "expert_interpretation",
+        "evidence_ids": ["Pragmatiques contraints::verbatim::18", "Pragmatiques contraints::verbatim::25"],
+        "validation_needed": null
+      }
+    ],
+    "tone_or_stance": {
+      "text": "Tonalité pragmatique et réaliste, avec une volonté de trouver des solutions accessibles.",
+      "status": "expert_interpretation",
+      "evidence_ids": ["Pragmatiques contraints::verbatim::16", "Pragmatiques contraints::verbatim::23"],
+      "validation_needed": null
+    },
+    "contradictions": [],
+    "minority_positions": [
+      {
+        "text": "Certains répondants expriment une culpabilité lorsqu'ils choisissent le moins cher.",
+        "status": "expert_interpretation",
+        "evidence_ids": "Pragmatiques contraints::verbatim::29",
+        "validation_needed": null
+      }
+    ],
+    "intra_group_consistency": {
+      "text": "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations dans les expressions de culpabilité.",
+      "status": "expert_interpretation",
+      "evidence_ids": ["Pragmatiques contraints::verbatim::16", "Pragmatiques contraints::verbatim::20"],
+      "validation_needed": null
+    },
+    "interpretation_limits": [
+      {
+        "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+        "status": "expert_interpretation",
+        "evidence_ids": "Pragmatiques contraints::verbatim::16",
+        "validation_needed": null
+      }
+    ]
+  },
+  "verbatims": [
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::16",
+      "original_text": "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 1]",
+      "row_index": 16,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::17",
+      "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 2]",
+      "row_index": 17,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::18",
+      "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Je manque d'informations simples pour arbitrer. [répondant 3]",
+      "row_index": 18,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::19",
+      "original_text": "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Je cuisine surtout des plats simples et rapides. Le week-end, je peux faire davantage d'efforts. [répondant 4]",
+      "row_index": 19,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::20",
+      "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 5]",
+      "row_index": 20,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::21",
+      "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Le week-end, je peux faire davantage d'efforts. [répondant 6]",
+      "row_index": 21,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::22",
+      "original_text": "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offre pratique et moins coûteuse pourrait me faire changer. [répondant 7]",
+      "row_index": 22,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::23",
+      "original_text": "Je dois d'abord respecter mon budget. Les circuits spécialisés me paraissent parfois compliqués. Je ne veux pas culpabiliser quand je choisis le moins cher. [répondant 8]",
+      "row_index": 23,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::24",
+      "original_text": "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués. Je manque d'informations simples pour arbitrer. [répondant 9]",
+      "row_index": 24,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::25",
+      "original_text": "Je dois d'abord respecter mon budget. Je cuisine surtout des plats simples et rapides. Je manque d'informations simples pour arbitrer. [répondant 10]",
+      "row_index": 25,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::26",
+      "original_text": "Je dois d'abord respecter mon budget. Le local m'intéresse lorsqu'il reste accessible. Je manque d'informations simples pour arbitrer. [répondant 11]",
+      "row_index": 26,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Pragmatiques contraints::verbatim::27",
+      "original_text": "Je fais mes courses là où c'est rapide et abordable. Je cuisine surtout des plats simples et rapides. Le week-end, je peux faire davantage d'efforts. [répondant 12]",
+      "row_index": 27,
+      "included_in_prompt": true
+    }
+  ],
+  "allowed_statistical_evidence_ids": ["Pragmatiques contraints::quali::purchase_place::Hard-discount", "Pragmatiques contraints::quali::organic_purchase::Rarement", "Pragmatiques contraints::quali::purchase_place::Marché/local", "Pragmatiques contraints::quali::local_preference::Forte", "Pragmatiques contraints::quali::cooking_frequency::Quotidienne", "Pragmatiques contraints::quali::organic_purchase::Souvent", "Pragmatiques contraints::quanti::food_knowledge", "Pragmatiques contraints::quanti::price_constraint", "Pragmatiques contraints::quanti::territorial_engagement", "Pragmatiques contraints::quanti::openness_to_innovation"],
+  "allowed_textual_evidence_ids": ["Pragmatiques contraints::verbatim::16", "Pragmatiques contraints::verbatim::17", "Pragmatiques contraints::verbatim::18", "Pragmatiques contraints::verbatim::19", "Pragmatiques contraints::verbatim::20", "Pragmatiques contraints::verbatim::21", "Pragmatiques contraints::verbatim::22", "Pragmatiques contraints::verbatim::23", "Pragmatiques contraints::verbatim::24", "Pragmatiques contraints::verbatim::25", "Pragmatiques contraints::verbatim::26", "Pragmatiques contraints::verbatim::27", "Pragmatiques contraints::verbatim::28", "Pragmatiques contraints::verbatim::29", "Pragmatiques contraints::verbatim::30"]
+}

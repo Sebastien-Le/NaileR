@@ -1,0 +1,6 @@
+PATH: textual-preparation-real-llm$textual_evidence$groups$Pragmatiques contraints$diagnostics$n_prompt_budget
+FIELD: n_prompt_budget
+TYPEOF: integer
+CLASS: integer
+
+0

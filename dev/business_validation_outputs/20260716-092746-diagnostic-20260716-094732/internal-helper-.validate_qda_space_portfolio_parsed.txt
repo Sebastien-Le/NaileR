@@ -1,0 +1,76 @@
+INTERNAL HELPER: .validate_qda_space_portfolio_parsed
+
+FORMALS:
+as.pairlist(alist(parsed = , analyzed_products = , valid_evidence_ids = , context_present = ))
+
+BODY:
+function(parsed,
+                                                analyzed_products,
+                                                valid_evidence_ids,
+                                                context_present) {
+  if (!is.list(parsed) || is.data.frame(parsed)) {
+    stop("The portfolio response must be a JSON object.", call. = FALSE)
+  }
+  allowed <- c(
+    "sensory_architecture", "major_product_families", "proximity_patterns",
+    "differentiation_risks", "underoccupied_territories",
+    "formulation_trajectories", "marketing_implications",
+    "consumer_research_hypotheses", "validation_priorities"
+  )
+  missing <- setdiff(allowed, names(parsed))
+  unknown <- setdiff(names(parsed), allowed)
+  if (length(missing)) {
+    stop(sprintf("The portfolio response is missing required field(s): %s.",
+                 paste(missing, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(sprintf("The portfolio response contains unexpected field(s): %s.",
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+
+  out <- list()
+  out$sensory_architecture <- .qda_space_validate_claim(
+    parsed$sensory_architecture,
+    field = "sensory_architecture",
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+
+  families <- parsed$major_product_families
+  if (is.null(families)) families <- list()
+  if (!is.list(families) || is.data.frame(families)) {
+    stop("`major_product_families` must be a JSON array.", call. = FALSE)
+  }
+  out$major_product_families <- lapply(seq_along(families), function(i) {
+    .qda_space_validate_family(
+      families[[i]],
+      field = sprintf("major_product_families[[%d]]", i),
+      analyzed_products = analyzed_products,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present
+    )
+  })
+
+  required_statuses <- c(
+    proximity_patterns = NA_character_,
+    differentiation_risks = "hypothesis",
+    underoccupied_territories = "hypothesis",
+    formulation_trajectories = "recommendation",
+    marketing_implications = NA_character_,
+    consumer_research_hypotheses = "hypothesis",
+    validation_priorities = "recommendation"
+  )
+  for (field in names(required_statuses)) {
+    required_status <- required_statuses[[field]]
+    if (is.na(required_status)) required_status <- NULL
+    out[[field]] <- .qda_space_validate_claim_list(
+      parsed[[field]],
+      field = field,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present,
+      required_status = required_status
+    )
+  }
+  out
+}
+<environment: namespace:NaileR>

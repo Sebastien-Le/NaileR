@@ -1,0 +1,6 @@
+PATH: textual-analysis$preparation$metadata$model
+FIELD: model
+TYPEOF: character
+CLASS: character
+
+mistral-small3.2

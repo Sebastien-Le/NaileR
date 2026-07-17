@@ -1,0 +1,4 @@
+List of 3
+ $ parse_status           : chr "error"
+ $ parse_error            : chr "`groups$Ancrés locaux` is missing: group, availability, parse_error, integrated_profile, statistical_textual_co"| __truncated__
+ $ contextualized_analysis: NULL

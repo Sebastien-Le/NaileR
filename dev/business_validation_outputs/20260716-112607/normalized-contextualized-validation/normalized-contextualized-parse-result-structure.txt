@@ -1,0 +1,4 @@
+List of 3
+ $ parse_status           : chr "error"
+ $ parse_error            : chr "`cross_group_analysis$marketing_priorities[[1]]` must cite at least one evidence ID."
+ $ contextualized_analysis: NULL

@@ -1,5 +1,13 @@
 # NaileR 2.0.0
 
+## Modular contextualized integration
+
+* `nail_textual_contextualized()` now uses validated modular integration by default: one request per eligible group, followed by an optional cross-group synthesis based only on validated group outputs.
+* The historical monolithic JSON contract remains available with `integration_mode = "legacy"`.
+* Core contextualization is limited to `expertise = "integration"`; social, psychological, marketing, innovation, and operational expertise are no longer mixed into the same generation request.
+* `relationship` is derived deterministically from the result section, empty sections are allowed, methodological limits may be evidence-free when grounded in coverage metadata, and semantic ambiguities are returned as audit warnings.
+* Source-incomplete groups remain explicit and are skipped without invalid LLM calls; valid groups are preserved in partial results.
+
 This is a major release focused on robustness and maintainability.
 The most significant changes include a complete rewrite of `nail_sort()` to use JSON, 
 the addition of a new robust Google Gemini API client, 
@@ -46,6 +54,15 @@ and the centralization of code into helper functions.
     * The function now uses the new centralized version from `utils-formatting.R`, driven by the existing `quali.sample` and `quanti.sample` parameters.
 
 ## Bug Fixes
+
+**CRAN portability for modular contextualization**
+    * Replaced the only non-ASCII character in executable R code with a Unicode escape.
+    * Qualified `setNames()` as `stats::setNames()` so `R CMD check` no longer reports an undefined global function.
+
+**`nail_textual_contextualized()`: offline compatibility prompts**
+    * Modular offline preparation now keeps a reviewable group prompt for supported legacy summary-only inputs that do not carry the evidence IDs required for generation.
+    * These units remain explicitly non-eligible for LLM generation (`integration_eligible = FALSE`) and are marked with `prompt_contract = "compatibility_preview"`.
+    * This preserves historical prompt-inspection workflows without weakening the modular evidence validator.
 
 **`nail_condes()`:** Fixed a critical bug in the `get_bins` helper function. It now uses `.keep = 'all'` instead of `.keep = 'unused'` during the `mutate(across(...))` step, ensuring that the original data (including the variable of interest) is not dropped.
 

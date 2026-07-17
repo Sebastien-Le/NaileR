@@ -1,0 +1,28 @@
+INTERNAL HELPER: .contextualized_validate_group_map
+
+FORMALS:
+as.pairlist(alist(group_map = ))
+
+BODY:
+function(group_map) {
+  if (is.null(group_map)) return(stats::setNames(character(0), character(0)))
+  if (is.list(group_map) && !is.data.frame(group_map)) {
+    group_map <- unlist(group_map, recursive = FALSE, use.names = TRUE)
+  }
+  if (!is.character(group_map) || is.null(names(group_map))) {
+    stop("`group_map` must be a named character vector: statistical = textual.", call. = FALSE)
+  }
+  if (length(group_map) > 0L &&
+      (any(is.na(names(group_map))) || any(!nzchar(names(group_map))) ||
+       any(is.na(group_map)) || any(!nzchar(group_map)))) {
+    stop("`group_map` names and values must be non-empty.", call. = FALSE)
+  }
+  if (anyDuplicated(names(group_map))) {
+    stop("`group_map` contains duplicated statistical group names.", call. = FALSE)
+  }
+  if (anyDuplicated(unname(group_map))) {
+    stop("`group_map` maps several statistical groups to the same textual group.", call. = FALSE)
+  }
+  group_map
+}
+<environment: namespace:NaileR>

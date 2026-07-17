@@ -1,0 +1,224 @@
+{
+  "groups": {
+    "Ancrés locaux": {
+      "group": "Ancrés locaux",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "textual_evidence_ids": [
+          "Ancrés locaux::verbatim::1",
+          "Ancrés locaux::verbatim::2",
+          "Ancrés locaux::verbatim::4"
+        ]
+      },
+      "statistical_textual_convergences": [
+        {
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::4"
+          ]
+        }
+      ],
+      "statistical_textual_divergences": [],
+      "statistical_only_findings": [
+        {
+          "textual_evidence_ids": [
+            "Ancrés locaux::quali::cooking_frequency::Quotidienne",
+            "Ancrés locaux::quanti::territorial_engagement"
+          ]
+        }
+      ],
+      "textual_only_findings": [],
+      "social_interpretations": [
+        {
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::4"
+          ]
+        }
+      ],
+      "consumer_insights": [
+        {
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::4"
+          ]
+        }
+      ],
+      "psychological_hypotheses": [],
+      "marketing_implications": [
+        {
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::4"
+          ]
+        }
+      ],
+      "innovation_opportunities": [],
+      "operational_implications": [
+        {
+          "textual_evidence_ids": [
+            "Ancrés locaux::verbatim::1",
+            "Ancrés locaux::verbatim::2",
+            "Ancrés locaux::verbatim::4"
+          ]
+        }
+      ],
+      "validation_priorities": [],
+      "interpretation_limits": []
+    },
+    "Curieux flexibles": {
+      "group": "Curieux flexibles",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "textual_evidence_ids": [
+          "Curieux flexibles::verbatim::31",
+          "Curieux flexibles::verbatim::32"
+        ]
+      },
+      "statistical_textual_convergences": [],
+      "statistical_textual_divergences": [],
+      "statistical_only_findings": [
+        {
+          "textual_evidence_ids": [
+            "Curieux flexibles::quali::organic_purchase::Parfois",
+            "Curieux flexibles::quanti::openness_to_innovation"
+          ]
+        }
+      ],
+      "textual_only_findings": [],
+      "social_interpretations": [
+        {
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::31",
+            "Curieux flexibles::verbatim::32"
+          ]
+        }
+      ],
+      "consumer_insights": [
+        {
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::31",
+            "Curieux flexibles::verbatim::32"
+          ]
+        }
+      ],
+      "psychological_hypotheses": [],
+      "marketing_implications": [
+        {
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::31",
+            "Curieux flexibles::verbatim::32"
+          ]
+        }
+      ],
+      "innovation_opportunities": [],
+      "operational_implications": [
+        {
+          "textual_evidence_ids": [
+            "Curieux flexibles::verbatim::31",
+            "Curieux flexibles::verbatim::32"
+          ]
+        }
+      ],
+      "validation_priorities": [],
+      "interpretation_limits": []
+    },
+    "Pragmatiques contraints": {
+      "group": "Pragmatiques contraints",
+      "availability": "available",
+      "parse_error": null,
+      "integrated_profile": {
+        "textual_evidence_ids": [
+          "Pragmatiques contraints::verbatim::16",
+          "Pragmatiques contraints::verbatim::20"
+        ]
+      },
+      "statistical_textual_convergences": [],
+      "statistical_textual_divergences": [],
+      "statistical_only_findings": [
+        {
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::quali::purchase_place::Hard-discount",
+            "Pragmatiques contraints::quanti::price_constraint"
+          ]
+        }
+      ],
+      "textual_only_findings": [],
+      "social_interpretations": [
+        {
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ]
+        }
+      ],
+      "consumer_insights": [
+        {
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ]
+        }
+      ],
+      "psychological_hypotheses": [],
+      "marketing_implications": [
+        {
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ]
+        }
+      ],
+      "innovation_opportunities": [],
+      "operational_implications": [
+        {
+          "textual_evidence_ids": [
+            "Pragmatiques contraints::verbatim::16",
+            "Pragmatiques contraints::verbatim::20"
+          ]
+        }
+      ],
+      "validation_priorities": [],
+      "interpretation_limits": []
+    }
+  },
+  "cross_group_analysis": {
+    "shared_patterns": [
+      {
+        "textual_evidence_ids": [
+          "Ancrés locaux::verbatim::1",
+          "Curieux flexibles::verbatim::31"
+        ]
+      }
+    ],
+    "major_group_contrasts": [],
+    "different_statistical_textual_relationships": [],
+    "cross_group_social_interpretations": [
+      {
+        "textual_evidence_ids": [
+          "Ancrés locaux::verbatim::1",
+          "Curieux flexibles::verbatim::31"
+        ]
+      }
+    ],
+    "consumer_segments_hypotheses": [],
+    "psychological_mechanisms_hypotheses": [],
+    "marketing_priorities": [
+      {
+        "textual_evidence_ids": [
+          "Ancrés locaux::verbatim::1",
+          "Curieux flexibles::verbatim::31"
+        ]
+      }
+    ],
+    "innovation_priorities": [],
+    "validation_priorities": [],
+    "interpretation_limits": []
+  }
+}

@@ -1,0 +1,42 @@
+INTERNAL HELPER: dist_ref_llm
+
+FORMALS:
+as.pairlist(alist(ppt = , ref = , n = , model = "llama3", max_attempts = 3, ... = ))
+
+BODY:
+function(ppt, ref, n, model = "llama3", max_attempts = 3, ...) {
+  if (!is.character(ppt) || length(ppt) != 1 || is.na(ppt) || !nzchar(ppt)) {
+    stop("`ppt` must be a single non-empty character string.", call. = FALSE)
+  }
+  if (!is.character(ref) || length(ref) != 1 || is.na(ref)) {
+    stop("`ref` must be a single character string.", call. = FALSE)
+  }
+  assert_positive_integerish(n, "n")
+  assert_positive_integerish(max_attempts, "max_attempts")
+
+  ollama_api_options <- filter_ollama_options(list(...))
+  responses <- vector("list", n)
+
+  for (i in seq_len(n)) {
+    responses[[i]] <- .call_ollama_base(
+      model = model,
+      prompt = ppt,
+      output = "df",
+      ollama_api_options = ollama_api_options
+    )
+  }
+
+  distance_matrix <- matrix(NA_real_, n, 1)
+  for (i in seq_len(n)) {
+    distance_matrix[i, 1] <- 100 - sim_llm(
+      ref,
+      paste(responses[[i]]$response, collapse = "\n"),
+      model = model,
+      max_attempts = max_attempts,
+      ...
+    )
+  }
+
+  list(boot_llm = responses, dist_llm = distance_matrix)
+}
+<environment: namespace:NaileR>

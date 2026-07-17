@@ -1,0 +1,82 @@
+INTERNAL HELPER: .qda_space_validate_prior_claims
+
+FORMALS:
+as.pairlist(alist(x = , valid_evidence_ids = , path = "product_expertise"))
+
+BODY:
+function(x,
+                                            valid_evidence_ids,
+                                            path = "product_expertise") {
+  if (!is.list(x)) return(invisible(TRUE))
+
+  claim_fields <- c("text", "status", "evidence_ids", "validation_needed")
+  present_claim_fields <- intersect(names(x), claim_fields)
+  if (length(present_claim_fields) > 0L) {
+    missing_claim_fields <- setdiff(claim_fields, names(x))
+    if (length(missing_claim_fields) > 0L) {
+      stop(
+        sprintf(
+          "`%s` is missing required claim field(s): %s.",
+          path, paste(missing_claim_fields, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+    status <- as.character(x$status)
+    if (length(status) != 1L || is.na(status) || !status %in% .qda_space_statuses) {
+      stop(
+        sprintf("`%s$status` contains an invalid epistemic status.", path),
+        call. = FALSE
+      )
+    }
+    ids <- .qda_spaceprep_as_character_vector(
+      x$evidence_ids,
+      paste0(path, "$evidence_ids")
+    )
+    if (status == "user_context") {
+      if (length(ids) > 0L) {
+        stop(
+          sprintf("`%s` with status `user_context` must not cite statistical evidence.", path),
+          call. = FALSE
+        )
+      }
+    } else {
+      if (length(ids) == 0L) {
+        stop(
+          sprintf("`%s` must cite at least one product-profile evidence ID.", path),
+          call. = FALSE
+        )
+      }
+      unknown <- setdiff(ids, valid_evidence_ids)
+      if (length(unknown) > 0L) {
+        stop(
+          sprintf(
+            "`%s` cites product-profile evidence absent from the current QDA result: %s.",
+            path, paste(unknown, collapse = ", ")
+          ),
+          call. = FALSE
+        )
+      }
+    }
+    if (status %in% c("hypothesis", "recommendation") &&
+        !.qda_space_nonempty_scalar(x$validation_needed)) {
+      stop(
+        sprintf("`%s` requires a non-empty `validation_needed` field.", path),
+        call. = FALSE
+      )
+    }
+    return(invisible(TRUE))
+  }
+
+  nms <- names(x)
+  for (i in seq_along(x)) {
+    child <- if (!is.null(nms) && nzchar(nms[[i]])) {
+      paste0(path, "$", nms[[i]])
+    } else {
+      sprintf("%s[[%d]]", path, i)
+    }
+    .qda_space_validate_prior_claims(x[[i]], valid_evidence_ids, child)
+  }
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

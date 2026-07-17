@@ -1,0 +1,122 @@
+INTERNAL HELPER: .textual_prep_validate_claim
+
+FORMALS:
+as.pairlist(alist(claim = , field = , registry = , group = NULL, context = list(), allow_user_context = FALSE))
+
+BODY:
+function(claim,
+                                         field,
+                                         registry,
+                                         group = NULL,
+                                         context = list(),
+                                         allow_user_context = FALSE) {
+  if (is.null(claim)) return(NULL)
+  if (!is.list(claim) || is.data.frame(claim)) {
+    stop(sprintf("`%s` must be null or a claim object.", field), call. = FALSE)
+  }
+
+  required <- c("text", "status", "evidence_ids", "validation_needed")
+  missing_fields <- setdiff(required, names(claim))
+  unknown_fields <- setdiff(names(claim), required)
+  if (length(missing_fields) > 0L) {
+    stop(
+      sprintf("`%s` is missing required field(s): %s.", field, paste(missing_fields, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(
+      sprintf("`%s` contains unexpected field(s): %s.", field, paste(unknown_fields, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  if (!.textual_prep_is_scalar_string(claim$text)) {
+    stop(sprintf("`%s$text` must be a non-empty string.", field), call. = FALSE)
+  }
+  status <- as.character(claim$status)
+  if (length(status) != 1L || is.na(status) || !status %in% .textual_prep_statuses) {
+    stop(
+      sprintf("`%s$status` must be one of: %s.", field, paste(.textual_prep_statuses, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  evidence_ids <- .textual_prep_as_character_vector(
+    claim$evidence_ids,
+    paste0(field, "$evidence_ids")
+  )
+
+  if (status == "user_context") {
+    if (!allow_user_context || length(context) == 0L) {
+      stop(
+        sprintf("`%s` cannot use status `user_context` in this field.", field),
+        call. = FALSE
+      )
+    }
+    if (length(evidence_ids) > 0L) {
+      stop(
+        sprintf("`%s` with status `user_context` must use an empty evidence_ids array.", field),
+        call. = FALSE
+      )
+    }
+  } else {
+    if (length(evidence_ids) == 0L) {
+      stop(sprintf("`%s` must cite at least one verbatim evidence_id.", field), call. = FALSE)
+    }
+
+    invalid <- setdiff(evidence_ids, registry$evidence_id[registry$included_in_prompt])
+    if (length(invalid) > 0L) {
+      stop(
+        sprintf("`%s` cites unknown or non-presented evidence ID(s): %s.", field, paste(invalid, collapse = ", ")),
+        call. = FALSE
+      )
+    }
+
+    if (!is.null(group)) {
+      evidence_groups <- registry$group[match(evidence_ids, registry$evidence_id)]
+      if (any(is.na(evidence_groups) | evidence_groups != group)) {
+        stop(
+          sprintf("`%s` cites evidence belonging to another group.", field),
+          call. = FALSE
+        )
+      }
+    }
+  }
+
+  validation_needed <- claim$validation_needed
+  if (is.null(validation_needed) ||
+      (is.character(validation_needed) && length(validation_needed) == 1L &&
+       (is.na(validation_needed) || !nzchar(trimws(validation_needed))))) {
+    validation_needed <- NULL
+  } else if (!.textual_prep_is_scalar_string(validation_needed)) {
+    stop(
+      sprintf("`%s$validation_needed` must be null or a non-empty string.", field),
+      call. = FALSE
+    )
+  } else {
+    validation_needed <- trimws(validation_needed)
+  }
+
+  if (status %in% c("hypothesis", "recommendation") && is.null(validation_needed)) {
+    stop(
+      sprintf("`%s` has status `%s` and requires validation_needed.", field, status),
+      call. = FALSE
+    )
+  }
+
+  .textual_prep_validate_claim_safety(
+    text = claim$text,
+    evidence_ids = evidence_ids,
+    registry = registry,
+    context = context
+  )
+
+  list(
+    text = trimws(claim$text),
+    status = status,
+    evidence_ids = unique(evidence_ids),
+    validation_needed = validation_needed
+  )
+}
+<environment: namespace:NaileR>

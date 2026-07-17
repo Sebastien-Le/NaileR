@@ -1,0 +1,149 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "groups",
+    "cross_group_analysis"
+  ],
+  "propertyOrdering": [
+    "groups",
+    "cross_group_analysis"
+  ],
+  "properties": {
+    "groups": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Ancrés locaux",
+        "Curieux flexibles",
+        "Pragmatiques contraints"
+      ],
+      "propertyOrdering": [
+        "Ancrés locaux",
+        "Curieux flexibles",
+        "Pragmatiques contraints"
+      ],
+      "properties": {
+        "Ancrés locaux": {
+          "type": "object"
+        },
+        "Curieux flexibles": {
+          "type": "object"
+        },
+        "Pragmatiques contraints": {
+          "type": "object"
+        }
+      }
+    },
+    "cross_group_analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shared_patterns",
+        "major_group_contrasts",
+        "different_statistical_textual_relationships",
+        "cross_group_social_interpretations",
+        "consumer_segments_hypotheses",
+        "psychological_mechanisms_hypotheses",
+        "marketing_priorities",
+        "innovation_priorities",
+        "validation_priorities",
+        "interpretation_limits"
+      ],
+      "propertyOrdering": [
+        "shared_patterns",
+        "major_group_contrasts",
+        "different_statistical_textual_relationships",
+        "cross_group_social_interpretations",
+        "consumer_segments_hypotheses",
+        "psychological_mechanisms_hypotheses",
+        "marketing_priorities",
+        "innovation_priorities",
+        "validation_priorities",
+        "interpretation_limits"
+      ],
+      "properties": {
+        "shared_patterns": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "major_group_contrasts": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "different_statistical_textual_relationships": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "cross_group_social_interpretations": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "consumer_segments_hypotheses": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "psychological_mechanisms_hypotheses": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "marketing_priorities": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "innovation_priorities": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "validation_priorities": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        },
+        "interpretation_limits": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 0,
+          "maxItems": 2
+        }
+      }
+    }
+  }
+}

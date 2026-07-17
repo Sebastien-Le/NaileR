@@ -1,0 +1,6 @@
+PATH: statistical-profiles$metadata$schema
+FIELD: schema
+TYPEOF: character
+CLASS: character
+
+NaileR::statistical_profiles

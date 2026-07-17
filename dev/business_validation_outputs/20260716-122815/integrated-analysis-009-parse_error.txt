@@ -1,0 +1,4 @@
+PATH: integrated-analysis$units$joint$parsed
+FIELD: parse_error
+
+`groups$Ancrés locaux$integrated_profile` is missing: text, status, statistical_evidence_ids, relationship, quotations, validation_needed.

@@ -1,0 +1,111 @@
+INTERNAL HELPER: .validate_statistical_profiles_nail_catdes
+
+FORMALS:
+as.pairlist(alist(x = ))
+
+BODY:
+function(x) {
+  if (!.is_statistical_profiles_nail_catdes(x)) {
+    stop(
+      paste(
+        "`x` must be a valid `statistical_profiles` object, an object",
+        "carrying a `statistical_profiles` attribute, or a supported",
+        "catdes-compatible object."
+      ),
+      call. = FALSE
+    )
+  }
+
+  group_names <- names(x$groups)
+  if (length(x$groups) == 0L || is.null(group_names) ||
+      anyNA(group_names) || any(!nzchar(group_names)) ||
+      anyDuplicated(group_names)) {
+    stop(
+      "`statistical_profiles$groups` must be a non-empty uniquely named list.",
+      call. = FALSE
+    )
+  }
+
+  required_registry <- c(
+    "evidence_id", "group", "marker_type", "direction", "rank"
+  )
+  missing_registry <- setdiff(required_registry, names(x$evidence_registry))
+  if (length(missing_registry) > 0L) {
+    stop(
+      paste0(
+        "`statistical_profiles$evidence_registry` is missing: ",
+        paste(missing_registry, collapse = ", "),
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (anyDuplicated(x$evidence_registry$evidence_id)) {
+    stop(
+      "`statistical_profiles$evidence_registry$evidence_id` must be unique.",
+      call. = FALSE
+    )
+  }
+
+  qualitative_columns <- c(
+    "evidence_id", "group", "variable", "modality", "direction",
+    "percentage_in_group", "percentage_in_modality",
+    "global_percentage", "v_test", "p_value", "rank"
+  )
+  quantitative_columns <- c(
+    "evidence_id", "group", "variable", "direction", "group_mean",
+    "overall_mean", "standard_deviation",
+    "overall_standard_deviation", "v_test", "p_value", "rank"
+  )
+
+  for (group_name in group_names) {
+    group <- x$groups[[group_name]]
+    if (!is.list(group) ||
+        !is.data.frame(group$qualitative_markers) ||
+        !is.data.frame(group$quantitative_markers)) {
+      stop(
+        paste0(
+          "Group '", group_name,
+          "' must contain qualitative and quantitative marker tables."
+        ),
+        call. = FALSE
+      )
+    }
+
+    missing_quali <- setdiff(
+      qualitative_columns,
+      names(group$qualitative_markers)
+    )
+    missing_quanti <- setdiff(
+      quantitative_columns,
+      names(group$quantitative_markers)
+    )
+    if (length(missing_quali) > 0L || length(missing_quanti) > 0L) {
+      stop(
+        paste0(
+          "Group '", group_name,
+          "' contains incomplete statistical marker tables."
+        ),
+        call. = FALSE
+      )
+    }
+
+    group_ids <- c(
+      group$qualitative_markers$evidence_id,
+      group$quantitative_markers$evidence_id
+    )
+    if (any(!group_ids %in% x$evidence_registry$evidence_id)) {
+      stop(
+        paste0(
+          "Group '", group_name,
+          "' contains evidence IDs absent from the central registry."
+        ),
+        call. = FALSE
+      )
+    }
+  }
+
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

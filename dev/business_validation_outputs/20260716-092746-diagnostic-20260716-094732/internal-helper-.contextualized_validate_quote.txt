@@ -1,0 +1,37 @@
+INTERNAL HELPER: .contextualized_validate_quote
+
+FORMALS:
+as.pairlist(alist(x = , field = , registry = , group = NULL, allowed_textual_ids = ))
+
+BODY:
+function(x,
+                                           field,
+                                           registry,
+                                           group = NULL,
+                                           allowed_textual_ids) {
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a quotation object.", field), call. = FALSE)
+  }
+  missing_fields <- setdiff(.contextualized_quote_fields, names(x))
+  unknown_fields <- setdiff(names(x), .contextualized_quote_fields)
+  if (length(missing_fields) > 0L) {
+    stop(sprintf("`%s` is missing: %s.", field, paste(missing_fields, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown_fields) > 0L) {
+    stop(sprintf("`%s` contains unexpected fields.", field), call. = FALSE)
+  }
+  if (!.contextualized_is_scalar_string(x$evidence_id) ||
+      !x$evidence_id %in% allowed_textual_ids) {
+    stop(sprintf("`%s$evidence_id` is unknown or was not included in the prompt.", field), call. = FALSE)
+  }
+  row <- registry[match(x$evidence_id, registry$evidence_id), , drop = FALSE]
+  if (!is.null(group) && row$group[[1L]] != group) {
+    stop(sprintf("`%s` cites a quotation from another group.", field), call. = FALSE)
+  }
+  if (!.contextualized_is_scalar_string(x$quotation, allow_empty = TRUE) ||
+      !identical(as.character(x$quotation), as.character(row$original_text[[1L]]))) {
+    stop(sprintf("`%s$quotation` must exactly match original_text.", field), call. = FALSE)
+  }
+  list(evidence_id = x$evidence_id, quotation = x$quotation)
+}
+<environment: namespace:NaileR>

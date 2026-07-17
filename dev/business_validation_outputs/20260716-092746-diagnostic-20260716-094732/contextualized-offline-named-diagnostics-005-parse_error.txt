@@ -1,0 +1,6 @@
+PATH: contextualized-offline$parsed$parse_error
+FIELD: parse_error
+TYPEOF: NULL
+CLASS: NULL
+
+ NULL

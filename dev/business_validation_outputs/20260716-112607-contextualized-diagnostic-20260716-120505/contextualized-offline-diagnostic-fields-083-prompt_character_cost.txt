@@ -1,0 +1,50 @@
+PATH: contextualized-offline$textual_preparation$textual_evidence$verbatims$prompt_character_cost
+FIELD: prompt_character_cost
+TYPEOF: integer
+CLASS: integer
+
+207
+221
+201
+236
+190
+199
+189
+209
+214
+224
+242
+208
+225
+220
+209
+233
+220
+204
+217
+220
+204
+220
+210
+213
+189
+189
+204
+199
+226
+218
+226
+197
+219
+213
+229
+219
+242
+215
+224
+224
+232
+224
+224
+226
+212

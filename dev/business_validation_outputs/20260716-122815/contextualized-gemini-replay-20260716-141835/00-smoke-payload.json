@@ -1,0 +1,30 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"text\": \"Test claim\", \"status\": \"expert_interpretation\", \"statistical_evidence_ids\": [\"S1\"], \"textual_evidence_ids\": [], \"relationship\": \"convergence\", \"quotations\": [], \"validation_needed\": null}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 60,
+    "candidatesTokenCount": 53,
+    "totalTokenCount": 113,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 60
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-2.5-flash",
+  "responseId": "G8xYas2ZDKiexN8PmIeT2AE"
+}

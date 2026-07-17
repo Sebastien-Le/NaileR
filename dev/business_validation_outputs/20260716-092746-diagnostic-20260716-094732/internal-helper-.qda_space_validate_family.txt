@@ -1,0 +1,44 @@
+INTERNAL HELPER: .qda_space_validate_family
+
+FORMALS:
+as.pairlist(alist(item = , field = , analyzed_products = , valid_evidence_ids = , context_present = ))
+
+BODY:
+function(item,
+                                      field,
+                                      analyzed_products,
+                                      valid_evidence_ids,
+                                      context_present) {
+  if (!is.list(item) || is.data.frame(item)) {
+    stop(sprintf("`%s` must be an object.", field), call. = FALSE)
+  }
+  required <- c(
+    "label", "products", "text", "status", "evidence_ids", "validation_needed"
+  )
+  missing <- setdiff(required, names(item))
+  unknown <- setdiff(names(item), required)
+  if (length(missing)) {
+    stop(sprintf("`%s` is missing required field(s): %s.", field,
+                 paste(missing, collapse = ", ")), call. = FALSE)
+  }
+  if (length(unknown)) {
+    stop(sprintf("`%s` contains unexpected field(s): %s.", field,
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+  if (!.qda_space_nonempty_scalar(item$label)) {
+    stop(sprintf("`%s$label` must be a non-empty string.", field), call. = FALSE)
+  }
+  products <- .qda_space_as_character(item$products, paste0(field, "$products"))
+  if (length(products) == 0L || any(!products %in% analyzed_products)) {
+    stop(sprintf("`%s$products` must contain analyzed product identifiers.", field),
+         call. = FALSE)
+  }
+  claim <- .qda_space_validate_claim(
+    item[setdiff(names(item), c("label", "products"))],
+    field = field,
+    valid_evidence_ids = valid_evidence_ids,
+    context_present = context_present
+  )
+  c(list(label = trimws(item$label), products = unique(products)), claim)
+}
+<environment: namespace:NaileR>

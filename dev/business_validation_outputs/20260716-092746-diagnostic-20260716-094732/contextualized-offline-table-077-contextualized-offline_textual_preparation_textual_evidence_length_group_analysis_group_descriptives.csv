@@ -1,0 +1,4 @@
+"group","n_texts","mean_characters","median_characters","sd_characters","mean_log1p_characters"
+"Ancrés locaux",15,183.533333333333,180,15.0943067160468,5.21472240659497
+"Pragmatiques contraints",15,171.066666666667,173,12.8199992571131,5.14524179377957
+"Curieux flexibles",15,187.733333333333,190,10.2432323767358,5.23892912966496

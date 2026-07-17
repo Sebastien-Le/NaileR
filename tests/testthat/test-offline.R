@@ -44,13 +44,19 @@ test_that("nail_textual with generate FALSE is offline", {
     dataset = dataset,
     num.var = 1,
     num.text = 2,
-    isolate.groups = TRUE,
+    comparison_mode = "isolated",
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
     generate = FALSE
   )
 
-  expect_type(result, "list")
-  expect_setequal(names(result), c("A", "B"))
-  expect_true(
-    all(vapply(result, is.character, logical(1)))
-  )
+  expect_s3_class(result, "nail_textual")
+  expect_identical(result$metadata$semantic_status, "not_generated")
+  expect_identical(result$metadata$llm_calls, 0L)
+  expect_setequal(names(result$preparation$units), c("A", "B"))
+  expect_true(all(vapply(
+    result$preparation$units,
+    function(unit) is.character(unit$prompt),
+    logical(1)
+  )))
 })

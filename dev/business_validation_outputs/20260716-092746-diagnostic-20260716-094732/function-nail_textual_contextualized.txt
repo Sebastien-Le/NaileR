@@ -1,0 +1,316 @@
+FUNCTION: nail_textual_contextualized
+
+FORMALS:
+as.pairlist(alist(group_profile_prep = NULL, textual_prep = NULL, statistical_profiles = NULL, textual_preparation = NULL, dataset = NULL, num.var = NULL, num.text = NULL, group_map = NULL, context = NULL, analysis_scope = c("cross_functional", 
+    "general", "sociological", "consumer", "psychological", "marketing", 
+    "innovation"), comparison_mode = c("joint", "isolated"), report_format = c("structured", 
+    "markdown", "compact"), request = NULL, prompt_style = c("detailed", 
+    "compact"), proba = 0.05, sample.pct.text = 1, sample.pct.profile = 1, profile_mode = c("balanced", 
+    "categorical", "quantitative"), interpretation_mode = NULL, representative_verbatims = NULL, include_verbatims = TRUE, n_central_verbatims = 2, n_tension_verbatims = 1, max_verbatim_chars = 220, introduction = NULL, conclusion = NULL, isolate.groups = NULL, model = "llama3", provider = c("ollama", 
+    "gemini"), llm_model = NULL, llm_engine = NULL, row.w = NULL, generate = FALSE, ... = ))
+
+BODY:
+function(group_profile_prep = NULL,
+                                        textual_prep = NULL,
+                                        statistical_profiles = NULL,
+                                        textual_preparation = NULL,
+                                        dataset = NULL,
+                                        num.var = NULL,
+                                        num.text = NULL,
+                                        group_map = NULL,
+                                        context = NULL,
+                                        analysis_scope = c(
+                                          "cross_functional",
+                                          "general",
+                                          "sociological",
+                                          "consumer",
+                                          "psychological",
+                                          "marketing",
+                                          "innovation"
+                                        ),
+                                        comparison_mode = c("joint", "isolated"),
+                                        report_format = c("structured", "markdown", "compact"),
+                                        request = NULL,
+                                        prompt_style = c("detailed", "compact"),
+                                        proba = 0.05,
+                                        sample.pct.text = 1,
+                                        sample.pct.profile = 1,
+                                        profile_mode = c("balanced", "categorical", "quantitative"),
+                                        interpretation_mode = NULL,
+                                        representative_verbatims = NULL,
+                                        include_verbatims = TRUE,
+                                        n_central_verbatims = 2,
+                                        n_tension_verbatims = 1,
+                                        max_verbatim_chars = 220,
+                                        introduction = NULL,
+                                        conclusion = NULL,
+                                        isolate.groups = NULL,
+                                        model = "llama3",
+                                        provider = c("ollama", "gemini"),
+                                        llm_model = NULL,
+                                        llm_engine = NULL,
+                                        row.w = NULL,
+                                        generate = FALSE,
+                                        ...) {
+  comparison_mode_was_missing <- missing(comparison_mode)
+  analysis_scope <- match.arg(analysis_scope)
+  comparison_mode <- match.arg(comparison_mode)
+  report_format <- match.arg(report_format)
+  prompt_style <- match.arg(prompt_style)
+  provider <- match.arg(provider)
+
+  if (!is.null(statistical_profiles)) {
+    if (!is.null(group_profile_prep)) {
+      stop("Use only one of `statistical_profiles` and `group_profile_prep`.", call. = FALSE)
+    }
+    group_profile_prep <- statistical_profiles
+  }
+  if (!is.null(textual_preparation)) {
+    if (!is.null(textual_prep)) {
+      stop("Use only one of `textual_preparation` and `textual_prep`.", call. = FALSE)
+    }
+    textual_prep <- textual_preparation
+  }
+
+  if (!is.null(llm_model)) {
+    model <- llm_model
+  }
+  if (!is.null(llm_engine)) {
+    if (!llm_engine %in% c("ollama", "gemini")) {
+      stop("`llm_engine` must be `ollama` or `gemini`.", call. = FALSE)
+    }
+    provider <- llm_engine
+  }
+
+  deprecated_mode_alias <- NULL
+  if (!is.null(isolate.groups)) {
+    if (!is.logical(isolate.groups) || length(isolate.groups) != 1L || is.na(isolate.groups)) {
+      stop("`isolate.groups` must be NULL or a single logical value.", call. = FALSE)
+    }
+    .contextualized_deprecation_warning("isolate.groups", "comparison_mode")
+    mapped <- if (isolate.groups) "isolated" else "joint"
+    if (!comparison_mode_was_missing && !identical(comparison_mode, mapped)) {
+      stop("`isolate.groups` and `comparison_mode` are conflicting.", call. = FALSE)
+    }
+    comparison_mode <- mapped
+    deprecated_mode_alias <- mapped
+  }
+
+  if (!is.null(interpretation_mode)) {
+    interpretation_mode <- match.arg(interpretation_mode, c("groupwise", "comparative"))
+    .contextualized_deprecation_warning("interpretation_mode", "comparison_mode")
+    mapped <- if (interpretation_mode == "comparative") "joint" else "isolated"
+    if (!is.null(deprecated_mode_alias) && !identical(deprecated_mode_alias, mapped)) {
+      stop("`isolate.groups` and `interpretation_mode` are conflicting.", call. = FALSE)
+    }
+    if (!comparison_mode_was_missing && !identical(comparison_mode, mapped)) {
+      stop("`interpretation_mode` and `comparison_mode` are conflicting.", call. = FALSE)
+    }
+    comparison_mode <- mapped
+  }
+
+  if (!missing(sample.pct.profile)) {
+    .contextualized_deprecation_warning("sample.pct.profile")
+  }
+  if (!missing(profile_mode)) {
+    .contextualized_deprecation_warning("profile_mode")
+  }
+  if (!missing(representative_verbatims) && !is.null(representative_verbatims)) {
+    .contextualized_deprecation_warning("representative_verbatims")
+  }
+  if (!missing(include_verbatims) && !isTRUE(include_verbatims)) {
+    .contextualized_deprecation_warning("include_verbatims")
+  }
+  if (!missing(n_central_verbatims)) .contextualized_deprecation_warning("n_central_verbatims")
+  if (!missing(n_tension_verbatims)) .contextualized_deprecation_warning("n_tension_verbatims")
+  if (!missing(max_verbatim_chars)) .contextualized_deprecation_warning("max_verbatim_chars")
+
+  context <- .contextualized_validate_context(context)
+  if (!is.null(introduction)) {
+    .contextualized_deprecation_warning("introduction", "context")
+    context$legacy_introduction <- introduction
+  }
+  if (!is.null(conclusion)) {
+    .contextualized_deprecation_warning("conclusion", "request")
+    request <- paste(c(request, conclusion), collapse = "\n\n")
+  }
+  if (!is.null(request) && !.contextualized_is_scalar_string(request)) {
+    stop("`request` must be NULL or a non-empty character scalar.", call. = FALSE)
+  }
+  if (!is.logical(generate) || length(generate) != 1L || is.na(generate)) {
+    stop("`generate` must be a single non-missing logical value.", call. = FALSE)
+  }
+  if (!is.numeric(sample.pct.text) || length(sample.pct.text) != 1L ||
+      is.na(sample.pct.text) || sample.pct.text < 0 || sample.pct.text > 1) {
+    stop("`sample.pct.text` must be in [0, 1].", call. = FALSE)
+  }
+
+  upstream_calls <- list(
+    nail_catdes_prep = 0L,
+    nail_textual_prep = 0L,
+    catdes = 0L
+  )
+  raw_input_used <- !is.null(dataset)
+
+  if (is.null(group_profile_prep)) {
+    if (is.null(dataset)) {
+      stop("Provide `statistical_profiles`/`group_profile_prep` or `dataset`.", call. = FALSE)
+    }
+    if (!is.data.frame(dataset)) stop("`dataset` must be a data frame.", call. = FALSE)
+    if (is.null(num.var)) stop("`num.var` is required for raw data.", call. = FALSE)
+    group_profile_prep <- suppressWarnings(nail_catdes_prep(
+      dataset = dataset,
+      num.var = num.var,
+      exclude = num.text,
+      proba = proba,
+      row.w = row.w
+    ))
+    upstream_calls$nail_catdes_prep <- 1L
+    upstream_calls$catdes <- 1L
+  }
+
+  if (is.null(textual_prep)) {
+    if (is.null(dataset)) {
+      stop("Provide `textual_preparation`/`textual_prep` or `dataset`.", call. = FALSE)
+    }
+    if (!is.data.frame(dataset)) stop("`dataset` must be a data frame.", call. = FALSE)
+    if (is.null(num.var) || is.null(num.text)) {
+      stop("`num.var` and `num.text` are required for raw textual data.", call. = FALSE)
+    }
+    textual_prep <- nail_textual_prep(
+      dataset = dataset,
+      num.var = num.var,
+      num.text = num.text,
+      sample.pct = sample.pct.text,
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode,
+      context = context,
+      request = request,
+      prompt_style = prompt_style,
+      model = model,
+      provider = provider,
+      generate = generate,
+      ...
+    )
+    upstream_calls$nail_textual_prep <- 1L
+  }
+
+  normalized_statistical <- .normalize_contextualized_statistical_input(
+    group_profile_prep
+  )
+  normalized_textual <- .normalize_contextualized_textual_input(textual_prep)
+
+  contextualized_evidence <- .build_contextualized_evidence(
+    statistical_profiles = normalized_statistical,
+    textual_input = normalized_textual,
+    group_map = group_map
+  )
+  units <- .build_contextualized_units(
+    contextualized_evidence = contextualized_evidence,
+    analysis_scope = analysis_scope,
+    comparison_mode = comparison_mode,
+    context = context,
+    request = request,
+    prompt_style = prompt_style
+  )
+
+  llm_calls <- 0L
+  if (generate && length(units) > 0L) {
+    llm_api_options <- list(...)
+    for (unit_name in names(units)) {
+      response <- .call_llm_base(
+        provider = provider,
+        model = model,
+        prompt = units[[unit_name]]$prompt,
+        output = "df",
+        llm_api_options = llm_api_options
+      )
+      llm_calls <- llm_calls + 1L
+      units[[unit_name]]$response <- response
+      units[[unit_name]]$parsed <- .parse_textual_contextualized_response(
+        text = .contextualized_response_text(response),
+        expected_groups = units[[unit_name]]$groups,
+        contextualized_evidence = contextualized_evidence,
+        context = context,
+        analysis_scope = analysis_scope,
+        comparison_mode = comparison_mode
+      )
+    }
+  }
+
+  parsed <- .combine_contextualized_units(
+    units = units,
+    all_groups = names(contextualized_evidence$groups),
+    analysis_scope = analysis_scope,
+    comparison_mode = comparison_mode
+  )
+  analysis <- parsed$contextualized_analysis
+  report <- .contextualized_build_report(
+    analysis = analysis,
+    contextualized_evidence = contextualized_evidence,
+    parsed = parsed,
+    report_format = report_format
+  )
+
+  prompt <- if (comparison_mode == "joint") {
+    if (length(units) == 0L) NULL else units[[1L]]$prompt
+  } else {
+    lapply(units, function(x) x$prompt)
+  }
+  response <- if (!generate) {
+    NULL
+  } else if (comparison_mode == "joint") {
+    if (length(units) == 0L) NULL else units[[1L]]$response
+  } else {
+    lapply(units, function(x) x$response)
+  }
+
+  result <- list(
+    prompt = prompt,
+    response = response,
+    parsed = parsed,
+    contextualized_analysis = analysis,
+    contextualized_evidence = contextualized_evidence,
+    statistical_profiles = normalized_statistical,
+    textual_evidence = normalized_textual$textual_evidence,
+    textual_profiles = normalized_textual$textual_profiles,
+    textual_preparation = normalized_textual$preparation,
+    units = units,
+    report = report,
+    legacy_output = if (generate) response else prompt,
+    metadata = list(
+      schema = "NaileR::nail_textual_contextualized",
+      analysis_scope = analysis_scope,
+      comparison_mode = comparison_mode,
+      report_format = report_format,
+      generate = generate,
+      provider = provider,
+      model = model,
+      parse_status = parsed$parse_status,
+      groups = names(contextualized_evidence$groups),
+      group_map = .contextualized_validate_group_map(group_map),
+      raw_input_used = raw_input_used,
+      upstream_calls = upstream_calls,
+      integration_llm_calls = llm_calls,
+      textual_generation_status = normalized_textual$generation_status,
+      context = context,
+      request = request
+    )
+  )
+  class(result) <- c("nail_textual_contextualized", "list")
+
+  attr(result, "contextualized_evidence") <- result$contextualized_evidence
+  attr(result, "contextualized_analysis") <- result$contextualized_analysis
+  attr(result, "statistical_profiles") <- result$statistical_profiles
+  attr(result, "textual_evidence") <- result$textual_evidence
+  attr(result, "textual_profiles") <- result$textual_profiles
+  attr(result, "group_profile_summary") <- .extract_group_profile_parsed(
+    normalized_statistical
+  )
+  attr(result, "textual_group_summary") <- .extract_textual_parsed(
+    normalized_textual$preparation
+  )
+  attr(result, "legacy_output") <- result$legacy_output
+  result
+}
+<environment: namespace:NaileR>

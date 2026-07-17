@@ -1,0 +1,57 @@
+PATH: catdes-analysis-real-llm$response
+FIELD: response
+TYPEOF: character
+CLASS: character
+
+### Interprétation des groupes
+
+#### **Ancrés locaux**
+Ce groupe se caractérise par une forte ancrage territorial et des pratiques alimentaires structurées autour de la proximité, de la connaissance des produits et d'une relative insensitivity aux contraintes de prix.
+
+- **Pratiques culinaires régulières** : Cuisine quotidienne (86,67 % vs 40 % global), ce qui suggère une maîtrise technique et un attachement à la préparation maison.
+- **Préférence pour le local et l'artisanal** : Achats fréquents au marché ou en petits commerces (60 %), forte préférence locale (66,67 %). Cela reflète une logique de circuit court et une valorisation des producteurs locaux.
+- **Connaissances alimentaires élevées** : Score moyen de 8,11 vs 6,06 global, indiquant un intérêt marqué pour la qualité et l'origine des produits.
+- **Engagement territorial fort** : Score de 8,04 vs 5,64 global, montrant une implication dans les dynamiques locales (associations, événements, etc.).
+- **Moindre sensibilité au prix** : Contrainte tarifaire faible (4,30 vs 5,74), ce qui peut s'expliquer par un budget dédié ou des priorités autres que l'économie.
+
+**Tensions/limites** :
+- Risque de repli sur soi (peu d'ouverture aux innovations selon les données manquantes).
+- Dépendance aux structures locales (vulnérabilité en cas de disparition des petits commerces).
+
+---
+
+#### **Pragmatiques contraints**
+Ce groupe est marqué par des choix alimentaires guidés par la nécessité économique et un manque d'ancrage territorial ou de connaissances.
+
+- **Recours massif aux hard-discounts** : 60 % achètent dans ces enseignes (vs 20 % global), signe d'une recherche de prix bas.
+- **Faible fréquence de cuisine quotidienne** : Seulement 13,33 % cuisinent tous les jours (vs 40 %), ce qui peut indiquer un manque de temps ou de compétences.
+- **Achats bio rares** : 66,67 % achètent rarement des produits bio (vs 28,89 %), reflétant un budget serré ou une méconnaissance des enjeux.
+- **Connaissances alimentaires limitées** : Score de 3,93 vs 6,06 global, ce qui peut limiter les choix éclairés.
+- **Engagement territorial faible** : Score de 3,67 vs 5,64, montrant un désintérêt pour les dynamiques locales.
+
+**Tensions/limites** :
+- Difficulté à accéder à des produits frais ou locaux (sous-représentation des marchés).
+- Risque de malnutrition ou de déséquilibre alimentaire (cuisine rare + hard-discount).
+
+---
+
+#### **Curieux flexibles**
+Ce groupe allie ouverture aux innovations et pratiques hybrides, avec une approche moins rigide que les "Ancrés locaux".
+
+- **Achats en ligne/mixte** : 33,33 % utilisent ce canal (vs 11,11 %), signe d'adaptabilité.
+- **Achat bio occasionnel** : 80 % achètent parfois des produits bio (vs 44,44 global), montrant une sensibilité aux enjeux sans rigidité dogmatique.
+- **Ouverture à l'innovation** : Score de 7,80 vs 5,62, indiquant une curiosité pour les nouvelles tendances (applications, services).
+- **Évitement des hard-discounts** : Absence totale d'achats dans ces enseignes, préférant probablement la qualité.
+
+**Tensions/limites** :
+- Risque de fragmentation des pratiques (manque de cohérence entre bio et achats en ligne).
+- Dépendance aux plateformes numériques (frais supplémentaires, algorithmes influençant les choix).
+
+---
+
+### Synthèse pour l'analyste
+1. **Ancrés locaux** : Cible idéale pour des actions valorisant le patrimoine culinaire local (ateliers de cuisine, partenariats avec producteurs).
+2. **Pragmatiques contraints** : Nécessite des solutions économiques (subventions, épiceries solidaires) et éducatives (formations culinaires basiques).
+3. **Curieux flexibles** : Potentiel pour des innovations numériques (applications de traçabilité, livraisons locales).
+
+Chaque groupe a des besoins spécifiques liés à son rapport au territoire, aux connaissances et aux contraintes économiques. Les actions d'éducation alimentaire doivent s'adapter à ces logiques sans imposer de modèles uniques.

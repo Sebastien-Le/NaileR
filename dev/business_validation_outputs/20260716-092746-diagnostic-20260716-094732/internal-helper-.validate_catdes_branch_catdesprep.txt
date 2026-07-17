@@ -1,0 +1,35 @@
+INTERNAL HELPER: .validate_catdes_branch_catdesprep
+
+FORMALS:
+as.pairlist(alist(branch = , branch_name = ))
+
+BODY:
+function(branch, branch_name) {
+  if (is.null(branch)) {
+    return(invisible(TRUE))
+  }
+  if (!is.list(branch) || is.data.frame(branch)) {
+    stop(
+      sprintf("`catdes_result$%s` must be a named list of group tables.", branch_name),
+      call. = FALSE
+    )
+  }
+  if (length(branch) == 0L) {
+    return(invisible(TRUE))
+  }
+  branch_names <- names(branch)
+  if (is.null(branch_names) || anyNA(branch_names) || any(!nzchar(branch_names))) {
+    stop(
+      sprintf("Every element of `catdes_result$%s` must have a non-empty group name.", branch_name),
+      call. = FALSE
+    )
+  }
+  if (anyDuplicated(branch_names)) {
+    stop(
+      sprintf("`catdes_result$%s` contains duplicated group names.", branch_name),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

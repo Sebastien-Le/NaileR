@@ -1,0 +1,2 @@
+"provider","model","elapsed_seconds","n_groups","n_group_success","cross_group_status","overall_status","n_group_calls","n_cross_group_calls"
+"gemini","gemini-3.5-flash",122.814945936203,3,0,"not_attempted","error",3,0

@@ -1,0 +1,11 @@
+PATH: contextualized-offline$contextualized_evidence$metadata
+FIELD: metadata
+TYPEOF: list
+CLASS: list
+
+List of 5
+ $ schema            : chr "NaileR::contextualized_evidence"
+ $ version           : chr "1.0.0"
+ $ groups            : chr [1:3] "Ancrés locaux" "Curieux flexibles" "Pragmatiques contraints"
+ $ statistical_schema: chr "NaileR::statistical_profiles"
+ $ textual_schema    : NULL

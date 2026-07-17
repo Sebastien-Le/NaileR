@@ -1,0 +1,6 @@
+PATH: contextualized-offline$textual_preparation$textual_evidence$settings$max_prompt_characters_per_group
+FIELD: max_prompt_characters_per_group
+TYPEOF: double
+CLASS: numeric
+
+Inf

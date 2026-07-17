@@ -1,0 +1,10 @@
+INTERNAL HELPER: .match_llm_provider
+
+FORMALS:
+pairlist(provider = c("ollama", "gemini"))
+
+BODY:
+function(provider = c("ollama", "gemini")) {
+  match.arg(provider)
+}
+<environment: namespace:NaileR>

@@ -1,0 +1,16 @@
+"category","check","passed"
+"structure_mecanique","Trois groupes statistiques disponibles",TRUE
+"structure_mecanique","Registre statistique non vide",TRUE
+"structure_mecanique","Identifiants statistiques uniques",TRUE
+"structure_mecanique","Registre textuel non vide",TRUE
+"structure_mecanique","Conservation exacte de textual_evidence dans nail_textual",TRUE
+"structure_mecanique","Appariement des groupes disponible",TRUE
+"structure_mecanique","Registre combiné non vide",TRUE
+"structure_mecanique","Absence de la colonne comment dans les preuves statistiques",TRUE
+"compatibilite_llm","Réponse textuelle parsée et validée",FALSE
+"compatibilite_llm","textual_profiles disponible",FALSE
+"compatibilite_llm","Rapport textuel sémantique non vide",FALSE
+"compatibilite_llm","Analyse contextualisée réellement tentée",FALSE
+"compatibilite_llm","Réponse contextualisée parsée et validée",FALSE
+"compatibilite_llm","contextualized_analysis disponible",FALSE
+"compatibilite_llm","Rapport contextualisé sémantique non vide",FALSE

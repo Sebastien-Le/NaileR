@@ -1,0 +1,65 @@
+INTERNAL HELPER: .qda_spaceprep_validate_claim_list
+
+FORMALS:
+as.pairlist(alist(x = , field = , valid_evidence_ids = , context_present = , required_status = NULL))
+
+BODY:
+function(x,
+                                               field,
+                                               valid_evidence_ids,
+                                               context_present,
+                                               required_status = NULL) {
+  if (is.null(x) || length(x) == 0L) {
+    return(list())
+  }
+
+  if (!is.list(x) || is.data.frame(x)) {
+    stop(sprintf("`%s` must be a JSON array of claim objects.", field), call. = FALSE)
+  }
+
+  out <- lapply(seq_along(x), function(i) {
+    claim_field <- sprintf("%s[[%d]]", field, i)
+    raw_claim <- x[[i]]
+
+    # Enforce field-specific epistemic status before the generic claim
+    # validation. This yields the most informative error when a formulation
+    # direction or consumer hypothesis uses the wrong status, even if another
+    # required field is also missing.
+    if (!is.null(required_status) &&
+        is.list(raw_claim) &&
+        !is.data.frame(raw_claim) &&
+        "status" %in% names(raw_claim) &&
+        .qda_spaceprep_is_nonempty_character_scalar(raw_claim$status) &&
+        !identical(as.character(raw_claim$status), required_status)) {
+      stop(
+        sprintf(
+          "`%s` must use status `%s`.",
+          claim_field, required_status
+        ),
+        call. = FALSE
+      )
+    }
+
+    claim <- .qda_spaceprep_validate_claim(
+      raw_claim,
+      field = claim_field,
+      valid_evidence_ids = valid_evidence_ids,
+      context_present = context_present
+    )
+
+    if (!is.null(required_status) && !identical(claim$status, required_status)) {
+      stop(
+        sprintf(
+          "`%s` must use status `%s`.",
+          claim_field, required_status
+        ),
+        call. = FALSE
+      )
+    }
+
+    claim
+  })
+
+  unname(out)
+}
+<environment: namespace:NaileR>

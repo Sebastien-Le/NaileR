@@ -1,0 +1,6 @@
+PATH: contextualized-offline$contextualized_analysis
+FIELD: contextualized_analysis
+TYPEOF: NULL
+CLASS: NULL
+
+ NULL

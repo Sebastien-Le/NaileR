@@ -1,0 +1,44 @@
+INTERNAL HELPER: .contextualized_validate_statistical_profiles
+
+FORMALS:
+as.pairlist(alist(x = ))
+
+BODY:
+function(x) {
+  if (!is.list(x) || !is.list(x$groups) || !is.data.frame(x$evidence_registry)) {
+    stop(
+      paste(
+        "The statistical source must contain `groups` and a data-frame",
+        "`evidence_registry`, as returned by `nail_catdes_prep()`."
+      ),
+      call. = FALSE
+    )
+  }
+  if (is.null(names(x$groups)) || any(!nzchar(names(x$groups))) || anyDuplicated(names(x$groups))) {
+    stop("Statistical groups must have unique, non-empty names.", call. = FALSE)
+  }
+  required <- c(
+    "evidence_id", "group", "marker_type", "variable", "modality",
+    "direction", "v_test", "p_value", "rank", "source"
+  )
+  missing_fields <- setdiff(required, names(x$evidence_registry))
+  if (length(missing_fields) > 0L) {
+    stop(
+      sprintf(
+        "The statistical evidence registry is missing: %s.",
+        paste(missing_fields, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  if (anyDuplicated(x$evidence_registry$evidence_id)) {
+    stop("The statistical evidence registry contains duplicated evidence IDs.", call. = FALSE)
+  }
+  unknown_groups <- setdiff(unique(x$evidence_registry$group), names(x$groups))
+  unknown_groups <- unknown_groups[!is.na(unknown_groups) & nzchar(unknown_groups)]
+  if (length(unknown_groups) > 0L) {
+    stop("The statistical evidence registry refers to unknown groups.", call. = FALSE)
+  }
+  x
+}
+<environment: namespace:NaileR>

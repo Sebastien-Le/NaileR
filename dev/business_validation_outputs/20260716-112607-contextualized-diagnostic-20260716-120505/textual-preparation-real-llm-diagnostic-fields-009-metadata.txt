@@ -1,0 +1,10 @@
+PATH: textual-preparation-real-llm$textual_profiles$metadata
+FIELD: metadata
+TYPEOF: list
+CLASS: list
+
+List of 4
+ $ analysis_scope : chr "general"
+ $ comparison_mode: chr "joint"
+ $ groups         : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+ $ parse_status   : chr "success"

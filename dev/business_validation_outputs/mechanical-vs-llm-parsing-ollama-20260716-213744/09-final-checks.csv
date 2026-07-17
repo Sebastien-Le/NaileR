@@ -1,0 +1,12 @@
+"check","passed"
+"Mechanical statistical evidence exists",TRUE
+"Mechanical textual evidence exists",TRUE
+"Mechanical textual branch has no semantic profiles",TRUE
+"Mechanical contextualized branch has no final analysis",TRUE
+"Mechanical contextualized prompts are available",TRUE
+"LLM textual call completed",TRUE
+"LLM contextualized call completed",TRUE
+"Textual evidence remained unchanged",TRUE
+"Combined evidence remained unchanged",TRUE
+"Parsed contextualized claims exist",TRUE
+"Claim evidence IDs resolve in the combined registry",TRUE

@@ -1,0 +1,9 @@
+PATH: textual-analysis$preparation$legacy_groups$Pragmatiques contraints$response
+FIELD: response
+TYPEOF: list
+CLASS: data.frame
+
+'data.frame':	1 obs. of  3 variables:
+ $ model     : chr "mistral-small3.2"
+ $ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+ $ created_at: chr "2026-07-16 09:39:47 UTC"

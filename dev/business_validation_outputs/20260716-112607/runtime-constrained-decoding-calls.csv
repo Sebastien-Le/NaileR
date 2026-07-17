@@ -1,0 +1,2 @@
+"call_number","provider","model","http_status","elapsed_seconds","prompt_characters","response_characters","json_valid","markdown_fence_absent"
+1,"ollama","mistral-small3.2",200,682.510245084763,45446,21901,TRUE,TRUE

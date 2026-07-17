@@ -1,0 +1,6 @@
+PATH: contextualized-offline$textual_preparation$parsed$parse_status
+FIELD: parse_status
+TYPEOF: character
+CLASS: character
+
+error

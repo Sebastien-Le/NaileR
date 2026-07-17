@@ -1,0 +1,20 @@
+PATH: integrated-analysis-real-llm$contextualized_evidence$groups$Curieux flexibles$textual_prompt_evidence_ids
+FIELD: textual_prompt_evidence_ids
+TYPEOF: character
+CLASS: character
+
+Curieux flexibles::verbatim::31
+Curieux flexibles::verbatim::32
+Curieux flexibles::verbatim::33
+Curieux flexibles::verbatim::34
+Curieux flexibles::verbatim::35
+Curieux flexibles::verbatim::36
+Curieux flexibles::verbatim::37
+Curieux flexibles::verbatim::38
+Curieux flexibles::verbatim::39
+Curieux flexibles::verbatim::40
+Curieux flexibles::verbatim::41
+Curieux flexibles::verbatim::42
+Curieux flexibles::verbatim::43
+Curieux flexibles::verbatim::44
+Curieux flexibles::verbatim::45

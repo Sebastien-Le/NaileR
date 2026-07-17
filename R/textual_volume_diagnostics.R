@@ -74,16 +74,19 @@ diagnose_textual_prompt_volume <- function(dataset, num.var, num.text,
                                            prompt_style = "detailed",
                                            text_role = "responses",
                                            isolate.groups = TRUE) {
-  prompts <- nail_textual(
+  result <- nail_textual(
     dataset = dataset,
     num.var = num.var,
     num.text = num.text,
     sample.pct = sample.pct,
     prompt_style = prompt_style,
     text_role = text_role,
-    isolate.groups = isolate.groups,
-    generate = FALSE
+    comparison_mode = if (isolate.groups) "isolated" else "joint",
+    generate = FALSE,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE
   )
+  prompts <- result$preparation$prompt
 
   if (!isolate.groups) {
     return(data.frame(
@@ -138,30 +141,40 @@ diagnose_textual_prep_volume <- function(dataset, num.var, num.text,
     ...
   )
 
-  out <- lapply(names(res), function(g) {
-    x <- res[[g]]
+  groups <- names(res$textual_evidence$groups)
+  out <- lapply(groups, function(g) {
+    legacy <- res$legacy_groups[[g]]
+    selected <- legacy$selected_verbatims
+    central_selected <- if (!is.null(selected$central)) selected$central else character(0)
+    tension_selected <- if (!is.null(selected$tension)) selected$tension else character(0)
 
-    central_selected <- if (!is.null(x$selected_verbatims$central)) x$selected_verbatims$central else character(0)
-    tension_selected <- if (!is.null(x$selected_verbatims$tension)) x$selected_verbatims$tension else character(0)
+    unit_name <- if (identical(res$metadata$comparison_mode, "joint")) "joint" else g
+    unit <- res$units[[unit_name]]
+    response_text <- if (!is.null(unit)) {
+      .textual_prep_response_text(unit$response)
+    } else {
+      ""
+    }
 
     data.frame(
       group = g,
-      prompt_chars = .safe_nchar(x$prompt),
-      prompt_words = .safe_words(x$prompt),
-      response_chars = .safe_nchar(x$response),
-      response_words = .safe_words(x$response),
-      parsed_main_themes_n = if (!is.null(x$parsed$main_themes)) length(x$parsed$main_themes) else 0L,
-      parsed_dominant_concerns_n = if (!is.null(x$parsed$dominant_concerns)) length(x$parsed$dominant_concerns) else 0L,
-      parsed_central_cues_n = if (!is.null(x$parsed$central_verbatim_cues)) length(x$parsed$central_verbatim_cues) else 0L,
-      parsed_tension_cues_n = if (!is.null(x$parsed$tension_verbatim_cues)) length(x$parsed$tension_verbatim_cues) else 0L,
+      prompt_chars = .safe_nchar(if (!is.null(unit)) unit$prompt else NULL),
+      prompt_words = .safe_words(if (!is.null(unit)) unit$prompt else NULL),
+      response_chars = .safe_nchar(response_text),
+      response_words = .safe_words(response_text),
+      parsed_main_themes_n = length(legacy$parsed$main_themes),
+      parsed_dominant_concerns_n = length(legacy$parsed$dominant_concerns),
+      parsed_central_cues_n = length(legacy$parsed$central_verbatim_cues),
+      parsed_tension_cues_n = length(legacy$parsed$tension_verbatim_cues),
       selected_central_n = length(central_selected),
       selected_tension_n = length(tension_selected),
       selected_verbatims_chars = .safe_nchar(c(central_selected, tension_selected)),
-      injectable_summary_chars = .safe_nchar(x$parsed$injectable_summary),
+      injectable_summary_chars = .safe_nchar(legacy$parsed$injectable_summary),
       stringsAsFactors = FALSE
     )
   })
 
+  if (length(out) == 0L) return(data.frame())
   do.call(rbind, out)
 }
 

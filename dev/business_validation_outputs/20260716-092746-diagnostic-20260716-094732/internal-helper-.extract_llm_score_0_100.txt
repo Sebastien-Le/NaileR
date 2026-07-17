@@ -1,0 +1,19 @@
+INTERNAL HELPER: .extract_llm_score_0_100
+
+FORMALS:
+as.pairlist(alist(text = ))
+
+BODY:
+function(text) {
+  text <- paste(text, collapse = "\n")
+  matches <- regmatches(text, gregexpr("\\b(?:100|[0-9]{1,2})(?:\\.[0-9]+)?\\b", text, perl = TRUE))[[1]]
+  if (length(matches) == 0) return(NA_real_)
+
+  score <- suppressWarnings(as.numeric(utils::tail(matches, 1)))
+  if (length(score) != 1 || is.na(score) || score < 0 || score > 100) {
+    return(NA_real_)
+  }
+
+  score
+}
+<environment: namespace:NaileR>

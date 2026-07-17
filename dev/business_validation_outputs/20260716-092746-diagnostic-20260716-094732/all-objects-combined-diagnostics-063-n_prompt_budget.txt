@@ -1,0 +1,6 @@
+PATH: textual-analysis$group_reports$Ancrés locaux$diagnostics$n_prompt_budget
+FIELD: n_prompt_budget
+TYPEOF: integer
+CLASS: integer
+
+0

@@ -2,11 +2,11 @@
 % Please edit documentation in R/nail_catdes.R
 \name{nail_catdes}
 \alias{nail_catdes}
-\title{Interpret a categorical variable or statistically constructed groups}
+\title{Interpret statistical profiles produced from \code{catdes()}}
 \usage{
 nail_catdes(
-  dataset,
-  num.var,
+  dataset = NULL,
+  num.var = NULL,
   introduction = NULL,
   request = NULL,
   model = "llama3",
@@ -20,392 +20,135 @@ nail_catdes(
   interpretation_mode = c("standard", "latent"),
   prompt_style = c("detailed", "compact"),
   generate = FALSE,
+  x = NULL,
   ...
 )
 }
 \arguments{
-\item{dataset}{A data frame containing the categorical variable to be
-characterized and at least one additional qualitative or quantitative
-variable.}
+\item{dataset}{Historical raw-data input. A data frame containing the
+grouping variable and at least one descriptor. Positional calls such as
+\code{nail_catdes(dataset, num.var)} remain supported.}
 
-\item{num.var}{A single integer giving the column index of the categorical
-variable to be characterized.}
+\item{num.var}{Column index of the grouping variable when \code{dataset} is used.}
 
-\item{introduction}{An optional character string providing the context of
-the study in the LLM prompt. If \code{NULL}, a default introduction is created.}
+\item{introduction}{Optional study context included in the historical
+prompt. A default is generated when \code{NULL}.}
 
-\item{request}{An optional character string describing the interpretation
-requested from the LLM. If \code{NULL}, a default request is created according
-to \code{interpretation_mode}, \code{prompt_style}, and \code{isolate.groups}.}
+\item{request}{Optional interpretation request. A default is generated from
+\code{interpretation_mode}, \code{prompt_style}, and \code{isolate.groups} when \code{NULL}.}
 
-\item{model}{Character string giving the model used by the selected
-provider. The default is \code{"llama3"}, intended for the default Ollama
-backend.}
+\item{model}{Model name used by the selected provider.}
 
-\item{provider}{LLM backend used when \code{generate = TRUE}. One of
-\code{"ollama"} or \code{"gemini"}. The default is \code{"ollama"}. Gemini requires a
-valid API key, typically supplied through the \code{GEMINI_API_KEY}
-environment variable.}
+\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
 
-\item{isolate.groups}{Logical. If \code{FALSE}, a single prompt is created for
-all categories or groups. If \code{TRUE}, one prompt is created for each
-category or group separately.}
+\item{isolate.groups}{Logical. If \code{FALSE}, build one joint prompt. If
+\code{TRUE}, build one prompt per group.}
 
-\item{quali.sample}{A numeric value between 0 and 1 giving the proportion
-of retained qualitative descriptors included in the prompt.}
+\item{quali.sample, quanti.sample}{Numbers in \verb{[0, 1]} controlling only the
+deterministic proportion of ranked qualitative or quantitative markers
+shown in the prompt. Zero selects none; one selects every eligible marker;
+intermediate values retain \code{ceiling(n * proportion)} top-ranked markers.}
 
-\item{quanti.sample}{A numeric value between 0 and 1 giving the proportion
-of retained quantitative descriptors included in the prompt.}
+\item{drop.negative}{Logical. If \code{TRUE}, underrepresented qualitative
+markers and lower quantitative markers are excluded only from the prompt
+selection. They remain unchanged in \code{statistical_profiles}.}
 
-\item{drop.negative}{Logical. If \code{TRUE}, descriptors with a negative
-v-test are excluded from the prompt.}
+\item{proba}{Significance threshold used only when raw data must be prepared.
+A precomputed \code{x} is not re-filtered.}
 
-\item{proba}{A numeric value between 0 and 1 giving the significance
-threshold used by \code{FactoMineR::catdes()}. The default is \code{0.05}.}
+\item{row.w}{Optional row weights used only with the raw \code{dataset} path.}
 
-\item{row.w}{An optional numeric vector of row weights, with one value per
-observation. If \code{NULL}, uniform weights are used.}
+\item{interpretation_mode}{Either \code{"standard"} for explicit categories or
+\code{"latent"} for statistically constructed groups.}
 
-\item{interpretation_mode}{Character string specifying how the target
-categories should be interpreted. One of \code{"standard"} or \code{"latent"}.}
+\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
 
-\item{prompt_style}{Character string controlling the level of detail in the
-generated prompt. One of \code{"detailed"} or \code{"compact"}.}
+\item{generate}{Logical. If \code{FALSE}, return the historical prompt form
+without contacting a backend. If \code{TRUE}, send each eligible prompt to the
+selected backend.}
 
-\item{generate}{Logical. If \code{FALSE}, no LLM is called and the function
-returns the prompt only. If \code{TRUE}, the prompt is sent to the selected
-provider.}
+\item{x}{Preferred advanced input. A direct \code{statistical_profiles} object,
+an object carrying a \code{statistical_profiles} attribute, a raw
+\code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} result, or a historical \code{nail_catdes()} result
+carrying a \code{catdes_result} attribute. Do not supply \code{x} with \code{dataset}.}
 
-\item{...}{Additional provider-specific generation arguments passed to the
-selected LLM backend, such as \code{temperature}, \code{seed}, or other supported
-options.}
+\item{...}{Provider-specific generation arguments.}
 }
 \value{
-If \code{generate = FALSE}, a character prompt or, when
-\code{isolate.groups = TRUE}, a named list of character prompts.
-
-If \code{generate = TRUE}, the function returns the generated interpretation:
-a data frame when all categories or groups are processed together, or a
-named list of generated results when \code{isolate.groups = TRUE}.
-
-If no significant differences are found, the function returns an
-informative prompt or result indicating that no retained differences were
-available for interpretation.
-
-In all cases, the complete object returned by \code{FactoMineR::catdes()} is
-stored in the \code{"catdes_result"} attribute.
+The historical prompt or backend result form, augmented with the
+mechanical attributes described above.
 }
 \description{
-Characterizes the categories of a qualitative variable using
-\code{FactoMineR::catdes()}, formats the retained qualitative and quantitative
-results as an evidence-based prompt, and optionally sends this prompt to
-a large language model.
+\code{nail_catdes()} is the autonomous interpretation layer for a categorical
+typology. Its internal statistical source of truth is always the
+\code{statistical_profiles} artifact produced by \code{\link[=nail_catdes_prep]{nail_catdes_prep()}}. The
+function preserves its historical prompt and backend return forms while
+removing the former parallel extraction and random sampling workflow.
 }
 \details{
-The function can be used in two interpretation modes:
-\itemize{
-\item \code{interpretation_mode = "standard"} treats the target variable as an
-explicit observed categorical variable whose category labels already
-have a substantive meaning. The categories are interpreted without being
-renamed.
-\item \code{interpretation_mode = "latent"} treats the target variable as a set of
-statistically constructed groups or classes, for example groups obtained
-from \code{FactoMineR::HCPC()}. In this mode, group labels are treated only as
-identifiers, and their substantive meaning must be inferred from the
-descriptive results.
+\subsection{Single statistical source}{
+
+With raw data, \code{nail_catdes_prep()} is called exactly once and performs the
+only \code{catdes()} computation. With a prepared \code{statistical_profiles} object,
+neither \code{nail_catdes_prep()} nor \code{FactoMineR::catdes()} is called.
+
+All groups, marker tables, directions, v-tests, p-values, ranks, metrics,
+and evidence identifiers are read from \code{statistical_profiles}. The original
+\code{catdes_result} is retained only for compatibility and inspection.
+
+For route invariance, the raw-data path stores its source-specific
+preparation provenance in \code{catdes_settings$preparation_input} and exposes a
+canonical \code{statistical_profiles} object equivalent to preparing the same
+precomputed \code{catdes_result} through \code{x}.
 }
 
-The statistical characterization is computed with
-\code{FactoMineR::catdes()}. Depending on the variables available in \code{dataset},
-the prompt may include:
-\itemize{
-\item qualitative modalities that are overrepresented or underrepresented
-within each category or group;
-\item quantitative variables whose means are higher or lower within each
-category or group than in the full dataset;
-\item the associated p-values and v-test values.
+\subsection{Prompt selection}{
+
+A separate \code{interpretation_evidence} artifact is derived deterministically
+from the complete profiles. Selection follows the precomputed marker rank,
+then \code{evidence_id} for deterministic tie breaking. No call to \code{sample()} and
+no random tie handling is used. Each displayed marker retains its original
+evidence ID.
+
+Groups with no available or selected marker remain represented in
+\code{interpretation_evidence}. No LLM call is made for an empty isolated group.
 }
 
-For qualitative descriptors, a positive v-test indicates that a modality
-is overrepresented within the category or group, whereas a negative v-test
-indicates that it is underrepresented.
+\subsection{Transitional return contract}{
 
-For quantitative descriptors, a positive v-test indicates a mean above the
-overall mean, whereas a negative v-test indicates a mean below the overall
-mean.
+The historical main return forms are intentionally preserved for this
+transition step: a character prompt or named list of prompts when
+\code{generate = FALSE}, and backend data frames or a named list of backend
+results when \code{generate = TRUE}. A new main output class is deferred to the
+next refactoring stage.
 
-Setting \code{drop.negative = TRUE} removes all descriptors with negative
-v-tests from the prompt.
-
-The \code{quali.sample} and \code{quanti.sample} arguments can be used to reduce the
-number of descriptors included in long prompts. They affect the prompt
-content but not the complete result returned by \code{FactoMineR::catdes()}.
-
-By default, \code{generate = FALSE}, so no language model is called. When
-\code{generate = TRUE}, the default backend is Ollama and the default model is
-\code{"llama3"}. These defaults can be changed with \code{provider} and \code{model}.
+Every successful return carries the attributes \code{statistical_profiles},
+\code{interpretation_evidence}, \code{catdes_result} when available, and
+\code{catdes_settings}.
+}
 }
 \examples{
-\dontrun{
-# These examples use a large language model and may therefore
-# take more than ten seconds to run.
-
-# All generated responses below explicitly use:
-# - the local Ollama backend;
-# - the llama3 model.
-
-# Ollama must be running locally and the llama3 model must be installed.
-# To use Gemini instead, set:
-# provider = "gemini"
-# model = "<a supported Gemini model>"
-# and define the GEMINI_API_KEY environment variable.
-
-# The interpretation_mode argument controls how the target
-# categories are presented to the language model:
-#
-# - interpretation_mode = "standard" is intended for an explicit,
-#   observed categorical variable whose categories already have
-#   a substantive meaning, such as flower species.
-#
-# - interpretation_mode = "latent" is intended for groups or classes
-#   constructed by a statistical method, such as HCPC. In that case,
-#   the group labels are treated only as identifiers and their meaning
-#   must be inferred from the descriptive results.
-
-
-### Example 1: Fisher's iris ###
-
-library(NaileR)
 data(iris)
 
-# Describe the study context for the language model.
-intro_iris <- "A study measured various parts of iris flowers
-from 3 different species: setosa, versicolor and virginica.
-I will give you the results from this study.
-You will have to identify what sets these flowers apart."
-
-intro_iris <- gsub("\n", " ", intro_iris) |>
-  stringr::str_squish()
-
-# Specify the interpretation expected from the language model.
-req_iris <- "Please explain what makes each species distinct.
-Also, tell me which species has the biggest flowers,
-and which species has the smallest."
-
-req_iris <- gsub("\n", " ", req_iris) |>
-  stringr::str_squish()
-
-# Characterize the fifth variable, Species.
-#
-# Species is an explicit observed variable whose categories
-# already have a substantive meaning. Therefore,
-# interpretation_mode = "standard" is used.
-#
-# In standard mode, the categories are interpreted as they are:
-# they are not treated as latent profiles and are not renamed.
-#
-# Because generate = TRUE, the prompt produced from
-# FactoMineR::catdes() is sent to Ollama.
-# The response is generated locally with the llama3 model.
-res_iris <- nail_catdes(
+# Historical raw-data interface.
+prompt <- nail_catdes(
   dataset = iris,
   num.var = 5,
-  introduction = intro_iris,
-  request = req_iris,
-  interpretation_mode = "standard",
+  generate = FALSE
+)
+attr(prompt, "statistical_profiles")
+
+# Recommended advanced interface.
+catdes_result <- FactoMineR::catdes(iris, num.var = 5, proba = 0.05)
+profiles <- nail_catdes_prep(catdes_result)
+prompt_from_profiles <- nail_catdes(x = profiles, generate = FALSE)
+identical(attr(prompt_from_profiles, "statistical_profiles"), profiles)
+\dontrun{
+generated <- nail_catdes(
+  x = profiles,
   provider = "ollama",
   model = "llama3",
   generate = TRUE
 )
-
-# Display the generated interpretation.
-cat(res_iris$response)
-
-
-### Example 2: food waste dataset ###
-
-library(FactoMineR)
-data(waste)
-
-# Remove a question with no variability.
-waste <- waste[-14]
-
-# Build a multiple correspondence analysis.
-set.seed(1)
-
-res_mca_waste <- MCA(
-  waste,
-  quali.sup = c(1, 2, 50:76),
-  ncp = 35,
-  level.ventil = 0.05,
-  graph = FALSE
-)
-
-plot.MCA(
-  res_mca_waste,
-  choix = "ind",
-  invisible = c("var", "quali.sup"),
-  label = "none"
-)
-
-# Construct three groups of participants with HCPC.
-res_hcpc_waste <- HCPC(
-  res_mca_waste,
-  nb.clust = 3,
-  graph = FALSE
-)
-
-plot.HCPC(
-  res_hcpc_waste,
-  choice = "map",
-  draw.tree = FALSE,
-  ind.names = FALSE
-)
-
-# The final column contains the group membership produced by HCPC.
-don_clust_waste <- res_hcpc_waste$data.clust
-
-# Describe the context of the food-waste survey.
-intro_waste <- "These data were collected
-after a survey on food waste,
-with participants describing their habits."
-
-intro_waste <- gsub("\n", " ", intro_waste) |>
-  stringr::str_squish()
-
-# Ask the language model to interpret and rename the groups.
-req_waste <- "Please summarize the characteristics of each group.
-Then, give each group a new name, based on your conclusions.
-Finally, give each group a grade between 0 and 10,
-based on how wasteful they are with food:
-0 being \"not at all\", 10 being \"absolutely\"."
-
-req_waste <- gsub("\n", " ", req_waste) |>
-  stringr::str_squish()
-
-# Characterize the HCPC grouping variable.
-#
-# The groups were constructed by HCPC and are not categories
-# with an explicit substantive meaning. Therefore,
-# interpretation_mode = "latent" is used.
-#
-# In latent mode, the numerical group labels are treated only
-# as identifiers. Their meaning must be inferred from the
-# qualitative and quantitative characteristics returned by catdes().
-# The model may therefore propose meaningful names for the groups.
-#
-# Negative v.test values are excluded from the prompt.
-# The response is generated locally by Ollama with llama3.
-res_waste <- nail_catdes(
-  dataset = don_clust_waste,
-  num.var = ncol(don_clust_waste),
-  introduction = intro_waste,
-  request = req_waste,
-  interpretation_mode = "latent",
-  drop.negative = TRUE,
-  provider = "ollama",
-  model = "llama3",
-  generate = TRUE
-)
-
-# Display the generated interpretation of all groups.
-cat(res_waste$response)
-
-
-### Example 3: local_food dataset ###
-
-data(local_food)
-
-# Build a multiple correspondence analysis.
-set.seed(1)
-
-res_mca_food <- MCA(
-  local_food,
-  quali.sup = 46:63,
-  ncp = 100,
-  level.ventil = 0.05,
-  graph = FALSE
-)
-
-plot.MCA(
-  res_mca_food,
-  choix = "ind",
-  invisible = c("var", "quali.sup"),
-  label = "none"
-)
-
-# Construct three groups of participants with HCPC.
-res_hcpc_food <- HCPC(
-  res_mca_food,
-  nb.clust = 3,
-  graph = FALSE
-)
-
-plot.HCPC(
-  res_hcpc_food,
-  choice = "map",
-  draw.tree = FALSE,
-  ind.names = FALSE
-)
-
-# The final column contains the group membership produced by HCPC.
-don_clust_food <- res_hcpc_food$data.clust
-
-# Describe the context of the sustainable-food study.
-intro_food <- "A study on sustainable food systems
-was led on several French participants.
-This study had 2 parts. In the first part,
-participants had to rate how acceptable
-\"a food system that...\" was to them,
-for example a food system that only uses renewable energy.
-In the second part, they had to say
-whether they agreed or disagreed with several statements."
-
-intro_food <- gsub("\n", " ", intro_food) |>
-  stringr::str_squish()
-
-# The groups are interpreted separately because
-# isolate.groups = TRUE.
-req_food <- "I will give you the answers from one group.
-Please explain who the individuals of this group are
-and what their beliefs are.
-Then, give this group a new name
-and explain why you chose this name.
-Do not use the first person, such as \"I\" or \"my\",
-in your answer."
-
-req_food <- gsub("\n", " ", req_food) |>
-  stringr::str_squish()
-
-# Characterize the HCPC grouping variable.
-#
-# As in the previous example, these groups were constructed
-# by HCPC. Their labels do not have an explicit substantive
-# meaning, so interpretation_mode = "latent" is appropriate.
-#
-# In latent mode, the language model must infer the profile
-# represented by each group from the catdes() results and may
-# propose a meaningful name for it.
-#
-# Because isolate.groups = TRUE, one prompt is built and sent
-# to Ollama for each group separately.
-# Each response is generated locally with llama3.
-res_food <- nail_catdes(
-  dataset = don_clust_food,
-  num.var = ncol(don_clust_food),
-  introduction = intro_food,
-  request = req_food,
-  interpretation_mode = "latent",
-  isolate.groups = TRUE,
-  drop.negative = TRUE,
-  provider = "ollama",
-  model = "llama3",
-  generate = TRUE
-)
-
-# Display the response generated for each group.
-cat(res_food[[1]]$response)
-cat(res_food[[2]]$response)
-cat(res_food[[3]]$response)
 }
 }

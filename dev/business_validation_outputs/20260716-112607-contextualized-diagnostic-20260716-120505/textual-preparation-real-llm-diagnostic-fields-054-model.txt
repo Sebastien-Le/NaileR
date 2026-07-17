@@ -1,0 +1,6 @@
+PATH: textual-preparation-real-llm$legacy_groups$Pragmatiques contraints$response$model
+FIELD: model
+TYPEOF: character
+CLASS: character
+
+mistral-small3.2

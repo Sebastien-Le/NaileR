@@ -1,0 +1,6 @@
+PATH: contextualized-offline$textual_preparation$legacy_groups$Curieux flexibles$corpus_metrics$response_rate
+FIELD: response_rate
+TYPEOF: double
+CLASS: numeric
+
+1

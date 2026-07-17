@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$textual_preparation$legacy_groups$Pragmatiques contraints$corpus_metrics$response_rate
+FIELD: response_rate
+TYPEOF: double
+CLASS: numeric
+
+1

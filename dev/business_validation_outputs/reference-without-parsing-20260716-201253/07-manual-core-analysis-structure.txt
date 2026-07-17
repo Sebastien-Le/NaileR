@@ -1,0 +1,195 @@
+List of 3
+ $ groups     :List of 3
+  ..$ Ancrés locaux          :List of 10
+  .. ..$ group                    : chr "Ancrés locaux"
+  .. ..$ availability             : chr "available"
+  .. ..$ integration_eligible     : logi TRUE
+  .. ..$ parse_error              : NULL
+  .. ..$ integrated_profile       :List of 6
+  .. .. ..$ text                    : chr "Les Ancrés locaux associent un engagement territorial élevé à des pratiques et discours centrés sur la proximit"| __truncated__
+  .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. ..$ statistical_evidence_ids: chr [1:2] "Ancrés locaux::quanti::territorial_engagement" "Ancrés locaux::quali::cooking_frequency::Quotidienne"
+  .. .. ..$ textual_evidence_ids    : chr "Ancrés locaux::verbatim::2"
+  .. .. ..$ relationship            : chr "convergence"
+  .. .. ..$ validation_needed       : NULL
+  .. ..$ convergences             :List of 2
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "L'engagement territorial statistiquement élevé converge avec les références aux producteurs proches, à l'origin"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quanti::territorial_engagement"
+  .. .. .. ..$ textual_evidence_ids    : chr "Ancrés locaux::verbatim::2"
+  .. .. .. ..$ relationship            : chr "convergence"
+  .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "La surreprésentation de la cuisine quotidienne est cohérente avec le souhait de contrôler la qualité et d'adapt"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quali::cooking_frequency::Quotidienne"
+  .. .. .. ..$ textual_evidence_ids    : chr "Ancrés locaux::verbatim::2"
+  .. .. .. ..$ relationship            : chr "convergence"
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ tensions                 : list()
+  .. ..$ statistical_only_findings:List of 1
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "La contrainte de prix plus faible est un marqueur statistique distinctif, mais elle n'est pas le thème central "| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr "Ancrés locaux::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. .. ..$ relationship            : chr "statistical_only"
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ textual_only_findings    :List of 1
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "Le manque de temps en semaine nuance la cohérence apparente des pratiques locales sans disposer d'une mesure st"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. ..$ textual_evidence_ids    : chr "Ancrés locaux::verbatim::5"
+  .. .. .. ..$ relationship            : chr "textual_only"
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ interpretation_limits    :List of 1
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "Ces résultats ne permettent pas d'inférer une supériorité morale, une position sociale ou une motivation psychologique."
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. .. ..$ relationship            : chr "scope_limit"
+  .. .. .. ..$ validation_needed       : NULL
+  ..$ Pragmatiques contraints:List of 10
+  .. ..$ group                    : chr "Pragmatiques contraints"
+  .. ..$ availability             : chr "available"
+  .. ..$ integration_eligible     : logi TRUE
+  .. ..$ parse_error              : NULL
+  .. ..$ integrated_profile       :List of 6
+  .. .. ..$ text                    : chr "Les Pragmatiques contraints combinent une forte contrainte de prix et des pratiques orientées vers l'accessibil"| __truncated__
+  .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. ..$ statistical_evidence_ids: chr [1:2] "Pragmatiques contraints::quanti::price_constraint" "Pragmatiques contraints::quali::purchase_place::Hard-discount"
+  .. .. ..$ textual_evidence_ids    : chr "Pragmatiques contraints::verbatim::17"
+  .. .. ..$ relationship            : chr "convergence"
+  .. .. ..$ validation_needed       : NULL
+  .. ..$ convergences             :List of 2
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "La surreprésentation du hard-discount et la contrainte de prix élevée convergent avec les arbitrages budgétaire"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr [1:2] "Pragmatiques contraints::quali::purchase_place::Hard-discount" "Pragmatiques contraints::quanti::price_constraint"
+  .. .. .. ..$ textual_evidence_ids    : chr "Pragmatiques contraints::verbatim::17"
+  .. .. .. ..$ relationship            : chr "convergence"
+  .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "La connaissance alimentaire plus faible est cohérente avec le besoin exprimé d'informations simples pour arbitrer."
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr "Pragmatiques contraints::quanti::food_knowledge"
+  .. .. .. ..$ textual_evidence_ids    : chr "Pragmatiques contraints::verbatim::18"
+  .. .. .. ..$ relationship            : chr "convergence"
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ tensions                 : list()
+  .. ..$ statistical_only_findings: list()
+  .. ..$ textual_only_findings    :List of 1
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "La culpabilité associée au choix du moins cher constitue un résultat textuel spécifique non représenté par les "| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. ..$ textual_evidence_ids    : chr "Pragmatiques contraints::verbatim::23"
+  .. .. .. ..$ relationship            : chr "textual_only"
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ interpretation_limits    :List of 1
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "La contrainte observée ne doit pas être interprétée comme un manque d'intérêt pour l'alimentation ni comme une "| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. .. ..$ relationship            : chr "scope_limit"
+  .. .. .. ..$ validation_needed       : NULL
+  ..$ Curieux flexibles      :List of 10
+  .. ..$ group                    : chr "Curieux flexibles"
+  .. ..$ availability             : chr "available"
+  .. ..$ integration_eligible     : logi TRUE
+  .. ..$ parse_error              : NULL
+  .. ..$ integrated_profile       :List of 6
+  .. .. ..$ text                    : chr "Les Curieux flexibles associent une ouverture élevée à l'innovation à un discours de découverte, de diversité e"| __truncated__
+  .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. ..$ statistical_evidence_ids: chr [1:2] "Curieux flexibles::quanti::openness_to_innovation" "Curieux flexibles::quali::purchase_place::En ligne/mixte"
+  .. .. ..$ textual_evidence_ids    : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::31"
+  .. .. ..$ relationship            : chr "convergence"
+  .. .. ..$ validation_needed       : NULL
+  .. ..$ convergences             :List of 2
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "L'ouverture à l'innovation statistiquement élevée converge avec la volonté de découvrir de nouveaux produits et"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. .. ..$ textual_evidence_ids    : chr "Curieux flexibles::verbatim::32"
+  .. .. .. ..$ relationship            : chr "convergence"
+  .. .. .. ..$ validation_needed       : NULL
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "La surreprésentation des achats en ligne ou mixtes correspond aux verbatims décrivant l'alternance entre plusieurs circuits."
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quali::purchase_place::En ligne/mixte"
+  .. .. .. ..$ textual_evidence_ids    : chr "Curieux flexibles::verbatim::31"
+  .. .. .. ..$ relationship            : chr "convergence"
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ tensions                 : list()
+  .. ..$ statistical_only_findings:List of 1
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "L'achat biologique occasionnel est statistiquement distinctif, mais il ne constitue pas un thème explicite cent"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr "Curieux flexibles::quali::organic_purchase::Parfois"
+  .. .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. .. ..$ relationship            : chr "statistical_only"
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ textual_only_findings    :List of 1
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "La recherche d'un équilibre entre curiosité, prix et cohérence constitue une nuance textuelle sans indicateur s"| __truncated__
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. ..$ textual_evidence_ids    : chr "Curieux flexibles::verbatim::35"
+  .. .. .. ..$ relationship            : chr "textual_only"
+  .. .. .. ..$ validation_needed       : NULL
+  .. ..$ interpretation_limits    :List of 1
+  .. .. ..$ :List of 6
+  .. .. .. ..$ text                    : chr "L'ouverture et la flexibilité observées ne permettent pas d'inférer un profil démographique, social ou psychologique."
+  .. .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. .. ..$ relationship            : chr "scope_limit"
+  .. .. .. ..$ validation_needed       : NULL
+ $ cross_group:List of 4
+  ..$ shared_patterns        :List of 1
+  .. ..$ :List of 6
+  .. .. ..$ text                    : chr "Dans les trois groupes, les choix alimentaires sont structurés par des arbitrages concrets entre préférences et"| __truncated__
+  .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Pragmatiques contraints::quanti::price_constraint" "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::5" "Pragmatiques contraints::verbatim::17" "Curieux flexibles::verbatim::35"
+  .. .. ..$ relationship            : chr "convergence"
+  .. .. ..$ validation_needed       : NULL
+  ..$ major_group_contrasts  :List of 1
+  .. ..$ :List of 6
+  .. .. ..$ text                    : chr "Les groupes correspondent à trois logiques distinctes : proximité et provenance pour les Ancrés locaux, accessi"| __truncated__
+  .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Pragmatiques contraints::quanti::price_constraint" "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::2" "Pragmatiques contraints::verbatim::17" "Curieux flexibles::verbatim::32"
+  .. .. ..$ relationship            : chr "tension"
+  .. .. ..$ validation_needed       : NULL
+  ..$ different_relationships:List of 1
+  .. ..$ :List of 6
+  .. .. ..$ text                    : chr "L'intégration révèle une forte convergence entre statistiques et discours chez les Ancrés locaux, un arbitrage "| __truncated__
+  .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. ..$ statistical_evidence_ids: chr [1:3] "Ancrés locaux::quanti::territorial_engagement" "Pragmatiques contraints::quanti::price_constraint" "Curieux flexibles::quanti::openness_to_innovation"
+  .. .. ..$ textual_evidence_ids    : chr [1:3] "Ancrés locaux::verbatim::2" "Pragmatiques contraints::verbatim::23" "Curieux flexibles::verbatim::35"
+  .. .. ..$ relationship            : chr "tension"
+  .. .. ..$ validation_needed       : NULL
+  ..$ interpretation_limits  :List of 1
+  .. ..$ :List of 6
+  .. .. ..$ text                    : chr "La comparaison repose sur un jeu simulé de quinze observations par groupe. Elle est descriptive et ne démontre "| __truncated__
+  .. .. ..$ status                  : chr "expert_interpretation"
+  .. .. ..$ statistical_evidence_ids: chr(0) 
+  .. .. ..$ textual_evidence_ids    : chr(0) 
+  .. .. ..$ relationship            : chr "scope_limit"
+  .. .. ..$ validation_needed       : NULL
+ $ metadata   :List of 8
+  ..$ schema                    : chr "NaileR::contextualized_core_modular"
+  ..$ expertise                 : chr "integration"
+  ..$ split_by_group            : logi TRUE
+  ..$ cross_group               : logi TRUE
+  ..$ group_integration_eligible: Named logi [1:3] TRUE TRUE TRUE
+  .. ..- attr(*, "names")= chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  ..$ group_parse_status        : Named chr [1:3] "success" "success" "success"
+  .. ..- attr(*, "names")= chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  ..$ cross_group_parse_status  : chr "success"
+  ..$ semantic_source           : chr "manual_reference_without_llm_or_parser"

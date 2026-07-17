@@ -1,0 +1,48 @@
+INTERNAL HELPER: dist_mat_llm
+
+FORMALS:
+as.pairlist(alist(ppt = , n = , per_miss = 0, model = "llama3", max_attempts = 3, ... = ))
+
+BODY:
+function(ppt, n, per_miss = 0, model = "llama3", max_attempts = 3, ...) {
+  if (!is.character(ppt) || length(ppt) != 1 || is.na(ppt) || !nzchar(ppt)) {
+    stop("`ppt` must be a single non-empty character string.", call. = FALSE)
+  }
+  assert_positive_integerish(n, "n")
+  assert_numeric_scalar(per_miss, "per_miss", lower = 0, upper = 1, inclusive = TRUE)
+  assert_positive_integerish(max_attempts, "max_attempts")
+
+  ollama_api_options <- filter_ollama_options(list(...))
+  responses <- vector("list", n)
+
+  for (i in seq_len(n)) {
+    responses[[i]] <- .call_ollama_base(
+      model = model,
+      prompt = ppt,
+      output = "df",
+      ollama_api_options = ollama_api_options
+    )
+  }
+
+  sim_matrix <- matrix(NA_real_, n, n)
+  diag(sim_matrix) <- 100
+
+  for (i in seq_len(n)) {
+    if (i <= 1) next
+    for (j in seq_len(i - 1)) {
+      if (stats::runif(1) > per_miss) {
+        sim_matrix[i, j] <- sim_llm(
+          paste(responses[[i]]$response, collapse = "\n"),
+          paste(responses[[j]]$response, collapse = "\n"),
+          model = model,
+          max_attempts = max_attempts,
+          ...
+        )
+        sim_matrix[j, i] <- sim_matrix[i, j]
+      }
+    }
+  }
+
+  list(boot_llm = responses, dist_llm = 100 - sim_matrix)
+}
+<environment: namespace:NaileR>

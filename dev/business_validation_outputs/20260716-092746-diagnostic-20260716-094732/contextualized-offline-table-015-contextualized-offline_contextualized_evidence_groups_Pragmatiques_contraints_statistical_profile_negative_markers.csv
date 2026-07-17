@@ -1,0 +1,8 @@
+"evidence_id","group","marker_type","variable","modality","direction","v_test","p_value","abs_v_test","rank","source"
+"Pragmatiques contraints::quali::purchase_place::Marché/local","Pragmatiques contraints","qualitative","purchase_place","Marché/local","underrepresented",-3.32903776109805,0.000871465881392144,3.32903776109805,3,"FactoMineR::catdes()$category"
+"Pragmatiques contraints::quali::local_preference::Forte","Pragmatiques contraints","qualitative","local_preference","Forte","underrepresented",-2.68630395035718,0.00722473327476714,2.68630395035718,4,"FactoMineR::catdes()$category"
+"Pragmatiques contraints::quali::cooking_frequency::Quotidienne","Pragmatiques contraints","qualitative","cooking_frequency","Quotidienne","underrepresented",-2.53973972913798,0.0110934989395458,2.53973972913798,5,"FactoMineR::catdes()$category"
+"Pragmatiques contraints::quali::organic_purchase::Souvent","Pragmatiques contraints","qualitative","organic_purchase","Souvent","underrepresented",-2.11410744121078,0.0345060917825116,2.11410744121078,6,"FactoMineR::catdes()$category"
+"Pragmatiques contraints::quanti::food_knowledge","Pragmatiques contraints","quantitative","food_knowledge",NA,"lower",-5.20804147490238,1.90844273498544e-07,5.20804147490238,1,"FactoMineR::catdes()$quanti"
+"Pragmatiques contraints::quanti::territorial_engagement","Pragmatiques contraints","quantitative","territorial_engagement",NA,"lower",-4.40717722976082,1.04726494289634e-05,4.40717722976082,3,"FactoMineR::catdes()$quanti"
+"Pragmatiques contraints::quanti::openness_to_innovation","Pragmatiques contraints","quantitative","openness_to_innovation",NA,"lower",-3.7177772878256,0.000200983331622049,3.7177772878256,4,"FactoMineR::catdes()$quanti"

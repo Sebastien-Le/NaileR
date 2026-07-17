@@ -1,0 +1,2 @@
+"group","n_total","n_missing","n_empty","n_whitespace","n_non_empty","n_included_in_prompt","n_excluded_from_prompt","n_not_sampled","n_prompt_budget","total_characters","total_words","median_words","min_words","max_words","sampling_fraction","prompt_character_count"
+"Ancrés locaux",15,0,0,0,15,15,0,0,0,2753,441,29,27,35,1,3194

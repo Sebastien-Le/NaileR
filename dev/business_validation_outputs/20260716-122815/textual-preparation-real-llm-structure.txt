@@ -1,0 +1,2479 @@
+List of 8
+ $ prompt          : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+ $ response        :'data.frame':	1 obs. of  3 variables:
+  ..$ model     : chr "mistral-small3.2"
+  ..$ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+  ..$ created_at: chr "2026-07-16 10:41:03 UTC"
+ $ parsed          :List of 3
+  ..$ parse_status    : chr "success"
+  ..$ parse_error     : NULL
+  ..$ textual_profiles:List of 3
+  .. ..$ groups     :List of 3
+  .. .. ..$ Ancrés locaux          :List of 17
+  .. .. .. ..$ group                   : chr "Ancrés locaux"
+  .. .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. .. ..$ text             : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ main_themes             :List of 2
+  .. .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. .. ..$ text             : chr "Tonalité positive et engagée, avec une volonté de soutenir l'économie locale."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::7"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ narrative_frames        :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ motivations             :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ barriers                :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ social_norms            :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ identity_cues           :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ contradictions          : list()
+  .. .. .. ..$ minority_positions      :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ representative_verbatims:List of 2
+  .. .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. .. ..$ text             : chr "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, "| __truncated__
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. ..$ Pragmatiques contraints:List of 17
+  .. .. .. ..$ group                   : chr "Pragmatiques contraints"
+  .. .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. .. ..$ text             : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ main_themes             :List of 2
+  .. .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. .. ..$ text             : chr "Tonalité pragmatique et réaliste, avec une volonté de trouver des solutions accessibles."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::23"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ narrative_frames        :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ motivations             :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ barriers                :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ social_norms            :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ identity_cues           :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ contradictions          : list()
+  .. .. .. ..$ minority_positions      :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ representative_verbatims:List of 2
+  .. .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. .. ..$ text             : chr "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations"| __truncated__
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. ..$ Curieux flexibles      :List of 17
+  .. .. .. ..$ group                   : chr "Curieux flexibles"
+  .. .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. .. ..$ text             : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ main_themes             :List of 2
+  .. .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. .. ..$ text             : chr "Tonalité ouverte et flexible, avec une volonté de découvrir et d'expérimenter."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ narrative_frames        :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ motivations             :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ barriers                :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ social_norms            :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ identity_cues           :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ contradictions          : list()
+  .. .. .. ..$ minority_positions      :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ representative_verbatims:List of 2
+  .. .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. .. ..$ text             : chr "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dan"| __truncated__
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. .. ..$ :List of 4
+  .. ..$ cross_group:List of 4
+  .. .. ..$ shared_themes        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "L'importance de la provenance et des produits locaux est un thème partagé par les trois groupes, bien que avec des nuances."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:3] "Ancrés locaux::verbatim::3" "Pragmatiques contraints::verbatim::16" "Curieux flexibles::verbatim::31"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ group_contrasts      :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les 'Ancrés locaux' valorisent la confiance et la saisonnalité, tandis que les 'Pragmatiques contraints' cherch"| __truncated__
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::4" "Pragmatiques contraints::verbatim::16"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les 'Curieux flexibles' sont ouverts aux innovations et combinent plusieurs circuits, contrairement aux 'Ancrés"| __truncated__
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Ancrés locaux::verbatim::1"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ minority_patterns    : list()
+  .. .. ..$ interpretation_limits:List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::1"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. ..$ metadata   :List of 4
+  .. .. ..$ analysis_scope : chr "general"
+  .. .. ..$ comparison_mode: chr "joint"
+  .. .. ..$ groups         : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ parse_status   : chr "success"
+ $ textual_profiles:List of 3
+  ..$ groups     :List of 3
+  .. ..$ Ancrés locaux          :List of 17
+  .. .. ..$ group                   : chr "Ancrés locaux"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Importance des habitudes locales et de la provenance des produits."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::5"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Préférence pour les producteurs proches et la saisonnalité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::4" "Ancrés locaux::verbatim::9"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de temps en semaine pour maintenir ces pratiques."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::8"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité positive et engagée, avec une volonté de soutenir l'économie locale."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::7"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur la confiance et la qualité des produits locaux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Soutenir l'économie locale et contrôler la qualité des aliments."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::12"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de temps et compromis lorsque l'offre locale est peu pratique."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de soutenir l'économie locale et d'avoir un lien direct avec les producteurs."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::15"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de soutien à l'économie locale et de préférence pour les produits de proximité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::7"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la cuisine maison et au contrôle de la qualité des aliments."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::12"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants font des compromis lorsque l'offre locale est peu pratique."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::2"
+  .. .. .. .. ..$ quotation  : chr "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre la préférence pour les produits locaux et le soutien à l'économie locale."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ quotation  : chr "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'importance de la confiance et de la saisonnalité, ainsi que les compromis nécessaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ quotation  : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la préférence pour les produits locaux et les compromis nécessaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::1"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. ..$ Pragmatiques contraints:List of 17
+  .. .. ..$ group                   : chr "Pragmatiques contraints"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Importance du prix et du temps disponible dans les choix alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Intérêt pour le local lorsqu'il est accessible et moins coûteux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::22"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque d'informations simples pour arbitrer les choix alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::25"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité pragmatique et réaliste, avec une volonté de trouver des solutions accessibles."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::23"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur les contraintes budgétaires et les difficultés à accéder aux produits locaux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::23" "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Recherche de solutions pratiques et moins coûteuses pour les courses alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque d'informations et circuits spécialisés perçus comme compliqués."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::24"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de trouver des solutions accessibles et moins coûteuses."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de recherche de praticité et d'accessibilité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la recherche de solutions pratiques et économiques."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::23" "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants expriment une culpabilité lorsqu'ils choisissent le moins cher."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::16"
+  .. .. .. .. ..$ quotation  : chr "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessi"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre les contraintes pratiques et l'intérêt pour le local lorsqu'il est accessible."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ quotation  : chr "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offr"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'importance du prix et du temps disponible dans les choix alimentaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ quotation  : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la recherche de praticité et la culpabilité liée aux choix économiques."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Pragmatiques contraints::verbatim::16"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. ..$ Curieux flexibles      :List of 17
+  .. .. ..$ group                   : chr "Curieux flexibles"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Combinaison de plusieurs circuits selon les occasions."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::36"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Ouverture aux innovations et découverte de nouvelles façons de manger."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::34"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Recherche d'un équilibre entre curiosité, prix et cohérence."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::35" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité ouverte et flexible, avec une volonté de découvrir et d'expérimenter."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur la découverte et l'adaptation des pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Découverte de nouvelles façons de manger et ouverture aux innovations."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::34"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de régularité dans les pratiques et difficulté à trouver un équilibre."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::36" "Curieux flexibles::verbatim::43"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de découvrir et d'expérimenter de nouvelles façons de manger."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de découverte et d'adaptation des pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la curiosité et à la flexibilité dans les pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants expriment une difficulté à trouver un équilibre entre curiosité et praticité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Curieux flexibles::verbatim::35"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::31"
+  .. .. .. .. ..$ quotation  : chr "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine sui"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre la combinaison de plusieurs circuits et la flexibilité dans les pratiques."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::32"
+  .. .. .. .. ..$ quotation  : chr "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une inn"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'ouverture aux innovations et la recherche de praticité."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::35"
+  .. .. .. .. ..$ quotation  : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la curiosité et la difficulté à trouver un équilibre."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dan"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Curieux flexibles::verbatim::31"
+  .. .. .. .. ..$ validation_needed: NULL
+  ..$ cross_group:List of 4
+  .. ..$ shared_themes        :List of 1
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "L'importance de la provenance et des produits locaux est un thème partagé par les trois groupes, bien que avec des nuances."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:3] "Ancrés locaux::verbatim::3" "Pragmatiques contraints::verbatim::16" "Curieux flexibles::verbatim::31"
+  .. .. .. ..$ validation_needed: NULL
+  .. ..$ group_contrasts      :List of 2
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les 'Ancrés locaux' valorisent la confiance et la saisonnalité, tandis que les 'Pragmatiques contraints' cherch"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::4" "Pragmatiques contraints::verbatim::16"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les 'Curieux flexibles' sont ouverts aux innovations et combinent plusieurs circuits, contrairement aux 'Ancrés"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Ancrés locaux::verbatim::1"
+  .. .. .. ..$ validation_needed: NULL
+  .. ..$ minority_patterns    : list()
+  .. ..$ interpretation_limits:List of 1
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::1"
+  .. .. .. ..$ validation_needed: NULL
+  ..$ metadata   :List of 4
+  .. ..$ analysis_scope : chr "general"
+  .. ..$ comparison_mode: chr "joint"
+  .. ..$ groups         : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ parse_status   : chr "success"
+ $ textual_evidence:List of 11
+  ..$ corpus               :'data.frame':	45 obs. of  4 variables:
+  .. ..$ row_index    : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ group        : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ original_text: chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ text_status  : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  ..$ groups               :List of 3
+  .. ..$ Ancrés locaux          :List of 7
+  .. .. ..$ group                 : chr "Ancrés locaux"
+  .. .. ..$ evidence_ids          : chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Ancrés locaux"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2753
+  .. .. .. ..$ total_words           : int 441
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 27
+  .. .. .. ..$ max_words             : int 35
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3194
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4
+  .. .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. .. ..$ p_value               : num [1:8] 0.00078 0.00078 0.00078 0.00078 0.00078 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.36 3.36 3.36 3.36 3.36 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	4 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:4] "peux" "local" "intéresse" "acheter"
+  .. .. .. .. ..$ within_group_percent  : num [1:4] 0 0 0 0
+  .. .. .. .. ..$ global_percent        : num [1:4] 2.1 1.97 1.58 1.31
+  .. .. .. .. ..$ within_group_frequency: num [1:4] 0 0 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:4] 16 15 12 10
+  .. .. .. .. ..$ p_value               : num [1:4] 0.00316 0.00475 0.0161 0.0362
+  .. .. .. .. ..$ v_test                : num [1:4] -2.95 -2.82 -2.41 -2.09
+  .. .. .. .. ..$ direction             : chr [1:4] "underrepresented" "underrepresented" "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 4
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 250
+  .. .. .. .. ..$ retained_vocabulary_size       : int 64
+  .. .. .. .. ..$ type_token_ratio               : num 0.256
+  .. .. .. .. ..$ shannon_entropy                : num 4.02
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.965
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  .. ..$ Pragmatiques contraints:List of 7
+  .. .. ..$ group                 : chr "Pragmatiques contraints"
+  .. .. ..$ evidence_ids          : chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Pragmatiques contraints"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2566
+  .. .. .. ..$ total_words           : int 418
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 23
+  .. .. .. ..$ max_words             : int 31
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3166
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. .. ..$ global_percent        : num [1:8] 1.05 1.05 1.05 1.05 1.05 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. .. ..$ global_frequency      : num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. .. ..$ p_value               : num [1:8] 0.000221 0.000221 0.000221 0.000221 0.000221 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.69 3.69 3.69 3.69 3.69 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	2 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:2] "semaine" "habitudes"
+  .. .. .. .. ..$ within_group_percent  : num [1:2] 0 0
+  .. .. .. .. ..$ global_percent        : num [1:2] 1.58 1.31
+  .. .. .. .. ..$ within_group_frequency: num [1:2] 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:2] 12 10
+  .. .. .. .. ..$ p_value               : num [1:2] 0.0177 0.0392
+  .. .. .. .. ..$ v_test                : num [1:2] -2.37 -2.06
+  .. .. .. .. ..$ direction             : chr [1:2] "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 2
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 246
+  .. .. .. .. ..$ retained_vocabulary_size       : int 55
+  .. .. .. .. ..$ type_token_ratio               : num 0.224
+  .. .. .. .. ..$ shannon_entropy                : num 3.91
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.975
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  .. ..$ Curieux flexibles      :List of 7
+  .. .. ..$ group                 : chr "Curieux flexibles"
+  .. .. ..$ evidence_ids          : chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Curieux flexibles"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2816
+  .. .. .. ..$ total_words           : int 435
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 26
+  .. .. .. ..$ max_words             : int 32
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3326
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 12 6 6
+  .. .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 16 6 6
+  .. .. .. .. ..$ p_value               : num [1:8] 0.00118 0.00118 0.00118 0.00118 0.00118 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.24 3.24 3.24 3.24 3.24 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	3 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:3] "temps" "manque" "parfois"
+  .. .. .. .. ..$ within_group_percent  : num [1:3] 0 0 0
+  .. .. .. .. ..$ global_percent        : num [1:3] 1.31 1.31 1.18
+  .. .. .. .. ..$ within_group_frequency: num [1:3] 0 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:3] 10 10 9
+  .. .. .. .. ..$ p_value               : num [1:3] 0.0268 0.0268 0.0414
+  .. .. .. .. ..$ v_test                : num [1:3] -2.21 -2.21 -2.04
+  .. .. .. .. ..$ direction             : chr [1:3] "underrepresented" "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 3
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 265
+  .. .. .. .. ..$ retained_vocabulary_size       : int 59
+  .. .. .. .. ..$ type_token_ratio               : num 0.223
+  .. .. .. .. ..$ shannon_entropy                : num 3.96
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.972
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "peux" "acheter" "commander" ...
+  ..$ verbatims            :'data.frame':	45 obs. of  12 variables:
+  .. ..$ verbatim_id          : chr [1:45] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. ..$ group                : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ original_text        : chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ row_index            : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ character_count      : int [1:45] 178 192 172 207 161 170 160 180 185 194 ...
+  .. ..$ word_count           : int [1:45] 30 34 28 31 27 28 28 28 29 29 ...
+  .. ..$ text_status          : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  .. ..$ missing_or_empty     : logi [1:45] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. ..$ included_in_prompt   : logi [1:45] TRUE TRUE TRUE TRUE TRUE TRUE ...
+  .. ..$ sampling_rank        : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ exclusion_reason     : chr [1:45] NA NA NA NA ...
+  .. ..$ prompt_character_cost: int [1:45] 207 221 201 236 190 199 189 209 214 224 ...
+  ..$ group_diagnostics    :'data.frame':	3 obs. of  17 variables:
+  .. ..$ group                 : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ n_total               : int [1:3] 15 15 15
+  .. ..$ n_missing             : int [1:3] 0 0 0
+  .. ..$ n_empty               : int [1:3] 0 0 0
+  .. ..$ n_whitespace          : int [1:3] 0 0 0
+  .. ..$ n_non_empty           : int [1:3] 15 15 15
+  .. ..$ n_included_in_prompt  : int [1:3] 15 15 15
+  .. ..$ n_excluded_from_prompt: int [1:3] 0 0 0
+  .. ..$ n_not_sampled         : int [1:3] 0 0 0
+  .. ..$ n_prompt_budget       : int [1:3] 0 0 0
+  .. ..$ total_characters      : int [1:3] 2753 2566 2816
+  .. ..$ total_words           : int [1:3] 441 418 435
+  .. ..$ median_words          : int [1:3] 29 29 29
+  .. ..$ min_words             : int [1:3] 27 23 26
+  .. ..$ max_words             : int [1:3] 35 31 32
+  .. ..$ sampling_fraction     : num [1:3] 1 1 1
+  .. ..$ prompt_character_count: int [1:3] 3194 3166 3326
+  ..$ sampling             :List of 5
+  .. ..$ method                         : chr "deterministic_hash_within_group"
+  .. ..$ sample_pct                     : num 1
+  .. ..$ seed                           : NULL
+  .. ..$ max_prompt_characters_per_group: num Inf
+  .. ..$ by_group                       :'data.frame':	3 obs. of  7 variables:
+  .. .. ..$ group                 : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ n_non_empty           : int [1:3] 15 15 15
+  .. .. ..$ n_included_in_prompt  : int [1:3] 15 15 15
+  .. .. ..$ n_not_sampled         : int [1:3] 0 0 0
+  .. .. ..$ n_prompt_budget       : int [1:3] 0 0 0
+  .. .. ..$ sampling_fraction     : num [1:3] 1 1 1
+  .. .. ..$ prompt_character_count: int [1:3] 3194 3166 3326
+  ..$ evidence_registry    :'data.frame':	45 obs. of  12 variables:
+  .. ..$ evidence_id       : chr [1:45] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. ..$ group             : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ row_index         : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ original_text     : chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ character_count   : int [1:45] 178 192 172 207 161 170 160 180 185 194 ...
+  .. ..$ word_count        : int [1:45] 30 34 28 31 27 28 28 28 29 29 ...
+  .. ..$ text_status       : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  .. ..$ missing_or_empty  : logi [1:45] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. ..$ included_in_prompt: logi [1:45] TRUE TRUE TRUE TRUE TRUE TRUE ...
+  .. ..$ sampling_rank     : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ exclusion_reason  : chr [1:45] NA NA NA NA ...
+  .. ..$ source            : chr [1:45] "comment" "comment" "comment" "comment" ...
+  ..$ lexical_analysis     :List of 9
+  .. ..$ settings                :List of 7
+  .. .. ..$ lexical_unit               : chr "occurrence"
+  .. .. ..$ language                   : chr "en"
+  .. .. ..$ lexical_proba              : num 0.05
+  .. .. ..$ min_word_frequency         : num 2
+  .. .. ..$ min_word_length            : num 4
+  .. .. ..$ top_n_characteristic_words : num 8
+  .. .. ..$ multiple_testing_adjustment: chr "none"
+  .. ..$ contingency_table       : num [1:3, 1:150] 15 15 15 0 4 0 0 3 0 0 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. ..$ : chr [1:150] "[répondant" "abord" "abordable" "accessible" ...
+  .. ..$ occurrence_table        : num [1:3, 1:150] 15 15 15 0 4 0 0 3 0 0 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. ..$ : chr [1:150] "[répondant" "abord" "abordable" "accessible" ...
+  .. ..$ raw_occurrence_table    : num [1:3, 1:206] 15 15 15 1 1 1 1 1 1 1 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. ..$ : chr [1:206] "[répondant" "1]" "10]" "11]" ...
+  .. ..$ retained_occurrence_rate: num 0.588
+  .. ..$ textual_result          :List of 2
+  .. .. ..$ cont.table: num [1:3, 1:206] 15 15 15 1 1 1 1 1 1 1 ...
+  .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. .. ..$ : chr [1:206] "[répondant" "1]" "10]" "11]" ...
+  .. .. ..$ nb.words  :'data.frame':	206 obs. of  2 variables:
+  .. .. .. ..$ words  : int [1:206] 82 45 38 37 34 30 29 23 17 16 ...
+  .. .. .. ..$ nb.list: int [1:206] 39 45 22 23 23 18 21 21 12 13 ...
+  .. ..$ descfreq_result         :List of 3
+  .. .. ..$ Ancrés locaux          : num [1:26, 1:6] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4 2.4 2 ...
+  .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. ..$ : chr [1:26] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. .. ..$ Pragmatiques contraints: num [1:25, 1:6] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. ..$ : chr [1:25] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. .. ..$ Curieux flexibles      : num [1:30, 1:6] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. ..$ : chr [1:30] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. .. ..- attr(*, "class")= chr [1:2] "descfreq" "list"
+  .. ..$ group_profiles          :List of 3
+  .. .. ..$ Ancrés locaux          :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4
+  .. .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. .. ..$ p_value               : num [1:8] 0.00078 0.00078 0.00078 0.00078 0.00078 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.36 3.36 3.36 3.36 3.36 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	4 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:4] "peux" "local" "intéresse" "acheter"
+  .. .. .. .. ..$ within_group_percent  : num [1:4] 0 0 0 0
+  .. .. .. .. ..$ global_percent        : num [1:4] 2.1 1.97 1.58 1.31
+  .. .. .. .. ..$ within_group_frequency: num [1:4] 0 0 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:4] 16 15 12 10
+  .. .. .. .. ..$ p_value               : num [1:4] 0.00316 0.00475 0.0161 0.0362
+  .. .. .. .. ..$ v_test                : num [1:4] -2.95 -2.82 -2.41 -2.09
+  .. .. .. .. ..$ direction             : chr [1:4] "underrepresented" "underrepresented" "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 4
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 250
+  .. .. .. .. ..$ retained_vocabulary_size       : int 64
+  .. .. .. .. ..$ type_token_ratio               : num 0.256
+  .. .. .. .. ..$ shannon_entropy                : num 4.02
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.965
+  .. .. ..$ Pragmatiques contraints:List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. .. ..$ global_percent        : num [1:8] 1.05 1.05 1.05 1.05 1.05 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. .. ..$ global_frequency      : num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. .. ..$ p_value               : num [1:8] 0.000221 0.000221 0.000221 0.000221 0.000221 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.69 3.69 3.69 3.69 3.69 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	2 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:2] "semaine" "habitudes"
+  .. .. .. .. ..$ within_group_percent  : num [1:2] 0 0
+  .. .. .. .. ..$ global_percent        : num [1:2] 1.58 1.31
+  .. .. .. .. ..$ within_group_frequency: num [1:2] 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:2] 12 10
+  .. .. .. .. ..$ p_value               : num [1:2] 0.0177 0.0392
+  .. .. .. .. ..$ v_test                : num [1:2] -2.37 -2.06
+  .. .. .. .. ..$ direction             : chr [1:2] "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 2
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 246
+  .. .. .. .. ..$ retained_vocabulary_size       : int 55
+  .. .. .. .. ..$ type_token_ratio               : num 0.224
+  .. .. .. .. ..$ shannon_entropy                : num 3.91
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.975
+  .. .. ..$ Curieux flexibles      :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 12 6 6
+  .. .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 16 6 6
+  .. .. .. .. ..$ p_value               : num [1:8] 0.00118 0.00118 0.00118 0.00118 0.00118 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.24 3.24 3.24 3.24 3.24 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	3 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:3] "temps" "manque" "parfois"
+  .. .. .. .. ..$ within_group_percent  : num [1:3] 0 0 0
+  .. .. .. .. ..$ global_percent        : num [1:3] 1.31 1.31 1.18
+  .. .. .. .. ..$ within_group_frequency: num [1:3] 0 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:3] 10 10 9
+  .. .. .. .. ..$ p_value               : num [1:3] 0.0268 0.0268 0.0414
+  .. .. .. .. ..$ v_test                : num [1:3] -2.21 -2.21 -2.04
+  .. .. .. .. ..$ direction             : chr [1:3] "underrepresented" "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 3
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 265
+  .. .. .. .. ..$ retained_vocabulary_size       : int 59
+  .. .. .. .. ..$ type_token_ratio               : num 0.223
+  .. .. .. .. ..$ shannon_entropy                : num 3.96
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.972
+  .. ..$ global_association      :List of 10
+  .. .. ..$ available               : logi TRUE
+  .. .. ..$ reason                  : NULL
+  .. .. ..$ chi_square              : num 1117
+  .. .. ..$ df                      : num 298
+  .. .. ..$ p_value                 : num 4.84e-95
+  .. .. ..$ total_inertia           : num 1.47
+  .. .. ..$ cramers_v               : num 0.857
+  .. .. ..$ min_expected            : num 0.647
+  .. .. ..$ percent_expected_below_5: num 98.4
+  .. .. ..$ interpretation_note     : chr "The chi-square p-value is asymptotic and may be unreliable for a sparse table. Use the expected-count diagnosti"| __truncated__
+  ..$ length_group_analysis:List of 9
+  .. ..$ available          : logi TRUE
+  .. ..$ reason             : NULL
+  .. ..$ outcome            : chr "log1p(number of characters)"
+  .. ..$ n_texts            : int 45
+  .. ..$ n_groups           : int 3
+  .. ..$ anova              :List of 6
+  .. .. ..$ f_value      : num 6.9
+  .. .. ..$ df1          : int 2
+  .. .. ..$ df2          : int 42
+  .. .. ..$ p_value      : num 0.00256
+  .. .. ..$ eta_squared  : num 0.247
+  .. .. ..$ omega_squared: num 0.208
+  .. ..$ welch              :List of 4
+  .. .. ..$ f_value: num 7.39
+  .. .. ..$ df1    : num 2
+  .. .. ..$ df2    : num 27.1
+  .. .. ..$ p_value: num 0.00274
+  .. ..$ group_descriptives :'data.frame':	3 obs. of  6 variables:
+  .. .. ..$ group                : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ n_texts              : int [1:3] 15 15 15
+  .. .. ..$ mean_characters      : num [1:3] 184 171 188
+  .. .. ..$ median_characters    : int [1:3] 180 173 190
+  .. .. ..$ sd_characters        : num [1:3] 15.1 12.8 10.2
+  .. .. ..$ mean_log1p_characters: num [1:3] 5.21 5.15 5.24
+  .. ..$ interpretation_note: chr "This analysis concerns response length only. It does not measure textual quality, richness, validity, or evidential strength."
+  ..$ corpus_metrics       :List of 3
+  .. ..$ Ancrés locaux          :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2753
+  .. .. ..$ mean_characters  : num 184
+  .. .. ..$ median_characters: int 180
+  .. .. ..$ iqr_characters   : num 18
+  .. .. ..$ min_characters   : int 160
+  .. .. ..$ max_characters   : int 212
+  .. .. ..$ total_words      : int 441
+  .. .. ..$ mean_words       : num 29.4
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 27
+  .. .. ..$ max_words        : int 35
+  .. ..$ Pragmatiques contraints:List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2566
+  .. .. ..$ mean_characters  : num 171
+  .. .. ..$ median_characters: int 173
+  .. .. ..$ iqr_characters   : num 16
+  .. .. ..$ min_characters   : int 149
+  .. .. ..$ max_characters   : int 193
+  .. .. ..$ total_words      : int 418
+  .. .. ..$ mean_words       : num 27.9
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 3.5
+  .. .. ..$ min_words        : int 23
+  .. .. ..$ max_words        : int 31
+  .. ..$ Curieux flexibles      :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2816
+  .. .. ..$ mean_characters  : num 188
+  .. .. ..$ median_characters: int 190
+  .. .. ..$ iqr_characters   : num 9
+  .. .. ..$ min_characters   : int 163
+  .. .. ..$ max_characters   : int 208
+  .. .. ..$ total_words      : int 435
+  .. .. ..$ mean_words       : num 29
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 26
+  .. .. ..$ max_words        : int 32
+  ..$ settings             :List of 16
+  .. ..$ group_column_index             : int 1
+  .. ..$ group_column                   : chr "group"
+  .. ..$ text_column_index              : int 10
+  .. ..$ text_column                    : chr "comment"
+  .. ..$ sample_pct                     : num 1
+  .. ..$ seed                           : NULL
+  .. ..$ max_prompt_characters_per_group: num Inf
+  .. ..$ lexical_analysis               : logi TRUE
+  .. ..$ lexical_unit                   : chr "occurrence"
+  .. ..$ language                       : chr "en"
+  .. ..$ lexical_proba                  : num 0.05
+  .. ..$ min_word_frequency             : int 2
+  .. ..$ min_word_length                : int 4
+  .. ..$ top_n_characteristic_words     : int 8
+  .. ..$ top_n_frequent_terms           : int 5
+  .. ..$ compute_length_analysis        : logi TRUE
+  ..$ metadata             :List of 4
+  .. ..$ source              : chr "dataset"
+  .. ..$ n_rows              : int 45
+  .. ..$ n_groups            : int 3
+  .. ..$ n_invalid_group_rows: int 0
+  ..- attr(*, "class")= chr [1:2] "textual_evidence" "list"
+ $ units           :List of 1
+  ..$ joint:List of 5
+  .. ..$ groups      : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ has_evidence: logi TRUE
+  .. ..$ prompt      : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response    :'data.frame':	1 obs. of  3 variables:
+  .. .. ..$ model     : chr "mistral-small3.2"
+  .. .. ..$ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+  .. .. ..$ created_at: chr "2026-07-16 10:41:03 UTC"
+  .. ..$ parsed      :List of 3
+  .. .. ..$ parse_status    : chr "success"
+  .. .. ..$ parse_error     : NULL
+  .. .. ..$ textual_profiles:List of 3
+  .. .. .. ..$ groups     :List of 3
+  .. .. .. .. ..$ Ancrés locaux          :List of 17
+  .. .. .. .. ..$ Pragmatiques contraints:List of 17
+  .. .. .. .. ..$ Curieux flexibles      :List of 17
+  .. .. .. ..$ cross_group:List of 4
+  .. .. .. .. ..$ shared_themes        :List of 1
+  .. .. .. .. ..$ group_contrasts      :List of 2
+  .. .. .. .. ..$ minority_patterns    : list()
+  .. .. .. .. ..$ interpretation_limits:List of 1
+  .. .. .. ..$ metadata   :List of 4
+  .. .. .. .. ..$ analysis_scope : chr "general"
+  .. .. .. .. ..$ comparison_mode: chr "joint"
+  .. .. .. .. ..$ groups         : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. .. ..$ parse_status   : chr "success"
+ $ legacy_groups   :List of 3
+  ..$ Ancrés locaux          :List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           :'data.frame':	1 obs. of  3 variables:
+  .. .. ..$ model     : chr "mistral-small3.2"
+  .. .. ..$ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+  .. .. ..$ created_at: chr "2026-07-16 10:41:03 UTC"
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. ..$ main_themes                : chr [1:2] "Importance des habitudes locales et de la provenance des produits." "Préférence pour les producteurs proches et la saisonnalité."
+  .. .. ..$ dominant_concerns          : chr "Manque de temps en semaine pour maintenir ces pratiques."
+  .. .. ..$ tone_or_stance             : chr "Tonalité positive et engagée, avec une volonté de soutenir l'économie locale."
+  .. .. ..$ intra_group_consistency    : chr "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, "| __truncated__
+  .. .. ..$ intra_group_consistency_raw: chr "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, "| __truncated__
+  .. .. ..$ injectable_summary         : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. ..$ central_verbatim_cues      : chr [1:2] "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__
+  .. .. ..$ contrastive_verbatim_cues  : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. .. ..$ tension_verbatim_cues      : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2753
+  .. .. ..$ mean_characters  : num 184
+  .. .. ..$ median_characters: int 180
+  .. .. ..$ iqr_characters   : num 18
+  .. .. ..$ min_characters   : int 160
+  .. .. ..$ max_characters   : int 212
+  .. .. ..$ total_words      : int 441
+  .. .. ..$ mean_words       : num 29.4
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 27
+  .. .. ..$ max_words        : int 35
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4
+  .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. ..$ p_value               : num [1:8] 0.00078 0.00078 0.00078 0.00078 0.00078 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.36 3.36 3.36 3.36 3.36 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	4 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:4] "peux" "local" "intéresse" "acheter"
+  .. .. .. ..$ within_group_percent  : num [1:4] 0 0 0 0
+  .. .. .. ..$ global_percent        : num [1:4] 2.1 1.97 1.58 1.31
+  .. .. .. ..$ within_group_frequency: num [1:4] 0 0 0 0
+  .. .. .. ..$ global_frequency      : num [1:4] 16 15 12 10
+  .. .. .. ..$ p_value               : num [1:4] 0.00316 0.00475 0.0161 0.0362
+  .. .. .. ..$ v_test                : num [1:4] -2.95 -2.82 -2.41 -2.09
+  .. .. .. ..$ direction             : chr [1:4] "underrepresented" "underrepresented" "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 4
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 250
+  .. .. .. ..$ retained_vocabulary_size       : int 64
+  .. .. .. ..$ type_token_ratio               : num 0.256
+  .. .. .. ..$ shannon_entropy                : num 4.02
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.965
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr [1:2] "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__
+  .. .. ..$ contrastive: chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. .. ..$ tension    : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  ..$ Pragmatiques contraints:List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           :'data.frame':	1 obs. of  3 variables:
+  .. .. ..$ model     : chr "mistral-small3.2"
+  .. .. ..$ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+  .. .. ..$ created_at: chr "2026-07-16 10:41:03 UTC"
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. ..$ main_themes                : chr [1:2] "Importance du prix et du temps disponible dans les choix alimentaires." "Intérêt pour le local lorsqu'il est accessible et moins coûteux."
+  .. .. ..$ dominant_concerns          : chr "Manque d'informations simples pour arbitrer les choix alimentaires."
+  .. .. ..$ tone_or_stance             : chr "Tonalité pragmatique et réaliste, avec une volonté de trouver des solutions accessibles."
+  .. .. ..$ intra_group_consistency    : chr "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations"| __truncated__
+  .. .. ..$ intra_group_consistency_raw: chr "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations"| __truncated__
+  .. .. ..$ injectable_summary         : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. ..$ central_verbatim_cues      : chr [1:2] "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessi"| __truncated__ "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offr"| __truncated__
+  .. .. ..$ contrastive_verbatim_cues  : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. .. ..$ tension_verbatim_cues      : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2566
+  .. .. ..$ mean_characters  : num 171
+  .. .. ..$ median_characters: int 173
+  .. .. ..$ iqr_characters   : num 16
+  .. .. ..$ min_characters   : int 149
+  .. .. ..$ max_characters   : int 193
+  .. .. ..$ total_words      : int 418
+  .. .. ..$ mean_words       : num 27.9
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 3.5
+  .. .. ..$ min_words        : int 23
+  .. .. ..$ max_words        : int 31
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. ..$ global_percent        : num [1:8] 1.05 1.05 1.05 1.05 1.05 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. ..$ global_frequency      : num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. ..$ p_value               : num [1:8] 0.000221 0.000221 0.000221 0.000221 0.000221 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.69 3.69 3.69 3.69 3.69 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	2 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:2] "semaine" "habitudes"
+  .. .. .. ..$ within_group_percent  : num [1:2] 0 0
+  .. .. .. ..$ global_percent        : num [1:2] 1.58 1.31
+  .. .. .. ..$ within_group_frequency: num [1:2] 0 0
+  .. .. .. ..$ global_frequency      : num [1:2] 12 10
+  .. .. .. ..$ p_value               : num [1:2] 0.0177 0.0392
+  .. .. .. ..$ v_test                : num [1:2] -2.37 -2.06
+  .. .. .. ..$ direction             : chr [1:2] "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 2
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 246
+  .. .. .. ..$ retained_vocabulary_size       : int 55
+  .. .. .. ..$ type_token_ratio               : num 0.224
+  .. .. .. ..$ shannon_entropy                : num 3.91
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.975
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr [1:2] "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessi"| __truncated__ "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offr"| __truncated__
+  .. .. ..$ contrastive: chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. .. ..$ tension    : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  ..$ Curieux flexibles      :List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           :'data.frame':	1 obs. of  3 variables:
+  .. .. ..$ model     : chr "mistral-small3.2"
+  .. .. ..$ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+  .. .. ..$ created_at: chr "2026-07-16 10:41:03 UTC"
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. ..$ main_themes                : chr [1:2] "Combinaison de plusieurs circuits selon les occasions." "Ouverture aux innovations et découverte de nouvelles façons de manger."
+  .. .. ..$ dominant_concerns          : chr "Recherche d'un équilibre entre curiosité, prix et cohérence."
+  .. .. ..$ tone_or_stance             : chr "Tonalité ouverte et flexible, avec une volonté de découvrir et d'expérimenter."
+  .. .. ..$ intra_group_consistency    : chr "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dan"| __truncated__
+  .. .. ..$ intra_group_consistency_raw: chr "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dan"| __truncated__
+  .. .. ..$ injectable_summary         : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. ..$ central_verbatim_cues      : chr [1:2] "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine sui"| __truncated__ "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une inn"| __truncated__
+  .. .. ..$ contrastive_verbatim_cues  : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. .. ..$ tension_verbatim_cues      : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2816
+  .. .. ..$ mean_characters  : num 188
+  .. .. ..$ median_characters: int 190
+  .. .. ..$ iqr_characters   : num 9
+  .. .. ..$ min_characters   : int 163
+  .. .. ..$ max_characters   : int 208
+  .. .. ..$ total_words      : int 435
+  .. .. ..$ mean_words       : num 29
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 26
+  .. .. ..$ max_words        : int 32
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 12 6 6
+  .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 16 6 6
+  .. .. .. ..$ p_value               : num [1:8] 0.00118 0.00118 0.00118 0.00118 0.00118 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.24 3.24 3.24 3.24 3.24 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	3 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:3] "temps" "manque" "parfois"
+  .. .. .. ..$ within_group_percent  : num [1:3] 0 0 0
+  .. .. .. ..$ global_percent        : num [1:3] 1.31 1.31 1.18
+  .. .. .. ..$ within_group_frequency: num [1:3] 0 0 0
+  .. .. .. ..$ global_frequency      : num [1:3] 10 10 9
+  .. .. .. ..$ p_value               : num [1:3] 0.0268 0.0268 0.0414
+  .. .. .. ..$ v_test                : num [1:3] -2.21 -2.21 -2.04
+  .. .. .. ..$ direction             : chr [1:3] "underrepresented" "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 3
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 265
+  .. .. .. ..$ retained_vocabulary_size       : int 59
+  .. .. .. ..$ type_token_ratio               : num 0.223
+  .. .. .. ..$ shannon_entropy                : num 3.96
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.972
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr [1:2] "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine sui"| __truncated__ "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une inn"| __truncated__
+  .. .. ..$ contrastive: chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. .. ..$ tension    : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "peux" "acheter" "commander" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "peux" "acheter" "commander" ...
+ $ metadata        :List of 14
+  ..$ analysis_scope           : chr "general"
+  ..$ comparison_mode          : chr "joint"
+  ..$ provider                 : chr "ollama"
+  ..$ model                    : chr "mistral-small3.2"
+  ..$ generate                 : logi TRUE
+  ..$ context_supplied         : logi TRUE
+  ..$ context                  :List of 1
+  .. ..$ general: chr "Étude exploratoire sur les comportements alimentaires. Les trois groupes proviennent d'une typologie déjà const"| __truncated__
+  ..$ preparation_request      : chr "Caractérisez la manière dont chaque groupe parle de ses pratiques, de ses contraintes et de ses arbitrages. Rep"| __truncated__
+  ..$ prompt_style             : chr "detailed"
+  ..$ text_role                : chr "responses"
+  ..$ attach_selected_verbatims: logi TRUE
+  ..$ n_central_verbatims      : int 2
+  ..$ n_tension_verbatims      : int 1
+  ..$ max_verbatim_chars       : int 220
+ - attr(*, "class")= chr [1:2] "nail_textual_prep" "list"
+ - attr(*, "textual_evidence")=List of 11
+  ..$ corpus               :'data.frame':	45 obs. of  4 variables:
+  .. ..$ row_index    : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ group        : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ original_text: chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ text_status  : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  ..$ groups               :List of 3
+  .. ..$ Ancrés locaux          :List of 7
+  .. .. ..$ group                 : chr "Ancrés locaux"
+  .. .. ..$ evidence_ids          : chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Ancrés locaux"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2753
+  .. .. .. ..$ total_words           : int 441
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 27
+  .. .. .. ..$ max_words             : int 35
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3194
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4
+  .. .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. .. ..$ p_value               : num [1:8] 0.00078 0.00078 0.00078 0.00078 0.00078 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.36 3.36 3.36 3.36 3.36 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	4 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:4] "peux" "local" "intéresse" "acheter"
+  .. .. .. .. ..$ within_group_percent  : num [1:4] 0 0 0 0
+  .. .. .. .. ..$ global_percent        : num [1:4] 2.1 1.97 1.58 1.31
+  .. .. .. .. ..$ within_group_frequency: num [1:4] 0 0 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:4] 16 15 12 10
+  .. .. .. .. ..$ p_value               : num [1:4] 0.00316 0.00475 0.0161 0.0362
+  .. .. .. .. ..$ v_test                : num [1:4] -2.95 -2.82 -2.41 -2.09
+  .. .. .. .. ..$ direction             : chr [1:4] "underrepresented" "underrepresented" "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 4
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 250
+  .. .. .. .. ..$ retained_vocabulary_size       : int 64
+  .. .. .. .. ..$ type_token_ratio               : num 0.256
+  .. .. .. .. ..$ shannon_entropy                : num 4.02
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.965
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  .. ..$ Pragmatiques contraints:List of 7
+  .. .. ..$ group                 : chr "Pragmatiques contraints"
+  .. .. ..$ evidence_ids          : chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::19" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Pragmatiques contraints"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2566
+  .. .. .. ..$ total_words           : int 418
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 23
+  .. .. .. ..$ max_words             : int 31
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3166
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. .. ..$ global_percent        : num [1:8] 1.05 1.05 1.05 1.05 1.05 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. .. ..$ global_frequency      : num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. .. ..$ p_value               : num [1:8] 0.000221 0.000221 0.000221 0.000221 0.000221 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.69 3.69 3.69 3.69 3.69 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	2 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:2] "semaine" "habitudes"
+  .. .. .. .. ..$ within_group_percent  : num [1:2] 0 0
+  .. .. .. .. ..$ global_percent        : num [1:2] 1.58 1.31
+  .. .. .. .. ..$ within_group_frequency: num [1:2] 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:2] 12 10
+  .. .. .. .. ..$ p_value               : num [1:2] 0.0177 0.0392
+  .. .. .. .. ..$ v_test                : num [1:2] -2.37 -2.06
+  .. .. .. .. ..$ direction             : chr [1:2] "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 2
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 246
+  .. .. .. .. ..$ retained_vocabulary_size       : int 55
+  .. .. .. .. ..$ type_token_ratio               : num 0.224
+  .. .. .. .. ..$ shannon_entropy                : num 3.91
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.975
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  .. ..$ Curieux flexibles      :List of 7
+  .. .. ..$ group                 : chr "Curieux flexibles"
+  .. .. ..$ evidence_ids          : chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ non_empty_evidence_ids: chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ included_evidence_ids : chr [1:15] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::33" "Curieux flexibles::verbatim::34" ...
+  .. .. ..$ diagnostics           :'data.frame':	1 obs. of  17 variables:
+  .. .. .. ..$ group                 : chr "Curieux flexibles"
+  .. .. .. ..$ n_total               : int 15
+  .. .. .. ..$ n_missing             : int 0
+  .. .. .. ..$ n_empty               : int 0
+  .. .. .. ..$ n_whitespace          : int 0
+  .. .. .. ..$ n_non_empty           : int 15
+  .. .. .. ..$ n_included_in_prompt  : int 15
+  .. .. .. ..$ n_excluded_from_prompt: int 0
+  .. .. .. ..$ n_not_sampled         : int 0
+  .. .. .. ..$ n_prompt_budget       : int 0
+  .. .. .. ..$ total_characters      : int 2816
+  .. .. .. ..$ total_words           : int 435
+  .. .. .. ..$ median_words          : int 29
+  .. .. .. ..$ min_words             : int 26
+  .. .. .. ..$ max_words             : int 32
+  .. .. .. ..$ sampling_fraction     : num 1
+  .. .. .. ..$ prompt_character_count: int 3326
+  .. .. ..$ lexical_profile       :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 12 6 6
+  .. .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 16 6 6
+  .. .. .. .. ..$ p_value               : num [1:8] 0.00118 0.00118 0.00118 0.00118 0.00118 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.24 3.24 3.24 3.24 3.24 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	3 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:3] "temps" "manque" "parfois"
+  .. .. .. .. ..$ within_group_percent  : num [1:3] 0 0 0
+  .. .. .. .. ..$ global_percent        : num [1:3] 1.31 1.31 1.18
+  .. .. .. .. ..$ within_group_frequency: num [1:3] 0 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:3] 10 10 9
+  .. .. .. .. ..$ p_value               : num [1:3] 0.0268 0.0268 0.0414
+  .. .. .. .. ..$ v_test                : num [1:3] -2.21 -2.21 -2.04
+  .. .. .. .. ..$ direction             : chr [1:3] "underrepresented" "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 3
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 265
+  .. .. .. .. ..$ retained_vocabulary_size       : int 59
+  .. .. .. .. ..$ type_token_ratio               : num 0.223
+  .. .. .. .. ..$ shannon_entropy                : num 3.96
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.972
+  .. .. ..$ frequent_terms        : chr [1:5] "répondant" "peux" "acheter" "commander" ...
+  ..$ verbatims            :'data.frame':	45 obs. of  12 variables:
+  .. ..$ verbatim_id          : chr [1:45] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. ..$ group                : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ original_text        : chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ row_index            : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ character_count      : int [1:45] 178 192 172 207 161 170 160 180 185 194 ...
+  .. ..$ word_count           : int [1:45] 30 34 28 31 27 28 28 28 29 29 ...
+  .. ..$ text_status          : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  .. ..$ missing_or_empty     : logi [1:45] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. ..$ included_in_prompt   : logi [1:45] TRUE TRUE TRUE TRUE TRUE TRUE ...
+  .. ..$ sampling_rank        : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ exclusion_reason     : chr [1:45] NA NA NA NA ...
+  .. ..$ prompt_character_cost: int [1:45] 207 221 201 236 190 199 189 209 214 224 ...
+  ..$ group_diagnostics    :'data.frame':	3 obs. of  17 variables:
+  .. ..$ group                 : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ n_total               : int [1:3] 15 15 15
+  .. ..$ n_missing             : int [1:3] 0 0 0
+  .. ..$ n_empty               : int [1:3] 0 0 0
+  .. ..$ n_whitespace          : int [1:3] 0 0 0
+  .. ..$ n_non_empty           : int [1:3] 15 15 15
+  .. ..$ n_included_in_prompt  : int [1:3] 15 15 15
+  .. ..$ n_excluded_from_prompt: int [1:3] 0 0 0
+  .. ..$ n_not_sampled         : int [1:3] 0 0 0
+  .. ..$ n_prompt_budget       : int [1:3] 0 0 0
+  .. ..$ total_characters      : int [1:3] 2753 2566 2816
+  .. ..$ total_words           : int [1:3] 441 418 435
+  .. ..$ median_words          : int [1:3] 29 29 29
+  .. ..$ min_words             : int [1:3] 27 23 26
+  .. ..$ max_words             : int [1:3] 35 31 32
+  .. ..$ sampling_fraction     : num [1:3] 1 1 1
+  .. ..$ prompt_character_count: int [1:3] 3194 3166 3326
+  ..$ sampling             :List of 5
+  .. ..$ method                         : chr "deterministic_hash_within_group"
+  .. ..$ sample_pct                     : num 1
+  .. ..$ seed                           : NULL
+  .. ..$ max_prompt_characters_per_group: num Inf
+  .. ..$ by_group                       :'data.frame':	3 obs. of  7 variables:
+  .. .. ..$ group                 : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ n_non_empty           : int [1:3] 15 15 15
+  .. .. ..$ n_included_in_prompt  : int [1:3] 15 15 15
+  .. .. ..$ n_not_sampled         : int [1:3] 0 0 0
+  .. .. ..$ n_prompt_budget       : int [1:3] 0 0 0
+  .. .. ..$ sampling_fraction     : num [1:3] 1 1 1
+  .. .. ..$ prompt_character_count: int [1:3] 3194 3166 3326
+  ..$ evidence_registry    :'data.frame':	45 obs. of  12 variables:
+  .. ..$ evidence_id       : chr [1:45] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::4" ...
+  .. ..$ group             : chr [1:45] "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" "Ancrés locaux" ...
+  .. ..$ row_index         : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ original_text     : chr [1:45] "Le marché fait partie de mes habitudes. Je cuisine souvent, car cela me permet de contrôler la qualité. Je ne c"| __truncated__ "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Le marché fait partie de mes habitudes. Je regarde la provenance avant de comparer les marques. Les prix resten"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__ ...
+  .. ..$ character_count   : int [1:45] 178 192 172 207 161 170 160 180 185 194 ...
+  .. ..$ word_count        : int [1:45] 30 34 28 31 27 28 28 28 29 29 ...
+  .. ..$ text_status       : chr [1:45] "non_empty" "non_empty" "non_empty" "non_empty" ...
+  .. ..$ missing_or_empty  : logi [1:45] FALSE FALSE FALSE FALSE FALSE FALSE ...
+  .. ..$ included_in_prompt: logi [1:45] TRUE TRUE TRUE TRUE TRUE TRUE ...
+  .. ..$ sampling_rank     : int [1:45] 1 2 3 4 5 6 7 8 9 10 ...
+  .. ..$ exclusion_reason  : chr [1:45] NA NA NA NA ...
+  .. ..$ source            : chr [1:45] "comment" "comment" "comment" "comment" ...
+  ..$ lexical_analysis     :List of 9
+  .. ..$ settings                :List of 7
+  .. .. ..$ lexical_unit               : chr "occurrence"
+  .. .. ..$ language                   : chr "en"
+  .. .. ..$ lexical_proba              : num 0.05
+  .. .. ..$ min_word_frequency         : num 2
+  .. .. ..$ min_word_length            : num 4
+  .. .. ..$ top_n_characteristic_words : num 8
+  .. .. ..$ multiple_testing_adjustment: chr "none"
+  .. ..$ contingency_table       : num [1:3, 1:150] 15 15 15 0 4 0 0 3 0 0 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. ..$ : chr [1:150] "[répondant" "abord" "abordable" "accessible" ...
+  .. ..$ occurrence_table        : num [1:3, 1:150] 15 15 15 0 4 0 0 3 0 0 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. ..$ : chr [1:150] "[répondant" "abord" "abordable" "accessible" ...
+  .. ..$ raw_occurrence_table    : num [1:3, 1:206] 15 15 15 1 1 1 1 1 1 1 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. ..$ : chr [1:206] "[répondant" "1]" "10]" "11]" ...
+  .. ..$ retained_occurrence_rate: num 0.588
+  .. ..$ textual_result          :List of 2
+  .. .. ..$ cont.table: num [1:3, 1:206] 15 15 15 1 1 1 1 1 1 1 ...
+  .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. .. ..$ : chr [1:206] "[répondant" "1]" "10]" "11]" ...
+  .. .. ..$ nb.words  :'data.frame':	206 obs. of  2 variables:
+  .. .. .. ..$ words  : int [1:206] 82 45 38 37 34 30 29 23 17 16 ...
+  .. .. .. ..$ nb.list: int [1:206] 39 45 22 23 23 18 21 21 12 13 ...
+  .. ..$ descfreq_result         :List of 3
+  .. .. ..$ Ancrés locaux          : num [1:26, 1:6] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4 2.4 2 ...
+  .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. ..$ : chr [1:26] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. .. ..$ Pragmatiques contraints: num [1:25, 1:6] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. ..$ : chr [1:25] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. .. ..$ Curieux flexibles      : num [1:30, 1:6] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. .. ..$ : chr [1:30] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. .. ..- attr(*, "class")= chr [1:2] "descfreq" "list"
+  .. ..$ group_profiles          :List of 3
+  .. .. ..$ Ancrés locaux          :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4
+  .. .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. .. ..$ p_value               : num [1:8] 0.00078 0.00078 0.00078 0.00078 0.00078 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.36 3.36 3.36 3.36 3.36 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	4 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:4] "peux" "local" "intéresse" "acheter"
+  .. .. .. .. ..$ within_group_percent  : num [1:4] 0 0 0 0
+  .. .. .. .. ..$ global_percent        : num [1:4] 2.1 1.97 1.58 1.31
+  .. .. .. .. ..$ within_group_frequency: num [1:4] 0 0 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:4] 16 15 12 10
+  .. .. .. .. ..$ p_value               : num [1:4] 0.00316 0.00475 0.0161 0.0362
+  .. .. .. .. ..$ v_test                : num [1:4] -2.95 -2.82 -2.41 -2.09
+  .. .. .. .. ..$ direction             : chr [1:4] "underrepresented" "underrepresented" "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 4
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 250
+  .. .. .. .. ..$ retained_vocabulary_size       : int 64
+  .. .. .. .. ..$ type_token_ratio               : num 0.256
+  .. .. .. .. ..$ shannon_entropy                : num 4.02
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.965
+  .. .. ..$ Pragmatiques contraints:List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. .. ..$ global_percent        : num [1:8] 1.05 1.05 1.05 1.05 1.05 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. .. ..$ global_frequency      : num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. .. ..$ p_value               : num [1:8] 0.000221 0.000221 0.000221 0.000221 0.000221 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.69 3.69 3.69 3.69 3.69 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	2 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:2] "semaine" "habitudes"
+  .. .. .. .. ..$ within_group_percent  : num [1:2] 0 0
+  .. .. .. .. ..$ global_percent        : num [1:2] 1.58 1.31
+  .. .. .. .. ..$ within_group_frequency: num [1:2] 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:2] 12 10
+  .. .. .. .. ..$ p_value               : num [1:2] 0.0177 0.0392
+  .. .. .. .. ..$ v_test                : num [1:2] -2.37 -2.06
+  .. .. .. .. ..$ direction             : chr [1:2] "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 2
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 246
+  .. .. .. .. ..$ retained_vocabulary_size       : int 55
+  .. .. .. .. ..$ type_token_ratio               : num 0.224
+  .. .. .. .. ..$ shannon_entropy                : num 3.91
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.975
+  .. .. ..$ Curieux flexibles      :List of 6
+  .. .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. .. ..$ characteristic_words: chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. .. ..$ within_group_percent  : num [1:8] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 12 6 6
+  .. .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 16 6 6
+  .. .. .. .. ..$ p_value               : num [1:8] 0.00118 0.00118 0.00118 0.00118 0.00118 ...
+  .. .. .. .. ..$ v_test                : num [1:8] 3.24 3.24 3.24 3.24 3.24 ...
+  .. .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. .. ..$ underrepresented    :'data.frame':	3 obs. of  8 variables:
+  .. .. .. .. ..$ term                  : chr [1:3] "temps" "manque" "parfois"
+  .. .. .. .. ..$ within_group_percent  : num [1:3] 0 0 0
+  .. .. .. .. ..$ global_percent        : num [1:3] 1.31 1.31 1.18
+  .. .. .. .. ..$ within_group_frequency: num [1:3] 0 0 0
+  .. .. .. .. ..$ global_frequency      : num [1:3] 10 10 9
+  .. .. .. .. ..$ p_value               : num [1:3] 0.0268 0.0268 0.0414
+  .. .. .. .. ..$ v_test                : num [1:3] -2.21 -2.21 -2.04
+  .. .. .. .. ..$ direction             : chr [1:3] "underrepresented" "underrepresented" "underrepresented"
+  .. .. .. ..$ marker_counts       :List of 2
+  .. .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. .. ..$ n_underrepresented: int 3
+  .. .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. .. ..$ total_retained_word_occurrences: num 265
+  .. .. .. .. ..$ retained_vocabulary_size       : int 59
+  .. .. .. .. ..$ type_token_ratio               : num 0.223
+  .. .. .. .. ..$ shannon_entropy                : num 3.96
+  .. .. .. .. ..$ normalized_shannon_entropy     : num 0.972
+  .. ..$ global_association      :List of 10
+  .. .. ..$ available               : logi TRUE
+  .. .. ..$ reason                  : NULL
+  .. .. ..$ chi_square              : num 1117
+  .. .. ..$ df                      : num 298
+  .. .. ..$ p_value                 : num 4.84e-95
+  .. .. ..$ total_inertia           : num 1.47
+  .. .. ..$ cramers_v               : num 0.857
+  .. .. ..$ min_expected            : num 0.647
+  .. .. ..$ percent_expected_below_5: num 98.4
+  .. .. ..$ interpretation_note     : chr "The chi-square p-value is asymptotic and may be unreliable for a sparse table. Use the expected-count diagnosti"| __truncated__
+  ..$ length_group_analysis:List of 9
+  .. ..$ available          : logi TRUE
+  .. ..$ reason             : NULL
+  .. ..$ outcome            : chr "log1p(number of characters)"
+  .. ..$ n_texts            : int 45
+  .. ..$ n_groups           : int 3
+  .. ..$ anova              :List of 6
+  .. .. ..$ f_value      : num 6.9
+  .. .. ..$ df1          : int 2
+  .. .. ..$ df2          : int 42
+  .. .. ..$ p_value      : num 0.00256
+  .. .. ..$ eta_squared  : num 0.247
+  .. .. ..$ omega_squared: num 0.208
+  .. ..$ welch              :List of 4
+  .. .. ..$ f_value: num 7.39
+  .. .. ..$ df1    : num 2
+  .. .. ..$ df2    : num 27.1
+  .. .. ..$ p_value: num 0.00274
+  .. ..$ group_descriptives :'data.frame':	3 obs. of  6 variables:
+  .. .. ..$ group                : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ n_texts              : int [1:3] 15 15 15
+  .. .. ..$ mean_characters      : num [1:3] 184 171 188
+  .. .. ..$ median_characters    : int [1:3] 180 173 190
+  .. .. ..$ sd_characters        : num [1:3] 15.1 12.8 10.2
+  .. .. ..$ mean_log1p_characters: num [1:3] 5.21 5.15 5.24
+  .. ..$ interpretation_note: chr "This analysis concerns response length only. It does not measure textual quality, richness, validity, or evidential strength."
+  ..$ corpus_metrics       :List of 3
+  .. ..$ Ancrés locaux          :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2753
+  .. .. ..$ mean_characters  : num 184
+  .. .. ..$ median_characters: int 180
+  .. .. ..$ iqr_characters   : num 18
+  .. .. ..$ min_characters   : int 160
+  .. .. ..$ max_characters   : int 212
+  .. .. ..$ total_words      : int 441
+  .. .. ..$ mean_words       : num 29.4
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 27
+  .. .. ..$ max_words        : int 35
+  .. ..$ Pragmatiques contraints:List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2566
+  .. .. ..$ mean_characters  : num 171
+  .. .. ..$ median_characters: int 173
+  .. .. ..$ iqr_characters   : num 16
+  .. .. ..$ min_characters   : int 149
+  .. .. ..$ max_characters   : int 193
+  .. .. ..$ total_words      : int 418
+  .. .. ..$ mean_words       : num 27.9
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 3.5
+  .. .. ..$ min_words        : int 23
+  .. .. ..$ max_words        : int 31
+  .. ..$ Curieux flexibles      :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2816
+  .. .. ..$ mean_characters  : num 188
+  .. .. ..$ median_characters: int 190
+  .. .. ..$ iqr_characters   : num 9
+  .. .. ..$ min_characters   : int 163
+  .. .. ..$ max_characters   : int 208
+  .. .. ..$ total_words      : int 435
+  .. .. ..$ mean_words       : num 29
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 26
+  .. .. ..$ max_words        : int 32
+  ..$ settings             :List of 16
+  .. ..$ group_column_index             : int 1
+  .. ..$ group_column                   : chr "group"
+  .. ..$ text_column_index              : int 10
+  .. ..$ text_column                    : chr "comment"
+  .. ..$ sample_pct                     : num 1
+  .. ..$ seed                           : NULL
+  .. ..$ max_prompt_characters_per_group: num Inf
+  .. ..$ lexical_analysis               : logi TRUE
+  .. ..$ lexical_unit                   : chr "occurrence"
+  .. ..$ language                       : chr "en"
+  .. ..$ lexical_proba                  : num 0.05
+  .. ..$ min_word_frequency             : int 2
+  .. ..$ min_word_length                : int 4
+  .. ..$ top_n_characteristic_words     : int 8
+  .. ..$ top_n_frequent_terms           : int 5
+  .. ..$ compute_length_analysis        : logi TRUE
+  ..$ metadata             :List of 4
+  .. ..$ source              : chr "dataset"
+  .. ..$ n_rows              : int 45
+  .. ..$ n_groups            : int 3
+  .. ..$ n_invalid_group_rows: int 0
+  ..- attr(*, "class")= chr [1:2] "textual_evidence" "list"
+ - attr(*, "textual_profiles")=List of 3
+  ..$ groups     :List of 3
+  .. ..$ Ancrés locaux          :List of 17
+  .. .. ..$ group                   : chr "Ancrés locaux"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Importance des habitudes locales et de la provenance des produits."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::3" "Ancrés locaux::verbatim::5"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Préférence pour les producteurs proches et la saisonnalité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::4" "Ancrés locaux::verbatim::9"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de temps en semaine pour maintenir ces pratiques."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::8"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité positive et engagée, avec une volonté de soutenir l'économie locale."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::7"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur la confiance et la qualité des produits locaux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Soutenir l'économie locale et contrôler la qualité des aliments."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::12"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de temps et compromis lorsque l'offre locale est peu pratique."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::7" "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de soutenir l'économie locale et d'avoir un lien direct avec les producteurs."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::15"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de soutien à l'économie locale et de préférence pour les produits de proximité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::2" "Ancrés locaux::verbatim::7"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la cuisine maison et au contrôle de la qualité des aliments."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::12"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants font des compromis lorsque l'offre locale est peu pratique."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::2"
+  .. .. .. .. ..$ quotation  : chr "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre la préférence pour les produits locaux et le soutien à l'économie locale."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::4"
+  .. .. .. .. ..$ quotation  : chr "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'importance de la confiance et de la saisonnalité, ainsi que les compromis nécessaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Ancrés locaux::verbatim::13"
+  .. .. .. .. ..$ quotation  : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la préférence pour les produits locaux et les compromis nécessaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::1" "Ancrés locaux::verbatim::4"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::1"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. ..$ Pragmatiques contraints:List of 17
+  .. .. ..$ group                   : chr "Pragmatiques contraints"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Importance du prix et du temps disponible dans les choix alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::17" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Intérêt pour le local lorsqu'il est accessible et moins coûteux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::22"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque d'informations simples pour arbitrer les choix alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::25"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité pragmatique et réaliste, avec une volonté de trouver des solutions accessibles."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::23"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur les contraintes budgétaires et les difficultés à accéder aux produits locaux."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::23" "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Recherche de solutions pratiques et moins coûteuses pour les courses alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque d'informations et circuits spécialisés perçus comme compliqués."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::18" "Pragmatiques contraints::verbatim::24"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de trouver des solutions accessibles et moins coûteuses."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de recherche de praticité et d'accessibilité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la recherche de solutions pratiques et économiques."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::23" "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants expriment une culpabilité lorsqu'ils choisissent le moins cher."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::16"
+  .. .. .. .. ..$ quotation  : chr "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessi"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre les contraintes pratiques et l'intérêt pour le local lorsqu'il est accessible."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::20"
+  .. .. .. .. ..$ quotation  : chr "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offr"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'importance du prix et du temps disponible dans les choix alimentaires."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Pragmatiques contraints::verbatim::29"
+  .. .. .. .. ..$ quotation  : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la recherche de praticité et la culpabilité liée aux choix économiques."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Pragmatiques contraints::verbatim::16" "Pragmatiques contraints::verbatim::20"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Pragmatiques contraints::verbatim::16"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. ..$ Curieux flexibles      :List of 17
+  .. .. ..$ group                   : chr "Curieux flexibles"
+  .. .. ..$ core_textual_profile    :List of 4
+  .. .. .. ..$ text             : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ main_themes             :List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Combinaison de plusieurs circuits selon les occasions."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::36"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Ouverture aux innovations et découverte de nouvelles façons de manger."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::34"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ dominant_concerns       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Recherche d'un équilibre entre curiosité, prix et cohérence."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::35" "Curieux flexibles::verbatim::39"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ tone_or_stance          :List of 4
+  .. .. .. ..$ text             : chr "Tonalité ouverte et flexible, avec une volonté de découvrir et d'expérimenter."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ narrative_frames        :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Récits centrés sur la découverte et l'adaptation des pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ motivations             :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Découverte de nouvelles façons de manger et ouverture aux innovations."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::34"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ barriers                :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Manque de régularité dans les pratiques et difficulté à trouver un équilibre."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::36" "Curieux flexibles::verbatim::43"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ perceived_benefits      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Satisfaction de découvrir et d'expérimenter de nouvelles façons de manger."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ social_norms            :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Normes sociales de découverte et d'adaptation des pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ identity_cues           :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Identité liée à la curiosité et à la flexibilité dans les pratiques alimentaires."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::32" "Curieux flexibles::verbatim::38"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ contradictions          : list()
+  .. .. ..$ minority_positions      :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Certains répondants expriment une difficulté à trouver un équilibre entre curiosité et praticité."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Curieux flexibles::verbatim::35"
+  .. .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ representative_verbatims:List of 2
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::31"
+  .. .. .. .. ..$ quotation  : chr "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine sui"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Illustre la combinaison de plusieurs circuits et la flexibilité dans les pratiques."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::32"
+  .. .. .. .. ..$ quotation  : chr "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une inn"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Montre l'ouverture aux innovations et la recherche de praticité."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ tension_verbatims       :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ evidence_id: chr "Curieux flexibles::verbatim::35"
+  .. .. .. .. ..$ quotation  : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. .. .. .. ..$ rationale  : chr "Contraste entre la curiosité et la difficulté à trouver un équilibre."
+  .. .. .. .. ..$ status     : chr "expert_interpretation"
+  .. .. ..$ intra_group_consistency :List of 4
+  .. .. .. ..$ text             : chr "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dan"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Curieux flexibles::verbatim::32"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ interpretation_limits   :List of 1
+  .. .. .. ..$ :List of 4
+  .. .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. .. ..$ evidence_ids     : chr "Curieux flexibles::verbatim::31"
+  .. .. .. .. ..$ validation_needed: NULL
+  ..$ cross_group:List of 4
+  .. ..$ shared_themes        :List of 1
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "L'importance de la provenance et des produits locaux est un thème partagé par les trois groupes, bien que avec des nuances."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:3] "Ancrés locaux::verbatim::3" "Pragmatiques contraints::verbatim::16" "Curieux flexibles::verbatim::31"
+  .. .. .. ..$ validation_needed: NULL
+  .. ..$ group_contrasts      :List of 2
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les 'Ancrés locaux' valorisent la confiance et la saisonnalité, tandis que les 'Pragmatiques contraints' cherch"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Ancrés locaux::verbatim::4" "Pragmatiques contraints::verbatim::16"
+  .. .. .. ..$ validation_needed: NULL
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les 'Curieux flexibles' sont ouverts aux innovations et combinent plusieurs circuits, contrairement aux 'Ancrés"| __truncated__
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr [1:2] "Curieux flexibles::verbatim::31" "Ancrés locaux::verbatim::1"
+  .. .. .. ..$ validation_needed: NULL
+  .. ..$ minority_patterns    : list()
+  .. ..$ interpretation_limits:List of 1
+  .. .. ..$ :List of 4
+  .. .. .. ..$ text             : chr "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus."
+  .. .. .. ..$ status           : chr "expert_interpretation"
+  .. .. .. ..$ evidence_ids     : chr "Ancrés locaux::verbatim::1"
+  .. .. .. ..$ validation_needed: NULL
+  ..$ metadata   :List of 4
+  .. ..$ analysis_scope : chr "general"
+  .. ..$ comparison_mode: chr "joint"
+  .. ..$ groups         : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ parse_status   : chr "success"
+ - attr(*, "legacy_textual_prep")=List of 3
+  ..$ Ancrés locaux          :List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           :'data.frame':	1 obs. of  3 variables:
+  .. .. ..$ model     : chr "mistral-small3.2"
+  .. .. ..$ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+  .. .. ..$ created_at: chr "2026-07-16 10:41:03 UTC"
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. ..$ main_themes                : chr [1:2] "Importance des habitudes locales et de la provenance des produits." "Préférence pour les producteurs proches et la saisonnalité."
+  .. .. ..$ dominant_concerns          : chr "Manque de temps en semaine pour maintenir ces pratiques."
+  .. .. ..$ tone_or_stance             : chr "Tonalité positive et engagée, avec une volonté de soutenir l'économie locale."
+  .. .. ..$ intra_group_consistency    : chr "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, "| __truncated__
+  .. .. ..$ intra_group_consistency_raw: chr "Les répondants partagent une forte cohésion autour des valeurs de proximité et de soutien à l'économie locale, "| __truncated__
+  .. .. ..$ injectable_summary         : chr "Ce groupe met l'accent sur des pratiques alimentaires ancrées dans des habitudes locales, avec une forte attent"| __truncated__
+  .. .. ..$ central_verbatim_cues      : chr [1:2] "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__
+  .. .. ..$ contrastive_verbatim_cues  : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. .. ..$ tension_verbatim_cues      : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2753
+  .. .. ..$ mean_characters  : num 184
+  .. .. ..$ median_characters: int 180
+  .. .. ..$ iqr_characters   : num 18
+  .. .. ..$ min_characters   : int 160
+  .. .. ..$ max_characters   : int 212
+  .. .. ..$ total_words      : int 441
+  .. .. ..$ mean_words       : num 29.4
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 27
+  .. .. ..$ max_words        : int 35
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4
+  .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. ..$ p_value               : num [1:8] 0.00078 0.00078 0.00078 0.00078 0.00078 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.36 3.36 3.36 3.36 3.36 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	4 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:4] "peux" "local" "intéresse" "acheter"
+  .. .. .. ..$ within_group_percent  : num [1:4] 0 0 0 0
+  .. .. .. ..$ global_percent        : num [1:4] 2.1 1.97 1.58 1.31
+  .. .. .. ..$ within_group_frequency: num [1:4] 0 0 0 0
+  .. .. .. ..$ global_frequency      : num [1:4] 16 15 12 10
+  .. .. .. ..$ p_value               : num [1:4] 0.00316 0.00475 0.0161 0.0362
+  .. .. .. ..$ v_test                : num [1:4] -2.95 -2.82 -2.41 -2.09
+  .. .. .. ..$ direction             : chr [1:4] "underrepresented" "underrepresented" "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 4
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 250
+  .. .. .. ..$ retained_vocabulary_size       : int 64
+  .. .. .. ..$ type_token_ratio               : num 0.256
+  .. .. .. ..$ shannon_entropy                : num 4.02
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.965
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr [1:2] "J'essaie de garder un lien direct avec l'origine des aliments. Soutenir l'économie locale donne du sens à mes a"| __truncated__ "Je privilégie autant que possible les producteurs proches. La confiance et la saisonnalité comptent davantage q"| __truncated__
+  .. .. ..$ contrastive: chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. .. ..$ tension    : chr "Je privilégie autant que possible les producteurs proches. Je regarde la provenance avant de comparer les marqu"| __truncated__
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "avant" "comparer" "marques" ...
+  ..$ Pragmatiques contraints:List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           :'data.frame':	1 obs. of  3 variables:
+  .. .. ..$ model     : chr "mistral-small3.2"
+  .. .. ..$ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+  .. .. ..$ created_at: chr "2026-07-16 10:41:03 UTC"
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. ..$ main_themes                : chr [1:2] "Importance du prix et du temps disponible dans les choix alimentaires." "Intérêt pour le local lorsqu'il est accessible et moins coûteux."
+  .. .. ..$ dominant_concerns          : chr "Manque d'informations simples pour arbitrer les choix alimentaires."
+  .. .. ..$ tone_or_stance             : chr "Tonalité pragmatique et réaliste, avec une volonté de trouver des solutions accessibles."
+  .. .. ..$ intra_group_consistency    : chr "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations"| __truncated__
+  .. .. ..$ intra_group_consistency_raw: chr "Les répondants partagent une cohésion autour des contraintes pratiques et budgétaires, avec quelques variations"| __truncated__
+  .. .. ..$ injectable_summary         : chr "Ce groupe est caractérisé par des contraintes pratiques et budgétaires. Les répondants cherchent des solutions "| __truncated__
+  .. .. ..$ central_verbatim_cues      : chr [1:2] "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessi"| __truncated__ "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offr"| __truncated__
+  .. .. ..$ contrastive_verbatim_cues  : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. .. ..$ tension_verbatim_cues      : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2566
+  .. .. ..$ mean_characters  : num 171
+  .. .. ..$ median_characters: int 173
+  .. .. ..$ iqr_characters   : num 16
+  .. .. ..$ min_characters   : int 149
+  .. .. ..$ max_characters   : int 193
+  .. .. ..$ total_words      : int 418
+  .. .. ..$ mean_words       : num 27.9
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 3.5
+  .. .. ..$ min_words        : int 23
+  .. .. ..$ max_words        : int 31
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. ..$ global_percent        : num [1:8] 1.05 1.05 1.05 1.05 1.05 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. ..$ global_frequency      : num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. ..$ p_value               : num [1:8] 0.000221 0.000221 0.000221 0.000221 0.000221 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.69 3.69 3.69 3.69 3.69 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	2 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:2] "semaine" "habitudes"
+  .. .. .. ..$ within_group_percent  : num [1:2] 0 0
+  .. .. .. ..$ global_percent        : num [1:2] 1.58 1.31
+  .. .. .. ..$ within_group_frequency: num [1:2] 0 0
+  .. .. .. ..$ global_frequency      : num [1:2] 12 10
+  .. .. .. ..$ p_value               : num [1:2] 0.0177 0.0392
+  .. .. .. ..$ v_test                : num [1:2] -2.37 -2.06
+  .. .. .. ..$ direction             : chr [1:2] "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 2
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 246
+  .. .. .. ..$ retained_vocabulary_size       : int 55
+  .. .. .. ..$ type_token_ratio               : num 0.224
+  .. .. .. ..$ shannon_entropy                : num 3.91
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.975
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr [1:2] "J'aimerais acheter autrement, mais ce n'est pas toujours possible. Le local m'intéresse lorsqu'il reste accessi"| __truncated__ "Le prix et le temps disponible déterminent mes choix. Le local m'intéresse lorsqu'il reste accessible. Une offr"| __truncated__
+  .. .. ..$ contrastive: chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. .. ..$ tension    : chr "Je fais mes courses là où c'est rapide et abordable. Les circuits spécialisés me paraissent parfois compliqués."| __truncated__
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "accessible" "faire" "intéresse" ...
+  ..$ Curieux flexibles      :List of 8
+  .. ..$ prompt             : chr "# ROLE\nYou are an expert in qualitative textual analysis working across social science, consumer research, psy"| __truncated__
+  .. ..$ response           :'data.frame':	1 obs. of  3 variables:
+  .. .. ..$ model     : chr "mistral-small3.2"
+  .. .. ..$ response  : chr "{\n  \"groups\": {\n    \"Ancrés locaux\": {\n      \"group\": \"Ancrés locaux\",\n      \"core_textual_profile"| __truncated__
+  .. .. ..$ created_at: chr "2026-07-16 10:41:03 UTC"
+  .. ..$ parsed             :List of 10
+  .. .. ..$ core_textual_profile       : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. ..$ main_themes                : chr [1:2] "Combinaison de plusieurs circuits selon les occasions." "Ouverture aux innovations et découverte de nouvelles façons de manger."
+  .. .. ..$ dominant_concerns          : chr "Recherche d'un équilibre entre curiosité, prix et cohérence."
+  .. .. ..$ tone_or_stance             : chr "Tonalité ouverte et flexible, avec une volonté de découvrir et d'expérimenter."
+  .. .. ..$ intra_group_consistency    : chr "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dan"| __truncated__
+  .. .. ..$ intra_group_consistency_raw: chr "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dan"| __truncated__
+  .. .. ..$ injectable_summary         : chr "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants "| __truncated__
+  .. .. ..$ central_verbatim_cues      : chr [1:2] "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine sui"| __truncated__ "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une inn"| __truncated__
+  .. .. ..$ contrastive_verbatim_cues  : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. .. ..$ tension_verbatim_cues      : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. ..$ corpus_metrics     :List of 15
+  .. .. ..$ n_rows           : int 15
+  .. .. ..$ n_texts          : int 15
+  .. .. ..$ response_rate    : num 1
+  .. .. ..$ total_characters : int 2816
+  .. .. ..$ mean_characters  : num 188
+  .. .. ..$ median_characters: int 190
+  .. .. ..$ iqr_characters   : num 9
+  .. .. ..$ min_characters   : int 163
+  .. .. ..$ max_characters   : int 208
+  .. .. ..$ total_words      : int 435
+  .. .. ..$ mean_words       : num 29
+  .. .. ..$ median_words     : int 29
+  .. .. ..$ iqr_words        : num 2
+  .. .. ..$ min_words        : int 26
+  .. .. ..$ max_words        : int 32
+  .. ..$ lexical_profile    :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 12 6 6
+  .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 16 6 6
+  .. .. .. ..$ p_value               : num [1:8] 0.00118 0.00118 0.00118 0.00118 0.00118 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.24 3.24 3.24 3.24 3.24 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	3 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:3] "temps" "manque" "parfois"
+  .. .. .. ..$ within_group_percent  : num [1:3] 0 0 0
+  .. .. .. ..$ global_percent        : num [1:3] 1.31 1.31 1.18
+  .. .. .. ..$ within_group_frequency: num [1:3] 0 0 0
+  .. .. .. ..$ global_frequency      : num [1:3] 10 10 9
+  .. .. .. ..$ p_value               : num [1:3] 0.0268 0.0268 0.0414
+  .. .. .. ..$ v_test                : num [1:3] -2.21 -2.21 -2.04
+  .. .. .. ..$ direction             : chr [1:3] "underrepresented" "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 3
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 265
+  .. .. .. ..$ retained_vocabulary_size       : int 59
+  .. .. .. ..$ type_token_ratio               : num 0.223
+  .. .. .. ..$ shannon_entropy                : num 3.96
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.972
+  .. ..$ selected_verbatims :List of 3
+  .. .. ..$ central    : chr [1:2] "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine sui"| __truncated__ "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une inn"| __truncated__
+  .. .. ..$ contrastive: chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. .. ..$ tension    : chr "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivan"| __truncated__
+  .. ..$ frequent_terms     : chr [1:5] "répondant" "peux" "acheter" "commander" ...
+  .. ..$ notable_expressions: chr [1:5] "répondant" "peux" "acheter" "commander" ...
+ - attr(*, "corpus_metrics")=List of 3
+  ..$ Ancrés locaux          :List of 15
+  .. ..$ n_rows           : int 15
+  .. ..$ n_texts          : int 15
+  .. ..$ response_rate    : num 1
+  .. ..$ total_characters : int 2753
+  .. ..$ mean_characters  : num 184
+  .. ..$ median_characters: int 180
+  .. ..$ iqr_characters   : num 18
+  .. ..$ min_characters   : int 160
+  .. ..$ max_characters   : int 212
+  .. ..$ total_words      : int 441
+  .. ..$ mean_words       : num 29.4
+  .. ..$ median_words     : int 29
+  .. ..$ iqr_words        : num 2
+  .. ..$ min_words        : int 27
+  .. ..$ max_words        : int 35
+  ..$ Pragmatiques contraints:List of 15
+  .. ..$ n_rows           : int 15
+  .. ..$ n_texts          : int 15
+  .. ..$ response_rate    : num 1
+  .. ..$ total_characters : int 2566
+  .. ..$ mean_characters  : num 171
+  .. ..$ median_characters: int 173
+  .. ..$ iqr_characters   : num 16
+  .. ..$ min_characters   : int 149
+  .. ..$ max_characters   : int 193
+  .. ..$ total_words      : int 418
+  .. ..$ mean_words       : num 27.9
+  .. ..$ median_words     : int 29
+  .. ..$ iqr_words        : num 3.5
+  .. ..$ min_words        : int 23
+  .. ..$ max_words        : int 31
+  ..$ Curieux flexibles      :List of 15
+  .. ..$ n_rows           : int 15
+  .. ..$ n_texts          : int 15
+  .. ..$ response_rate    : num 1
+  .. ..$ total_characters : int 2816
+  .. ..$ mean_characters  : num 188
+  .. ..$ median_characters: int 190
+  .. ..$ iqr_characters   : num 9
+  .. ..$ min_characters   : int 163
+  .. ..$ max_characters   : int 208
+  .. ..$ total_words      : int 435
+  .. ..$ mean_words       : num 29
+  .. ..$ median_words     : int 29
+  .. ..$ iqr_words        : num 2
+  .. ..$ min_words        : int 26
+  .. ..$ max_words        : int 32
+ - attr(*, "length_group_analysis")=List of 9
+  ..$ available          : logi TRUE
+  ..$ reason             : NULL
+  ..$ outcome            : chr "log1p(number of characters)"
+  ..$ n_texts            : int 45
+  ..$ n_groups           : int 3
+  ..$ anova              :List of 6
+  .. ..$ f_value      : num 6.9
+  .. ..$ df1          : int 2
+  .. ..$ df2          : int 42
+  .. ..$ p_value      : num 0.00256
+  .. ..$ eta_squared  : num 0.247
+  .. ..$ omega_squared: num 0.208
+  ..$ welch              :List of 4
+  .. ..$ f_value: num 7.39
+  .. ..$ df1    : num 2
+  .. ..$ df2    : num 27.1
+  .. ..$ p_value: num 0.00274
+  ..$ group_descriptives :'data.frame':	3 obs. of  6 variables:
+  .. ..$ group                : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. ..$ n_texts              : int [1:3] 15 15 15
+  .. ..$ mean_characters      : num [1:3] 184 171 188
+  .. ..$ median_characters    : int [1:3] 180 173 190
+  .. ..$ sd_characters        : num [1:3] 15.1 12.8 10.2
+  .. ..$ mean_log1p_characters: num [1:3] 5.21 5.15 5.24
+  ..$ interpretation_note: chr "This analysis concerns response length only. It does not measure textual quality, richness, validity, or evidential strength."
+ - attr(*, "lexical_analysis")=List of 9
+  ..$ settings                :List of 7
+  .. ..$ lexical_unit               : chr "occurrence"
+  .. ..$ language                   : chr "en"
+  .. ..$ lexical_proba              : num 0.05
+  .. ..$ min_word_frequency         : num 2
+  .. ..$ min_word_length            : num 4
+  .. ..$ top_n_characteristic_words : num 8
+  .. ..$ multiple_testing_adjustment: chr "none"
+  ..$ contingency_table       : num [1:3, 1:150] 15 15 15 0 4 0 0 3 0 0 ...
+  .. ..- attr(*, "dimnames")=List of 2
+  .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ : chr [1:150] "[répondant" "abord" "abordable" "accessible" ...
+  ..$ occurrence_table        : num [1:3, 1:150] 15 15 15 0 4 0 0 3 0 0 ...
+  .. ..- attr(*, "dimnames")=List of 2
+  .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ : chr [1:150] "[répondant" "abord" "abordable" "accessible" ...
+  ..$ raw_occurrence_table    : num [1:3, 1:206] 15 15 15 1 1 1 1 1 1 1 ...
+  .. ..- attr(*, "dimnames")=List of 2
+  .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. ..$ : chr [1:206] "[répondant" "1]" "10]" "11]" ...
+  ..$ retained_occurrence_rate: num 0.588
+  ..$ textual_result          :List of 2
+  .. ..$ cont.table: num [1:3, 1:206] 15 15 15 1 1 1 1 1 1 1 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:3] "Ancrés locaux" "Pragmatiques contraints" "Curieux flexibles"
+  .. .. .. ..$ : chr [1:206] "[répondant" "1]" "10]" "11]" ...
+  .. ..$ nb.words  :'data.frame':	206 obs. of  2 variables:
+  .. .. ..$ words  : int [1:206] 82 45 38 37 34 30 29 23 17 16 ...
+  .. .. ..$ nb.list: int [1:206] 39 45 22 23 23 18 21 21 12 13 ...
+  ..$ descfreq_result         :List of 3
+  .. ..$ Ancrés locaux          : num [1:26, 1:6] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4 2.4 2 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:26] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. ..$ Pragmatiques contraints: num [1:25, 1:6] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:25] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. ..$ Curieux flexibles      : num [1:30, 1:6] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. ..- attr(*, "dimnames")=List of 2
+  .. .. .. ..$ : chr [1:30] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. ..$ : chr [1:6] "Intern %" "glob %" "Intern freq" "Glob freq " ...
+  .. ..- attr(*, "class")= chr [1:2] "descfreq" "list"
+  ..$ group_profiles          :List of 3
+  .. ..$ Ancrés locaux          :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "regarde" "provenance" "producteurs" "marques" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 2.8 2.8 2.8 2.8 2.8 2.8 2.4 2.4
+  .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 7 6 6
+  .. .. .. ..$ p_value               : num [1:8] 0.00078 0.00078 0.00078 0.00078 0.00078 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.36 3.36 3.36 3.36 3.36 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	4 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:4] "peux" "local" "intéresse" "acheter"
+  .. .. .. ..$ within_group_percent  : num [1:4] 0 0 0 0
+  .. .. .. ..$ global_percent        : num [1:4] 2.1 1.97 1.58 1.31
+  .. .. .. ..$ within_group_frequency: num [1:4] 0 0 0 0
+  .. .. .. ..$ global_frequency      : num [1:4] 16 15 12 10
+  .. .. .. ..$ p_value               : num [1:4] 0.00316 0.00475 0.0161 0.0362
+  .. .. .. ..$ v_test                : num [1:4] -2.95 -2.82 -2.41 -2.09
+  .. .. .. ..$ direction             : chr [1:4] "underrepresented" "underrepresented" "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 4
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 250
+  .. .. .. ..$ retained_vocabulary_size       : int 64
+  .. .. .. ..$ type_token_ratio               : num 0.256
+  .. .. .. ..$ shannon_entropy                : num 4.02
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.965
+  .. ..$ Pragmatiques contraints:List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "simples" "reste" "lorsqu" "faire" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 3.25 3.25 3.25 3.25 3.25 ...
+  .. .. .. ..$ global_percent        : num [1:8] 1.05 1.05 1.05 1.05 1.05 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. ..$ global_frequency      : num [1:8] 8 8 8 8 8 6 5 5
+  .. .. .. ..$ p_value               : num [1:8] 0.000221 0.000221 0.000221 0.000221 0.000221 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.69 3.69 3.69 3.69 3.69 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	2 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:2] "semaine" "habitudes"
+  .. .. .. ..$ within_group_percent  : num [1:2] 0 0
+  .. .. .. ..$ global_percent        : num [1:2] 1.58 1.31
+  .. .. .. ..$ within_group_frequency: num [1:2] 0 0
+  .. .. .. ..$ global_frequency      : num [1:2] 12 10
+  .. .. .. ..$ p_value               : num [1:2] 0.0177 0.0392
+  .. .. .. ..$ v_test                : num [1:2] -2.37 -2.06
+  .. .. .. ..$ direction             : chr [1:2] "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 2
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 246
+  .. .. .. ..$ retained_vocabulary_size       : int 55
+  .. .. .. ..$ type_token_ratio               : num 0.224
+  .. .. .. ..$ shannon_entropy                : num 3.91
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.975
+  .. ..$ Curieux flexibles      :List of 6
+  .. .. ..$ analysis_unit       : chr "occurrence"
+  .. .. ..$ characteristic_words: chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. ..$ overrepresented     :'data.frame':	8 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:8] "suivante" "puis" "ligne" "encore" ...
+  .. .. .. ..$ within_group_percent  : num [1:8] 2.64 2.64 2.64 2.64 2.64 ...
+  .. .. .. ..$ global_percent        : num [1:8] 0.92 0.92 0.92 0.92 0.92 ...
+  .. .. .. ..$ within_group_frequency: num [1:8] 7 7 7 7 7 12 6 6
+  .. .. .. ..$ global_frequency      : num [1:8] 7 7 7 7 7 16 6 6
+  .. .. .. ..$ p_value               : num [1:8] 0.00118 0.00118 0.00118 0.00118 0.00118 ...
+  .. .. .. ..$ v_test                : num [1:8] 3.24 3.24 3.24 3.24 3.24 ...
+  .. .. .. ..$ direction             : chr [1:8] "overrepresented" "overrepresented" "overrepresented" "overrepresented" ...
+  .. .. ..$ underrepresented    :'data.frame':	3 obs. of  8 variables:
+  .. .. .. ..$ term                  : chr [1:3] "temps" "manque" "parfois"
+  .. .. .. ..$ within_group_percent  : num [1:3] 0 0 0
+  .. .. .. ..$ global_percent        : num [1:3] 1.31 1.31 1.18
+  .. .. .. ..$ within_group_frequency: num [1:3] 0 0 0
+  .. .. .. ..$ global_frequency      : num [1:3] 10 10 9
+  .. .. .. ..$ p_value               : num [1:3] 0.0268 0.0268 0.0414
+  .. .. .. ..$ v_test                : num [1:3] -2.21 -2.21 -2.04
+  .. .. .. ..$ direction             : chr [1:3] "underrepresented" "underrepresented" "underrepresented"
+  .. .. ..$ marker_counts       :List of 2
+  .. .. .. ..$ n_overrepresented : int 8
+  .. .. .. ..$ n_underrepresented: int 3
+  .. .. ..$ occurrence_metrics  :List of 6
+  .. .. .. ..$ source_table                   : chr "retained occurrence table"
+  .. .. .. ..$ total_retained_word_occurrences: num 265
+  .. .. .. ..$ retained_vocabulary_size       : int 59
+  .. .. .. ..$ type_token_ratio               : num 0.223
+  .. .. .. ..$ shannon_entropy                : num 3.96
+  .. .. .. ..$ normalized_shannon_entropy     : num 0.972
+  ..$ global_association      :List of 10
+  .. ..$ available               : logi TRUE
+  .. ..$ reason                  : NULL
+  .. ..$ chi_square              : num 1117
+  .. ..$ df                      : num 298
+  .. ..$ p_value                 : num 4.84e-95
+  .. ..$ total_inertia           : num 1.47
+  .. ..$ cramers_v               : num 0.857
+  .. ..$ min_expected            : num 0.647
+  .. ..$ percent_expected_below_5: num 98.4
+  .. ..$ interpretation_note     : chr "The chi-square p-value is asymptotic and may be unreliable for a sparse table. Use the expected-count diagnosti"| __truncated__

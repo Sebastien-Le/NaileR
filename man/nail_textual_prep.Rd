@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_textual_prep.R
 \name{nail_textual_prep}
 \alias{nail_textual_prep}
-\title{Prepare structured textual profiles and statistical lexical indicators}
+\title{Prepare traceable textual evidence and semantic group profiles}
 \usage{
 nail_textual_prep(
   dataset,
@@ -30,341 +30,149 @@ nail_textual_prep(
   include_indicators_in_prompt = TRUE,
   compute_length_analysis = TRUE,
   generate = FALSE,
+  analysis_scope = c("general", "sociological", "consumer", "psychological", "marketing",
+    "innovation", "cross_functional"),
+  comparison_mode = c("isolated", "joint"),
+  isolate.groups = NULL,
+  request = NULL,
+  context = NULL,
+  max_prompt_characters = Inf,
   ...
 )
 }
 \arguments{
-\item{dataset}{A data frame containing a grouping variable and an
-open-ended textual variable. Rows generally correspond to individuals,
-observations, or textual contributions.}
+\item{dataset}{A data frame containing a grouping column and a textual column.}
 
-\item{num.var}{A single integer giving the column index of the grouping
-variable in \code{dataset}.}
+\item{num.var}{Integer index of the grouping column.}
 
-\item{num.text}{A single integer giving the column index of the textual
-variable in \code{dataset}. \code{num.var} and \code{num.text} must be different.}
+\item{num.text}{Integer index of the textual column.}
 
-\item{model}{Character string giving the model used by the selected LLM
-provider. The default is \code{"llama3"}.}
+\item{model}{Character scalar naming the LLM model.}
 
-\item{provider}{LLM backend used when \code{generate = TRUE}. One of
-\code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM provider, either \code{"ollama"} or \code{"gemini"}.}
 
-\item{sample.pct}{Numeric value in ]0, 1] giving the proportion of non-empty
-texts shown to the LLM within each group. Statistical indicators are
-always calculated from the complete non-empty corpus.}
+\item{sample.pct}{Fraction of non-empty verbatims retained within each group.
+Values in \verb{[0, 1]} are accepted. Sampling is deterministic for a given data
+set and \code{seed}; all source rows remain in \code{textual_evidence}.}
 
-\item{seed}{Optional seed controlling only within-group text sampling.}
+\item{seed}{Optional integer used by the deterministic within-group sampling
+rank. The implementation does not alter R's global random-number state.}
 
-\item{language}{Language used for the basic stopword list in the mechanical
-lexical analysis. One of \code{"en"}, \code{"fr"}, or \code{"none"}. This argument
-does not translate the texts or control the language of the LLM response.}
+\item{language}{Stop-word language used by the optional lexical analysis.}
 
-\item{prompt_style}{Prompt style passed to \code{\link[=nail_textual]{nail_textual()}}. One of
-\code{"detailed"} or \code{"compact"}.}
+\item{prompt_style}{Prompt verbosity, either \code{"detailed"} or \code{"compact"}.}
 
-\item{text_role}{Name used for textual units in the prompt. One of
-\code{"responses"}, \code{"comments"}, or \code{"verbatims"}.}
+\item{text_role}{Label describing the text column: responses, comments, or
+verbatims.}
 
-\item{include_verbatims_in_prompt}{Logical indicating whether the LLM should
-return central and contrastive verbatim cues.}
+\item{include_verbatims_in_prompt}{Deprecated compatibility argument.
+Traceable semantic profiles always require the sampled verbatims to be
+included. Supplying \code{FALSE} produces a warning and is otherwise ignored.}
 
-\item{attach_selected_verbatims}{Logical indicating whether verbatims should
-also be selected mechanically from the original corpus after generation.}
+\item{attach_selected_verbatims}{Whether to populate the legacy
+\code{selected_verbatims} compatibility view.}
 
-\item{n_central_verbatims}{Maximum number of mechanically selected central
-verbatims per group.}
+\item{n_central_verbatims}{Maximum number of representative verbatims
+requested per group and retained in the legacy view.}
 
-\item{n_tension_verbatims}{Maximum number of mechanically selected
-contrastive verbatims per group. The historical argument name is retained
-for compatibility; these texts are not evidence of a demonstrated
-internal tension.}
+\item{n_tension_verbatims}{Maximum number of tension or contrastive verbatims
+requested per group and retained in the legacy view.}
 
-\item{max_verbatim_chars}{Maximum number of characters retained for each
-mechanically selected verbatim.}
+\item{max_verbatim_chars}{Maximum displayed length in the legacy compatibility
+view. Exact quotations in \code{textual_profiles} are never truncated.}
 
-\item{lexical_analysis}{Logical indicating whether to build a group-by-word
-table and run \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}.}
+\item{lexical_analysis}{Whether to compute mechanical lexical indicators from
+the complete non-empty corpus.}
 
-\item{lexical_unit}{Unit used in the group-by-word table passed to
-\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}. One of:
-\itemize{
-\item \code{"occurrence"}: each cell is the total number of occurrences of a word
-in the group;
-\item \code{"document"}: each cell is the number of individual texts in the group
-containing the word at least once.
-}
+\item{lexical_unit}{Lexical unit used by \code{FactoMineR::descfreq()}:
+occurrences or documents.}
 
-The document-based option limits the influence of highly verbose
-individuals, whereas the occurrence-based option describes the complete
-lexical mass of each group.
-This argument controls the contingency table passed to \code{descfreq()} and
-the global group-by-word association analysis.
+\item{lexical_proba}{Exploratory p-value threshold used for lexical markers.}
 
-It does not change the lexical diversity indicators stored in
-\code{lexical_profile$occurrence_metrics}. These indicators are always
-calculated from the retained word-occurrence table.}
+\item{min_word_frequency}{Minimum retained frequency for a lexical term.}
 
-\item{lexical_proba}{Significance threshold passed to
-\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}. No multiple-testing adjustment is added by this
-function; lexical markers should therefore be treated as exploratory.}
+\item{min_word_length}{Minimum retained word length.}
 
-\item{min_word_frequency}{Minimum global frequency required for a word to be
-retained in the lexical contingency table. With \code{lexical_unit = "document"}, this is a minimum number of texts containing the word.}
+\item{top_n_characteristic_words}{Maximum number of positive and negative
+lexical markers retained per group.}
 
-\item{min_word_length}{Minimum number of characters required for a word to
-be retained after tokenization.}
+\item{top_n_frequent_terms}{Number of mechanically frequent terms retained per
+group.}
 
-\item{top_n_characteristic_words}{Maximum number of over-represented and
-under-represented words retained per group from \code{descfreq()}.}
+\item{include_indicators_in_prompt}{Whether mechanical diagnostics and lexical
+indicators are included in the LLM prompt. This does not modify
+\code{textual_evidence}.}
 
-\item{top_n_frequent_terms}{Number of simple frequency-ranked terms returned
-per group. These terms are not necessarily statistically characteristic.}
+\item{compute_length_analysis}{Whether to compute the mechanical response-
+length analysis.}
 
-\item{include_indicators_in_prompt}{Logical indicating whether group-specific
-corpus metrics and lexical markers should be inserted into the prompt.
-This gives the isolated LLM prompt comparative lexical evidence even
-though the raw texts of the other groups are not displayed.}
+\item{generate}{Logical. When \code{FALSE}, all evidence and prompts are built but
+no LLM call is made.}
 
-\item{compute_length_analysis}{Logical indicating whether to analyse the
-association between group membership and response length. The outcome is
-\verb{log1p(number of characters)}. The returned analysis includes classical
-ANOVA, Welch's test, eta-squared, and omega-squared.}
+\item{analysis_scope}{Analytical prism: \code{"general"}, \code{"sociological"},
+\code{"consumer"}, \code{"psychological"}, \code{"marketing"}, \code{"innovation"}, or
+\code{"cross_functional"}.}
 
-\item{generate}{Logical. If \code{FALSE}, the enriched prompts and mechanical
-indicators are returned without calling an LLM. If \code{TRUE}, one request is
-sent independently for each group and the responses are parsed.}
+\item{comparison_mode}{\code{"isolated"} creates one generation unit per group;
+\code{"joint"} creates one unit containing all groups that have at least one
+verbatim included in the prompt. Groups without usable prompt evidence
+remain fully represented in \code{textual_evidence}.}
 
-\item{...}{Additional provider-specific arguments passed to the selected LLM
-backend.}
+\item{isolate.groups}{Deprecated logical alias for \code{comparison_mode}.}
+
+\item{request}{Optional additional analytical request. It supplements but
+cannot replace the mandatory evidence and JSON rules.}
+
+\item{context}{Optional external context supplied as a character scalar or a
+named list. It is displayed separately from the textual evidence.}
+
+\item{max_prompt_characters}{Maximum number of characters of verbatim evidence
+included per group after sampling. This is a character budget, not a token
+count. Use \code{Inf} for no budget.}
+
+\item{...}{Additional provider-specific LLM options.}
 }
 \value{
-With \code{generate = FALSE}, a named list of enriched character prompts is
-returned. With \code{generate = TRUE}, a named list is returned with one element
-per group. Each group element contains:
+A list of class \code{nail_textual_prep} containing:
 \itemize{
-\item \code{prompt}: exact prompt sent to the LLM;
-\item \code{response}: raw LLM response;
-\item \code{parsed}: structured fields extracted from the response;
-\item \code{corpus_metrics}: explicit group-level corpus indicators;
-\item \code{lexical_profile}: the lexical analysis unit, over-represented and
-under-represented words, marker counts, and occurrence-based descriptive
-indicators;
-\item \code{selected_verbatims}: \code{central}, \code{contrastive}, and the backward-compatible
-alias \code{tension};
-\item \code{frequent_terms}: most frequent filtered terms;
-\item \code{notable_expressions}: backward-compatible alias of \code{frequent_terms}.
+\item \code{prompt}, \code{response}, and \code{parsed};
+\item \code{textual_profiles}, the validated semantic artifact or \code{NULL};
+\item \code{textual_evidence}, the complete mechanical artifact;
+\item \code{units}, one generation record per group or one joint record;
+\item \code{legacy_groups}, a transitional view of the historical fields;
+\item \code{metadata}, including the preparation scope, comparison mode, stored
+context, preparation request, and compatibility settings required to
+resume an offline preparation without rebuilding its evidence.
 }
 
-The complete returned object has the following attributes:
-\itemize{
-\item \code{corpus_metrics};
-\item \code{length_group_analysis};
-\item \code{lexical_analysis}, containing the contingency tables, raw
-\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}} result, group lexical profiles, global association,
-and analysis settings;
-\item \code{textual_data_summary}, inherited from \code{\link[=nail_textual]{nail_textual()}} for backward
-compatibility.
-}
+\code{textual_evidence} is invariant to model, provider, request, context,
+\code{analysis_scope}, \code{comparison_mode}, prompt style, and \code{generate} when the
+data and mechanical settings are unchanged.
 }
 \description{
-Builds one structured textual profile for each level of a grouping variable.
-The function combines three complementary layers of evidence:
-}
-\details{
-\enumerate{
-\item a language-model synthesis of the raw texts;
-\item explicit corpus-volume and response-length indicators;
-\item a statistical lexical characterization based on a group-by-word
-contingency table and \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}.
-}
+\code{nail_textual_prep()} separates two layers. R first builds a complete and
+deterministic \code{textual_evidence} object containing every source row,
+verbatim identifier, volume diagnostic, sampling decision, lexical indicator,
+and evidence registry. An optional language model then produces structured
+\code{textual_profiles} whose claims must cite verbatim identifiers that were
+actually included in the prompt.
 
-The output is intended for later triangulation with a statistical group
-profile in \code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}}. The function does not collapse
-these different layers into a single score, because response quantity,
-lexical specificity, internal diversity, and semantic interpretation do not
-measure the same construct.
-\subsection{Separation from \code{nail_textual()}}{
-
-\code{nail_textual()} remains the general-purpose function for free narrative
-interpretation of grouped texts. \code{nail_textual_prep()} is a preparation
-function: it creates a stable, parseable object intended for reuse by a
-later workflow.
-
-Internally, \code{nail_textual_prep()} first calls \code{\link[=nail_textual]{nail_textual()}} with
-\code{isolate.groups = TRUE} and \code{generate = FALSE} to construct one base prompt
-per group. It then adds group-specific mechanical indicators and performs
-generation itself when requested.
-}
-
-\subsection{Corpus metrics}{
-
-For each group, \code{corpus_metrics} reports explicit quantities rather than an
-undocumented \code{evidence_strength} label:
-\itemize{
-\item number of rows and number of non-empty texts;
-\item response rate;
-\item total, mean, median, interquartile range, minimum, and maximum numbers of
-characters;
-\item the same descriptive indicators for word-like tokens.
-}
-
-These metrics describe corpus volume only. They do not measure quality,
-richness, representativeness, validity, or saturation.
-}
-
-\subsection{Response-length group effect}{
-
-When \code{compute_length_analysis = TRUE}, a one-way model is fitted to
-\verb{log1p(number of characters)}. The analysis reports:
-\itemize{
-\item the classical ANOVA F-test;
-\item Welch's heteroscedastic one-way test;
-\item eta-squared and omega-squared effect sizes;
-\item group-level descriptive statistics.
-}
-
-This analysis answers whether groups differ in quantity of expression. It
-must not be interpreted as a test of textual content or quality.
-}
-
-\subsection{Statistical lexical profile}{
-
-The occurrence table is constructed with \code{\link[FactoMineR:textual]{FactoMineR::textual()}}. After
-stopword, length, and global-frequency filtering, the selected contingency
-table is analysed with \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}. For each group, the function
-separates:
-\itemize{
-\item over-represented words, which occur comparatively more often than in the
-complete corpus;
-\item under-represented words, which occur comparatively less often.
-}
-
-A characteristic word is a comparative lexical marker. It is not
-necessarily used by every individual, it is not by itself a complete theme,
-and its absence must not be interpreted as rejection of the corresponding
-topic.
-
-The complete lexical analysis also reports a global chi-square association,
-total correspondence-analysis inertia, Cramer's V, and expected-count
-diagnostics. The asymptotic p-value may be unreliable when the word table is
-sparse; the diagnostics are returned so that this limitation remains
-visible.
-}
-
-\subsection{Occurrence-based lexical indicators}{
-
-Independently of \code{lexical_unit}, the function calculates several
-descriptive indicators from the retained group-by-word occurrence table.
-
-These indicators are stored in:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{lexical_profile$occurrence_metrics
-}\if{html}{\out{</div>}}
-
-They include:
-\itemize{
-\item \code{total_retained_word_occurrences}: total number of retained word
-occurrences after stopword, word-length, and frequency filtering;
-\item \code{retained_vocabulary_size}: number of retained distinct word forms;
-\item \code{type_token_ratio}: ratio between retained vocabulary size and retained
-word occurrences;
-\item \code{shannon_entropy}: entropy of the retained word-frequency distribution;
-\item \code{normalized_shannon_entropy}: Shannon entropy divided by its theoretical
-maximum for the retained vocabulary.
-}
-
-These indicators are always calculated from word occurrences, including
-when \code{lexical_unit = "document"}. In that case, the document-frequency
-table is used for \code{descfreq()}, whereas the occurrence table is used for
-these descriptive indicators.
-
-The word \code{retained} is important: these quantities concern only terms that
-remain after lexical filtering. They are therefore different from the
-unfiltered word counts reported in \code{corpus_metrics}.
-
-The type-token ratio and entropy depend on corpus size and preprocessing.
-They must not be interpreted as intrinsic measures of intellectual,
-linguistic, or evidential quality.
-}
-
-\subsection{LLM and mechanical evidence}{
-
-The parsed LLM response contains a core textual profile, main themes,
-expressed concerns or reasons, tone or stance, intra-group consistency, and
-an injectable summary. Optional LLM verbatim cues may be paraphrased.
-
-Mechanically selected verbatims are taken directly from the original corpus.
-Central selection uses both the parsed themes and statistically
-over-represented words. Contrastive selection favors texts that are less
-aligned with the central keywords and lexically more distant from the
-selected central texts.
-
-Neither procedure demonstrates that a text is representative of every group
-member or that a contrastive text constitutes an internal contradiction.
-}
-
-\subsection{Sampling}{
-
-\code{sample.pct} affects only the texts displayed to the LLM. Corpus metrics,
-lexical tables, \code{descfreq()} results, frequent terms, and mechanically
-selected verbatims are calculated from the complete available corpus. The
-prompt states this explicitly when sampling is used.
-}
+The function is a preparation workflow rather than a final narrative report.
+Its outputs are intended for later use by \code{nail_textual()} and
+\code{nail_textual_contextualized()}.
 }
 \examples{
-textual_example <- data.frame(
-  group = factor(c(
-    rep("Local orientation", 4),
-    rep("Convenience orientation", 4)
-  )),
-  response = c(
-    "I prefer the local market and seasonal products.",
-    "Buying directly from nearby producers matters to me.",
-    "I try to support local shops and regional food.",
-    "Knowing where products come from is important.",
-    "Shopping must be fast and easy after work.",
-    "The supermarket is practical because everything is available.",
-    "Opening hours and convenience guide my choices.",
-    "I use the drive service because it saves time."
-  ),
-  stringsAsFactors = FALSE
-)
-
-prep_prompts <- nail_textual_prep(
-  textual_example,
+prep <- nail_textual_prep(
+  dataset = local_food,
   num.var = 1,
   num.text = 2,
-  language = "en",
-  lexical_unit = "document",
-  min_word_frequency = 1,
+  sample.pct = 0.5,
+  seed = 123,
+  lexical_analysis = FALSE,
   generate = FALSE
 )
 
-names(prep_prompts)
-attr(prep_prompts, "corpus_metrics")
-attr(prep_prompts, "length_group_analysis")
-attr(prep_prompts, "lexical_analysis")$group_profiles
+prep$textual_evidence$group_diagnostics
+prep$prompt
 
-\dontrun{
-textual_result <- nail_textual_prep(
-  textual_example,
-  num.var = 1,
-  num.text = 2,
-  model = "llama3",
-  provider = "ollama",
-  language = "en",
-  lexical_unit = "document",
-  min_word_frequency = 1,
-  generate = TRUE
-)
-
-textual_result[["Local orientation"]]$parsed
-textual_result[["Local orientation"]]$lexical_profile
-textual_result[["Local orientation"]]$selected_verbatims
-}
-}
-\seealso{
-\code{\link[=nail_textual]{nail_textual()}}, \code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}},
-\code{\link[FactoMineR:textual]{FactoMineR::textual()}}, \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}
 }

@@ -1,0 +1,25 @@
+INTERNAL HELPER: .nail_textual_validate_preparation
+
+FORMALS:
+as.pairlist(alist(x = ))
+
+BODY:
+function(x) {
+  if (!.nail_textual_is_preparation(x)) {
+    stop(
+      "`x` must be a valid object returned by `nail_textual_prep()`.",
+      call. = FALSE
+    )
+  }
+  if (!is.list(x$textual_evidence) || is.null(x$textual_evidence$evidence_registry)) {
+    stop("The preparation does not contain a valid `textual_evidence` object.", call. = FALSE)
+  }
+  if (!is.list(x$units)) {
+    stop("The preparation does not contain valid generation `units`.", call. = FALSE)
+  }
+  if (!is.list(x$metadata)) {
+    stop("The preparation does not contain valid `metadata`.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

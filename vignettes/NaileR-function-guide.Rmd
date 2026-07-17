@@ -270,35 +270,44 @@ profile_prep[[1]]$parsed
 
 # Contextualized textual interpretation
 
-`nail_textual_contextualized()` crosses the prepared statistical profile and
-the prepared textual profile for common groups.
+`nail_textual_contextualized()` now uses modular evidence integration by
+default. Each eligible group is analyzed in a separate validated request. In
+`comparison_mode = "joint"`, a final cross-group synthesis is generated only
+after the group results have passed validation. Specialized social,
+psychological, marketing, or innovation expertise is not mixed into this core
+integration step.
 
 ```{r}
 contextualized_prompts <- nail_textual_contextualized(
-  group_profile_prep = profile_prep,
-  textual_prep = textual_prep,
-  interpretation_mode = "comparative",
-  include_verbatims = TRUE,
+  statistical_profiles = profile_prep,
+  textual_preparation = textual_prep,
+  comparison_mode = "joint",
+  integration_mode = "modular",
+  expertise = "integration",
   generate = FALSE
 )
 ```
 
-In no-generation mode, both preparation objects must already exist. This
-ensures that `generate = FALSE` remains a strictly offline prompt-building
-mode.
+With `generate = FALSE`, no backend is contacted. Group prompts and schemas are
+built, while the cross-group prompt remains unavailable until at least two
+group analyses have been validated.
 
-To produce the final interpretation:
+To generate the integrated analysis:
 
 ```{r}
 contextualized_result <- nail_textual_contextualized(
-  group_profile_prep = profile_prep,
-  textual_prep = textual_prep,
-  interpretation_mode = "comparative",
+  statistical_profiles = profile_prep,
+  textual_preparation = textual_prep,
+  comparison_mode = "joint",
+  integration_mode = "modular",
   provider = "ollama",
   model = "llama3",
   generate = TRUE
 )
 ```
+
+The historical monolithic contract remains temporarily accessible with
+`integration_mode = "legacy"`.
 
 # QDA and sensory workflows
 

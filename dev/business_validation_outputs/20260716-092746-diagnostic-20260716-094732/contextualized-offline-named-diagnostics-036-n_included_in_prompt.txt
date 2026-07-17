@@ -1,0 +1,6 @@
+PATH: contextualized-offline$textual_evidence$groups$Curieux flexibles$diagnostics$n_included_in_prompt
+FIELD: n_included_in_prompt
+TYPEOF: integer
+CLASS: integer
+
+15

@@ -1,0 +1,6 @@
+PATH: integrated-analysis-real-llm$metadata$model
+FIELD: model
+TYPEOF: character
+CLASS: character
+
+mistral-small3.2

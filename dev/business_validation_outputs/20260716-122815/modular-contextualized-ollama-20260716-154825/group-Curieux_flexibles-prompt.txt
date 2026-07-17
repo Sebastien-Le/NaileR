@@ -1,0 +1,663 @@
+ROLE
+You are an evidence-integration analyst. You are not acting as a sociologist, psychologist, marketer, innovation consultant, or operational strategist.
+
+TASK
+Integrate the statistical and textual evidence for exactly one group. Describe only what the supplied evidence supports.
+
+REQUIRED OUTPUT
+- one concise integrated profile;
+- at most 2 statistical-textual convergence claims;
+- at most 2 statistical-textual tension claims;
+- at most one statistical-only finding;
+- at most one textual-only finding;
+- one or two interpretation limits.
+
+EVIDENCE RULES
+The integrated profile, every convergence, and every tension must cite at least one statistical and one textual evidence ID.
+A statistical-only finding must cite statistical evidence only. A textual-only finding must cite textual evidence only.
+Every interpretation limit must cite at least one supplied evidence ID showing the scope or coverage limitation.
+Use only exact IDs supplied below. Do not infer causality, demographics, social identity, psychological mechanisms, or recommendations.
+Set status to expert_interpretation. Use relationship values exactly as required by the section.
+
+OUTPUT SCHEMA
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "group",
+    "integrated_profile",
+    "convergences",
+    "tensions",
+    "statistical_only_findings",
+    "textual_only_findings",
+    "interpretation_limits"
+  ],
+  "propertyOrdering": [
+    "group",
+    "integrated_profile",
+    "convergences",
+    "tensions",
+    "statistical_only_findings",
+    "textual_only_findings",
+    "interpretation_limits"
+  ],
+  "properties": {
+    "group": {
+      "type": "string",
+      "enum": [
+        "Curieux flexibles"
+      ]
+    },
+    "integrated_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text",
+        "status",
+        "statistical_evidence_ids",
+        "textual_evidence_ids",
+        "relationship",
+        "validation_needed"
+      ],
+      "propertyOrdering": [
+        "text",
+        "status",
+        "statistical_evidence_ids",
+        "textual_evidence_ids",
+        "relationship",
+        "validation_needed"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "expert_interpretation"
+          ]
+        },
+        "statistical_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "textual_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "relationship": {
+          "type": "string",
+          "enum": [
+            "convergence",
+            "tension",
+            "statistical_only",
+            "textual_only",
+            "scope_limit"
+          ]
+        },
+        "validation_needed": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "convergences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    },
+    "tensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    },
+    "statistical_only_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "textual_only_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "interpretation_limits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "propertyOrdering": [
+          "text",
+          "status",
+          "statistical_evidence_ids",
+          "textual_evidence_ids",
+          "relationship",
+          "validation_needed"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expert_interpretation"
+            ]
+          },
+          "statistical_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "textual_evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0,
+            "maxItems": 8
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "convergence",
+              "tension",
+              "statistical_only",
+              "textual_only",
+              "scope_limit"
+            ]
+          },
+          "validation_needed": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 2
+    }
+  }
+}
+
+GROUP DATA
+{
+  "group": "Curieux flexibles",
+  "integration_limits": [],
+  "statistical_profile": {
+    "factual_summary": "Group Curieux flexibles has 4 retained qualitative marker(s) and 1 retained quantitative marker(s): 3 positive-direction marker(s), 2 negative-direction marker(s), and 0 neutral marker(s).",
+    "qualitative_markers": [
+      {
+        "evidence_id": "Curieux flexibles::quali::organic_purchase::Parfois",
+        "variable": "organic_purchase",
+        "modality": "Parfois",
+        "direction": "overrepresented",
+        "percentage_in_group": 80,
+        "global_percentage": 44.4444,
+        "v_test": 3.296,
+        "p_value": 0.001,
+        "rank": 1
+      },
+      {
+        "evidence_id": "Curieux flexibles::quali::purchase_place::En ligne/mixte",
+        "variable": "purchase_place",
+        "modality": "En ligne/mixte",
+        "direction": "overrepresented",
+        "percentage_in_group": 33.3333,
+        "global_percentage": 11.1111,
+        "v_test": 3.0285,
+        "p_value": 0.0025,
+        "rank": 2
+      },
+      {
+        "evidence_id": "Curieux flexibles::quali::purchase_place::Hard-discount",
+        "variable": "purchase_place",
+        "modality": "Hard-discount",
+        "direction": "underrepresented",
+        "percentage_in_group": 0,
+        "global_percentage": 20,
+        "v_test": -2.4056,
+        "p_value": 0.0161,
+        "rank": 3
+      },
+      {
+        "evidence_id": "Curieux flexibles::quali::organic_purchase::Rarement",
+        "variable": "organic_purchase",
+        "modality": "Rarement",
+        "direction": "underrepresented",
+        "percentage_in_group": 6.6667,
+        "global_percentage": 28.8889,
+        "v_test": -2.3071,
+        "p_value": 0.0211,
+        "rank": 4
+      }
+    ],
+    "quantitative_markers": [
+      {
+        "evidence_id": "Curieux flexibles::quanti::openness_to_innovation",
+        "variable": "openness_to_innovation",
+        "direction": "higher",
+        "group_mean": 7.803,
+        "overall_mean": 5.6242,
+        "v_test": 5.2175,
+        "p_value": 1.8133e-07,
+        "rank": 1
+      }
+    ]
+  },
+  "textual_profile": {
+    "core_textual_profile": {
+      "text": "Ce groupe est caractérisé par une curiosité et une flexibilité dans les pratiques alimentaires. Les répondants combinent plusieurs circuits et sont ouverts aux innovations, tout en cherchant un équilibre entre curiosité, prix et cohérence.",
+      "status": "expert_interpretation",
+      "evidence_ids": ["Curieux flexibles::verbatim::31", "Curieux flexibles::verbatim::32"],
+      "validation_needed": null
+    },
+    "main_themes": [
+      {
+        "text": "Combinaison de plusieurs circuits selon les occasions.",
+        "status": "expert_interpretation",
+        "evidence_ids": ["Curieux flexibles::verbatim::31", "Curieux flexibles::verbatim::36"],
+        "validation_needed": null
+      },
+      {
+        "text": "Ouverture aux innovations et découverte de nouvelles façons de manger.",
+        "status": "expert_interpretation",
+        "evidence_ids": ["Curieux flexibles::verbatim::32", "Curieux flexibles::verbatim::34"],
+        "validation_needed": null
+      }
+    ],
+    "dominant_concerns": [
+      {
+        "text": "Recherche d'un équilibre entre curiosité, prix et cohérence.",
+        "status": "expert_interpretation",
+        "evidence_ids": ["Curieux flexibles::verbatim::35", "Curieux flexibles::verbatim::39"],
+        "validation_needed": null
+      }
+    ],
+    "tone_or_stance": {
+      "text": "Tonalité ouverte et flexible, avec une volonté de découvrir et d'expérimenter.",
+      "status": "expert_interpretation",
+      "evidence_ids": ["Curieux flexibles::verbatim::32", "Curieux flexibles::verbatim::38"],
+      "validation_needed": null
+    },
+    "contradictions": [],
+    "minority_positions": [
+      {
+        "text": "Certains répondants expriment une difficulté à trouver un équilibre entre curiosité et praticité.",
+        "status": "expert_interpretation",
+        "evidence_ids": "Curieux flexibles::verbatim::35",
+        "validation_needed": null
+      }
+    ],
+    "intra_group_consistency": {
+      "text": "Les répondants partagent une cohésion autour de la curiosité et de la flexibilité, avec quelques variations dans les expressions de difficulté à trouver un équilibre.",
+      "status": "expert_interpretation",
+      "evidence_ids": ["Curieux flexibles::verbatim::31", "Curieux flexibles::verbatim::32"],
+      "validation_needed": null
+    },
+    "interpretation_limits": [
+      {
+        "text": "Les verbatims cités représentent une partie des données. Une analyse complète nécessiterait l'examen de l'ensemble du corpus.",
+        "status": "expert_interpretation",
+        "evidence_ids": "Curieux flexibles::verbatim::31",
+        "validation_needed": null
+      }
+    ]
+  },
+  "verbatims": [
+    {
+      "evidence_id": "Curieux flexibles::verbatim::31",
+      "original_text": "Je combine plusieurs circuits selon les occasions. Je peux acheter local puis commander en ligne la semaine suivante. Je peux changer rapidement si l'expérience est convaincante. [répondant 1]",
+      "row_index": 31,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::32",
+      "original_text": "J'aime découvrir de nouvelles façons de manger. La diversité et la praticité sont importantes pour moi. Une innovation doit rester simple à utiliser. [répondant 2]",
+      "row_index": 32,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::33",
+      "original_text": "Je teste volontiers de nouveaux produits et services. Je m'intéresse aux alternatives, même si mes habitudes évoluent encore. Une innovation doit rester simple à utiliser. [répondant 3]",
+      "row_index": 33,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::34",
+      "original_text": "J'aime découvrir de nouvelles façons de manger. Je m'intéresse aux alternatives, même si mes habitudes évoluent encore. Une innovation doit rester simple à utiliser. [répondant 4]",
+      "row_index": 34,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::35",
+      "original_text": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je cherche encore un équilibre entre curiosité, prix et cohérence. [répondant 5]",
+      "row_index": 35,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::36",
+      "original_text": "Je combine plusieurs circuits selon les occasions. Je suis sensible aux innovations utiles, pas seulement au discours. Je ne suis pas toujours régulier dans mes pratiques. [répondant 6]",
+      "row_index": 36,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::37",
+      "original_text": "Les applications et les recommandations m'aident à explorer. Je peux acheter local puis commander en ligne la semaine suivante. Je cherche encore un équilibre entre curiosité, prix et cohérence. [répondant 7]",
+      "row_index": 37,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::38",
+      "original_text": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je ne suis pas toujours régulier dans mes pratiques. [répondant 8]",
+      "row_index": 38,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::39",
+      "original_text": "Je teste volontiers de nouveaux produits et services. La diversité et la praticité sont importantes pour moi. Je cherche encore un équilibre entre curiosité, prix et cohérence. [répondant 9]",
+      "row_index": 39,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::40",
+      "original_text": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je peux changer rapidement si l'expérience est convaincante. [répondant 10]",
+      "row_index": 40,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::41",
+      "original_text": "Je combine plusieurs circuits selon les occasions. Je m'intéresse aux alternatives, même si mes habitudes évoluent encore. Je peux changer rapidement si l'expérience est convaincante. [répondant 11]",
+      "row_index": 41,
+      "included_in_prompt": true
+    },
+    {
+      "evidence_id": "Curieux flexibles::verbatim::42",
+      "original_text": "J'aime découvrir de nouvelles façons de manger. Je peux acheter local puis commander en ligne la semaine suivante. Je peux changer rapidement si l'expérience est convaincante. [répondant 12]",
+      "row_index": 42,
+      "included_in_prompt": true
+    }
+  ],
+  "allowed_statistical_evidence_ids": ["Curieux flexibles::quali::organic_purchase::Parfois", "Curieux flexibles::quali::purchase_place::En ligne/mixte", "Curieux flexibles::quali::purchase_place::Hard-discount", "Curieux flexibles::quali::organic_purchase::Rarement", "Curieux flexibles::quanti::openness_to_innovation"],
+  "allowed_textual_evidence_ids": ["Curieux flexibles::verbatim::31", "Curieux flexibles::verbatim::32", "Curieux flexibles::verbatim::33", "Curieux flexibles::verbatim::34", "Curieux flexibles::verbatim::35", "Curieux flexibles::verbatim::36", "Curieux flexibles::verbatim::37", "Curieux flexibles::verbatim::38", "Curieux flexibles::verbatim::39", "Curieux flexibles::verbatim::40", "Curieux flexibles::verbatim::41", "Curieux flexibles::verbatim::42", "Curieux flexibles::verbatim::43", "Curieux flexibles::verbatim::44", "Curieux flexibles::verbatim::45"]
+}

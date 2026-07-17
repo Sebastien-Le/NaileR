@@ -1,0 +1,22 @@
+INTERNAL HELPER: .extract_group_profile_parsed
+
+FORMALS:
+as.pairlist(alist(x = ))
+
+BODY:
+function(x) {
+  if (is.null(x)) return(NULL)
+  if (is.list(x) && is.list(x$groups) && is.data.frame(x$evidence_registry)) {
+    return(lapply(x$groups, .catdes_group_to_legacy_summary))
+  }
+  profiles <- attr(x, "statistical_profiles", exact = TRUE)
+  if (inherits(profiles, "statistical_profiles") && is.list(profiles$groups)) {
+    return(lapply(profiles$groups, .catdes_group_to_legacy_summary))
+  }
+  if (is.list(x) && length(x) > 0L) {
+    ok <- vapply(x, function(el) is.list(el) && "parsed" %in% names(el), logical(1))
+    if (any(ok)) return(lapply(x[ok], function(el) el$parsed))
+  }
+  NULL
+}
+<environment: namespace:NaileR>

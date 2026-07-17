@@ -1,0 +1,142 @@
+INTERNAL HELPER: .validate_textual_prep_options
+
+FORMALS:
+as.pairlist(alist(dataset = , num.var = , num.text = , sample.pct = , seed = , max_prompt_characters = , include_verbatims_in_prompt = , attach_selected_verbatims = , n_central_verbatims = , n_tension_verbatims = , max_verbatim_chars = , lexical_analysis = , lexical_proba = , min_word_frequency = , min_word_length = , top_n_characteristic_words = , top_n_frequent_terms = , include_indicators_in_prompt = , compute_length_analysis = , generate = , request = , context = ))
+
+BODY:
+function(dataset,
+                                           num.var,
+                                           num.text,
+                                           sample.pct,
+                                           seed,
+                                           max_prompt_characters,
+                                           include_verbatims_in_prompt,
+                                           attach_selected_verbatims,
+                                           n_central_verbatims,
+                                           n_tension_verbatims,
+                                           max_verbatim_chars,
+                                           lexical_analysis,
+                                           lexical_proba,
+                                           min_word_frequency,
+                                           min_word_length,
+                                           top_n_characteristic_words,
+                                           top_n_frequent_terms,
+                                           include_indicators_in_prompt,
+                                           compute_length_analysis,
+                                           generate,
+                                           request,
+                                           context) {
+  if (!is.data.frame(dataset)) {
+    stop("`dataset` must be a data frame.", call. = FALSE)
+  }
+
+  validate_index <- function(x, name) {
+    if (!is.numeric(x) || length(x) != 1L || is.na(x) || !is.finite(x) ||
+        x != floor(x) || x < 1L || x > ncol(dataset)) {
+      stop(sprintf("`%s` must be a valid column index.", name), call. = FALSE)
+    }
+  }
+
+  validate_index(num.var, "num.var")
+  validate_index(num.text, "num.text")
+
+  if (num.var == num.text) {
+    stop("`num.var` and `num.text` must refer to different columns.", call. = FALSE)
+  }
+
+  if (!is.numeric(sample.pct) || length(sample.pct) != 1L || is.na(sample.pct) ||
+      !is.finite(sample.pct) || sample.pct < 0 || sample.pct > 1) {
+    stop("`sample.pct` must be a single numeric value in [0, 1].", call. = FALSE)
+  }
+
+  if (!is.null(seed) &&
+      (!is.numeric(seed) || length(seed) != 1L || is.na(seed) ||
+       !is.finite(seed) || seed != floor(seed))) {
+    stop("`seed` must be NULL or a single finite integer.", call. = FALSE)
+  }
+
+  if (is.null(max_prompt_characters)) {
+    max_prompt_characters <- Inf
+  }
+  if (!is.numeric(max_prompt_characters) || length(max_prompt_characters) != 1L ||
+      is.na(max_prompt_characters) || max_prompt_characters < 0) {
+    stop(
+      "`max_prompt_characters` must be NULL, Inf, or a single non-negative number.",
+      call. = FALSE
+    )
+  }
+
+  logical_args <- list(
+    include_verbatims_in_prompt = include_verbatims_in_prompt,
+    attach_selected_verbatims = attach_selected_verbatims,
+    lexical_analysis = lexical_analysis,
+    include_indicators_in_prompt = include_indicators_in_prompt,
+    compute_length_analysis = compute_length_analysis,
+    generate = generate
+  )
+
+  invalid_logicals <- names(logical_args)[
+    !vapply(
+      logical_args,
+      function(x) is.logical(x) && length(x) == 1L && !is.na(x),
+      logical(1)
+    )
+  ]
+
+  if (length(invalid_logicals) > 0L) {
+    stop(
+      sprintf(
+        "The following arguments must be single non-missing logical values: %s.",
+        paste(invalid_logicals, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  integer_args <- list(
+    n_central_verbatims = n_central_verbatims,
+    n_tension_verbatims = n_tension_verbatims,
+    min_word_frequency = min_word_frequency,
+    min_word_length = min_word_length,
+    top_n_characteristic_words = top_n_characteristic_words,
+    top_n_frequent_terms = top_n_frequent_terms
+  )
+
+  for (arg_name in names(integer_args)) {
+    value <- integer_args[[arg_name]]
+    minimum <- if (arg_name %in% c(
+      "n_central_verbatims",
+      "n_tension_verbatims",
+      "top_n_characteristic_words",
+      "top_n_frequent_terms"
+    )) 0L else 1L
+
+    if (!is.numeric(value) || length(value) != 1L || is.na(value) ||
+        !is.finite(value) || value != floor(value) || value < minimum) {
+      stop(
+        sprintf("`%s` must be a single integer >= %d.", arg_name, minimum),
+        call. = FALSE
+      )
+    }
+  }
+
+  if (!is.numeric(max_verbatim_chars) || length(max_verbatim_chars) != 1L ||
+      is.na(max_verbatim_chars) || !is.finite(max_verbatim_chars) ||
+      max_verbatim_chars != floor(max_verbatim_chars) || max_verbatim_chars < 4L) {
+    stop("`max_verbatim_chars` must be a single integer >= 4.", call. = FALSE)
+  }
+
+  if (!is.numeric(lexical_proba) || length(lexical_proba) != 1L ||
+      is.na(lexical_proba) || !is.finite(lexical_proba) ||
+      lexical_proba <= 0 || lexical_proba > 1) {
+    stop("`lexical_proba` must be a single numeric value in ]0, 1].", call. = FALSE)
+  }
+
+  if (!is.null(request) && !.textual_prep_is_scalar_string(request)) {
+    stop("`request` must be NULL or a non-empty character scalar.", call. = FALSE)
+  }
+
+  .textual_prep_validate_context(context)
+  invisible(TRUE)
+}
+<environment: namespace:NaileR>

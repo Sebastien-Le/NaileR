@@ -1,0 +1,4 @@
+"group","n_non_empty","n_included_in_prompt","n_not_sampled","n_prompt_budget","sampling_fraction","prompt_character_count"
+"Ancrés locaux",15,15,0,0,1,3194
+"Pragmatiques contraints",15,15,0,0,1,3166
+"Curieux flexibles",15,15,0,0,1,3326

@@ -1,0 +1,6 @@
+PATH: contextualized-offline$contextualized_evidence$metadata$textual_schema
+FIELD: textual_schema
+TYPEOF: NULL
+CLASS: NULL
+
+ NULL
