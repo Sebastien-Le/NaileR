@@ -805,18 +805,143 @@ test_that("structured catdes is the default and exposes ergonomic components", {
     result$preparation$interpretation_evidence,
     result$interpretation_evidence
   )
-  expect_setequal(names(result$prompt), names(profiles$groups))
+  expect_true(is.character(result$prompt))
+  expect_length(result$prompt, 1L)
+
+  ready_groups <- names(
+    result$interpretation_evidence$groups
+  )[vapply(
+    result$interpretation_evidence$groups,
+    function(group) identical(group$status, "ready"),
+    logical(1)
+  )]
+
   expect_true(all(vapply(
-    result$prompt,
-    function(prompt) is.null(prompt) || is.character(prompt),
+    ready_groups,
+    function(group_name) {
+      grepl(group_name, result$prompt, fixed = TRUE)
+    },
     logical(1)
   )))
+
+  expect_false(
+    grepl("Empty", result$prompt, fixed = TRUE)
+  )
+
+  isolated <- nail_catdes(
+    x = profiles,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+
+  expect_true(is.list(isolated$prompt))
+  expect_setequal(
+    names(isolated$prompt),
+    names(profiles$groups)
+  )
   expect_true(is.list(result$generation))
   expect_true(is.list(result$validation))
   expect_true(is.list(result$report))
   expect_identical(result$metadata$return_format, "structured")
   expect_identical(anyDuplicated(names(result$metadata)), 0L)
   expect_identical(result$validation$status, "not_generated")
+})
+
+test_that("structured joint catdes uses one LLM call and validates all ready groups", {
+  profiles <- .catdes_stage1_profiles()
+  calls <- 0L
+  unit_types <- character(0)
+
+  result <- nail_catdes(
+    x = profiles,
+    return_format = "structured",
+    isolate.groups = FALSE,
+    generate = TRUE,
+    .llm_call = function(prompt, schema, provider, model,
+                         unit_type, unit_data) {
+
+      calls <<- calls + 1L
+      unit_types <<- c(unit_types, unit_type)
+
+      group_responses <- lapply(
+        unit_data$groups,
+        function(group_data) {
+          jsonlite::fromJSON(
+            .catdes_structured_mock_json(group_data),
+            simplifyVector = FALSE
+          )
+        }
+      )
+
+      jsonlite::toJSON(
+        list(groups = group_responses),
+        auto_unbox = TRUE,
+        null = "null"
+      )
+    }
+  )
+
+  evidence <- result$interpretation_evidence
+  description <- result$statistical_description
+
+  expect_identical(calls, 1L)
+
+  expect_identical(
+    unit_types,
+    "statistical_joint_description"
+  )
+
+  expect_identical(
+    result$metadata$structured_llm_calls,
+    1L
+  )
+
+  expect_identical(
+    result$metadata$llm_calls,
+    1L
+  )
+
+  expect_identical(
+    description$metadata$parse_status,
+    "success"
+  )
+
+  expect_identical(
+    description$metadata$n_groups_validated,
+    evidence$metadata$n_ready_groups
+  )
+
+  expect_true(is.character(result$prompt))
+  expect_length(result$prompt, 1L)
+
+  expect_true(is.list(result$generation$joint))
+
+  expect_identical(
+    result$generation$joint$unit_type,
+    "statistical_joint_description"
+  )
+
+  expect_setequal(
+    result$generation$joint$groups,
+    names(description$groups)
+  )
+
+  expect_setequal(
+    names(result$units),
+    names(profiles$groups)
+  )
+
+  expect_true(all(vapply(
+    result$units[
+      vapply(
+        result$units,
+        function(unit) isTRUE(unit$eligible),
+        logical(1)
+      )
+    ],
+    function(unit) identical(unit$parse_status, "success"),
+    logical(1)
+  )))
 })
 
 test_that("legacy catdes remains available only when explicitly requested", {
@@ -900,6 +1025,7 @@ test_that("structured catdes generation validates claims and evidence IDs", {
   result <- nail_catdes(
     x = profiles,
     return_format = "structured",
+    isolate.groups = TRUE,
     generate = TRUE,
     .llm_call = function(prompt, schema, provider, model,
                          unit_type, unit_data) {
@@ -945,6 +1071,7 @@ test_that("structured catdes rejects inadmissible statistical evidence IDs", {
   result <- nail_catdes(
     x = profiles,
     return_format = "structured",
+    isolate.groups = TRUE,
     generate = TRUE,
     .llm_call = function(prompt, schema, provider, model,
                          unit_type, unit_data) {
@@ -968,6 +1095,7 @@ test_that("structured latent catdes may propose labels but still cites evidence"
     x = profiles,
     interpretation_mode = "latent",
     return_format = "structured",
+    isolate.groups = TRUE,
     generate = TRUE,
     .llm_call = function(prompt, schema, provider, model,
                          unit_type, unit_data) {
@@ -1071,7 +1199,11 @@ test_that("future statistical schemas require two markers for contrasts", {
   expect_identical(min_items, 2L)
 
   profiles <- .catdes_stage1_profiles()
-  offline <- nail_catdes(x = profiles, generate = FALSE)
+  offline <- nail_catdes(
+    x = profiles,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
   expect_match(
     offline$prompt$A,
     "at least two distinct evidence_ids",
@@ -1153,7 +1285,11 @@ test_that("statistical schema capacity follows the selected evidence registry", 
 
 test_that("statistical interpretation limits reject substantive profile claims", {
   profiles <- .catdes_stage1_profiles()
-  offline <- nail_catdes(x = profiles, generate = FALSE)
+  offline <- nail_catdes(
+    x = profiles,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
   group_data <- NaileR:::.nail_stat_group_data(
     offline$preparation$interpretation_evidence$groups$A,
     interpretation_mode = "standard",
@@ -1200,7 +1336,11 @@ test_that("statistical interpretation limits are evidence-free in schema and val
   expect_identical(limit_evidence$maxItems, 0L)
 
   profiles <- .catdes_stage1_profiles()
-  offline <- nail_catdes(x = profiles, generate = FALSE)
+  offline <- nail_catdes(
+    x = profiles,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
   expect_match(
     offline$prompt$A,
     "interpretation_limits must use an empty evidence_ids array",
@@ -1260,6 +1400,7 @@ test_that("catdes significance threshold is grounded as methodological context",
 
   result <- nail_catdes(
     x = prep,
+    isolate.groups = TRUE,
     generate = FALSE
   )
 

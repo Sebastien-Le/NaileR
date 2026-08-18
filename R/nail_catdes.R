@@ -1368,8 +1368,6 @@ nail_catdes <- function(dataset = NULL,
   n_selected <- interpretation_evidence$metadata$n_selected_evidence
   llm_calls <- if (!isTRUE(generate)) {
     0L
-  } else if (identical(return_format, "structured")) {
-    as.integer(n_ready_groups)
   } else if (!isTRUE(isolate.groups)) {
     as.integer(n_selected > 0L)
   } else {
@@ -1418,6 +1416,7 @@ nail_catdes <- function(dataset = NULL,
       model = model,
       generate = generate,
       target_label = normalized$target_label,
+      isolate_groups = isolate.groups,
       llm_api_options = llm_api_options
     )
     structured$legacy_output <- if (!isTRUE(generate)) prompts else NULL

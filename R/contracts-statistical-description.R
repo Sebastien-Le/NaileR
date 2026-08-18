@@ -108,6 +108,43 @@
   )
 }
 
+.nail_stat_joint_schema <- function(group_data,
+                                    interpretation_mode) {
+  group_names <- names(group_data)
+
+  group_schemas <- stats::setNames(
+    lapply(group_names, function(group_name) {
+      data <- group_data[[group_name]]
+
+      .nail_stat_group_schema(
+        group_name = group_name,
+        interpretation_mode = interpretation_mode,
+        max_evidence_ids = max(
+          1L,
+          length(data$allowed_evidence_ids)
+        )
+      )
+    }),
+    group_names
+  )
+
+  list(
+    type = "object",
+    additionalProperties = FALSE,
+    required = .nail_structured_json_array("groups"),
+    propertyOrdering = .nail_structured_json_array("groups"),
+    properties = list(
+      groups = list(
+        type = "object",
+        additionalProperties = FALSE,
+        required = .nail_structured_json_array(group_names),
+        propertyOrdering = .nail_structured_json_array(group_names),
+        properties = group_schemas
+      )
+    )
+  )
+}
+
 .nail_stat_records <- function(x, columns) {
   if (!is.data.frame(x) || nrow(x) == 0L) return(list())
   columns <- intersect(columns, names(x))
@@ -211,6 +248,82 @@
       "- A marker characterizes the group relative to the full sample; it need not describe every individual.",
       "- significance_threshold is a methodological parameter. It may be used only to qualify statistical significance, never as a descriptive value.",
       "- Return only the JSON object constrained by the supplied schema.",
+      sep = "\n"
+    ),
+    "",
+    "# MECHANICAL STATISTICAL EVIDENCE",
+    evidence_json,
+    sep = "\n"
+  )
+}
+
+.nail_stat_joint_prompt <- function(joint_data,
+                                    schema,
+                                    introduction,
+                                    request,
+                                    prompt_style) {
+
+  mode_rule <- if (identical(
+    joint_data$interpretation_mode,
+    "latent"
+  )) {
+    paste(
+      "The group labels are identifiers only.",
+      "You may propose one concise suggested_label for each group,",
+      "but the evidence must determine its meaning."
+    )
+  } else {
+    paste(
+      "The groups are observed categories of the target variable.",
+      "Do not rename them; suggested_label must be null for every group."
+    )
+  }
+
+  detail_rule <- if (identical(prompt_style, "compact")) {
+    "Keep claims concise and prioritize only the clearest markers."
+  } else {
+    paste(
+      "Distinguish dominant from secondary markers.",
+      "Use internal_contrasts only for a genuine relation between",
+      "at least two distinct markers within the same group."
+    )
+  }
+
+  evidence_json <- jsonlite::toJSON(
+    joint_data,
+    auto_unbox = TRUE,
+    pretty = TRUE,
+    null = "null",
+    na = "null"
+  )
+
+  paste(
+    "# ROLE",
+    paste(
+      "You are an expert in the interpretation of group profiles produced by",
+      "FactoMineR::catdes(). You interpret associations, not causes."
+    ),
+    "",
+    "# STUDY CONTEXT",
+    introduction,
+    "",
+    "# ANALYTICAL TASK",
+    request,
+    mode_rule,
+    detail_rule,
+    "",
+    "# JOINT INTERPRETATION RULES",
+    paste(
+      "- All ready groups are shown together so that you can identify what most clearly distinguishes each group.",
+      "- Use the joint view to prioritize and contrast the profiles, but every claim for a group must remain grounded in that group's own evidence.",
+      "- Every substantive claim must cite one or more evidence_ids listed for that group.",
+      "- Never cite another group's evidence_ids in a group's claims.",
+      "- Do not invent direct pairwise statistical tests between groups; catdes markers characterize each group relative to the full sample.",
+      "- interpretation_limits must use an empty evidence_ids array and contain only genuine methodological restrictions.",
+      "- If no meaningful internal contrast or methodological limitation is supported, return an empty array for that section.",
+      "- Do not invent values, variables, modalities, counts, causal mechanisms, demographic characteristics, or external knowledge.",
+      "- significance_threshold is a methodological parameter and may be used only to qualify statistical significance.",
+      "- Return one JSON object with a top-level groups object exactly matching the supplied schema.",
       sep = "\n"
     ),
     "",
@@ -746,6 +859,67 @@
   })
 }
 
+.nail_stat_parse_joint_response <- function(text,
+                                            expected_groups) {
+  tryCatch({
+    parsed <- .nail_structured_parse_json(text)
+
+    if (!is.list(parsed) || !is.list(parsed$groups)) {
+      stop(
+        "The joint statistical response must contain a `groups` object.",
+        call. = FALSE
+      )
+    }
+
+    actual_groups <- names(parsed$groups)
+
+    if (is.null(actual_groups) && length(parsed$groups) > 0L) {
+      stop(
+        "The joint statistical response contains unnamed groups.",
+        call. = FALSE
+      )
+    }
+
+    unexpected <- setdiff(actual_groups, expected_groups)
+
+    missing <- setdiff(expected_groups, actual_groups)
+
+    if (length(missing) > 0L) {
+      stop(
+        paste0(
+          "The joint statistical response is missing expected groups: ",
+          paste(missing, collapse = ", "),
+          "."
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (length(unexpected) > 0L) {
+      stop(
+        paste0(
+          "The joint statistical response contains unexpected groups: ",
+          paste(unexpected, collapse = ", "),
+          "."
+        ),
+        call. = FALSE
+      )
+    }
+
+    list(
+      parse_status = "success",
+      parse_error = NULL,
+      groups = parsed$groups
+    )
+  }, error = function(e) {
+    list(
+      parse_status = "error",
+      parse_error = conditionMessage(e),
+      groups = NULL
+    )
+  })
+}
+
 
 .nail_stat_empty_claim_registry <- function() {
   data.frame(
@@ -929,27 +1103,48 @@
     model,
     generate,
     target_label,
+    isolate_groups = FALSE,
     llm_api_options
 ) {
+  group_names <- names(interpretation_evidence$groups)
+
   units <- stats::setNames(
-    vector("list", length(interpretation_evidence$groups)),
-    names(interpretation_evidence$groups)
+    vector("list", length(group_names)),
+    group_names
   )
 
-  for (group_name in names(interpretation_evidence$groups)) {
+  group_data_by_group <- stats::setNames(
+    vector("list", length(group_names)),
+    group_names
+  )
+
+  # -----------------------------------------------------------------------
+  # Build the deterministic per-group units first.
+  #
+  # These units remain the canonical downstream representation regardless
+  # of whether generation is isolated or joint.
+  # -----------------------------------------------------------------------
+
+  for (group_name in group_names) {
     group_evidence <- interpretation_evidence$groups[[group_name]]
     eligible <- identical(group_evidence$status, "ready")
+
     group_data <- .nail_stat_group_data(
       group_evidence,
       interpretation_mode = interpretation_mode,
       target_label = target_label,
       significance_threshold = interpretation_evidence$settings$proba
     )
+
     schema <- .nail_stat_group_schema(
       group_name = group_name,
       interpretation_mode = interpretation_mode,
-      max_evidence_ids = max(1L, length(group_data$allowed_evidence_ids))
+      max_evidence_ids = max(
+        1L,
+        length(group_data$allowed_evidence_ids)
+      )
     )
+
     prompt <- .nail_stat_group_prompt(
       group_data = group_data,
       schema = schema,
@@ -958,7 +1153,9 @@
       prompt_style = prompt_style
     )
 
-    unit <- list(
+    group_data_by_group[[group_name]] <- group_data
+
+    units[[group_name]] <- list(
       unit_type = "statistical_group_description",
       group = group_name,
       eligible = eligible,
@@ -975,47 +1172,256 @@
       },
       parse_error = if (eligible) NULL else paste0(
         "No selected statistical evidence was available for group '",
-        group_name, "'."
+        group_name,
+        "'."
       ),
       elapsed_seconds = NA_real_
     )
+  }
 
-    if (isTRUE(generate) && isTRUE(eligible)) {
-      call_result <- tryCatch(
-        .nail_structured_dispatch_call(
-          prompt = prompt,
-          schema = schema,
-          provider = provider,
-          model = model,
-          unit_type = "statistical_group_description",
-          unit_data = group_data,
-          options = llm_api_options
-        ),
-        error = function(e) list(
-          content = NULL,
-          elapsed_seconds = NA_real_,
-          error = conditionMessage(e)
+  ready_groups <- group_names[vapply(
+    units,
+    function(unit) isTRUE(unit$eligible),
+    logical(1)
+  )]
+
+  joint_generation <- NULL
+
+  # -----------------------------------------------------------------------
+  # ISOLATED GENERATION
+  #
+  # Historical semantics:
+  # one prompt and one LLM call per ready group.
+  # -----------------------------------------------------------------------
+
+  if (isTRUE(isolate_groups)) {
+
+    for (group_name in ready_groups) {
+      unit <- units[[group_name]]
+      group_data <- group_data_by_group[[group_name]]
+
+      if (isTRUE(generate)) {
+        call_result <- tryCatch(
+          .nail_structured_dispatch_call(
+            prompt = unit$prompt,
+            schema = unit$schema,
+            provider = provider,
+            model = model,
+            unit_type = "statistical_group_description",
+            unit_data = group_data,
+            options = llm_api_options
+          ),
+          error = function(e) list(
+            content = NULL,
+            elapsed_seconds = NA_real_,
+            error = conditionMessage(e)
+          )
         )
+
+        unit$elapsed_seconds <-
+          call_result$elapsed_seconds %nail_or% NA_real_
+
+        if (!is.null(call_result$error)) {
+          unit$parse_status <- "error"
+          unit$parse_error <- call_result$error
+        } else {
+          unit$response <- call_result$content
+
+          parsed <- .nail_stat_parse_group_response(
+            text = call_result$content,
+            group_data = group_data,
+            interpretation_mode = interpretation_mode
+          )
+
+          unit$parsed <- parsed$analysis
+          unit$parse_status <- parsed$parse_status
+          unit$parse_error <- parsed$parse_error
+        }
+      }
+
+      units[[group_name]] <- unit
+    }
+
+    prompt <- .nail_catdes_prompt_view(units)
+
+    structured_llm_calls <- as.integer(sum(vapply(
+      units,
+      function(unit) !is.null(unit$response),
+      logical(1)
+    )))
+
+    # -----------------------------------------------------------------------
+    # JOINT GENERATION
+    #
+    # Historical semantics:
+    # all ready groups are shown together in one prompt and one LLM call.
+    #
+    # The joint response is then redistributed into the same per-group units
+    # used by the isolated path, so all downstream validation and reporting
+    # remain unchanged.
+    # -----------------------------------------------------------------------
+
+  } else {
+
+    joint_prompt <- NULL
+    joint_schema <- NULL
+    joint_response <- NULL
+    joint_parse_status <- if (length(ready_groups) == 0L) {
+      "not_applicable"
+    } else if (isTRUE(generate)) {
+      "pending"
+    } else {
+      "not_generated"
+    }
+    joint_parse_error <- NULL
+    joint_elapsed_seconds <- NA_real_
+
+    if (length(ready_groups) > 0L) {
+
+      ready_group_data <- group_data_by_group[ready_groups]
+
+      joint_data <- list(
+        target_variable = target_label,
+        interpretation_mode = interpretation_mode,
+        significance_threshold =
+          interpretation_evidence$settings$proba,
+        groups = ready_group_data
       )
-      unit$elapsed_seconds <- call_result$elapsed_seconds %nail_or% NA_real_
-      if (!is.null(call_result$error)) {
-        unit$parse_status <- "error"
-        unit$parse_error <- call_result$error
-      } else {
-        unit$response <- call_result$content
-        parsed <- .nail_stat_parse_group_response(
-          text = call_result$content,
-          group_data = group_data,
-          interpretation_mode = interpretation_mode
+
+      joint_schema <- .nail_stat_joint_schema(
+        group_data = ready_group_data,
+        interpretation_mode = interpretation_mode
+      )
+
+      joint_prompt <- .nail_stat_joint_prompt(
+        joint_data = joint_data,
+        schema = joint_schema,
+        introduction = introduction,
+        request = request,
+        prompt_style = prompt_style
+      )
+
+      if (isTRUE(generate)) {
+
+        call_result <- tryCatch(
+          .nail_structured_dispatch_call(
+            prompt = joint_prompt,
+            schema = joint_schema,
+            provider = provider,
+            model = model,
+            unit_type = "statistical_joint_description",
+            unit_data = joint_data,
+            options = llm_api_options
+          ),
+          error = function(e) list(
+            content = NULL,
+            elapsed_seconds = NA_real_,
+            error = conditionMessage(e)
+          )
         )
-        unit$parsed <- parsed$analysis
-        unit$parse_status <- parsed$parse_status
-        unit$parse_error <- parsed$parse_error
+
+        joint_elapsed_seconds <-
+          call_result$elapsed_seconds %nail_or% NA_real_
+
+        if (!is.null(call_result$error)) {
+
+          joint_parse_status <- "error"
+          joint_parse_error <- call_result$error
+
+          for (group_name in ready_groups) {
+            units[[group_name]]$elapsed_seconds <-
+              joint_elapsed_seconds
+            units[[group_name]]$parse_status <- "error"
+            units[[group_name]]$parse_error <-
+              joint_parse_error
+          }
+
+        } else {
+
+          joint_response <- call_result$content
+
+          parsed_joint <- .nail_stat_parse_joint_response(
+            text = joint_response,
+            expected_groups = ready_groups
+          )
+
+          joint_parse_status <- parsed_joint$parse_status
+          joint_parse_error <- parsed_joint$parse_error
+
+          if (identical(
+            parsed_joint$parse_status,
+            "success"
+          )) {
+
+            for (group_name in ready_groups) {
+
+              group_response <- jsonlite::toJSON(
+                parsed_joint$groups[[group_name]],
+                auto_unbox = TRUE,
+                null = "null",
+                na = "null"
+              )
+
+              parsed_group <- .nail_stat_parse_group_response(
+                text = group_response,
+                group_data =
+                  group_data_by_group[[group_name]],
+                interpretation_mode = interpretation_mode
+              )
+
+              units[[group_name]]$response <-
+                group_response
+              units[[group_name]]$parsed <-
+                parsed_group$analysis
+              units[[group_name]]$parse_status <-
+                parsed_group$parse_status
+              units[[group_name]]$parse_error <-
+                parsed_group$parse_error
+              units[[group_name]]$elapsed_seconds <-
+                joint_elapsed_seconds
+            }
+
+          } else {
+
+            for (group_name in ready_groups) {
+              units[[group_name]]$elapsed_seconds <-
+                joint_elapsed_seconds
+              units[[group_name]]$parse_status <-
+                "error"
+              units[[group_name]]$parse_error <-
+                joint_parse_error
+            }
+          }
+        }
       }
     }
 
-    units[[group_name]] <- unit
+    prompt <- joint_prompt
+
+    structured_llm_calls <- if (
+      isTRUE(generate) &&
+      length(ready_groups) > 0L
+    ) {
+      1L
+    } else {
+      0L
+    }
+
+    joint_generation <- list(
+      unit_type = "statistical_joint_description",
+      groups = ready_groups,
+      prompt = joint_prompt,
+      schema = joint_schema,
+      response = joint_response,
+      parse_status = joint_parse_status,
+      parse_error = joint_parse_error,
+      elapsed_seconds = joint_elapsed_seconds
+    )
   }
+
+  # -----------------------------------------------------------------------
+  # Common downstream representation.
+  # -----------------------------------------------------------------------
 
   description <- .nail_stat_combine_units(
     units = units,
@@ -1024,13 +1430,6 @@
     provider = provider,
     model = model
   )
-
-  prompt <- .nail_catdes_prompt_view(units)
-  structured_llm_calls <- as.integer(sum(vapply(
-    units,
-    function(unit) !is.null(unit$response),
-    logical(1)
-  )))
 
   preparation <- list(
     statistical_profiles = statistical_profiles,
@@ -1046,13 +1445,23 @@
     units = units
   )
 
-  validation <- .nail_catdes_validation_view(description, units)
+  if (!isTRUE(isolate_groups)) {
+    generation$joint <- joint_generation
+  }
+
+  validation <- .nail_catdes_validation_view(
+    description,
+    units
+  )
+
   report <- .nail_catdes_report_view(description)
 
   metadata <- catdes_settings
   metadata$return_format <- "structured"
-  metadata$semantic_status <- description$metadata$parse_status
-  metadata$structured_llm_calls <- structured_llm_calls
+  metadata$semantic_status <-
+    description$metadata$parse_status
+  metadata$structured_llm_calls <-
+    structured_llm_calls
 
   result <- list(
     preparation = preparation,
@@ -1070,11 +1479,22 @@
     catdes_result = catdes_result,
     legacy_output = NULL
   )
+
   class(result) <- c("nail_catdes", "list")
-  attr(result, "statistical_profiles") <- statistical_profiles
-  attr(result, "interpretation_evidence") <- interpretation_evidence
-  attr(result, "statistical_description") <- description
-  if (!is.null(catdes_result)) attr(result, "catdes_result") <- catdes_result
-  attr(result, "catdes_settings") <- result$metadata
+
+  attr(result, "statistical_profiles") <-
+    statistical_profiles
+  attr(result, "interpretation_evidence") <-
+    interpretation_evidence
+  attr(result, "statistical_description") <-
+    description
+
+  if (!is.null(catdes_result)) {
+    attr(result, "catdes_result") <- catdes_result
+  }
+
+  attr(result, "catdes_settings") <-
+    result$metadata
+
   result
 }
