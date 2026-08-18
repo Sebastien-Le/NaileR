@@ -510,7 +510,11 @@
     significance_context <- grepl(
       paste0(
         "(?:",
-        "\\bp\\s*[- ]?\\s*value\\s*(?:<|<=|≤|below|under)|",
+        "\\bp\\s*[- ]?\\s*values?\\s*",
+        "(?:(?:is|are)\\s+)?",
+        "(?:(?:well|far)\\s+)?",
+        "(?:<|<=|≤|below|under)",
+        "(?:\\s+the)?|",
         "\\bp\\s*(?:<|<=|≤)|",
         "significance\\s+threshold\\s*(?:=|:|of)?|",
         "\\balpha\\s*(?:=|:)?",

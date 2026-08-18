@@ -1497,6 +1497,56 @@ test_that("catdes significance threshold is grounded as methodological context",
   )
 })
 
+test_that("catdes significance threshold accepts natural p-value phrasing", {
+
+  accepted <- c(
+    "The p-value is below 0.05.",
+    "The p-values are below 0.05.",
+    "The p-values are below the 0.05 threshold.",
+    "The p-values are well below the 0.05 threshold."
+  )
+
+  accepted_stripped <- vapply(
+    accepted,
+    function(text) {
+      NaileR:::.nail_stat_strip_supported_significance_threshold(
+        text,
+        significance_threshold = 0.05
+      )
+    },
+    character(1)
+  )
+
+  expect_false(any(grepl(
+    "0.05",
+    accepted_stripped,
+    fixed = TRUE
+  )))
+
+  rejected <- c(
+    "The mean is 0.05.",
+    "The score is below 0.05.",
+    "Petal.Width = 0.05."
+  )
+
+  rejected_stripped <- vapply(
+    rejected,
+    function(text) {
+      NaileR:::.nail_stat_strip_supported_significance_threshold(
+        text,
+        significance_threshold = 0.05
+      )
+    },
+    character(1)
+  )
+
+  expect_true(all(grepl(
+    "0.05",
+    rejected_stripped,
+    fixed = TRUE
+  )))
+})
+
 test_that("nail_catdes recovers the target variable label from prepared catdes profiles", {
 
   catdes_result <- FactoMineR::catdes(
