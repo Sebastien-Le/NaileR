@@ -1,2 +1,8 @@
 *.html
-*.R
+.DS_Store
+.Rhistory
+.Rproj.user/
+
+dev/exploration_outputs/
+dev/operational_outputs/
+dev/validation_outputs/
