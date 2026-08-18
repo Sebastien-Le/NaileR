@@ -1056,11 +1056,26 @@
 
   evidence_registry <- .build_evidence_registry_catdesprep(groups)
 
+  effective_proba <- proba
+
+  if (!isTRUE(input_metadata$proba_applied_by_function)) {
+    source_proba <- catdes_result$call$proba
+
+    if (is.numeric(source_proba) &&
+        length(source_proba) == 1L &&
+        !is.na(source_proba) &&
+        is.finite(source_proba) &&
+        source_proba > 0 &&
+        source_proba <= 1) {
+      effective_proba <- as.numeric(source_proba)
+    }
+  }
+
   out <- list(
     groups = groups,
     evidence_registry = evidence_registry,
     settings = list(
-      proba = proba,
+      proba = effective_proba,
       proba_applied_by_function = isTRUE(input_metadata$proba_applied_by_function),
       zero_tolerance = tolerance,
       qualitative_direction_rule = paste(

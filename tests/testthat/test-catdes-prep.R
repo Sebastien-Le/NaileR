@@ -516,3 +516,35 @@ test_that("num.var is canonically stored as an integer", {
     profiles_integer
   )
 })
+
+test_that("nail_catdes_prep preserves the proba actually used by an existing catdes result", {
+
+  catdes_result <- FactoMineR::catdes(
+    iris,
+    num.var = 5,
+    proba = 0.01
+  )
+
+  prep <- nail_catdes_prep(
+    x = catdes_result
+  )
+
+  expect_equal(
+    prep$settings$proba,
+    0.01
+  )
+
+  expect_false(
+    prep$settings$proba_applied_by_function
+  )
+
+  expect_equal(
+    attr(prep, "catdes_input")$declared_proba,
+    0.05
+  )
+
+  expect_equal(
+    attr(prep, "catdes_result")$call$proba,
+    0.01
+  )
+})
