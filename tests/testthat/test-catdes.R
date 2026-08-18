@@ -1234,3 +1234,16 @@ test_that("statistical interpretation limits are evidence-free in schema and val
   expect_identical(parsed$parse_status, "error")
   expect_match(parsed$parse_error, "empty evidence_ids array", fixed = TRUE)
 })
+
+test_that("statistical claim schema requires null validation_needed", {
+
+  schema <- .nail_stat_claim_schema(
+    max_evidence_ids = 4L,
+    min_evidence_ids = 1L
+  )
+
+  expect_identical(
+    schema$properties$validation_needed$type,
+    "null"
+  )
+})

@@ -34,7 +34,7 @@
         maxItems = as.integer(max_evidence_ids)
       ),
       support = list(type = "string", minLength = 1L),
-      validation_needed = .nail_stat_nullable_string_schema()
+      validation_needed = list(type = "null")
     )
   )
 }
