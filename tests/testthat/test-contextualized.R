@@ -368,6 +368,27 @@ test_that("prepared inputs build complete mechanical integration without upstrea
   expect_identical(result$metadata$integration_llm_calls, 0L)
 })
 
+test_that("structured nail_catdes inputs are read from explicit fields without attributes", {
+  stat <- .ctx_statistical_profiles()
+  text <- .ctx_textual_preparation()
+  structured_stat <- list(
+    preparation = list(statistical_profiles = stat),
+    statistical_profiles = stat,
+    metadata = list(return_format = "structured")
+  )
+  class(structured_stat) <- c("nail_catdes", "list")
+
+  result <- nail_textual_contextualized(
+    integration_mode = "legacy",
+    statistical_profiles = structured_stat,
+    textual_preparation = text,
+    generate = FALSE
+  )
+
+  expect_identical(result$statistical_profiles, stat)
+  expect_identical(result$metadata$upstream_calls$nail_catdes_prep, 0L)
+})
+
 test_that("group alignment is deterministic and independent of source order", {
   first <- nail_textual_contextualized(
     integration_mode = "legacy",

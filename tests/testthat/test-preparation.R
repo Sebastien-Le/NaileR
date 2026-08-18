@@ -1,12 +1,12 @@
 .textual_test_claim <- function(text,
                                 evidence_ids,
-                                status = "expert_interpretation",
-                                validation_needed = NULL) {
+                                support = "The cited verbatim explicitly supports this interpretation.") {
   list(
     text = text,
-    status = status,
+    status = "expert_interpretation",
     evidence_ids = as.list(evidence_ids),
-    validation_needed = validation_needed
+    support = support,
+    validation_needed = NULL
   )
 }
 
@@ -20,19 +20,19 @@
     group = group,
     core_textual_profile = claim,
     main_themes = list(
-      .textual_test_claim("Practical considerations structure the discourse.", evidence_id)
+      .textual_test_claim(
+        "Practical considerations structure the discourse.",
+        evidence_id
+      )
     ),
     dominant_concerns = list(
       .textual_test_claim("Ease of use is explicitly valued.", evidence_id)
     ),
-    tone_or_stance = .textual_test_claim("The stance is pragmatic.", evidence_id),
-    narrative_frames = list(),
-    motivations = list(),
-    barriers = list(),
-    perceived_benefits = list(),
-    social_norms = list(),
-    identity_cues = list(),
-    contradictions = list(),
+    tone_or_stance = .textual_test_claim(
+      "The expressed stance is pragmatic.",
+      evidence_id
+    ),
+    internal_variation = list(),
     minority_positions = list(),
     representative_verbatims = list(
       list(
@@ -42,16 +42,12 @@
         status = "expert_interpretation"
       )
     ),
-    tension_verbatims = list(),
-    intra_group_consistency = .textual_test_claim(
-      "The available verbatim supports the same practical reading.",
-      evidence_id
-    ),
+    contrastive_verbatims = list(),
     interpretation_limits = list()
   )
 }
 
-.textual_test_response <- function(evidence, groups, comparison_mode = "isolated") {
+.textual_test_response <- function(evidence, groups) {
   profiles <- stats::setNames(lapply(groups, function(group) {
     rows <- evidence$evidence_registry[
       evidence$evidence_registry$group == group &
@@ -67,31 +63,8 @@
     )
   }), groups)
 
-  cross_group <- list(
-    shared_themes = list(),
-    group_contrasts = list(),
-    minority_patterns = list(),
-    interpretation_limits = list()
-  )
-
-  if (comparison_mode == "joint" && length(groups) > 1L) {
-    ids <- vapply(groups, function(group) {
-      evidence$evidence_registry$evidence_id[
-        evidence$evidence_registry$group == group &
-          evidence$evidence_registry$included_in_prompt
-      ][[1]]
-    }, character(1))
-
-    cross_group$group_contrasts <- list(
-      .textual_test_claim(
-        "The groups express distinct practical emphases.",
-        ids
-      )
-    )
-  }
-
   jsonlite::toJSON(
-    list(groups = profiles, cross_group = cross_group),
+    list(groups = profiles),
     auto_unbox = TRUE,
     null = "null",
     na = "null"
@@ -287,7 +260,10 @@ test_that("offline prompts include only selected evidence and separate context",
   expect_match(prompt, "# USER-PROVIDED CONTEXT", fixed = TRUE)
   expect_match(prompt, "External study context", fixed = TRUE)
   expect_match(prompt, "Focus on practical barriers", fixed = TRUE)
-  expect_match(prompt, "# OUTPUT SCHEMA", fixed = TRUE)
+  expect_false(grepl("# OUTPUT SCHEMA", prompt, fixed = TRUE))
+  expect_true(is.list(result$units$A$schema))
+  expect_identical(result$units$A$schema$type, "object")
+  expect_match(prompt, "machine schema", ignore.case = TRUE)
   expect_match(prompt, "consumer", ignore.case = TRUE)
 })
 
@@ -350,12 +326,12 @@ test_that("analysis scopes and requests change prompts but not textual evidence"
 
   expect_identical(general$textual_evidence, sociological$textual_evidence)
   expect_false(identical(general$prompt, sociological$prompt))
-  expect_match(sociological$prompt$A, "social norms", ignore.case = TRUE)
+  expect_match(sociological$prompt$A, "sociological", ignore.case = TRUE)
 })
 
 test_that("generate FALSE never calls an LLM backend", {
   testthat::local_mocked_bindings(
-    .call_llm_base = function(...) stop("LLM backend was called"),
+    .nail_structured_dispatch_call = function(...) stop("LLM backend was called"),
     .package = "NaileR"
   )
 
@@ -372,10 +348,60 @@ test_that("generate FALSE never calls an LLM backend", {
   expect_null(result$textual_profiles)
 })
 
-test_that("valid isolated JSON is parsed and combined into textual_profiles", {
+test_that("offline textual units expose the reduced machine schema", {
+  prep <- nail_textual_prep(
+    data.frame(group = "A", text = "A concise response"),
+    1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+
+  fields <- names(prep$units$A$schema$properties$groups$properties$A$properties)
+  expect_setequal(
+    fields,
+    c(
+      "group",
+      "core_textual_profile",
+      "main_themes",
+      "dominant_concerns",
+      "tone_or_stance",
+      "internal_variation",
+      "minority_positions",
+      "representative_verbatims",
+      "contrastive_verbatims",
+      "interpretation_limits"
+    )
+  )
+  expect_false(any(c(
+    "motivations",
+    "barriers",
+    "perceived_benefits",
+    "social_norms",
+    "identity_cues",
+    "contradictions"
+  ) %in% fields))
+  group_schema <- prep$units$A$schema$properties$groups$properties$A$properties
+  expect_identical(
+    group_schema$core_textual_profile$properties$evidence_ids$minItems,
+    1L
+  )
+  expect_identical(
+    group_schema$interpretation_limits$items$properties$evidence_ids$minItems,
+    0L
+  )
+  expect_false(grepl("# OUTPUT SCHEMA", prep$units$A$prompt, fixed = TRUE))
+})
+
+test_that("valid isolated constrained JSON builds the canonical textual description", {
   dataset <- data.frame(
     group = c("A", "A", "B", "B"),
-    text = c("easy to use", "simple and reliable", "works well", "practical but basic"),
+    text = c(
+      "easy to use",
+      "simple and reliable",
+      "works well",
+      "practical but basic"
+    ),
     stringsAsFactors = FALSE
   )
   offline <- nail_textual_prep(
@@ -384,43 +410,44 @@ test_that("valid isolated JSON is parsed and combined into textual_profiles", {
     compute_length_analysis = FALSE,
     generate = FALSE
   )
-  responses <- list(
-    A = .textual_test_response(offline$textual_evidence, "A", "isolated"),
-    B = .textual_test_response(offline$textual_evidence, "B", "isolated")
-  )
-  calls <- new.env(parent = emptyenv())
-  calls$n <- 0L
-
-  testthat::local_mocked_bindings(
-    .call_llm_base = function(...) {
-      calls$n <- calls$n + 1L
-      data.frame(response = as.character(responses[[calls$n]]), stringsAsFactors = FALSE)
-    },
-    .package = "NaileR"
-  )
+  calls <- 0L
+  llm_call <- function(prompt, schema, provider, model, unit_type, unit_data) {
+    calls <<- calls + 1L
+    .textual_test_response(
+      offline$textual_evidence,
+      names(unit_data$groups)
+    )
+  }
 
   result <- nail_textual_prep(
     dataset, 1, 2,
     lexical_analysis = FALSE,
     compute_length_analysis = FALSE,
-    generate = TRUE
+    generate = TRUE,
+    .llm_call = llm_call
   )
 
-  expect_equal(calls$n, 2L)
+  expect_equal(calls, 2L)
   expect_identical(result$parsed$parse_status, "success")
-  expect_setequal(names(result$textual_profiles$groups), c("A", "B"))
+  expect_s3_class(result$textual_description, "textual_description")
+  expect_setequal(names(result$textual_description$groups), c("A", "B"))
+  expect_true(nrow(result$textual_description$claim_registry) > 0L)
+  expect_true(all(grepl(
+    "^text::",
+    result$textual_description$claim_registry$claim_id
+  )))
   expect_identical(
-    result$textual_profiles$groups$A$representative_verbatims[[1]]$quotation,
+    result$textual_description$groups$A$representative_verbatims[[1]]$quotation,
     "easy to use"
   )
   expect_identical(
     result$legacy_groups$A$parsed$core_textual_profile,
-    result$textual_profiles$groups$A$core_textual_profile$text
+    result$textual_description$groups$A$core_textual_profile$text
   )
   expect_s3_class(result, "nail_textual_prep")
 })
 
-test_that("valid joint JSON supports traceable cross-group interpretations", {
+test_that("joint mode uses constrained batching but defers cross-group analysis", {
   dataset <- data.frame(
     group = c("A", "B"),
     text = c("easy and direct", "careful and detailed"),
@@ -433,37 +460,37 @@ test_that("valid joint JSON supports traceable cross-group interpretations", {
     compute_length_analysis = FALSE,
     generate = FALSE
   )
-  response <- .textual_test_response(
-    offline$textual_evidence,
-    c("A", "B"),
-    "joint"
-  )
-
-  testthat::local_mocked_bindings(
-    .call_llm_base = function(...) {
-      data.frame(response = as.character(response), stringsAsFactors = FALSE)
-    },
-    .package = "NaileR"
-  )
+  calls <- 0L
+  llm_call <- function(prompt, schema, provider, model, unit_type, unit_data) {
+    calls <<- calls + 1L
+    .textual_test_response(
+      offline$textual_evidence,
+      names(unit_data$groups)
+    )
+  }
 
   result <- nail_textual_prep(
     dataset, 1, 2,
     comparison_mode = "joint",
     lexical_analysis = FALSE,
     compute_length_analysis = FALSE,
-    generate = TRUE
+    generate = TRUE,
+    .llm_call = llm_call
   )
 
+  expect_identical(calls, 1L)
   expect_identical(result$parsed$parse_status, "success")
-  expect_length(result$textual_profiles$cross_group$group_contrasts, 1L)
-  expect_length(
-    result$textual_profiles$cross_group$group_contrasts[[1]]$evidence_ids,
-    2L
-  )
+  expect_null(result$textual_description$cross_group)
+  expect_true(result$textual_description$metadata$cross_group_deferred)
+  expect_length(result$textual_profiles$cross_group$group_contrasts, 0L)
 })
 
-test_that("strict parser rejects invalid JSON, fields, statuses, and evidence", {
-  dataset <- data.frame(group = "A", text = "exact quotation", stringsAsFactors = FALSE)
+test_that("the machine schema and strict validator reject invalid textual outputs", {
+  dataset <- data.frame(
+    group = "A",
+    text = "exact quotation",
+    stringsAsFactors = FALSE
+  )
   offline <- nail_textual_prep(
     dataset, 1, 2,
     lexical_analysis = FALSE,
@@ -471,47 +498,105 @@ test_that("strict parser rejects invalid JSON, fields, statuses, and evidence", 
     generate = FALSE
   )
   evidence <- offline$textual_evidence
+  unit_data <- offline$units$A$unit_data
   valid <- jsonlite::fromJSON(
-    .textual_test_response(evidence, "A", "isolated"),
-    simplifyDataFrame = FALSE
+    .textual_test_response(evidence, "A"),
+    simplifyVector = FALSE
   )
 
-  invalid_json <- NaileR:::.parse_textual_prep_response(
+  invalid_json <- NaileR:::.nail_text_parse_unit_response(
     "not JSON",
-    expected_groups = "A",
-    textual_evidence = evidence,
-    context = list(),
-    analysis_scope = "general",
-    comparison_mode = "isolated"
+    unit_data = unit_data,
+    registry = evidence$evidence_registry,
+    context = list()
   )
   expect_identical(invalid_json$parse_status, "error")
 
   unknown_field <- valid
   unknown_field$groups$A$unexpected <- "x"
-  parsed <- NaileR:::.parse_textual_prep_response(
+  parsed <- NaileR:::.nail_text_parse_unit_response(
     jsonlite::toJSON(unknown_field, auto_unbox = TRUE, null = "null"),
-    "A", evidence, list(), "general", "isolated"
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
   expect_match(parsed$parse_error, "unexpected", ignore.case = TRUE)
 
   unknown_status <- valid
   unknown_status$groups$A$core_textual_profile$status <- "certain"
-  parsed <- NaileR:::.parse_textual_prep_response(
+  parsed <- NaileR:::.nail_text_parse_unit_response(
     jsonlite::toJSON(unknown_status, auto_unbox = TRUE, null = "null"),
-    "A", evidence, list(), "general", "isolated"
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
-  expect_match(parsed$parse_error, "must be one of", ignore.case = TRUE)
+  expect_match(parsed$parse_error, "expert_interpretation", fixed = TRUE)
 
   unknown_evidence <- valid
-  unknown_evidence$groups$A$core_textual_profile$evidence_ids <- list("A::verbatim::999")
-  parsed <- NaileR:::.parse_textual_prep_response(
+  unknown_evidence$groups$A$core_textual_profile$evidence_ids <-
+    list("A::verbatim::999")
+  parsed <- NaileR:::.nail_text_parse_unit_response(
     jsonlite::toJSON(unknown_evidence, auto_unbox = TRUE, null = "null"),
-    "A", evidence, list(), "general", "isolated"
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
-  expect_match(parsed$parse_error, "unknown or non-presented", ignore.case = TRUE)
+  expect_match(parsed$parse_error, "unknown", ignore.case = TRUE)
+
+  non_null_validation <- valid
+  non_null_validation$groups$A$core_textual_profile$validation_needed <-
+    "More interviews"
+  parsed <- NaileR:::.nail_text_parse_unit_response(
+    jsonlite::toJSON(non_null_validation, auto_unbox = TRUE, null = "null"),
+    unit_data,
+    evidence$evidence_registry,
+    list()
+  )
+  expect_match(parsed$parse_error, "must be null", ignore.case = TRUE)
 })
 
-test_that("group ownership, exact quotations, and validation needs are enforced", {
+test_that("diagnostic numerical limits may use empty textual evidence IDs", {
+  dataset <- data.frame(
+    group = "A",
+    text = "exact quotation",
+    stringsAsFactors = FALSE
+  )
+  offline <- nail_textual_prep(
+    dataset, 1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+  evidence <- offline$textual_evidence
+  unit_data <- offline$units$A$unit_data
+  valid <- jsonlite::fromJSON(
+    .textual_test_response(evidence, "A"),
+    simplifyVector = FALSE
+  )
+  valid$groups$A$interpretation_limits <- list(
+    .textual_test_claim(
+      text = "Only 1 source row was available for this group.",
+      evidence_ids = character(),
+      support = "The mechanical diagnostics report 1 total source row."
+    )
+  )
+
+  parsed <- NaileR:::.nail_text_parse_unit_response(
+    jsonlite::toJSON(valid, auto_unbox = TRUE, null = "null"),
+    unit_data,
+    evidence$evidence_registry,
+    list()
+  )
+
+  expect_identical(parsed$parse_status, "success")
+  expect_length(parsed$groups$A$interpretation_limits, 1L)
+  expect_length(
+    parsed$groups$A$interpretation_limits[[1L]]$evidence_ids,
+    0L
+  )
+})
+
+test_that("group ownership, exact quotations, and explicit support are enforced", {
   dataset <- data.frame(
     group = c("A", "B"),
     text = c("A quotation", "B quotation"),
@@ -525,47 +610,53 @@ test_that("group ownership, exact quotations, and validation needs are enforced"
     generate = FALSE
   )
   evidence <- offline$textual_evidence
+  unit_data <- offline$units$joint$unit_data
   valid <- jsonlite::fromJSON(
-    .textual_test_response(evidence, c("A", "B"), "joint"),
-    simplifyDataFrame = FALSE
+    .textual_test_response(evidence, c("A", "B")),
+    simplifyVector = FALSE
   )
 
   wrong_group <- valid
-  id_b <- evidence$evidence_registry$evidence_id[evidence$evidence_registry$group == "B"][[1]]
+  id_b <- evidence$evidence_registry$evidence_id[
+    evidence$evidence_registry$group == "B"
+  ][[1L]]
   wrong_group$groups$A$core_textual_profile$evidence_ids <- list(id_b)
-  parsed <- NaileR:::.parse_textual_prep_response(
+  parsed <- NaileR:::.nail_text_parse_unit_response(
     jsonlite::toJSON(wrong_group, auto_unbox = TRUE, null = "null"),
-    c("A", "B"), evidence, list(), "general", "joint"
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
-  expect_match(parsed$parse_error, "another group", ignore.case = TRUE)
+  expect_match(parsed$parse_error, "cross-group", ignore.case = TRUE)
 
   changed_quote <- valid
-  changed_quote$groups$A$representative_verbatims[[1]]$quotation <- "A corrected quotation"
-  parsed <- NaileR:::.parse_textual_prep_response(
+  changed_quote$groups$A$representative_verbatims[[1]]$quotation <-
+    "A corrected quotation"
+  parsed <- NaileR:::.nail_text_parse_unit_response(
     jsonlite::toJSON(changed_quote, auto_unbox = TRUE, null = "null"),
-    c("A", "B"), evidence, list(), "general", "joint"
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
-  expect_match(parsed$parse_error, "exactly match", ignore.case = TRUE)
+  expect_match(parsed$parse_error, "exactly", ignore.case = TRUE)
 
-  no_validation <- valid
-  id_a <- evidence$evidence_registry$evidence_id[evidence$evidence_registry$group == "A"][[1]]
-  no_validation$groups$A$contradictions <- list(
-    .textual_test_claim(
-      "The discourse may contain an unresolved tension.",
-      id_a,
-      status = "hypothesis",
-      validation_needed = NULL
-    )
+  empty_support <- valid
+  empty_support$groups$A$core_textual_profile$support <- ""
+  parsed <- NaileR:::.nail_text_parse_unit_response(
+    jsonlite::toJSON(empty_support, auto_unbox = TRUE, null = "null"),
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
-  parsed <- NaileR:::.parse_textual_prep_response(
-    jsonlite::toJSON(no_validation, auto_unbox = TRUE, null = "null"),
-    c("A", "B"), evidence, list(), "general", "joint"
-  )
-  expect_match(parsed$parse_error, "requires validation_needed", ignore.case = TRUE)
+  expect_match(parsed$parse_error, "support", ignore.case = TRUE)
 })
 
 test_that("unsupported demographic, diagnostic, and numerical claims are rejected", {
-  dataset <- data.frame(group = "A", text = "I value convenience", stringsAsFactors = FALSE)
+  dataset <- data.frame(
+    group = "A",
+    text = "I value convenience",
+    stringsAsFactors = FALSE
+  )
   offline <- nail_textual_prep(
     dataset, 1, 2,
     lexical_analysis = FALSE,
@@ -573,37 +664,46 @@ test_that("unsupported demographic, diagnostic, and numerical claims are rejecte
     generate = FALSE
   )
   evidence <- offline$textual_evidence
+  unit_data <- offline$units$A$unit_data
   valid <- jsonlite::fromJSON(
-    .textual_test_response(evidence, "A", "isolated"),
-    simplifyDataFrame = FALSE
+    .textual_test_response(evidence, "A"),
+    simplifyVector = FALSE
   )
 
   demographic <- valid
-  demographic$groups$A$core_textual_profile$text <- "Women in this group value convenience."
-  parsed <- NaileR:::.parse_textual_prep_response(
+  demographic$groups$A$core_textual_profile$text <-
+    "Women in this group value convenience."
+  parsed <- NaileR:::.nail_text_parse_unit_response(
     jsonlite::toJSON(demographic, auto_unbox = TRUE, null = "null"),
-    "A", evidence, list(), "general", "isolated"
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
   expect_match(parsed$parse_error, "demographic", ignore.case = TRUE)
 
   diagnostic <- valid
   diagnostic$groups$A$core_textual_profile$text <- "The group is depressed."
-  parsed <- NaileR:::.parse_textual_prep_response(
+  parsed <- NaileR:::.nail_text_parse_unit_response(
     jsonlite::toJSON(diagnostic, auto_unbox = TRUE, null = "null"),
-    "A", evidence, list(), "psychological", "isolated"
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
   expect_match(parsed$parse_error, "diagnos", ignore.case = TRUE)
 
   numeric_claim <- valid
-  numeric_claim$groups$A$core_textual_profile$text <- "80 percent value convenience."
-  parsed <- NaileR:::.parse_textual_prep_response(
+  numeric_claim$groups$A$core_textual_profile$text <-
+    "80 percent value convenience."
+  parsed <- NaileR:::.nail_text_parse_unit_response(
     jsonlite::toJSON(numeric_claim, auto_unbox = TRUE, null = "null"),
-    "A", evidence, list(), "consumer", "isolated"
+    unit_data,
+    evidence$evidence_registry,
+    list()
   )
   expect_match(parsed$parse_error, "numerical", ignore.case = TRUE)
 })
 
-test_that("sampling limitations are attached mechanically after successful parsing", {
+test_that("sampling limits and cited-support metrics are added mechanically", {
   dataset <- data.frame(
     group = rep("A", 6),
     text = paste("textual contribution", letters[1:6]),
@@ -617,14 +717,12 @@ test_that("sampling limitations are attached mechanically after successful parsi
     compute_length_analysis = FALSE,
     generate = FALSE
   )
-  response <- .textual_test_response(offline$textual_evidence, "A", "isolated")
-
-  testthat::local_mocked_bindings(
-    .call_llm_base = function(...) {
-      data.frame(response = as.character(response), stringsAsFactors = FALSE)
-    },
-    .package = "NaileR"
-  )
+  llm_call <- function(prompt, schema, provider, model, unit_type, unit_data) {
+    .textual_test_response(
+      offline$textual_evidence,
+      names(unit_data$groups)
+    )
+  }
 
   result <- nail_textual_prep(
     dataset, 1, 2,
@@ -632,32 +730,55 @@ test_that("sampling limitations are attached mechanically after successful parsi
     seed = 1,
     lexical_analysis = FALSE,
     compute_length_analysis = FALSE,
-    generate = TRUE
+    generate = TRUE,
+    .llm_call = llm_call
   )
 
-  limits <- result$textual_profiles$groups$A$interpretation_limits
-  expect_true(any(vapply(limits, function(x) x$status == "user_context", logical(1))))
-  expect_true(any(grepl("Only", vapply(limits, `[[`, character(1), "text"), fixed = TRUE)))
+  group <- result$textual_description$groups$A
+  limits <- group$interpretation_limits
+  expect_true(any(vapply(
+    limits,
+    function(x) identical(x$status, "user_context"),
+    logical(1)
+  )))
+  expect_true(any(grepl(
+    "Only",
+    vapply(limits, `[[`, character(1), "text"),
+    fixed = TRUE
+  )))
+  metrics <- group$core_textual_profile$support_metrics
+  expect_identical(metrics$cited_support_n, 1L)
+  expect_identical(
+    metrics$included_verbatim_n,
+    result$textual_evidence$group_diagnostics$n_included_in_prompt[[1L]]
+  )
 })
 
 test_that("groups with no included evidence remain explicit without an LLM call", {
   dataset <- data.frame(group = c("A", "A"), text = c("one", "two"))
-  testthat::local_mocked_bindings(
-    .call_llm_base = function(...) stop("LLM backend was called"),
-    .package = "NaileR"
-  )
+  calls <- 0L
+  llm_call <- function(...) {
+    calls <<- calls + 1L
+    stop("LLM backend was called")
+  }
 
   result <- nail_textual_prep(
     dataset, 1, 2,
     sample.pct = 0,
     lexical_analysis = FALSE,
     compute_length_analysis = FALSE,
-    generate = TRUE
+    generate = TRUE,
+    .llm_call = llm_call
   )
 
+  expect_identical(calls, 0L)
   expect_identical(result$parsed$parse_status, "no_evidence")
   expect_null(result$textual_profiles)
   expect_false(any(result$textual_evidence$verbatims$included_in_prompt))
+  expect_identical(
+    result$textual_description$groups$A$availability,
+    "unavailable"
+  )
 })
 
 test_that("deprecated isolate.groups maps explicitly to comparison_mode", {
@@ -701,26 +822,21 @@ test_that("new textual preparation remains consumable by contextualized prompts"
     compute_length_analysis = FALSE,
     generate = FALSE
   )
-  responses <- list(
-    A = .textual_test_response(offline$textual_evidence, "A", "isolated"),
-    B = .textual_test_response(offline$textual_evidence, "B", "isolated")
-  )
-  calls <- new.env(parent = emptyenv())
-  calls$n <- 0L
-
-  testthat::local_mocked_bindings(
-    .call_llm_base = function(...) {
-      calls$n <- calls$n + 1L
-      data.frame(response = as.character(responses[[calls$n]]), stringsAsFactors = FALSE)
-    },
-    .package = "NaileR"
-  )
+  calls <- 0L
+  llm_call <- function(prompt, schema, provider, model, unit_type, unit_data) {
+    calls <<- calls + 1L
+    .textual_test_response(
+      offline$textual_evidence,
+      names(unit_data$groups)
+    )
+  }
 
   textual <- nail_textual_prep(
     dataset, 1, 2,
     lexical_analysis = FALSE,
     compute_length_analysis = FALSE,
-    generate = TRUE
+    generate = TRUE,
+    .llm_call = llm_call
   )
 
   group_profile <- list(
@@ -842,4 +958,333 @@ test_that("nongenerated new preparation is not treated as semantic output", {
       "matched_without_textual_profile"
   ))
   expect_identical(result$parsed$parse_status, "not_generated")
+})
+
+test_that("number validation accepts rounding and ignores verbatim ID suffixes", {
+  source <- paste(
+    "group percentage 36.6666667",
+    "v.test -4.123456",
+    sep = "\n"
+  )
+
+  expect_false(
+    NaileR:::.textual_prep_claim_has_unsupported_number(
+      "The group percentage is 36.67 and the v-test is -4.12.",
+      source
+    )
+  )
+  expect_true(
+    NaileR:::.textual_prep_claim_has_unsupported_number(
+      "The group percentage is 99.99.",
+      source
+    )
+  )
+  expect_false(
+    NaileR:::.textual_prep_claim_has_unsupported_number(
+      paste(
+        "The support cites A::verbatim::41,",
+        "A::verbatim::42 and A::verbatim::43."
+      ),
+      "No numerical result is present."
+    )
+  )
+})
+
+test_that("methodological textual limits may name prohibited inference categories", {
+  dataset <- data.frame(
+    group = "A",
+    text = "I value convenience.",
+    stringsAsFactors = FALSE
+  )
+  offline <- nail_textual_prep(
+    dataset, 1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+  evidence <- offline$textual_evidence
+  unit_data <- offline$units$A$unit_data
+  valid <- jsonlite::fromJSON(
+    .textual_test_response(evidence, "A"),
+    simplifyVector = FALSE
+  )
+  valid$groups$A$core_textual_profile$support <- paste(
+    "The cited text A::verbatim::1 explicitly supports convenience."
+  )
+  valid$groups$A$interpretation_limits <- list(
+    .textual_test_claim(
+      text = paste(
+        "The analysis does not infer age, income, social class,",
+        "prevalence, or psychological diagnoses."
+      ),
+      evidence_ids = character(),
+      support = "These are explicit methodological exclusions, not group claims."
+    )
+  )
+
+  parsed <- NaileR:::.nail_text_parse_unit_response(
+    jsonlite::toJSON(valid, auto_unbox = TRUE, null = "null"),
+    unit_data,
+    evidence$evidence_registry,
+    list()
+  )
+
+  expect_identical(parsed$parse_status, "success")
+  expect_length(parsed$groups$A$interpretation_limits, 1L)
+})
+
+test_that("textual prompts consolidate themes and reserve concerns for problems", {
+  dataset <- data.frame(
+    group = c("A", "A"),
+    text = c("I value convenience.", "Convenience matters to me."),
+    stringsAsFactors = FALSE
+  )
+  offline <- nail_textual_prep(
+    dataset, 1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+  prompt <- offline$units$A$prompt
+
+  expect_match(prompt, "Consolidate overlapping content", fixed = TRUE)
+  expect_match(prompt, "at most three distinct main themes", fixed = TRUE)
+  expect_match(prompt, "Use dominant_concerns only", fixed = TRUE)
+  expect_match(prompt, "Do not repeat evidence_id strings", fixed = TRUE)
+})
+
+test_that("full evidence IDs are removed before textual number checks", {
+  registry <- data.frame(
+    evidence_id = "Group 2::verbatim::41",
+    group = "Group 2",
+    original_text = "Convenience matters.",
+    stringsAsFactors = FALSE
+  )
+
+  expect_silent(
+    NaileR:::.textual_prep_validate_claim_safety(
+      text = paste(
+        "Convenience is explicitly expressed.",
+        "Support: Group 2::verbatim::41."
+      ),
+      evidence_ids = "Group 2::verbatim::41",
+      registry = registry,
+      context = list()
+    )
+  )
+})
+
+test_that("textual core schema caps themes and concerns at three", {
+  dataset <- data.frame(
+    group = c("A", "A"),
+    text = c("I value convenience.", "Price is sometimes difficult."),
+    stringsAsFactors = FALSE
+  )
+  offline <- nail_textual_prep(
+    dataset, 1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+  schema <- offline$units$A$schema$properties$groups$properties$A$properties
+
+  expect_identical(schema$main_themes$maxItems, 3L)
+  expect_identical(schema$dominant_concerns$maxItems, 3L)
+  expect_identical(
+    schema$interpretation_limits$items$properties$evidence_ids$maxItems,
+    0L
+  )
+  expect_identical(offline$units$A$unit_data$constraints$max_main_themes, 3L)
+  expect_identical(
+    offline$units$A$unit_data$constraints$max_dominant_concerns,
+    3L
+  )
+  expect_match(
+    offline$units$A$prompt,
+    "single most appropriate section",
+    fixed = TRUE
+  )
+  expect_match(
+    offline$units$A$prompt,
+    "isolated worries or conditional reservations",
+    fixed = TRUE
+  )
+})
+
+test_that("textual methodological limits accept self-report and scoped-domain wording", {
+  dataset <- data.frame(
+    group = "A",
+    text = "I value convenience.",
+    stringsAsFactors = FALSE
+  )
+  offline <- nail_textual_prep(
+    dataset, 1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+  evidence <- offline$textual_evidence
+  unit_data <- offline$units$A$unit_data
+
+  valid <- jsonlite::fromJSON(
+    .textual_test_response(evidence, "A"),
+    simplifyVector = FALSE
+  )
+  valid$groups$A$interpretation_limits <- list(
+    .textual_test_claim(
+      text = paste(
+        "The verbatims are self-reported and may reflect individual",
+        "perceptions rather than objective realities."
+      ),
+      evidence_ids = character(),
+      support = paste(
+        "The comments describe personal experiences and may differ from",
+        "independently observed conditions."
+      )
+    ),
+    .textual_test_claim(
+      text = paste(
+        "The analysis is based on a specific set of food comments and may",
+        "not fully capture broader interests or behaviors of group members."
+      ),
+      evidence_ids = character(),
+      support = paste(
+        "The verbatims are focused on one particular context and may have",
+        "limited generalizability to other domains."
+      )
+    )
+  )
+
+  parsed <- NaileR:::.nail_text_parse_unit_response(
+    jsonlite::toJSON(valid, auto_unbox = TRUE, null = "null"),
+    unit_data,
+    evidence$evidence_registry,
+    list()
+  )
+
+  expect_identical(parsed$parse_status, "success")
+  expect_length(parsed$groups$A$interpretation_limits, 2L)
+})
+
+test_that("textual methodological limits still reject substantive support", {
+  dataset <- data.frame(
+    group = "A",
+    text = "I value convenience.",
+    stringsAsFactors = FALSE
+  )
+  offline <- nail_textual_prep(
+    dataset, 1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+  evidence <- offline$textual_evidence
+  unit_data <- offline$units$A$unit_data
+  valid <- jsonlite::fromJSON(
+    .textual_test_response(evidence, "A"),
+    simplifyVector = FALSE
+  )
+  valid$groups$A$interpretation_limits <- list(
+    .textual_test_claim(
+      text = "The analysis is limited to this sample.",
+      evidence_ids = character(),
+      support = "The group appears rigid and prefers convenience."
+    )
+  )
+
+  parsed <- NaileR:::.nail_text_parse_unit_response(
+    jsonlite::toJSON(valid, auto_unbox = TRUE, null = "null"),
+    unit_data,
+    evidence$evidence_registry,
+    list()
+  )
+
+  expect_identical(parsed$parse_status, "error")
+  expect_match(
+    parsed$parse_error,
+    "must not introduce a new substantive description",
+    fixed = TRUE
+  )
+})
+
+test_that("textual interpretation limits reject substantive profile claims", {
+  dataset <- data.frame(
+    group = "A",
+    text = "I value convenience.",
+    stringsAsFactors = FALSE
+  )
+  offline <- nail_textual_prep(
+    dataset, 1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+  evidence <- offline$textual_evidence
+  unit_data <- offline$units$A$unit_data
+  valid <- jsonlite::fromJSON(
+    .textual_test_response(evidence, "A"),
+    simplifyVector = FALSE
+  )
+  valid$groups$A$interpretation_limits <- list(
+    .textual_test_claim(
+      text = paste(
+        "The group appears more rigid and less flexible,",
+        "which defines a pragmatic profile."
+      ),
+      evidence_ids = character(),
+      support = "This is a substantive profile statement, not a limitation."
+    )
+  )
+
+  parsed <- NaileR:::.nail_text_parse_unit_response(
+    jsonlite::toJSON(valid, auto_unbox = TRUE, null = "null"),
+    unit_data,
+    evidence$evidence_registry,
+    list()
+  )
+
+  expect_identical(parsed$parse_status, "error")
+  expect_match(
+    parsed$parse_error,
+    "must not introduce a new substantive description",
+    fixed = TRUE
+  )
+})
+
+test_that("textual interpretation limits reject cited verbatim evidence", {
+  dataset <- data.frame(
+    group = "A",
+    text = "I value convenience.",
+    stringsAsFactors = FALSE
+  )
+  offline <- nail_textual_prep(
+    dataset, 1, 2,
+    lexical_analysis = FALSE,
+    compute_length_analysis = FALSE,
+    generate = FALSE
+  )
+  evidence <- offline$textual_evidence
+  unit_data <- offline$units$A$unit_data
+  valid <- jsonlite::fromJSON(
+    .textual_test_response(evidence, "A"),
+    simplifyVector = FALSE
+  )
+  evidence_id <- unit_data$groups$A$allowed_evidence_ids[[1L]]
+  valid$groups$A$interpretation_limits <- list(
+    .textual_test_claim(
+      text = "The analysis cannot establish prevalence from this small corpus.",
+      evidence_ids = evidence_id,
+      support = "A verbatim was cited even though the statement is methodological."
+    )
+  )
+
+  parsed <- NaileR:::.nail_text_parse_unit_response(
+    jsonlite::toJSON(valid, auto_unbox = TRUE, null = "null"),
+    unit_data,
+    evidence$evidence_registry,
+    list()
+  )
+
+  expect_identical(parsed$parse_status, "error")
+  expect_match(parsed$parse_error, "empty evidence_ids array", fixed = TRUE)
 })

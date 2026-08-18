@@ -592,108 +592,32 @@
   })
 }
 
+
+.nail_textual_prompt_view <- function(preparation) {
+  prompts <- lapply(preparation$units, function(unit) unit$prompt)
+  stats::setNames(prompts, names(preparation$units))
+}
+
 .nail_textual_resume_preparation <- function(preparation,
                                              provider,
                                              model,
                                              llm_api_options) {
   .nail_textual_validate_preparation(preparation)
-  if (!identical(preparation$parsed$parse_status, "not_generated")) {
-    return(list(preparation = preparation, llm_calls = 0L))
-  }
-
-  context <- preparation$metadata$context
-  if (is.null(context)) context <- list()
-  analysis_scope <- preparation$metadata$analysis_scope
-  comparison_mode <- preparation$metadata$comparison_mode
-  unit_results <- lapply(preparation$units, function(unit) {
-    if (!isTRUE(unit$has_evidence)) {
-      unit$response <- NULL
-      unit$parsed <- list(
-        parse_status = "no_evidence",
-        parse_error = "No verbatim was included in this generation unit.",
-        textual_profiles = NULL
-      )
-      return(unit)
-    }
-
-    raw_response <- .call_llm_base(
-      provider = provider,
-      model = model,
-      prompt = unit$prompt,
-      output = "df",
-      llm_api_options = llm_api_options
-    )
-    unit$response <- raw_response
-    unit$parsed <- .parse_textual_prep_response(
-      text = .textual_prep_response_text(raw_response),
-      expected_groups = unit$groups,
-      textual_evidence = preparation$textual_evidence,
-      context = context,
-      analysis_scope = analysis_scope,
-      comparison_mode = comparison_mode
-    )
-    unit
-  })
-  names(unit_results) <- names(preparation$units)
-
-  combined <- .textual_prep_combine_units(
-    unit_results = unit_results,
-    all_groups = names(preparation$textual_evidence$groups),
-    textual_evidence = preparation$textual_evidence,
-    analysis_scope = analysis_scope,
-    comparison_mode = comparison_mode
-  )
-
-  preparation$units <- unit_results
-  preparation$prompt <- if (comparison_mode == "joint") {
-    unit_results$joint$prompt
-  } else {
-    lapply(unit_results, `[[`, "prompt")
-  }
-  preparation$response <- if (comparison_mode == "joint") {
-    unit_results$joint$response
-  } else {
-    lapply(unit_results, `[[`, "response")
-  }
-  preparation$parsed <- combined
-  preparation$textual_profiles <- combined$textual_profiles
-  preparation$metadata$provider <- provider
-  preparation$metadata$model <- model
-  preparation$metadata$generate <- TRUE
-
-  attach_selected <- preparation$metadata$attach_selected_verbatims
-  if (is.null(attach_selected)) attach_selected <- TRUE
-  n_central <- preparation$metadata$n_central_verbatims
-  if (is.null(n_central)) n_central <- 2L
-  n_tension <- preparation$metadata$n_tension_verbatims
-  if (is.null(n_tension)) n_tension <- 1L
-  max_chars <- preparation$metadata$max_verbatim_chars
-  if (is.null(max_chars)) max_chars <- 220L
-
-  preparation$legacy_groups <- .build_textual_prep_legacy_groups(
-    result = preparation,
-    attach_selected_verbatims = attach_selected,
-    n_central_verbatims = n_central,
-    n_tension_verbatims = n_tension,
-    max_verbatim_chars = max_chars
-  )
-  attr(preparation, "textual_profiles") <- preparation$textual_profiles
-  attr(preparation, "legacy_textual_prep") <- preparation$legacy_groups
-
-  list(
+  .nail_text_complete_preparation(
     preparation = preparation,
-    llm_calls = sum(vapply(unit_results, function(unit) isTRUE(unit$has_evidence), logical(1)))
+    provider = provider,
+    model = model,
+    llm_api_options = llm_api_options
   )
 }
 
 #' Report a traceable textual analysis
 #'
 #' `nail_textual()` is the user-facing reporting layer for grouped open-ended
-#' texts. It delegates corpus validation, deterministic sampling, prompt
-#' construction, semantic generation, JSON parsing, and epistemic validation to
-#' [nail_textual_prep()]. It then organizes the validated `textual_profiles`
-#' into a structured, Markdown, or compact report without re-analysing the raw
-#' corpus.
+#' texts. It delegates corpus validation, deterministic sampling, constrained
+#' semantic generation, JSON parsing, and epistemic validation to
+#' [nail_textual_prep()]. It exposes the canonical `textual_description` and
+#' derives the historical `textual_profiles` view used by existing reports.
 #'
 #' The preferred input is an existing `nail_textual_prep` object supplied with
 #' `x`. Raw data remain supported through `dataset`, `num.var`, and `num.text`;
@@ -725,8 +649,8 @@
 #'   [nail_textual_prep()].
 #' @param prompt_style Prompt detail level passed to [nail_textual_prep()] for
 #'   raw data.
-#' @param text_role Terminology used for textual contributions in preparation
-#'   prompts.
+#' @param text_role Terminology used only in preparation prompts to refer to
+#'   the source texts. It has no effect on evidence or analysis.
 #' @param generate Logical. With raw input, controls the single call to
 #'   [nail_textual_prep()]. With an offline prepared object, `TRUE` completes
 #'   generation from its existing units and prompts without rebuilding any
@@ -753,9 +677,11 @@
 #'
 #' @return An object of class `nail_textual` containing:
 #'   * `report`, the requested deterministic report format;
-#'   * `group_reports` and `cross_group_report`, the stable structured views;
-#'   * unchanged `textual_profiles` and `textual_evidence` from the preparation;
-#'   * `preparation`, the unique source object used;
+#'   * `prompt`, the named generation prompts used by the preparation;
+#'   * `group_reports` and `cross_group_report`, the stable reporting views;
+#'   * `textual_description`, the canonical claim-based semantic contract;
+#'   * unchanged `textual_profiles` compatibility data and `textual_evidence`;
+#'   * `preparation`, `generation`, and `validation`;
 #'   * `legacy_output`, a compatibility view of prompts and raw responses;
 #'   * `metadata`, including exact preparation and LLM call counts.
 #'
@@ -1000,11 +926,15 @@ nail_textual <- function(dataset = NULL,
     )
     preparation_calls <- 1L
     if (generate) {
-      llm_calls <- sum(vapply(
-        preparation$units,
-        function(unit) isTRUE(unit$has_evidence),
-        logical(1)
-      ))
+      llm_calls <- if (!is.null(preparation$generation$llm_calls)) {
+        as.integer(preparation$generation$llm_calls)
+      } else {
+        sum(vapply(
+          preparation$units,
+          function(unit) !is.null(unit$response),
+          logical(1)
+        ))
+      }
     }
   }
 
@@ -1019,11 +949,15 @@ nail_textual <- function(dataset = NULL,
 
   result <- list(
     report = report,
+    prompt = .nail_textual_prompt_view(preparation),
     group_reports = built$group_reports,
     cross_group_report = built$cross_group_report,
+    textual_description = preparation$textual_description,
     textual_profiles = preparation$textual_profiles,
     textual_evidence = preparation$textual_evidence,
     preparation = preparation,
+    generation = preparation$generation,
+    validation = preparation$validation,
     legacy_output = .nail_textual_legacy_output(preparation),
     metadata = list(
       source_type = source_type,
@@ -1046,6 +980,7 @@ nail_textual <- function(dataset = NULL,
 
   attr(result, "textual_evidence") <- result$textual_evidence
   attr(result, "textual_profiles") <- result$textual_profiles
+  attr(result, "textual_description") <- result$textual_description
   attr(result, "textual_preparation") <- result$preparation
   attr(result, "textual_data_summary") <- result$textual_evidence$group_diagnostics
   attr(result, "legacy_output") <- result$legacy_output

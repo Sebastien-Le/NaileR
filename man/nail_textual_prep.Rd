@@ -62,8 +62,9 @@ rank. The implementation does not alter R's global random-number state.}
 
 \item{prompt_style}{Prompt verbosity, either \code{"detailed"} or \code{"compact"}.}
 
-\item{text_role}{Label describing the text column: responses, comments, or
-verbatims.}
+\item{text_role}{Terminology used only in the preparation prompt to refer
+to the source texts: responses, comments, or verbatims. It does not modify
+the evidence, schema, parsing, or analytical results.}
 
 \item{include_verbatims_in_prompt}{Deprecated compatibility argument.
 Traceable semantic profiles always require the sampled verbatims to be
@@ -75,8 +76,9 @@ included. Supplying \code{FALSE} produces a warning and is otherwise ignored.}
 \item{n_central_verbatims}{Maximum number of representative verbatims
 requested per group and retained in the legacy view.}
 
-\item{n_tension_verbatims}{Maximum number of tension or contrastive verbatims
-requested per group and retained in the legacy view.}
+\item{n_tension_verbatims}{Maximum number of contrastive verbatims
+requested per group and retained under the historical tension-verbatim
+name in the compatibility view.}
 
 \item{max_verbatim_chars}{Maximum displayed length in the legacy compatibility
 view. Exact quotations in \code{textual_profiles} are never truncated.}
@@ -106,12 +108,14 @@ indicators are included in the LLM prompt. This does not modify
 \item{compute_length_analysis}{Whether to compute the mechanical response-
 length analysis.}
 
-\item{generate}{Logical. When \code{FALSE}, all evidence and prompts are built but
-no LLM call is made.}
+\item{generate}{Logical. When \code{FALSE}, all evidence, prompts, and machine
+schemas are built but no LLM call is made. When \code{TRUE}, Ollama receives the
+schema through \code{format} and Gemini through \code{responseJsonSchema}.}
 
-\item{analysis_scope}{Analytical prism: \code{"general"}, \code{"sociological"},
-\code{"consumer"}, \code{"psychological"}, \code{"marketing"}, \code{"innovation"}, or
-\code{"cross_functional"}.}
+\item{analysis_scope}{Optional analytical emphasis: \code{"general"},
+\code{"sociological"}, \code{"consumer"}, \code{"psychological"}, \code{"marketing"},
+\code{"innovation"}, or \code{"cross_functional"}. The emphasis cannot expand the
+reduced core textual-description schema.}
 
 \item{comparison_mode}{\code{"isolated"} creates one generation unit per group;
 \code{"joint"} creates one unit containing all groups that have at least one
@@ -136,9 +140,12 @@ count. Use \code{Inf} for no budget.}
 A list of class \code{nail_textual_prep} containing:
 \itemize{
 \item \code{prompt}, \code{response}, and \code{parsed};
-\item \code{textual_profiles}, the validated semantic artifact or \code{NULL};
+\item \code{textual_description}, the canonical constrained semantic artifact;
+\item \code{textual_profiles}, a compatibility view or \code{NULL};
 \item \code{textual_evidence}, the complete mechanical artifact;
-\item \code{units}, one generation record per group or one joint record;
+\item \code{units}, including the prompt, machine schema, raw response, and status;
+\item \code{generation} and \code{validation}, with call counts, errors, and the claim
+registry;
 \item \code{legacy_groups}, a transitional view of the historical fields;
 \item \code{metadata}, including the preparation scope, comparison mode, stored
 context, preparation request, and compatibility settings required to
@@ -153,9 +160,13 @@ data and mechanical settings are unchanged.
 \code{nail_textual_prep()} separates two layers. R first builds a complete and
 deterministic \code{textual_evidence} object containing every source row,
 verbatim identifier, volume diagnostic, sampling decision, lexical indicator,
-and evidence registry. An optional language model then produces structured
-\code{textual_profiles} whose claims must cite verbatim identifiers that were
-actually included in the prompt.
+and evidence registry. An optional language model then produces a constrained
+\code{textual_description} whose claims cite presented verbatim identifiers,
+explain their support, and receive stable \code{claim_id} values from R.
+
+\code{textual_profiles} remains available as a compatibility view derived from
+the canonical description. Cross-group interpretation is deliberately
+deferred to the integration workflow.
 
 The function is a preparation workflow rather than a final narrative report.
 Its outputs are intended for later use by \code{nail_textual()} and

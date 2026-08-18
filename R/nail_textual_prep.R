@@ -1979,15 +1979,90 @@
   unname(x)
 }
 
-.textual_prep_claim_has_unsupported_number <- function(text, source_text) {
+.textual_prep_strip_evidence_id_numbers <- function(text,
+                                                       evidence_ids = character(0)) {
+  text <- paste(text, collapse = "\n")
+  evidence_ids <- unique(as.character(evidence_ids))
+  evidence_ids <- evidence_ids[!is.na(evidence_ids) & nzchar(evidence_ids)]
+  if (length(evidence_ids) > 0L) {
+    for (evidence_id in evidence_ids) {
+      text <- gsub(evidence_id, "EVIDENCE_ID", text, fixed = TRUE)
+    }
+  }
+  gsub(
+    "::verbatim::[0-9]+",
+    "::verbatim::ID",
+    text,
+    perl = TRUE
+  )
+}
+
+.textual_prep_number_tokens <- function(text) {
+  text <- .textual_prep_strip_evidence_id_numbers(text)
   matches <- regmatches(
     text,
-    gregexpr("\\b[0-9]+(?:[.,][0-9]+)?%?\\b", text, perl = TRUE)
-  )[[1]]
-  if (length(matches) == 0L || identical(matches, "")) return(FALSE)
+    gregexpr(
+      paste0(
+        "(?<![[:alnum:]_])[-+]?(?:",
+        "[0-9]+(?:[.,][0-9]+)?|[.,][0-9]+",
+        ")(?:[eE][-+]?[0-9]+)?%?(?![[:alnum:]_])"
+      ),
+      text,
+      perl = TRUE
+    )
+  )[[1L]]
+  if (length(matches) == 0L || identical(matches, "")) character(0) else matches
+}
 
-  source_text <- paste(source_text, collapse = "\n")
-  any(!vapply(matches, grepl, logical(1), x = source_text, fixed = TRUE))
+.textual_prep_number_value <- function(token) {
+  token <- sub("%$", "", token)
+  suppressWarnings(as.numeric(gsub(",", ".", token, fixed = TRUE)))
+}
+
+.textual_prep_number_tolerance <- function(token, value) {
+  clean <- sub("%$", "", token)
+  exponent <- 0
+  if (grepl("[eE]", clean)) {
+    exponent <- suppressWarnings(as.numeric(sub(".*[eE]", "", clean)))
+    if (!is.finite(exponent)) exponent <- 0
+    clean <- sub("[eE].*$", "", clean)
+  }
+  decimal_digits <- if (grepl("[.,]", clean)) {
+    nchar(sub(".*[.,]", "", clean))
+  } else {
+    0L
+  }
+  rounding_step <- 10^(exponent - decimal_digits)
+  max(
+    abs(rounding_step) / 2,
+    sqrt(.Machine$double.eps) * max(1, abs(value))
+  )
+}
+
+.textual_prep_claim_has_unsupported_number <- function(text, source_text) {
+  claim_text <- .textual_prep_strip_evidence_id_numbers(text)
+  source_text <- .textual_prep_strip_evidence_id_numbers(source_text)
+  claim_tokens <- .textual_prep_number_tokens(claim_text)
+  if (length(claim_tokens) == 0L) return(FALSE)
+
+  source_tokens <- .textual_prep_number_tokens(source_text)
+  if (length(source_tokens) == 0L) return(TRUE)
+  source_values <- vapply(
+    source_tokens,
+    .textual_prep_number_value,
+    numeric(1)
+  )
+  source_values <- source_values[is.finite(source_values)]
+
+  unsupported <- vapply(claim_tokens, function(token) {
+    if (grepl(token, source_text, fixed = TRUE)) return(FALSE)
+    value <- .textual_prep_number_value(token)
+    if (!is.finite(value) || length(source_values) == 0L) return(TRUE)
+    tolerance <- .textual_prep_number_tolerance(token, value)
+    !any(abs(source_values - value) <= tolerance)
+  }, logical(1))
+
+  any(unsupported)
 }
 
 .textual_prep_contains_demographic_claim <- function(text) {
@@ -2011,7 +2086,8 @@
 .textual_prep_validate_claim_safety <- function(text,
                                                 evidence_ids,
                                                 registry,
-                                                context) {
+                                                context,
+                                                allow_methodological_language = FALSE) {
   if (.textual_prep_contains_diagnostic_claim(text)) {
     stop("Psychological diagnoses of individuals or groups are not allowed.", call. = FALSE)
   }
@@ -2026,11 +2102,16 @@
   }
   source_text <- c(evidence_text, context_text)
 
-  if (.textual_prep_claim_has_unsupported_number(text, source_text)) {
+  number_checked_text <- .textual_prep_strip_evidence_id_numbers(
+    text,
+    evidence_ids = evidence_ids
+  )
+  if (.textual_prep_claim_has_unsupported_number(number_checked_text, source_text)) {
     stop("A textual claim contains a numerical statement not present in its cited evidence or context.", call. = FALSE)
   }
 
-  if (.textual_prep_contains_demographic_claim(text) &&
+  if (!isTRUE(allow_methodological_language) &&
+      .textual_prep_contains_demographic_claim(text) &&
       !.textual_prep_contains_demographic_claim(paste(source_text, collapse = "\n"))) {
     stop("A demographic claim is not supported by the cited verbatim or user context.", call. = FALSE)
   }
@@ -2724,9 +2805,13 @@
 #' `nail_textual_prep()` separates two layers. R first builds a complete and
 #' deterministic `textual_evidence` object containing every source row,
 #' verbatim identifier, volume diagnostic, sampling decision, lexical indicator,
-#' and evidence registry. An optional language model then produces structured
-#' `textual_profiles` whose claims must cite verbatim identifiers that were
-#' actually included in the prompt.
+#' and evidence registry. An optional language model then produces a constrained
+#' `textual_description` whose claims cite presented verbatim identifiers,
+#' explain their support, and receive stable `claim_id` values from R.
+#'
+#' `textual_profiles` remains available as a compatibility view derived from
+#' the canonical description. Cross-group interpretation is deliberately
+#' deferred to the integration workflow.
 #'
 #' The function is a preparation workflow rather than a final narrative report.
 #' Its outputs are intended for later use by `nail_textual()` and
@@ -2744,8 +2829,9 @@
 #'   rank. The implementation does not alter R's global random-number state.
 #' @param language Stop-word language used by the optional lexical analysis.
 #' @param prompt_style Prompt verbosity, either `"detailed"` or `"compact"`.
-#' @param text_role Label describing the text column: responses, comments, or
-#'   verbatims.
+#' @param text_role Terminology used only in the preparation prompt to refer
+#'   to the source texts: responses, comments, or verbatims. It does not modify
+#'   the evidence, schema, parsing, or analytical results.
 #' @param include_verbatims_in_prompt Deprecated compatibility argument.
 #'   Traceable semantic profiles always require the sampled verbatims to be
 #'   included. Supplying `FALSE` produces a warning and is otherwise ignored.
@@ -2753,8 +2839,9 @@
 #'   `selected_verbatims` compatibility view.
 #' @param n_central_verbatims Maximum number of representative verbatims
 #'   requested per group and retained in the legacy view.
-#' @param n_tension_verbatims Maximum number of tension or contrastive verbatims
-#'   requested per group and retained in the legacy view.
+#' @param n_tension_verbatims Maximum number of contrastive verbatims
+#'   requested per group and retained under the historical tension-verbatim
+#'   name in the compatibility view.
 #' @param max_verbatim_chars Maximum displayed length in the legacy compatibility
 #'   view. Exact quotations in `textual_profiles` are never truncated.
 #' @param lexical_analysis Whether to compute mechanical lexical indicators from
@@ -2773,11 +2860,13 @@
 #'   `textual_evidence`.
 #' @param compute_length_analysis Whether to compute the mechanical response-
 #'   length analysis.
-#' @param generate Logical. When `FALSE`, all evidence and prompts are built but
-#'   no LLM call is made.
-#' @param analysis_scope Analytical prism: `"general"`, `"sociological"`,
-#'   `"consumer"`, `"psychological"`, `"marketing"`, `"innovation"`, or
-#'   `"cross_functional"`.
+#' @param generate Logical. When `FALSE`, all evidence, prompts, and machine
+#'   schemas are built but no LLM call is made. When `TRUE`, Ollama receives the
+#'   schema through `format` and Gemini through `responseJsonSchema`.
+#' @param analysis_scope Optional analytical emphasis: `"general"`,
+#'   `"sociological"`, `"consumer"`, `"psychological"`, `"marketing"`,
+#'   `"innovation"`, or `"cross_functional"`. The emphasis cannot expand the
+#'   reduced core textual-description schema.
 #' @param comparison_mode `"isolated"` creates one generation unit per group;
 #'   `"joint"` creates one unit containing all groups that have at least one
 #'   verbatim included in the prompt. Groups without usable prompt evidence
@@ -2794,9 +2883,12 @@
 #'
 #' @return A list of class `nail_textual_prep` containing:
 #'   * `prompt`, `response`, and `parsed`;
-#'   * `textual_profiles`, the validated semantic artifact or `NULL`;
+#'   * `textual_description`, the canonical constrained semantic artifact;
+#'   * `textual_profiles`, a compatibility view or `NULL`;
 #'   * `textual_evidence`, the complete mechanical artifact;
-#'   * `units`, one generation record per group or one joint record;
+#'   * `units`, including the prompt, machine schema, raw response, and status;
+#'   * `generation` and `validation`, with call counts, errors, and the claim
+#'     registry;
 #'   * `legacy_groups`, a transitional view of the historical fields;
 #'   * `metadata`, including the preparation scope, comparison mode, stored
 #'     context, preparation request, and compatibility settings required to
@@ -2941,7 +3033,7 @@ nail_textual_prep <- function(dataset,
     compute_length_analysis = compute_length_analysis
   )
 
-  units <- .textual_prep_build_units(
+  units <- .nail_text_build_units(
     textual_evidence = textual_evidence,
     analysis_scope = analysis_scope,
     comparison_mode = comparison_mode,
@@ -2951,116 +3043,27 @@ nail_textual_prep <- function(dataset,
     text_role = text_role,
     include_indicators_in_prompt = include_indicators_in_prompt,
     n_central_verbatims = n_central_verbatims,
-    n_tension_verbatims = n_tension_verbatims
+    n_contrastive_verbatims = n_tension_verbatims
   )
 
-  if (!generate) {
-    for (name in names(units)) {
-      units[[name]]$response <- NULL
-      units[[name]]$parsed <- list(
-        parse_status = "not_generated",
-        parse_error = NULL,
-        textual_profiles = NULL
-      )
-    }
-
-    result <- list(
-      prompt = if (comparison_mode == "joint") units$joint$prompt else lapply(units, `[[`, "prompt"),
-      response = NULL,
-      parsed = list(
-        parse_status = "not_generated",
-        parse_error = NULL,
-        textual_profiles = NULL
-      ),
-      textual_profiles = NULL,
-      textual_evidence = textual_evidence,
-      units = units,
-      legacy_groups = NULL,
-      metadata = list(
-        analysis_scope = analysis_scope,
-        comparison_mode = comparison_mode,
-        provider = provider,
-        model = model,
-        generate = FALSE,
-        context_supplied = length(context) > 0L,
-        context = context,
-        preparation_request = request,
-        prompt_style = prompt_style,
-        text_role = text_role,
-        attach_selected_verbatims = attach_selected_verbatims,
-        n_central_verbatims = as.integer(n_central_verbatims),
-        n_tension_verbatims = as.integer(n_tension_verbatims),
-        max_verbatim_chars = as.integer(max_verbatim_chars)
-      )
-    )
-  } else {
-    llm_api_options <- list(...)
-    unit_results <- lapply(units, function(unit) {
-      if (!isTRUE(unit$has_evidence)) {
-        unit$response <- NULL
-        unit$parsed <- list(
-          parse_status = "no_evidence",
-          parse_error = "No verbatim was included in this generation unit.",
-          textual_profiles = NULL
-        )
-        return(unit)
-      }
-
-      raw_response <- .call_llm_base(
-        provider = provider,
-        model = model,
-        prompt = unit$prompt,
-        output = "df",
-        llm_api_options = llm_api_options
-      )
-      response_text <- .textual_prep_response_text(raw_response)
-      unit$response <- raw_response
-      unit$parsed <- .parse_textual_prep_response(
-        text = response_text,
-        expected_groups = unit$groups,
-        textual_evidence = textual_evidence,
-        context = context,
-        analysis_scope = analysis_scope,
-        comparison_mode = comparison_mode
-      )
-      unit
-    })
-    names(unit_results) <- names(units)
-
-    combined <- .textual_prep_combine_units(
-      unit_results = unit_results,
-      all_groups = names(textual_evidence$groups),
-      textual_evidence = textual_evidence,
-      analysis_scope = analysis_scope,
-      comparison_mode = comparison_mode
-    )
-
-    result <- list(
-      prompt = if (comparison_mode == "joint") unit_results$joint$prompt else lapply(unit_results, `[[`, "prompt"),
-      response = if (comparison_mode == "joint") unit_results$joint$response else lapply(unit_results, `[[`, "response"),
-      parsed = combined,
-      textual_profiles = combined$textual_profiles,
-      textual_evidence = textual_evidence,
-      units = unit_results,
-      legacy_groups = NULL,
-      metadata = list(
-        analysis_scope = analysis_scope,
-        comparison_mode = comparison_mode,
-        provider = provider,
-        model = model,
-        generate = TRUE,
-        context_supplied = length(context) > 0L,
-        context = context,
-        preparation_request = request,
-        prompt_style = prompt_style,
-        text_role = text_role,
-        attach_selected_verbatims = attach_selected_verbatims,
-        n_central_verbatims = as.integer(n_central_verbatims),
-        n_tension_verbatims = as.integer(n_tension_verbatims),
-        max_verbatim_chars = as.integer(max_verbatim_chars)
-      )
-    )
-  }
+  result <- .nail_text_build_preparation_result(
+    units = units,
+    textual_evidence = textual_evidence,
+    analysis_scope = analysis_scope,
+    comparison_mode = comparison_mode,
+    provider = provider,
+    model = model,
+    generate = generate,
+    context = context,
+    request = request,
+    prompt_style = prompt_style,
+    text_role = text_role,
+    attach_selected_verbatims = attach_selected_verbatims,
+    n_central_verbatims = n_central_verbatims,
+    n_contrastive_verbatims = n_tension_verbatims,
+    max_verbatim_chars = max_verbatim_chars,
+    llm_api_options = list(...)
+  )
 
   class(result) <- c("nail_textual_prep", "list")
   result$legacy_groups <- .build_textual_prep_legacy_groups(
@@ -3073,6 +3076,7 @@ nail_textual_prep <- function(dataset,
 
   attr(result, "textual_evidence") <- result$textual_evidence
   attr(result, "textual_profiles") <- result$textual_profiles
+  attr(result, "textual_description") <- result$textual_description
   attr(result, "legacy_textual_prep") <- result$legacy_groups
   attr(result, "corpus_metrics") <- result$textual_evidence$corpus_metrics
   attr(result, "length_group_analysis") <- result$textual_evidence$length_group_analysis

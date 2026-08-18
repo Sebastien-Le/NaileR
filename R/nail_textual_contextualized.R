@@ -261,6 +261,18 @@
     return(.contextualized_validate_statistical_profiles(x))
   }
 
+  if (inherits(x, "nail_catdes") &&
+      is.list(x$preparation) &&
+      !is.null(x$preparation$statistical_profiles)) {
+    return(.contextualized_validate_statistical_profiles(
+      x$preparation$statistical_profiles
+    ))
+  }
+
+  if (is.list(x) && !is.null(x$statistical_profiles)) {
+    return(.contextualized_validate_statistical_profiles(x$statistical_profiles))
+  }
+
   attached <- attr(x, "statistical_profiles", exact = TRUE)
   if (!is.null(attached)) {
     return(.contextualized_validate_statistical_profiles(attached))
@@ -2210,6 +2222,17 @@
   if (is.null(x)) return(NULL)
   if (is.list(x) && is.list(x$groups) && is.data.frame(x$evidence_registry)) {
     return(lapply(x$groups, .catdes_group_to_legacy_summary))
+  }
+  if (inherits(x, "nail_catdes") &&
+      is.list(x$preparation) &&
+      inherits(x$preparation$statistical_profiles, "statistical_profiles")) {
+    return(lapply(
+      x$preparation$statistical_profiles$groups,
+      .catdes_group_to_legacy_summary
+    ))
+  }
+  if (is.list(x) && inherits(x$statistical_profiles, "statistical_profiles")) {
+    return(lapply(x$statistical_profiles$groups, .catdes_group_to_legacy_summary))
   }
   profiles <- attr(x, "statistical_profiles", exact = TRUE)
   if (inherits(profiles, "statistical_profiles") && is.list(profiles$groups)) {

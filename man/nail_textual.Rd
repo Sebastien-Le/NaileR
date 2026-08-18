@@ -69,8 +69,8 @@ when raw data are prepared.}
 \item{prompt_style}{Prompt detail level passed to \code{\link[=nail_textual_prep]{nail_textual_prep()}} for
 raw data.}
 
-\item{text_role}{Terminology used for textual contributions in preparation
-prompts.}
+\item{text_role}{Terminology used only in preparation prompts to refer to
+the source texts. It has no effect on evidence or analysis.}
 
 \item{generate}{Logical. With raw input, controls the single call to
 \code{\link[=nail_textual_prep]{nail_textual_prep()}}. With an offline prepared object, \code{TRUE} completes
@@ -107,9 +107,11 @@ passed as provider-specific LLM options.}
 An object of class \code{nail_textual} containing:
 \itemize{
 \item \code{report}, the requested deterministic report format;
-\item \code{group_reports} and \code{cross_group_report}, the stable structured views;
-\item unchanged \code{textual_profiles} and \code{textual_evidence} from the preparation;
-\item \code{preparation}, the unique source object used;
+\item \code{prompt}, the named generation prompts used by the preparation;
+\item \code{group_reports} and \code{cross_group_report}, the stable reporting views;
+\item \code{textual_description}, the canonical claim-based semantic contract;
+\item unchanged \code{textual_profiles} compatibility data and \code{textual_evidence};
+\item \code{preparation}, \code{generation}, and \code{validation};
 \item \code{legacy_output}, a compatibility view of prompts and raw responses;
 \item \code{metadata}, including exact preparation and LLM call counts.
 }
@@ -120,11 +122,10 @@ explicit generation or parsing status.
 }
 \description{
 \code{nail_textual()} is the user-facing reporting layer for grouped open-ended
-texts. It delegates corpus validation, deterministic sampling, prompt
-construction, semantic generation, JSON parsing, and epistemic validation to
-\code{\link[=nail_textual_prep]{nail_textual_prep()}}. It then organizes the validated \code{textual_profiles}
-into a structured, Markdown, or compact report without re-analysing the raw
-corpus.
+texts. It delegates corpus validation, deterministic sampling, constrained
+semantic generation, JSON parsing, and epistemic validation to
+\code{\link[=nail_textual_prep]{nail_textual_prep()}}. It exposes the canonical \code{textual_description} and
+derives the historical \code{textual_profiles} view used by existing reports.
 }
 \details{
 The preferred input is an existing \code{nail_textual_prep} object supplied with

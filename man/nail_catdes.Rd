@@ -19,6 +19,7 @@ nail_catdes(
   row.w = NULL,
   interpretation_mode = c("standard", "latent"),
   prompt_style = c("detailed", "compact"),
+  return_format = c("structured", "legacy"),
   generate = FALSE,
   x = NULL,
   ...
@@ -63,20 +64,33 @@ A precomputed \code{x} is not re-filtered.}
 
 \item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
 
-\item{generate}{Logical. If \code{FALSE}, return the historical prompt form
-without contacting a backend. If \code{TRUE}, send each eligible prompt to the
-selected backend.}
+\item{return_format}{Output contract. \code{"structured"} is the default and
+returns an explicit \code{nail_catdes} list with preparation, prompt,
+generation, validation, report, and metadata components. \code{"legacy"}
+preserves the historical prompt/backend return type for compatibility.}
+
+\item{generate}{Logical. If \code{FALSE}, return prompts and schemas without
+contacting a backend. If \code{TRUE}, generate the selected return contract.
+In structured mode each eligible group is generated and validated
+independently.}
 
 \item{x}{Preferred advanced input. A direct \code{statistical_profiles} object,
 an object carrying a \code{statistical_profiles} attribute, a raw
 \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}} result, or a historical \code{nail_catdes()} result
 carrying a \code{catdes_result} attribute. Do not supply \code{x} with \code{dataset}.}
 
-\item{...}{Provider-specific generation arguments.}
+\item{...}{Provider-specific generation arguments. In structured mode,
+accepted controls include \code{api_key}, \code{max_output_tokens}, \code{timeout},
+\code{gemini_thinking_level}, \code{ollama_url}, \code{ollama_num_ctx}, and
+\code{ollama_num_predict}. Tests may inject \code{.llm_call}.}
 }
 \value{
-The historical prompt or backend result form, augmented with the
-mechanical attributes described above.
+With \code{return_format = "structured"} (the default), an object of
+class \code{c("nail_catdes", "list")} containing explicit \code{preparation},
+\code{prompt}, \code{statistical_description}, \code{generation}, \code{validation},
+\code{report}, and \code{metadata} components, plus compatibility aliases.
+With \code{return_format = "legacy"}, the historical prompt or backend result
+form augmented with mechanical attributes.
 }
 \description{
 \code{nail_catdes()} is the autonomous interpretation layer for a categorical
@@ -114,35 +128,55 @@ Groups with no available or selected marker remain represented in
 \code{interpretation_evidence}. No LLM call is made for an empty isolated group.
 }
 
-\subsection{Transitional return contract}{
+\subsection{Return contracts}{
 
-The historical main return forms are intentionally preserved for this
-transition step: a character prompt or named list of prompts when
-\code{generate = FALSE}, and backend data frames or a named list of backend
-results when \code{generate = TRUE}. A new main output class is deferred to the
-next refactoring stage.
+\code{return_format = "structured"} is the default. It uses a JSON Schema
+transmitted to the provider, parses and validates each group independently,
+requires every interpretation to cite admissible statistical evidence IDs,
+and returns a \code{nail_catdes} list. The principal public components are
+\code{result$preparation}, \code{result$prompt}, \code{result$statistical_description},
+\code{result$generation}, \code{result$validation}, \code{result$report}, and
+\code{result$metadata}.
 
-Every successful return carries the attributes \code{statistical_profiles},
+\code{return_format = "legacy"} preserves the historical main return forms: a
+character prompt or named list of prompts when \code{generate = FALSE}, and
+backend data frames or a named list of backend results when
+\code{generate = TRUE}. The historical prompt/backend view is also retained in
+\code{result$legacy_output} when a structured result is requested.
+
+Every successful return carries \code{statistical_profiles},
 \code{interpretation_evidence}, \code{catdes_result} when available, and
-\code{catdes_settings}.
+\code{catdes_settings} either as explicit fields or compatibility attributes.
 }
 }
 \examples{
 data(iris)
 
-# Historical raw-data interface.
-prompt <- nail_catdes(
+# The default is an explicit structured result.
+result <- nail_catdes(
   dataset = iris,
   num.var = 5,
   generate = FALSE
 )
-attr(prompt, "statistical_profiles")
+result
+result$prompt$setosa
+result$preparation$statistical_profiles
 
-# Recommended advanced interface.
+# Recommended advanced interface with a precomputed catdes result.
 catdes_result <- FactoMineR::catdes(iris, num.var = 5, proba = 0.05)
 profiles <- nail_catdes_prep(catdes_result)
-prompt_from_profiles <- nail_catdes(x = profiles, generate = FALSE)
-identical(attr(prompt_from_profiles, "statistical_profiles"), profiles)
+result_from_profiles <- nail_catdes(x = profiles, generate = FALSE)
+identical(
+  result_from_profiles$preparation$statistical_profiles,
+  profiles
+)
+
+# Historical prompt return remains available explicitly.
+legacy_prompt <- nail_catdes(
+  x = profiles,
+  return_format = "legacy",
+  generate = FALSE
+)
 \dontrun{
 generated <- nail_catdes(
   x = profiles,
@@ -150,5 +184,6 @@ generated <- nail_catdes(
   model = "llama3",
   generate = TRUE
 )
+generated$statistical_description
 }
 }

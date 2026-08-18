@@ -1142,10 +1142,18 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' @param interpretation_mode Either `"standard"` for explicit categories or
 #'   `"latent"` for statistically constructed groups.
 #' @param prompt_style Either `"detailed"` or `"compact"`.
-#' @param generate Logical. If `FALSE`, return the historical prompt form
-#'   without contacting a backend. If `TRUE`, send each eligible prompt to the
-#'   selected backend.
-#' @param ... Provider-specific generation arguments.
+#' @param return_format Output contract. `"structured"` is the default and
+#'   returns an explicit `nail_catdes` list with preparation, prompt,
+#'   generation, validation, report, and metadata components. `"legacy"`
+#'   preserves the historical prompt/backend return type for compatibility.
+#' @param generate Logical. If `FALSE`, return prompts and schemas without
+#'   contacting a backend. If `TRUE`, generate the selected return contract.
+#'   In structured mode each eligible group is generated and validated
+#'   independently.
+#' @param ... Provider-specific generation arguments. In structured mode,
+#'   accepted controls include `api_key`, `max_output_tokens`, `timeout`,
+#'   `gemini_thinking_level`, `ollama_url`, `ollama_num_ctx`, and
+#'   `ollama_num_predict`. Tests may inject `.llm_call`.
 #'
 #' @details
 #' ## Single statistical source
@@ -1174,20 +1182,32 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' Groups with no available or selected marker remain represented in
 #' `interpretation_evidence`. No LLM call is made for an empty isolated group.
 #'
-#' ## Transitional return contract
+#' ## Return contracts
 #'
-#' The historical main return forms are intentionally preserved for this
-#' transition step: a character prompt or named list of prompts when
-#' `generate = FALSE`, and backend data frames or a named list of backend
-#' results when `generate = TRUE`. A new main output class is deferred to the
-#' next refactoring stage.
+#' `return_format = "structured"` is the default. It uses a JSON Schema
+#' transmitted to the provider, parses and validates each group independently,
+#' requires every interpretation to cite admissible statistical evidence IDs,
+#' and returns a `nail_catdes` list. The principal public components are
+#' `result$preparation`, `result$prompt`, `result$statistical_description`,
+#' `result$generation`, `result$validation`, `result$report`, and
+#' `result$metadata`.
 #'
-#' Every successful return carries the attributes `statistical_profiles`,
+#' `return_format = "legacy"` preserves the historical main return forms: a
+#' character prompt or named list of prompts when `generate = FALSE`, and
+#' backend data frames or a named list of backend results when
+#' `generate = TRUE`. The historical prompt/backend view is also retained in
+#' `result$legacy_output` when a structured result is requested.
+#'
+#' Every successful return carries `statistical_profiles`,
 #' `interpretation_evidence`, `catdes_result` when available, and
-#' `catdes_settings`.
+#' `catdes_settings` either as explicit fields or compatibility attributes.
 #'
-#' @return The historical prompt or backend result form, augmented with the
-#'   mechanical attributes described above.
+#' @return With `return_format = "structured"` (the default), an object of
+#'   class `c("nail_catdes", "list")` containing explicit `preparation`,
+#'   `prompt`, `statistical_description`, `generation`, `validation`,
+#'   `report`, and `metadata` components, plus compatibility aliases.
+#'   With `return_format = "legacy"`, the historical prompt or backend result
+#'   form augmented with mechanical attributes.
 #'
 #' @importFrom dplyr mutate filter arrange desc pull select slice_sample group_by n ungroup
 #' @importFrom glue glue
@@ -1200,19 +1220,31 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' @examples
 #' data(iris)
 #'
-#' # Historical raw-data interface.
-#' prompt <- nail_catdes(
+#' # The default is an explicit structured result.
+#' result <- nail_catdes(
 #'   dataset = iris,
 #'   num.var = 5,
 #'   generate = FALSE
 #' )
-#' attr(prompt, "statistical_profiles")
+#' result
+#' result$prompt$setosa
+#' result$preparation$statistical_profiles
 #'
-#' # Recommended advanced interface.
+#' # Recommended advanced interface with a precomputed catdes result.
 #' catdes_result <- FactoMineR::catdes(iris, num.var = 5, proba = 0.05)
 #' profiles <- nail_catdes_prep(catdes_result)
-#' prompt_from_profiles <- nail_catdes(x = profiles, generate = FALSE)
-#' identical(attr(prompt_from_profiles, "statistical_profiles"), profiles)
+#' result_from_profiles <- nail_catdes(x = profiles, generate = FALSE)
+#' identical(
+#'   result_from_profiles$preparation$statistical_profiles,
+#'   profiles
+#' )
+#'
+#' # Historical prompt return remains available explicitly.
+#' legacy_prompt <- nail_catdes(
+#'   x = profiles,
+#'   return_format = "legacy",
+#'   generate = FALSE
+#' )
 #' \dontrun{
 #' generated <- nail_catdes(
 #'   x = profiles,
@@ -1220,6 +1252,7 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   model = "llama3",
 #'   generate = TRUE
 #' )
+#' generated$statistical_description
 #' }
 nail_catdes <- function(dataset = NULL,
                         num.var = NULL,
@@ -1235,11 +1268,13 @@ nail_catdes <- function(dataset = NULL,
                         row.w = NULL,
                         interpretation_mode = c("standard", "latent"),
                         prompt_style = c("detailed", "compact"),
+                        return_format = c("structured", "legacy"),
                         generate = FALSE,
                         x = NULL,
                         ...) {
   interpretation_mode <- match.arg(interpretation_mode)
   prompt_style <- match.arg(prompt_style)
+  return_format <- match.arg(return_format)
   provider <- match.arg(provider)
 
   validate_catdes_inputs(
@@ -1314,6 +1349,8 @@ nail_catdes <- function(dataset = NULL,
   n_selected <- interpretation_evidence$metadata$n_selected_evidence
   llm_calls <- if (!isTRUE(generate)) {
     0L
+  } else if (identical(return_format, "structured")) {
+    as.integer(n_ready_groups)
   } else if (!isTRUE(isolate.groups)) {
     as.integer(n_selected > 0L)
   } else {
@@ -1330,6 +1367,7 @@ nail_catdes <- function(dataset = NULL,
     proba_reapplied_to_prepared_profiles = FALSE,
     interpretation_mode = interpretation_mode,
     prompt_style = prompt_style,
+    return_format = return_format,
     isolate_groups = isolate.groups,
     quali_sample = quali.sample,
     quanti_sample = quanti.sample,
@@ -1345,6 +1383,28 @@ nail_catdes <- function(dataset = NULL,
     )
   )
 
+  llm_api_options <- list(...)
+
+  if (identical(return_format, "structured")) {
+    structured <- .nail_catdes_structured(
+      interpretation_evidence = interpretation_evidence,
+      statistical_profiles = profiles,
+      catdes_result = normalized$catdes_result,
+      catdes_settings = catdes_settings,
+      introduction = introduction_with_guide,
+      request = request,
+      interpretation_mode = interpretation_mode,
+      prompt_style = prompt_style,
+      provider = provider,
+      model = model,
+      generate = generate,
+      target_label = normalized$target_label,
+      llm_api_options = llm_api_options
+    )
+    structured$legacy_output <- if (!isTRUE(generate)) prompts else NULL
+    return(structured)
+  }
+
   if (!generate) {
     return(.attach_nail_catdes_artifacts(
       prompts,
@@ -1353,8 +1413,6 @@ nail_catdes <- function(dataset = NULL,
       catdes_settings
     ))
   }
-
-  llm_api_options <- list(...)
   call_llm <- function(prompt) {
     response <- .call_llm_base(
       provider = provider,
