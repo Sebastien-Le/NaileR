@@ -245,10 +245,28 @@
 }
 
 .canonicalize_raw_profiles_nail_catdes <- function(profiles, proba) {
+
+  input <- attr(profiles, "catdes_input", exact = TRUE)
+
+  if (is.null(input) && is.list(profiles$metadata$input)) {
+    input <- profiles$metadata$input
+  }
+
+  group_variable <- NULL
+
+  if (is.list(input) &&
+      is.character(input$group_variable) &&
+      length(input$group_variable) == 1L &&
+      !is.na(input$group_variable) &&
+      nzchar(input$group_variable)) {
+    group_variable <- input$group_variable
+  }
+
   canonical_input <- list(
     source = "x",
     proba_applied_by_function = FALSE,
-    declared_proba = proba
+    declared_proba = proba,
+    group_variable = group_variable
   )
 
   profiles$settings$proba_applied_by_function <- FALSE

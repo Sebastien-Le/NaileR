@@ -220,13 +220,32 @@
       if (is.list(catdes_result$category)) names(catdes_result$category) else NULL
     ))
 
+    group_variable <- NULL
+
+    if (!is.null(catdes_result$call) &&
+        !is.null(catdes_result$call$X) &&
+        !is.null(catdes_result$call$num.var)) {
+
+      source_data <- catdes_result$call$X
+      source_num_var <- as.integer(catdes_result$call$num.var)
+
+      if (!is.null(colnames(source_data)) &&
+          length(source_num_var) == 1L &&
+          !is.na(source_num_var) &&
+          source_num_var >= 1L &&
+          source_num_var <= ncol(source_data)) {
+        group_variable <- colnames(source_data)[source_num_var]
+      }
+    }
+
     return(list(
       catdes_result = catdes_result,
       group_names = group_names,
       input_metadata = list(
         source = "x",
         proba_applied_by_function = FALSE,
-        declared_proba = proba
+        declared_proba = proba,
+        group_variable = group_variable
       )
     ))
   }

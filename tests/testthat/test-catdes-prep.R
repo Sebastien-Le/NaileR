@@ -548,3 +548,25 @@ test_that("nail_catdes_prep preserves the proba actually used by an existing cat
     0.01
   )
 })
+
+test_that("nail_catdes_prep preserves the target variable name from catdes input", {
+
+  catdes_result <- FactoMineR::catdes(
+    iris,
+    num.var = 5
+  )
+
+  prep <- nail_catdes_prep(
+    x = catdes_result
+  )
+
+  expect_identical(
+    prep$metadata$input$group_variable,
+    "Species"
+  )
+
+  expect_identical(
+    attr(prep, "catdes_input")$group_variable,
+    "Species"
+  )
+})

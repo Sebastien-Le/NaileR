@@ -1355,3 +1355,25 @@ test_that("catdes significance threshold is grounded as methodological context",
     fixed = TRUE
   )
 })
+
+test_that("nail_catdes recovers the target variable label from prepared catdes profiles", {
+
+  catdes_result <- FactoMineR::catdes(
+    iris,
+    num.var = 5
+  )
+
+  prep <- nail_catdes_prep(
+    x = catdes_result
+  )
+
+  result <- nail_catdes(
+    x = prep,
+    generate = FALSE
+  )
+
+  expect_identical(
+    result$metadata$target_label,
+    "Species"
+  )
+})
