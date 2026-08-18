@@ -122,11 +122,13 @@
 
 .nail_stat_group_data <- function(group_evidence,
                                   interpretation_mode,
-                                  target_label) {
+                                  target_label,
+                                  significance_threshold = NULL) {
   list(
     group = group_evidence$group,
     interpretation_mode = interpretation_mode,
     target_variable = target_label,
+    significance_threshold = significance_threshold,
     metrics = group_evidence$metrics,
     allowed_evidence_ids = as.character(group_evidence$selected_evidence_ids),
     qualitative_markers = .nail_stat_records(
@@ -207,6 +209,7 @@
       "- Do not invent values, variables, modalities, counts, causal mechanisms, or demographic characteristics.",
       "- Positive and negative directions are both informative when present.",
       "- A marker characterizes the group relative to the full sample; it need not describe every individual.",
+      "- significance_threshold is a methodological parameter. It may be used only to qualify statistical significance, never as a descriptive value.",
       "- Return only the JSON object constrained by the supplied schema.",
       sep = "\n"
     ),
@@ -330,6 +333,89 @@
   unique(recovered[!is.na(recovered)])
 }
 
+.nail_stat_strip_supported_significance_threshold <- function(
+    text,
+    significance_threshold) {
+
+  if (!is.character(text) ||
+      length(text) != 1L ||
+      is.na(text) ||
+      !is.numeric(significance_threshold) ||
+      length(significance_threshold) != 1L ||
+      is.na(significance_threshold) ||
+      !is.finite(significance_threshold) ||
+      significance_threshold <= 0 ||
+      significance_threshold > 1 ||
+      !exists(".textual_prep_number_value", mode = "function") ||
+      !exists(".textual_prep_number_tolerance", mode = "function")) {
+    return(text)
+  }
+
+  number_pattern <- paste0(
+    "(?<![[:alnum:]_])[-+]?(?:",
+    "[0-9]+(?:[.,][0-9]+)?|[.,][0-9]+",
+    ")(?:[eE][-+]?[0-9]+)?%?(?![[:alnum:]_])"
+  )
+
+  positions <- gregexpr(
+    number_pattern,
+    text,
+    perl = TRUE
+  )[[1L]]
+
+  if (length(positions) == 1L && positions[[1L]] == -1L) {
+    return(text)
+  }
+
+  lengths <- attr(positions, "match.length")
+  out <- text
+
+  for (i in seq_along(positions)) {
+
+    start <- positions[[i]]
+    end <- start + lengths[[i]] - 1L
+
+    token <- substr(text, start, end)
+    value <- .textual_prep_number_value(token)
+
+    if (!is.finite(value)) {
+      next
+    }
+
+    tolerance <- .textual_prep_number_tolerance(token, value)
+
+    if (abs(value - significance_threshold) > tolerance) {
+      next
+    }
+
+    prefix <- substr(
+      text,
+      max(1L, start - 60L),
+      start - 1L
+    )
+
+    significance_context <- grepl(
+      paste0(
+        "(?:",
+        "\\bp\\s*[- ]?\\s*value\\s*(?:<|<=|≤|below|under)|",
+        "\\bp\\s*(?:<|<=|≤)|",
+        "significance\\s+threshold\\s*(?:=|:|of)?|",
+        "\\balpha\\s*(?:=|:)?",
+        ")\\s*$"
+      ),
+      prefix,
+      ignore.case = TRUE,
+      perl = TRUE
+    )
+
+    if (isTRUE(significance_context)) {
+      substr(out, start, end) <- strrep(" ", lengths[[i]])
+    }
+  }
+
+  out
+}
+
 .nail_stat_validate_claim_safety <- function(text,
                                              support,
                                              evidence_ids,
@@ -337,6 +423,7 @@
                                              allow_methodological_language = FALSE) {
   combined <- paste(text, support, sep = "\n")
   source_text <- .nail_stat_evidence_source_text(group_data, evidence_ids)
+
   if (isTRUE(allow_methodological_language)) {
     source_text <- paste(
       source_text,
@@ -376,6 +463,10 @@
   } else {
     combined
   }
+  number_checked_text <- .nail_stat_strip_supported_significance_threshold(
+    number_checked_text,
+    significance_threshold = group_data$significance_threshold
+  )
   if (exists(".textual_prep_claim_has_unsupported_number", mode = "function") &&
       .textual_prep_claim_has_unsupported_number(number_checked_text, source_text)) {
     stop(
@@ -851,7 +942,8 @@
     group_data <- .nail_stat_group_data(
       group_evidence,
       interpretation_mode = interpretation_mode,
-      target_label = target_label
+      target_label = target_label,
+      significance_threshold = interpretation_evidence$settings$proba
     )
     schema <- .nail_stat_group_schema(
       group_name = group_name,

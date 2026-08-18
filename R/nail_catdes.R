@@ -534,6 +534,7 @@
     groups = groups,
     selected_evidence_registry = selected_registry,
     settings = list(
+      proba = statistical_profiles$settings$proba,
       quali_sample = quali_sample,
       quanti_sample = quanti_sample,
       drop_negative = drop_negative,

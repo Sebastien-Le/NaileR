@@ -1247,3 +1247,111 @@ test_that("statistical claim schema requires null validation_needed", {
     "null"
   )
 })
+
+test_that("catdes significance threshold is grounded as methodological context", {
+
+  catdes_result <- FactoMineR::catdes(
+    iris,
+    num.var = 5,
+    proba = 0.01
+  )
+
+  prep <- nail_catdes_prep(x = catdes_result)
+
+  result <- nail_catdes(
+    x = prep,
+    generate = FALSE
+  )
+
+  expect_equal(
+    result$interpretation_evidence$settings$proba,
+    0.01
+  )
+
+  group_evidence <- result$interpretation_evidence$groups$setosa
+
+  group_data <- .nail_stat_group_data(
+    group_evidence,
+    interpretation_mode = "standard",
+    target_label = "Species",
+    significance_threshold =
+      result$interpretation_evidence$settings$proba
+  )
+
+  expect_equal(
+    group_data$significance_threshold,
+    0.01
+  )
+
+  expect_match(
+    result$prompt$setosa,
+    '"significance_threshold": 0.01',
+    fixed = TRUE
+  )
+
+  evidence_id <- group_data$allowed_evidence_ids[[1]]
+
+  valid_claim <- list(
+    text = paste(
+      "The cited marker is statistically significant",
+      "(p-value < 0.01)."
+    ),
+    status = "expert_interpretation",
+    evidence_ids = evidence_id,
+    support = paste(
+      "The cited p-value is below the configured",
+      "significance threshold."
+    ),
+    validation_needed = NULL
+  )
+
+  expect_silent(
+    .nail_stat_validate_claim(
+      valid_claim,
+      path = "statistical_description$core_statistical_profile",
+      allowed_evidence_ids = group_data$allowed_evidence_ids,
+      group_data = group_data,
+      require_evidence = TRUE
+    )
+  )
+
+  invalid_claim <- valid_claim
+  invalid_claim$text <- paste(
+    "The cited marker is statistically significant",
+    "(p-value < 0.10)."
+  )
+
+  expect_error(
+    .nail_stat_validate_claim(
+      invalid_claim,
+      path = "statistical_description$core_statistical_profile",
+      allowed_evidence_ids = group_data$allowed_evidence_ids,
+      group_data = group_data,
+      require_evidence = TRUE
+    ),
+    "numerical statement absent from its cited evidence",
+    fixed = TRUE
+  )
+  misused_threshold_claim <- valid_claim
+
+  misused_threshold_claim$text <- paste(
+    "The cited marker has a mean of 0.01."
+  )
+
+  misused_threshold_claim$support <- paste(
+    "This statement uses the significance threshold",
+    "as if it were a descriptive value."
+  )
+
+  expect_error(
+    .nail_stat_validate_claim(
+      misused_threshold_claim,
+      path = "statistical_description$core_statistical_profile",
+      allowed_evidence_ids = group_data$allowed_evidence_ids,
+      group_data = group_data,
+      require_evidence = TRUE
+    ),
+    "numerical statement absent from its cited evidence",
+    fixed = TRUE
+  )
+})
