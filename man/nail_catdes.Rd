@@ -5,8 +5,8 @@
 \title{Interpret a categorical variable}
 \usage{
 nail_catdes(
-  dataset,
-  num.var,
+  dataset = NULL,
+  num.var = NULL,
   introduction = NULL,
   request = NULL,
   model = "llama3",
@@ -20,167 +20,120 @@ nail_catdes(
   interpretation_mode = c("standard", "latent"),
   prompt_style = c("detailed", "compact"),
   generate = FALSE,
+  x = NULL,
   ...
 )
 }
 \arguments{
-\item{dataset}{a data frame made up of at least one categorical variable and a set of quantitative variables and/or categorical variables.}
+\item{dataset}{Historical raw-data input. A data frame containing the
+grouping variable and at least one descriptor. Positional calls such as
+\code{nail_catdes(dataset, num.var)} remain supported.}
 
-\item{num.var}{the index of the variable to be characterized.}
+\item{num.var}{Column index of the grouping variable when \code{dataset} is used.}
 
-\item{introduction}{the introduction for the LLM prompt.}
+\item{introduction}{Study context included in the LLM prompt. A default is
+generated when \code{NULL}.}
 
-\item{request}{the request made to the LLM.}
+\item{request}{Interpretation request. A default is generated from
+\code{interpretation_mode}, \code{prompt_style}, and \code{isolate.groups} when \code{NULL}.}
 
-\item{model}{the model name for the selected provider (e.g., 'llama3' for Ollama or 'gemini-2.5-flash' for Gemini).}
+\item{model}{Model name used by the selected provider.}
 
-\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
+\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
 
-\item{isolate.groups}{a boolean that indicates whether to give the LLM a single prompt, or one prompt per category. Recommended with long catdes results.}
+\item{isolate.groups}{Logical. If \code{FALSE}, build one joint prompt. If
+\code{TRUE}, build one prompt per category/group.}
 
-\item{quali.sample}{from 0 to 1, the proportion of qualitative features that are randomly kept.}
+\item{quali.sample, quanti.sample}{Numbers in \verb{[0, 1]} controlling the
+deterministic proportion of ranked qualitative or quantitative markers
+shown to the LLM. Zero selects none; one selects every eligible marker;
+intermediate values retain \code{ceiling(n * proportion)} top-ranked markers.}
 
-\item{quanti.sample}{from 0 to 1, the proportion of quantitative features that are randomly kept.}
+\item{drop.negative}{Logical. If \code{TRUE}, underrepresented qualitative
+markers and lower quantitative markers are excluded only from the prompt
+selection. They remain unchanged in \code{statistical_profiles}.}
 
-\item{drop.negative}{a boolean that indicates whether to drop negative v.test values for interpretation (keeping only positive v.tests).}
+\item{proba}{Significance threshold used only when raw data or a raw
+\code{catdes()} result must be prepared. A precomputed \code{statistical_profiles}
+object is not re-filtered.}
 
-\item{proba}{the significance threshold considered to characterize the categories (by default 0.05).}
+\item{row.w}{Optional row weights used only with the raw \code{dataset} path.}
 
-\item{row.w}{a vector of integers corresponding to an optional row weights (by default, a vector of 1 for uniform row weights)}
+\item{interpretation_mode}{Either \code{"standard"} for explicit observed
+categories whose names and meanings must be respected, or \code{"latent"} for
+constructed groups whose common meaning may be inferred and named.}
 
-\item{interpretation_mode}{either "standard" or "latent".}
+\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
 
-\item{prompt_style}{either "detailed" or "compact".}
+\item{generate}{Logical. If \code{FALSE}, return the prompt(s) without contacting
+a backend. If \code{TRUE}, generate the historical backend return form.}
 
-\item{generate}{a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.}
+\item{x}{Advanced input. A direct \code{statistical_profiles} object, an object
+carrying a \code{statistical_profiles} attribute, a raw \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}}
+result, or a historical \code{nail_catdes()} result carrying a \code{catdes_result}
+attribute. Do not supply \code{x} together with \code{dataset}.}
 
-\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend
-(e.g., \code{temperature}, \code{seed}).}
+\item{...}{Provider-specific generation arguments passed to the selected
+backend.}
 }
 \value{
-A data frame, or a list of data frames, containing the LLM's prompt and response (if generate = TRUE).
+When \code{generate = FALSE}, a character prompt or named list of prompts.
+When \code{generate = TRUE}, a backend data frame or named list of backend data
+frames. Mechanical artifacts are attached as attributes in both cases.
 }
 \description{
-Generate an LLM response to analyze a categorical variable.
+Interpret the statistical characteristics of an observed categorical
+variable or of statistically constructed groups. The semantic contract is
+the historical NaileR one: statistical results are selected mechanically,
+then presented together so that the LLM can synthesize their convergent
+meaning in the study context.
 }
 \details{
-This function (when generate=TRUE) sends a prompt to the selected LLM backend.
+With raw data, \code{\link[=nail_catdes_prep]{nail_catdes_prep()}} performs the only \code{catdes()} computation
+and produces the canonical \code{statistical_profiles} object. With a prepared
+object, the statistical preparation is reused directly.
+
+\code{quali.sample}, \code{quanti.sample}, and \code{drop.negative} affect only the
+deterministic subset shown to the LLM. They do not modify the complete
+\code{statistical_profiles} artifact.
+
+Stable evidence identifiers remain available in the attached mechanical
+artifacts for audit, but they are deliberately not included in the prompt at
+this stage. The LLM is asked to interpret the selected statistical pattern
+rather than to produce an evidence registry.
+
+Every successful return carries \code{statistical_profiles},
+\code{interpretation_evidence}, \code{catdes_result} when available, and
+\code{catdes_settings} as attributes.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
-### Example 1: Fisher's iris ###
-library(NaileR)
 data(iris)
 
-intro_iris <- "A study measured various parts of iris flowers
-from 3 different species: setosa, versicolor and virginica.
-I will give you the results from this study.
-You will have to identify what sets these flowers apart."
-intro_iris <- gsub('\n', ' ', intro_iris) |>
-stringr::str_squish()
+# Observed categorical variable: keep and interpret the species names.
+prompt <- nail_catdes(
+  iris,
+  num.var = 5,
+  interpretation_mode = "standard",
+  generate = FALSE
+)
+cat(substr(prompt, 1, 700))
 
-req_iris <- "Please explain what makes each species distinct.
-Also, tell me which species has the biggest flowers,
-and which species has the smallest."
-req_iris <- gsub('\n', ' ', req_iris) |>
-stringr::str_squish()
+# Reuse the mechanical preparation without recomputing catdes().
+profiles <- nail_catdes_prep(dataset = iris, num.var = 5)
+prompt_from_profiles <- nail_catdes(
+  x = profiles,
+  interpretation_mode = "standard",
+  generate = FALSE
+)
 
-res_iris <- nail_catdes(iris,
-                        num.var = 5,
-                        introduction = intro_iris,
-                        request = req_iris,
-                        generate = TRUE)
-
-cat(res_iris$response)
-
-### Example 2: food waste dataset ###
-
-library(FactoMineR)
-
-data(waste)
-waste <- waste[-14]    # no variability on this question
-
-set.seed(1)
-res_mca_waste <- MCA(waste, quali.sup = c(1,2,50:76),
-ncp = 35, level.ventil = 0.05, graph = FALSE)
-plot.MCA(res_mca_waste, choix = "ind",
-invisible = c("var", "quali.sup"), label = "none")
-res_hcpc_waste <- HCPC(res_mca_waste, nb.clust = 3, graph = FALSE)
-plot.HCPC(res_hcpc_waste, choice = "map", draw.tree = FALSE,
-ind.names = FALSE)
-don_clust_waste <- res_hcpc_waste$data.clust
-
-intro_waste <- 'These data were collected
-after a survey on food waste,
-with participants describing their habits.'
-intro_waste <- gsub('\n', ' ', intro_waste) |>
-stringr::str_squish()
-
-req_waste <- 'Please summarize the characteristics of each group.
-Then, give each group a new name, based on your conclusions.
-Finally, give each group a grade between 0 and 10,
-based on how wasteful they are with food:
-0 being "not at all", 10 being "absolutely".'
-req_waste <- gsub('\n', ' ', req_waste) |>
-stringr::str_squish()
-
-res_waste <- nail_catdes(don_clust_waste,
-                         num.var = ncol(don_clust_waste),
-                         introduction = intro_waste,
-                         request = req_waste,
-                         drop.negative = TRUE,
-                         generate = TRUE)
-
-cat(res_waste$response)
-
-
-### Example 3: local_food dataset ###
-
-data(local_food)
-
-set.seed(1)
-res_mca_food <- MCA(local_food, quali.sup = 46:63,
-ncp = 100, level.ventil = 0.05, graph = FALSE)
-plot.MCA(res_mca_food, choix = "ind",
-invisible = c("var", "quali.sup"), label = "none")
-res_hcpc_food <- HCPC(res_mca_food, nb.clust = 3, graph = FALSE)
-plot.HCPC(res_hcpc_food, choice = "map", draw.tree = FALSE,
-ind.names = FALSE)
-don_clust_food <- res_hcpc_food$data.clust
-
-intro_food <- 'A study on sustainable food systems
-was led on several French participants.
-This study had 2 parts. In the first part,
-participants had to rate how acceptable
-"a food system that..." (e.g, "a food system that
-only uses renewable energy") was to them.
-In the second part, they had to say
-if they agreed or disagreed with some statements.'
-intro_food <- gsub('\n', ' ', intro_food) |>
-stringr::str_squish()
-
-req_food <- 'I will give you the answers from one group.
-Please explain who the individuals of this group are,
-what their beliefs are.
-Then, give this group a new name,
-and explain why you chose this name.
-Do not use 1st person ("I", "my"...) in your answer.'
-req_food <- gsub('\n', ' ', req_food) |>
-stringr::str_squish()
-
-res_food <- nail_catdes(don_clust_food,
-                        num.var = 64,
-                        introduction = intro_food,
-                        request = req_food,
-                        isolate.groups = TRUE,
-                        drop.negative = TRUE,
-                        generate = TRUE)
-
-res_food[[1]]$response |> cat()
-res_food[[2]]$response |> cat()
-res_food[[3]]$response |> cat()
+\dontrun{
+generated <- nail_catdes(
+  iris,
+  num.var = 5,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+cat(generated$response)
 }
 }
