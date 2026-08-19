@@ -281,14 +281,18 @@ test_that("markdown formatting preserves ordinary r and n characters", {
     generate = FALSE
   )
 
-  expect_match(prompt, "Purchase_place", fixed = TRUE)
+  # Semantic-facing prompts now humanise variable names, but ordinary
+  # letters (notably r/n) and modality labels must remain intact.
+  expect_match(prompt, "Purchase place", fixed = TRUE)
   expect_match(prompt, "Local_market", fixed = TRUE)
   expect_match(prompt, "Organic", fixed = TRUE)
-  expect_match(prompt, "Sustainability_score", fixed = TRUE)
-  expect_match(prompt, "Trust_score", fixed = TRUE)
+  expect_match(prompt, "Sustainability score", fixed = TRUE)
+  expect_match(prompt, "Trust score", fixed = TRUE)
+  expect_false(grepl("Pu chase place", prompt, fixed = TRUE))
+  expect_false(grepl("O ga ic", prompt, fixed = TRUE))
 
   expect_equal(
-    .escape_markdown_cell_nail_catdes("line1\r\nline2"),
+    .clean_catdes_plain_text("line1\r\nline2"),
     "line1 line2"
   )
 })
@@ -304,7 +308,7 @@ test_that("joint and isolated prompt forms remain available", {
   expect_setequal(names(isolated), names(profiles$groups))
 })
 
-test_that("joint generation makes exactly one backend call", {
+test_that("non-isolated generation is local-first while preserving data-frame return", {
   profiles <- .catdes_stage2_profiles()
   calls <- 0L
 
@@ -317,9 +321,19 @@ test_that("joint generation makes exactly one backend call", {
   )
 
   result <- nail_catdes(x = profiles, generate = TRUE)
-  expect_identical(calls, 1L)
+  evidence <- attr(result, "interpretation_evidence")
+
+  expect_identical(calls, evidence$metadata$n_ready_groups)
   expect_true(is.data.frame(result))
-  expect_identical(attr(result, "catdes_settings")$llm_calls, 1L)
+  expect_identical(
+    attr(result, "catdes_settings")$llm_calls,
+    evidence$metadata$n_ready_groups
+  )
+  expect_identical(
+    attr(result, "catdes_settings")$generation_architecture,
+    "local_first"
+  )
+  expect_false(attr(result, "catdes_settings")$global_synthesis_performed)
 })
 
 test_that("isolated generation calls only groups with selected evidence", {

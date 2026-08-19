@@ -1107,170 +1107,552 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
 
 
 # ---------------------------------------------------------------------------
-# Prompt projection from selected statistical evidence
+# Semantic-facing factual representation
 # ---------------------------------------------------------------------------
-# The statistical_profiles/evidence registry remains available for audit, but
-# stable evidence identifiers are deliberately not shown to the LLM here.
-# This keeps the historical NaileR semantic contract: the model interprets a
-# coherent set of selected statistical characteristics rather than formatting
-# a registry of claims.
+# `interpretation_evidence` remains the canonical selected statistical subset.
+# This layer converts it into plain-language factual statements before any LLM
+# call. Evidence IDs remain available for audit but are deliberately not shown
+# in the semantic prompt.
 
-.format_catdes_prompt_number <- function(x, p_value = FALSE) {
-  vapply(x, function(value) {
-    if (length(value) == 0L || is.na(value) || !is.finite(value)) {
-      return("NA")
-    }
-    if (isTRUE(p_value) && value < 0.001) {
-      return("<0.001")
-    }
-    if (isTRUE(p_value)) {
-      return(formatC(value, digits = 3, format = "f"))
-    }
-    formatC(value, digits = 2, format = "f")
-  }, character(1))
+.format_catdes_plain_number <- function(x, digits = 2L) {
+  value <- suppressWarnings(as.numeric(x)[1L])
+  if (length(value) == 0L || is.na(value) || !is.finite(value)) {
+    return("NA")
+  }
+  formatC(value, digits = digits, format = "f")
 }
 
-.escape_markdown_cell_nail_catdes <- function(x) {
-  x <- as.character(x)
-  x[is.na(x)] <- "-"
-  x <- gsub("\\|", "\\\\|", x)
+.format_catdes_plain_percent <- function(x) {
+  value <- suppressWarnings(as.numeric(x)[1L])
+  if (length(value) == 0L || is.na(value) || !is.finite(value)) {
+    return("NA")
+  }
+  paste0(.format_catdes_plain_number(value, 2L), "%")
+}
+
+.clean_catdes_plain_text <- function(x) {
+  x <- as.character(x)[1L]
+  if (length(x) == 0L || is.na(x)) {
+    return("<missing>")
+  }
   x <- gsub("[\r\n]+", " ", x)
+  trimws(x)
+}
+
+.display_variable_label_nail_catdes <- function(x) {
+  x <- .clean_catdes_plain_text(x)
+  if (identical(x, "<missing>")) {
+    return(x)
+  }
+
+  # Variable names can originate from syntactic names created by R
+  # (e.g. "Petal.Length" or a full questionnaire item with dots).
+  # Humanise them only for the semantic-facing prompt; the canonical
+  # statistical objects keep the original variable name unchanged.
+  x <- gsub("[._]+", " ", x)
+  x <- gsub("\\s+", " ", x)
+  x <- trimws(x)
+  x <- sub("[[:space:]]+$", "", x)
   x
 }
 
-.markdown_table_nail_catdes <- function(df) {
-  if (!is.data.frame(df) || nrow(df) == 0L) {
-    return("*No significant data to display.*")
-  }
-
-  for (column in names(df)) {
-    df[[column]] <- .escape_markdown_cell_nail_catdes(df[[column]])
-  }
-
-  header <- paste("|", paste(names(df), collapse = " | "), "|")
-  separator <- paste("|", paste(rep("---", ncol(df)), collapse = " | "), "|")
-  rows <- apply(df, 1L, function(row) {
-    paste("|", paste(row, collapse = " | "), "|")
-  })
-  paste(header, separator, paste(rows, collapse = "\n"), sep = "\n")
+.normalize_display_key_nail_catdes <- function(x) {
+  x <- tolower(.clean_catdes_plain_text(x))
+  gsub("[^[:alnum:]]+", "", x)
 }
 
-.format_qualitative_prompt_nail_catdes <- function(markers,
-                                                    interpretation_mode) {
-  title <- .quali_title(interpretation_mode)
-  if (!is.data.frame(markers) || nrow(markers) == 0L) {
-    return(paste0("### ", title, "\n\n*No significant data to display.*\n"))
+.display_modality_label_nail_catdes <- function(modality, variable) {
+  modality <- .clean_catdes_plain_text(modality)
+  if (identical(modality, "<missing>")) {
+    return(modality)
   }
 
-  table <- data.frame(
-    Variable = markers$variable,
-    Modalite = markers$modality,
-    `Cla/Mod` = .format_catdes_prompt_number(markers$percentage_in_modality),
-    `Mod/Cla` = .format_catdes_prompt_number(markers$percentage_in_group),
-    Global = .format_catdes_prompt_number(markers$global_percentage),
-    `p.value` = .format_catdes_prompt_number(markers$p_value, p_value = TRUE),
-    `v.test` = .format_catdes_prompt_number(markers$v_test),
-    stringsAsFactors = FALSE,
-    check.names = FALSE
+  variable_display <- .display_variable_label_nail_catdes(variable)
+
+  # FactoMineR row names for questionnaire items can encode the whole
+  # proposition in the modality, e.g.
+  # "Question text._Totally acceptable".
+  # Strip that duplicated prefix only when it clearly matches the variable.
+  underscore_positions <- gregexpr("_", modality, fixed = TRUE)[[1L]]
+  if (length(underscore_positions) > 0L && underscore_positions[1L] != -1L) {
+    pos <- tail(underscore_positions, 1L)
+    prefix <- substr(modality, 1L, pos - 1L)
+    suffix <- substr(modality, pos + 1L, nchar(modality))
+
+    if (nzchar(suffix) &&
+        identical(
+          .normalize_display_key_nail_catdes(prefix),
+          .normalize_display_key_nail_catdes(variable_display)
+        )) {
+      return(trimws(suffix))
+    }
+  }
+
+  modality
+}
+
+.qualitative_frequency_word_nail_catdes <- function(direction) {
+  direction <- tolower(as.character(direction)[1L])
+  if (identical(direction, "overrepresented")) {
+    return("MORE FREQUENT")
+  }
+  if (identical(direction, "underrepresented")) {
+    return("LESS FREQUENT")
+  }
+  "DIFFERENT IN FREQUENCY"
+}
+
+.quantitative_mean_word_nail_catdes <- function(direction) {
+  direction <- tolower(as.character(direction)[1L])
+  if (identical(direction, "higher")) {
+    return("HIGHER")
+  }
+  if (identical(direction, "lower")) {
+    return("LOWER")
+  }
+  "DIFFERENT"
+}
+
+.source_data_from_profiles_nail_catdes <- function(statistical_profiles) {
+  catdes_result <- attr(statistical_profiles, "catdes_result", exact = TRUE)
+  if (!is.null(catdes_result) &&
+      !is.null(catdes_result$call) &&
+      !is.null(catdes_result$call$X)) {
+    return(catdes_result$call$X)
+  }
+  NULL
+}
+
+.is_binary_qualitative_variable_nail_catdes <- function(statistical_profiles,
+                                                          variable) {
+  variable <- as.character(variable)[1L]
+  source_data <- .source_data_from_profiles_nail_catdes(statistical_profiles)
+
+  if (!is.null(source_data) && variable %in% colnames(source_data)) {
+    values <- unique(as.character(source_data[[variable]][!is.na(source_data[[variable]])]))
+    return(length(values) == 2L)
+  }
+
+  all_qualitative <- lapply(
+    statistical_profiles$groups,
+    function(group) group$qualitative_markers
+  )
+  all_qualitative <- all_qualitative[vapply(all_qualitative, is.data.frame, logical(1))]
+  if (length(all_qualitative) == 0L) {
+    return(FALSE)
+  }
+
+  all_qualitative <- dplyr::bind_rows(all_qualitative)
+  if (nrow(all_qualitative) == 0L || !"variable" %in% names(all_qualitative)) {
+    return(FALSE)
+  }
+
+  rows <- all_qualitative[
+    as.character(all_qualitative$variable) == variable,
+    ,
+    drop = FALSE
+  ]
+  if (nrow(rows) == 0L) {
+    return(FALSE)
+  }
+
+  modalities <- unique(as.character(rows$modality))
+  modalities <- modalities[!is.na(modalities)]
+  length(modalities) == 2L
+}
+
+.qualitative_fact_text_nail_catdes <- function(row) {
+  variable_label <- .display_variable_label_nail_catdes(row$variable)
+  modality_label <- .display_modality_label_nail_catdes(
+    row$modality,
+    row$variable
   )
 
-  paste0("### ", title, "\n\n", .markdown_table_nail_catdes(table), "\n")
+  paste0(
+    'The response/modality "', modality_label,
+    '" for variable/proposition "', variable_label,
+    '" is ', .qualitative_frequency_word_nail_catdes(row$direction),
+    ' in this group than in the full sample ',
+    '(group=', .format_catdes_plain_percent(row$percentage_in_group),
+    '; full sample=', .format_catdes_plain_percent(row$global_percentage), ').'
+  )
 }
 
-.format_quantitative_prompt_nail_catdes <- function(markers,
-                                                     interpretation_mode) {
-  title <- .quanti_title(interpretation_mode)
-  if (!is.data.frame(markers) || nrow(markers) == 0L) {
-    return(paste0("### ", title, "\n\n*No significant data to display.*\n"))
-  }
-
-  table <- data.frame(
-    Variable = markers$variable,
-    `Mean in category` = .format_catdes_prompt_number(markers$group_mean),
-    `Overall mean` = .format_catdes_prompt_number(markers$overall_mean),
-    `sd in category` = .format_catdes_prompt_number(markers$standard_deviation),
-    `Overall sd` = .format_catdes_prompt_number(markers$overall_standard_deviation),
-    `p.value` = .format_catdes_prompt_number(markers$p_value, p_value = TRUE),
-    `v.test` = .format_catdes_prompt_number(markers$v_test),
-    stringsAsFactors = FALSE,
-    check.names = FALSE
+.qualitative_prompt_line_nail_catdes <- function(row) {
+  modality_label <- .display_modality_label_nail_catdes(
+    row$modality,
+    row$variable
   )
 
-  paste0("### ", title, "\n\n", .markdown_table_nail_catdes(table), "\n")
+  paste0(
+    'The response/modality "', modality_label,
+    '" is ', .qualitative_frequency_word_nail_catdes(row$direction),
+    ' in this group than in the full sample ',
+    '(group=', .format_catdes_plain_percent(row$percentage_in_group),
+    '; full sample=', .format_catdes_plain_percent(row$global_percentage), ').'
+  )
 }
 
-.build_group_block_from_evidence_nail_catdes <- function(group_evidence,
-                                                          interpretation_mode) {
-  if (!identical(group_evidence$status, "ready")) {
-    return("*No significant statistical characteristics were selected for this group.*")
+.quantitative_fact_text_nail_catdes <- function(row) {
+  paste0(
+    'The mean of "', .display_variable_label_nail_catdes(row$variable), '" is ',
+    .quantitative_mean_word_nail_catdes(row$direction),
+    ' in this group than in the full sample ',
+    '(group mean=', .format_catdes_plain_number(row$group_mean),
+    '; full-sample mean=', .format_catdes_plain_number(row$overall_mean), ').'
+  )
+}
+
+.build_semantic_facing_evidence_nail_catdes <- function(statistical_profiles,
+                                                         interpretation_evidence) {
+  .validate_statistical_profiles_nail_catdes(statistical_profiles)
+
+  group_names <- names(interpretation_evidence$groups)
+  groups <- stats::setNames(vector("list", length(group_names)), group_names)
+  n_displayed <- 0L
+  n_added_binary <- 0L
+
+  for (group_name in group_names) {
+    selected <- interpretation_evidence$groups[[group_name]]
+    qualitative_selected <- .order_markers_for_nail_catdes(selected$qualitative_markers)
+    quantitative_selected <- .order_markers_for_nail_catdes(selected$quantitative_markers)
+
+    fact_tables <- list()
+    fact_text <- character(0)
+    k <- 0L
+
+    if (is.data.frame(qualitative_selected) && nrow(qualitative_selected) > 0L) {
+      selected_variables <- unique(as.character(qualitative_selected$variable))
+      full_qualitative <- statistical_profiles$groups[[group_name]]$qualitative_markers
+
+      for (variable in selected_variables) {
+        selected_block <- qualitative_selected[
+          as.character(qualitative_selected$variable) == variable,
+          ,
+          drop = FALSE
+        ]
+        selected_block <- .order_markers_for_nail_catdes(selected_block)
+
+        binary <- .is_binary_qualitative_variable_nail_catdes(
+          statistical_profiles,
+          variable
+        )
+
+        if (isTRUE(binary)) {
+          block <- full_qualitative[
+            as.character(full_qualitative$variable) == variable,
+            ,
+            drop = FALSE
+          ]
+          if (isTRUE(interpretation_evidence$settings$drop_negative)) {
+            block <- block[
+              !(block$direction %in% "underrepresented"),
+              ,
+              drop = FALSE
+            ]
+          }
+          block <- .order_markers_for_nail_catdes(block)
+          if (nrow(block) == 0L) {
+            block <- selected_block
+          }
+          block_type <- "binary_complete_contrast"
+        } else {
+          block <- selected_block
+          block_type <- "multilevel_selected_only"
+        }
+
+        block$display_origin <- ifelse(
+          block$evidence_id %in% selected_block$evidence_id,
+          "selected",
+          "completed_binary_contrast"
+        )
+        block$representation_block <- block_type
+        block$factual_statement <- vapply(
+          seq_len(nrow(block)),
+          function(i) .qualitative_fact_text_nail_catdes(block[i, , drop = FALSE]),
+          character(1)
+        )
+        block$prompt_statement <- vapply(
+          seq_len(nrow(block)),
+          function(i) .qualitative_prompt_line_nail_catdes(block[i, , drop = FALSE]),
+          character(1)
+        )
+
+        fact_text <- c(
+          fact_text,
+          paste0('- For variable/proposition "', .display_variable_label_nail_catdes(variable), '":'),
+          paste0("  - ", block$prompt_statement)
+        )
+
+        k <- k + 1L
+        fact_tables[[k]] <- block
+      }
+    }
+
+    if (is.data.frame(quantitative_selected) && nrow(quantitative_selected) > 0L) {
+      block <- quantitative_selected
+      block$display_origin <- "selected"
+      block$representation_block <- "quantitative_selected"
+      block$factual_statement <- vapply(
+        seq_len(nrow(block)),
+        function(i) .quantitative_fact_text_nail_catdes(block[i, , drop = FALSE]),
+        character(1)
+      )
+      fact_text <- c(fact_text, paste0("- ", block$factual_statement))
+      k <- k + 1L
+      fact_tables[[k]] <- block
+    }
+
+    displayed <- if (length(fact_tables) > 0L) {
+      dplyr::bind_rows(fact_tables)
+    } else {
+      interpretation_evidence$selected_evidence_registry[0, , drop = FALSE]
+    }
+
+    added_binary <- if (is.data.frame(displayed) && nrow(displayed) > 0L) {
+      sum(displayed$display_origin == "completed_binary_contrast", na.rm = TRUE)
+    } else {
+      0L
+    }
+
+    status <- selected$status
+    text <- if (length(fact_text) == 0L) {
+      "*No selected statistical evidence for this group.*"
+    } else {
+      paste(fact_text, collapse = "\n")
+    }
+
+    groups[[group_name]] <- list(
+      group = group_name,
+      status = status,
+      selected_evidence_ids = selected$selected_evidence_ids,
+      displayed_evidence = displayed,
+      text = text,
+      metrics = list(
+        n_selected = as.integer(length(selected$selected_evidence_ids)),
+        n_displayed = as.integer(if (is.data.frame(displayed)) nrow(displayed) else 0L),
+        n_added_binary_contrast = as.integer(added_binary)
+      )
+    )
+
+    n_displayed <- n_displayed + groups[[group_name]]$metrics$n_displayed
+    n_added_binary <- n_added_binary + groups[[group_name]]$metrics$n_added_binary_contrast
+  }
+
+  out <- list(
+    groups = groups,
+    settings = list(
+      representation = "hybrid_plain",
+      qualitative_binary_rule = paste(
+        "When a selected qualitative variable is binary, display every",
+        "significant modality available for that variable in the group."
+      ),
+      qualitative_multilevel_rule = paste(
+        "For multi-level qualitative variables, display only modalities",
+        "selected by the deterministic sampling step."
+      ),
+      quantitative_rule = paste(
+        "Display selected quantitative markers as plain-language higher/lower",
+        "mean facts."
+      ),
+      llm_exposes_evidence_ids = FALSE,
+      llm_exposes_p_values = FALSE,
+      llm_exposes_v_tests = FALSE
+    ),
+    metadata = list(
+      schema = "NaileR::catdes_semantic_facing_evidence",
+      schema_version = "1.0.0",
+      source_schema = interpretation_evidence$metadata$schema,
+      n_groups = as.integer(length(groups)),
+      n_selected_evidence = as.integer(
+        interpretation_evidence$metadata$n_selected_evidence
+      ),
+      n_displayed_evidence = as.integer(n_displayed),
+      n_added_binary_contrast = as.integer(n_added_binary)
+    )
+  )
+  class(out) <- c("nail_catdes_semantic_facing_evidence", "list")
+  out
+}
+
+.semantic_guide_nail_catdes <- function(interpretation_mode,
+                                         target_label) {
+  mode_rule <- if (identical(interpretation_mode, "standard")) {
+    paste(
+      paste0(
+        "These are observed categories of '", target_label,
+        "'. Preserve their original names."
+      ),
+      "Do not reinterpret the categories as latent profiles and do not rename them.",
+      "A category name is contextual information, not statistical evidence."
+    )
+  } else {
+    paste(
+      "These groups are constructed profiles or latent classes whose meaning must be inferred from the results.",
+      "Their current labels are identifiers, not interpretations; you may propose a meaningful name for each group."
+    )
   }
 
   paste(
-    .format_qualitative_prompt_nail_catdes(
-      group_evidence$qualitative_markers,
-      interpretation_mode
-    ),
-    .format_quantitative_prompt_nail_catdes(
-      group_evidence$quantitative_markers,
-      interpretation_mode
-    ),
-    sep = "\n\n"
+    "R has already performed the statistical analysis.",
+    "Every line in the Data section is a plain-language factual statement mechanically derived from selected significant statistical markers.",
+    "MORE FREQUENT, LESS FREQUENT, HIGHER and LOWER must be read literally.",
+    "For binary qualitative variables, both significant sides of the binary contrast may be displayed together even when only one side entered the original sampling quota.",
+    "For multi-level qualitative variables, only selected modalities are displayed.",
+    "Facts listed under this group belong ONLY to this group.",
+    "Do not invent an unlisted statistical characteristic.",
+    "Your role is to combine convergent facts into a higher-level semantic interpretation, not to recalculate the statistics or paraphrase every line.",
+    mode_rule
   )
 }
 
-.build_prompts_from_interpretation_evidence <- function(
-    interpretation_evidence,
-    introduction,
-    request,
-    isolate_groups,
-    interpretation_mode,
-    target_label,
-    prompt_style) {
-  group_names <- names(interpretation_evidence$groups)
-  group_label <- .unit_label(interpretation_mode)
-  data_intro <- .build_data_intro(
-    interpretation_mode,
-    isolate_groups,
-    target_label,
-    prompt_style
-  )
-
-  if (!isolate_groups) {
-    blocks <- vapply(group_names, function(group_name) {
-      block <- .build_group_block_from_evidence_nail_catdes(
-        interpretation_evidence$groups[[group_name]],
-        interpretation_mode
-      )
-      paste0("## ", group_label, " \"", group_name, "\":\n\n", block)
-    }, character(1))
-
-    return(normalize_blank_lines(paste(
-      paste0("# Introduction\n\n", introduction),
-      paste0("# Task\n\n", request),
-      paste0("# Data\n\n", data_intro, "\n", paste(blocks, collapse = "\n\n")),
-      sep = "\n\n"
-    )))
-  }
-
-  prompts <- stats::setNames(vector("list", length(group_names)), group_names)
-  for (group_name in group_names) {
-    block <- .build_group_block_from_evidence_nail_catdes(
-      interpretation_evidence$groups[[group_name]],
-      interpretation_mode
-    )
-    prompts[[group_name]] <- normalize_blank_lines(paste(
-      paste0("# Introduction\n\n", introduction),
-      paste0("# Task\n\n", request),
-      paste0(
-        "# Data\n\n", data_intro, "\n\n## ", group_label,
-        " \"", group_name, "\":\n\n", block
-      ),
-      sep = "\n\n"
+.local_task_nail_catdes <- function(interpretation_mode) {
+  if (identical(interpretation_mode, "standard")) {
+    return(paste(
+      "Interpret ONLY the observed category shown below.",
+      "Combine its qualitative and quantitative facts to identify the strongest convergent semantic pattern.",
+      "Explain what characterizes this category without renaming it.",
+      "Do not infer characteristics that are not listed below and do not compare it with unseen categories."
     ))
   }
+
+  paste(
+    "Interpret ONLY the constructed group shown below.",
+    "Combine its facts to identify the strongest convergent semantic pattern.",
+    "Explain what this group seems to represent and propose one concise interpretive name.",
+    "Do not infer characteristics that are not listed below and do not compare it with unseen groups."
+  )
+}
+
+.build_local_semantic_prompts_nail_catdes <- function(semantic_facing_evidence,
+                                                       introduction,
+                                                       request,
+                                                       interpretation_mode,
+                                                       target_label) {
+  group_names <- names(semantic_facing_evidence$groups)
+  prompts <- stats::setNames(vector("list", length(group_names)), group_names)
+  group_label <- .unit_label(interpretation_mode)
+
+  for (group_name in group_names) {
+    group <- semantic_facing_evidence$groups[[group_name]]
+    prompts[[group_name]] <- normalize_blank_lines(paste0(
+      "# Introduction\n\n", introduction,
+      "\n\n---\n\n## How to Read the Statistical Evidence\n\n",
+      .semantic_guide_nail_catdes(interpretation_mode, target_label),
+      "\n\n# Overall Analytical Request\n\n", request,
+      "\n\n# Local Task\n\n", .local_task_nail_catdes(interpretation_mode),
+      "\n\n# Data\n\n## ", group_label, " \"", group_name, "\"\n\n",
+      group$text
+    ))
+  }
+
   prompts
 }
 
+.combine_local_prompt_preview_nail_catdes <- function(local_prompts,
+                                                       interpretation_mode) {
+  group_label <- .unit_label(interpretation_mode)
+  parts <- vapply(names(local_prompts), function(group_name) {
+    paste0(
+      "## Local prompt for ", group_label, " \"", group_name, "\"\n\n",
+      local_prompts[[group_name]]
+    )
+  }, character(1))
+
+  normalize_blank_lines(paste0(
+    "# Local-first semantic interpretation plan\n\n",
+    "Each group will be interpreted independently. No group receives statistical facts from another group.\n\n",
+    paste(parts, collapse = "\n\n---\n\n")
+  ))
+}
+
+.build_semantic_profiles_nail_catdes <- function(local_results,
+                                                  local_prompts,
+                                                  semantic_facing_evidence,
+                                                  interpretation_mode,
+                                                  target_label,
+                                                  generated) {
+  group_names <- names(semantic_facing_evidence$groups)
+  groups <- stats::setNames(vector("list", length(group_names)), group_names)
+
+  for (group_name in group_names) {
+    evidence_group <- semantic_facing_evidence$groups[[group_name]]
+    result_group <- if (!is.null(local_results)) local_results[[group_name]] else NULL
+
+    response <- NULL
+    if (is.data.frame(result_group) && "response" %in% names(result_group) && nrow(result_group) > 0L) {
+      response <- as.character(result_group$response[[1L]])
+    }
+
+    groups[[group_name]] <- list(
+      group = group_name,
+      status = if (!identical(evidence_group$status, "ready")) {
+        evidence_group$status
+      } else if (isTRUE(generated) && is.null(response)) {
+        "generation_missing"
+      } else if (isTRUE(generated)) {
+        "generated"
+      } else {
+        "prompt_ready"
+      },
+      prompt = local_prompts[[group_name]],
+      response = response,
+      backend_result = result_group,
+      selected_evidence_ids = evidence_group$selected_evidence_ids,
+      n_selected_evidence = evidence_group$metrics$n_selected,
+      n_displayed_evidence = evidence_group$metrics$n_displayed
+    )
+  }
+
+  out <- list(
+    groups = groups,
+    settings = list(
+      interpretation_mode = interpretation_mode,
+      target_label = target_label,
+      architecture = "local_first",
+      global_synthesis_performed = FALSE
+    ),
+    metadata = list(
+      schema = "NaileR::catdes_semantic_profiles",
+      schema_version = "0.1.0",
+      n_groups = as.integer(length(groups)),
+      n_generated = as.integer(sum(vapply(
+        groups,
+        function(group) identical(group$status, "generated"),
+        logical(1)
+      )))
+    )
+  )
+  class(out) <- c("nail_catdes_semantic_profiles", "list")
+  out
+}
+
+.combine_local_results_nail_catdes <- function(local_results,
+                                                combined_prompt,
+                                                model,
+                                                interpretation_mode) {
+  group_label <- .unit_label(interpretation_mode)
+  responses <- vapply(names(local_results), function(group_name) {
+    result <- local_results[[group_name]]
+    response <- if (is.data.frame(result) &&
+                    "response" %in% names(result) &&
+                    nrow(result) > 0L) {
+      as.character(result$response[[1L]])
+    } else {
+      "No local semantic interpretation was generated."
+    }
+    paste0("## ", group_label, " \"", group_name, "\"\n\n", response)
+  }, character(1))
+
+  data.frame(
+    model = model,
+    created_at = Sys.time(),
+    response = paste(responses, collapse = "\n\n"),
+    done = TRUE,
+    prompt = combined_prompt,
+    stringsAsFactors = FALSE
+  )
+}
 
 
 # ---------------------------------------------------------------------------
@@ -1347,9 +1729,15 @@ validate_catdes_inputs <- function(dataset = NULL,
 .attach_nail_catdes_artifacts <- function(result,
                                           normalized,
                                           interpretation_evidence,
+                                          semantic_facing_evidence,
+                                          local_prompts,
+                                          semantic_profiles,
                                           catdes_settings) {
   attr(result, "statistical_profiles") <- normalized$statistical_profiles
   attr(result, "interpretation_evidence") <- interpretation_evidence
+  attr(result, "semantic_facing_evidence") <- semantic_facing_evidence
+  attr(result, "local_prompts") <- local_prompts
+  attr(result, "semantic_profiles") <- semantic_profiles
   if (!is.null(normalized$catdes_result)) {
     attr(result, "catdes_result") <- normalized$catdes_result
   }
@@ -1361,10 +1749,10 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' Interpret a categorical variable
 #'
 #' Interpret the statistical characteristics of an observed categorical
-#' variable or of statistically constructed groups. The semantic contract is
-#' the historical NaileR one: statistical results are selected mechanically,
-#' then presented together so that the LLM can synthesize their convergent
-#' meaning in the study context.
+#' variable or of statistically constructed groups. Statistical markers are
+#' selected mechanically, translated by R into plain-language factual
+#' statements, and interpreted locally one group at a time before any future
+#' cross-group synthesis.
 #'
 #' @param dataset Historical raw-data input. A data frame containing the
 #'   grouping variable and at least one descriptor. Positional calls such as
@@ -1380,8 +1768,11 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   `interpretation_mode`, `prompt_style`, and `isolate.groups` when `NULL`.
 #' @param model Model name used by the selected provider.
 #' @param provider LLM backend, either `"ollama"` or `"gemini"`.
-#' @param isolate.groups Logical. If `FALSE`, build one joint prompt. If
-#'   `TRUE`, build one prompt per category/group.
+#' @param isolate.groups Logical. Local interpretation is always performed one
+#'   category/group at a time. If `TRUE`, return the local prompts/results as a
+#'   named list. If `FALSE`, preserve the historical outer return shape by
+#'   combining the independent local prompts/results into one preview/result.
+#'   No global comparative synthesis is performed at this stage.
 #' @param quali.sample,quanti.sample Numbers in `[0, 1]` controlling the
 #'   deterministic proportion of ranked qualitative or quantitative markers
 #'   shown to the LLM. Zero selects none; one selects every eligible marker;
@@ -1411,18 +1802,30 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' deterministic subset shown to the LLM. They do not modify the complete
 #' `statistical_profiles` artifact.
 #'
-#' Stable evidence identifiers remain available in the attached mechanical
-#' artifacts for audit, but they are deliberately not included in the prompt at
-#' this stage. The LLM is asked to interpret the selected statistical pattern
-#' rather than to produce an evidence registry.
+#' Before generation, selected markers are projected into
+#' `semantic_facing_evidence`: quantitative markers are stated as higher/lower
+#' means, binary qualitative variables are shown as complete significant
+#' contrasts when allowed by `drop.negative`, and multi-level qualitative
+#' variables keep only the selected modalities. `p.value`, `v.test`, and stable
+#' evidence identifiers remain available for audit but are not exposed to the
+#' semantic prompt.
+#'
+#' Every group is interpreted independently. This prevents statistical facts
+#' from one group being transferred to another during the first semantic pass.
+#' A future global synthesis can then work from the frozen local semantic
+#' profiles instead of from the original statistical tables.
 #'
 #' Every successful return carries `statistical_profiles`,
-#' `interpretation_evidence`, `catdes_result` when available, and
-#' `catdes_settings` as attributes.
+#' `interpretation_evidence`, `semantic_facing_evidence`, `local_prompts`,
+#' `semantic_profiles`, `catdes_result` when available, and `catdes_settings` as
+#' attributes.
 #'
-#' @return When `generate = FALSE`, a character prompt or named list of prompts.
-#'   When `generate = TRUE`, a backend data frame or named list of backend data
-#'   frames. Mechanical artifacts are attached as attributes in both cases.
+#' @return When `generate = FALSE`, a character local-first preview when
+#'   `isolate.groups = FALSE`, or the exact named local prompts when
+#'   `isolate.groups = TRUE`. When `generate = TRUE`, a combined data frame when
+#'   `isolate.groups = FALSE`, or the named local backend results when
+#'   `isolate.groups = TRUE`. Mechanical and semantic-stage artifacts are
+#'   attached as attributes in all cases.
 #'
 #' @importFrom dplyr mutate filter arrange desc pull select slice_sample group_by n ungroup
 #' @importFrom glue glue
@@ -1513,6 +1916,11 @@ nail_catdes <- function(dataset = NULL,
     drop_negative = drop.negative
   )
 
+  semantic_facing_evidence <- .build_semantic_facing_evidence_nail_catdes(
+    statistical_profiles = profiles,
+    interpretation_evidence = interpretation_evidence
+  )
+
   if (is.null(introduction)) {
     introduction <- if (interpretation_mode == "standard") {
       "For this study, observations were described according to an explicit categorical variable."
@@ -1529,37 +1937,21 @@ nail_catdes <- function(dataset = NULL,
     )
   }
 
-  guide <- build_guide_catdes(
-    interpretation_mode = interpretation_mode,
-    target_label = normalized$target_label,
-    prompt_style = prompt_style,
-    isolate_groups = isolate.groups
-  )
-  introduction_with_guide <- paste(
-    introduction,
-    guide,
-    sep = "\n\n---\n\n"
-  )
-
-  prompts <- .build_prompts_from_interpretation_evidence(
-    interpretation_evidence = interpretation_evidence,
-    introduction = introduction_with_guide,
+  local_prompts <- .build_local_semantic_prompts_nail_catdes(
+    semantic_facing_evidence = semantic_facing_evidence,
+    introduction = introduction,
     request = request,
-    isolate_groups = isolate.groups,
     interpretation_mode = interpretation_mode,
-    target_label = normalized$target_label,
-    prompt_style = prompt_style
+    target_label = normalized$target_label
+  )
+  combined_prompt_preview <- .combine_local_prompt_preview_nail_catdes(
+    local_prompts,
+    interpretation_mode
   )
 
   n_ready_groups <- interpretation_evidence$metadata$n_ready_groups
   n_selected <- interpretation_evidence$metadata$n_selected_evidence
-  llm_calls <- if (!isTRUE(generate)) {
-    0L
-  } else if (!isTRUE(isolate.groups)) {
-    as.integer(n_selected > 0L)
-  } else {
-    as.integer(n_ready_groups)
-  }
+  llm_calls <- if (isTRUE(generate)) as.integer(n_ready_groups) else 0L
 
   catdes_settings <- list(
     source_type = normalized$source_type,
@@ -1583,23 +1975,42 @@ nail_catdes <- function(dataset = NULL,
     preparation_input = normalized$metadata$preparation_input,
     statistical_profiles_canonicalized = isTRUE(
       normalized$metadata$statistical_profiles_canonicalized
+    ),
+    semantic_representation = "hybrid_plain",
+    generation_architecture = "local_first",
+    global_synthesis_performed = FALSE,
+    n_selected_evidence = as.integer(n_selected),
+    n_displayed_evidence = as.integer(
+      semantic_facing_evidence$metadata$n_displayed_evidence
+    ),
+    n_added_binary_contrast = as.integer(
+      semantic_facing_evidence$metadata$n_added_binary_contrast
     )
   )
 
+  semantic_profiles <- .build_semantic_profiles_nail_catdes(
+    local_results = NULL,
+    local_prompts = local_prompts,
+    semantic_facing_evidence = semantic_facing_evidence,
+    interpretation_mode = interpretation_mode,
+    target_label = normalized$target_label,
+    generated = FALSE
+  )
+
   if (!isTRUE(generate)) {
-    if (n_selected == 0L && !isTRUE(isolate.groups)) {
-      no_results_message <- paste0(
-        "# Introduction\n\n", introduction_with_guide,
-        "\n\n# Task\n\n", request,
-        "\n\n# Data\n\n*No selected statistical evidence was found at this probability threshold.*"
-      )
-      prompts <- normalize_blank_lines(no_results_message)
+    result <- if (isTRUE(isolate.groups)) {
+      local_prompts
+    } else {
+      combined_prompt_preview
     }
 
     return(.attach_nail_catdes_artifacts(
-      prompts,
+      result,
       normalized,
       interpretation_evidence,
+      semantic_facing_evidence,
+      local_prompts,
+      semantic_profiles,
       catdes_settings
     ))
   }
@@ -1617,35 +2028,19 @@ nail_catdes <- function(dataset = NULL,
     response
   }
 
-  if (!isTRUE(isolate.groups)) {
-    result <- if (n_selected == 0L) {
-      message("Execution halted: No selected statistical evidence. Nothing to generate.")
-      .catdes_no_results_data_frame(
-        model = model,
-        prompt = prompts,
-        response = "No selected statistical evidence found."
-      )
-    } else {
-      call_llm(prompts)
-    }
+  local_results <- stats::setNames(
+    vector("list", length(local_prompts)),
+    names(local_prompts)
+  )
 
-    return(.attach_nail_catdes_artifacts(
-      result,
-      normalized,
-      interpretation_evidence,
-      catdes_settings
-    ))
-  }
-
-  result <- stats::setNames(vector("list", length(prompts)), names(prompts))
-  for (group_name in names(prompts)) {
+  for (group_name in names(local_prompts)) {
     group_evidence <- interpretation_evidence$groups[[group_name]]
-    result[[group_name]] <- if (identical(group_evidence$status, "ready")) {
-      call_llm(prompts[[group_name]])
+    local_results[[group_name]] <- if (identical(group_evidence$status, "ready")) {
+      call_llm(local_prompts[[group_name]])
     } else {
       .catdes_no_results_data_frame(
         model = model,
-        prompt = prompts[[group_name]],
+        prompt = local_prompts[[group_name]],
         response = paste0(
           "No selected statistical evidence found for group '",
           group_name,
@@ -1655,10 +2050,40 @@ nail_catdes <- function(dataset = NULL,
     }
   }
 
+  semantic_profiles <- .build_semantic_profiles_nail_catdes(
+    local_results = local_results,
+    local_prompts = local_prompts,
+    semantic_facing_evidence = semantic_facing_evidence,
+    interpretation_mode = interpretation_mode,
+    target_label = normalized$target_label,
+    generated = TRUE
+  )
+
+  result <- if (isTRUE(isolate.groups)) {
+    local_results
+  } else if (n_selected == 0L) {
+    message("Execution halted: No selected statistical evidence. Nothing to generate.")
+    .catdes_no_results_data_frame(
+      model = model,
+      prompt = combined_prompt_preview,
+      response = "No selected statistical evidence found."
+    )
+  } else {
+    .combine_local_results_nail_catdes(
+      local_results = local_results,
+      combined_prompt = combined_prompt_preview,
+      model = model,
+      interpretation_mode = interpretation_mode
+    )
+  }
+
   .attach_nail_catdes_artifacts(
     result,
     normalized,
     interpretation_evidence,
+    semantic_facing_evidence,
+    local_prompts,
+    semantic_profiles,
     catdes_settings
   )
 }

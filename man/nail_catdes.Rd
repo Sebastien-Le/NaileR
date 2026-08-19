@@ -41,8 +41,11 @@ generated when \code{NULL}.}
 
 \item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
 
-\item{isolate.groups}{Logical. If \code{FALSE}, build one joint prompt. If
-\code{TRUE}, build one prompt per category/group.}
+\item{isolate.groups}{Logical. Local interpretation is always performed one
+category/group at a time. If \code{TRUE}, return the local prompts/results as a
+named list. If \code{FALSE}, preserve the historical outer return shape by
+combining the independent local prompts/results into one preview/result.
+No global comparative synthesis is performed at this stage.}
 
 \item{quali.sample, quanti.sample}{Numbers in \verb{[0, 1]} controlling the
 deterministic proportion of ranked qualitative or quantitative markers
@@ -77,16 +80,19 @@ attribute. Do not supply \code{x} together with \code{dataset}.}
 backend.}
 }
 \value{
-When \code{generate = FALSE}, a character prompt or named list of prompts.
-When \code{generate = TRUE}, a backend data frame or named list of backend data
-frames. Mechanical artifacts are attached as attributes in both cases.
+When \code{generate = FALSE}, a character local-first preview when
+\code{isolate.groups = FALSE}, or the exact named local prompts when
+\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a combined data frame when
+\code{isolate.groups = FALSE}, or the named local backend results when
+\code{isolate.groups = TRUE}. Mechanical and semantic-stage artifacts are
+attached as attributes in all cases.
 }
 \description{
 Interpret the statistical characteristics of an observed categorical
-variable or of statistically constructed groups. The semantic contract is
-the historical NaileR one: statistical results are selected mechanically,
-then presented together so that the LLM can synthesize their convergent
-meaning in the study context.
+variable or of statistically constructed groups. Statistical markers are
+selected mechanically, translated by R into plain-language factual
+statements, and interpreted locally one group at a time before any future
+cross-group synthesis.
 }
 \details{
 With raw data, \code{\link[=nail_catdes_prep]{nail_catdes_prep()}} performs the only \code{catdes()} computation
@@ -97,14 +103,23 @@ object, the statistical preparation is reused directly.
 deterministic subset shown to the LLM. They do not modify the complete
 \code{statistical_profiles} artifact.
 
-Stable evidence identifiers remain available in the attached mechanical
-artifacts for audit, but they are deliberately not included in the prompt at
-this stage. The LLM is asked to interpret the selected statistical pattern
-rather than to produce an evidence registry.
+Before generation, selected markers are projected into
+\code{semantic_facing_evidence}: quantitative markers are stated as higher/lower
+means, binary qualitative variables are shown as complete significant
+contrasts when allowed by \code{drop.negative}, and multi-level qualitative
+variables keep only the selected modalities. \code{p.value}, \code{v.test}, and stable
+evidence identifiers remain available for audit but are not exposed to the
+semantic prompt.
+
+Every group is interpreted independently. This prevents statistical facts
+from one group being transferred to another during the first semantic pass.
+A future global synthesis can then work from the frozen local semantic
+profiles instead of from the original statistical tables.
 
 Every successful return carries \code{statistical_profiles},
-\code{interpretation_evidence}, \code{catdes_result} when available, and
-\code{catdes_settings} as attributes.
+\code{interpretation_evidence}, \code{semantic_facing_evidence}, \code{local_prompts},
+\code{semantic_profiles}, \code{catdes_result} when available, and \code{catdes_settings} as
+attributes.
 }
 \examples{
 data(iris)
