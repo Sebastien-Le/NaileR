@@ -2,18 +2,20 @@
 % Please edit documentation in R/nail_condes.R
 \name{nail_condes}
 \alias{nail_condes}
-\title{Interpret a continuous variable}
+\title{Interpret a continuous variable or latent continuum}
 \usage{
 nail_condes(
   dataset,
   num.var,
   introduction = NULL,
   request = NULL,
+  conclusion = NULL,
   model = "llama3",
   provider = c("ollama", "gemini"),
   quanti.threshold = 1,
-  quanti.cat = c("High score", "Low score", "Intermediate score"),
+  quanti.cat = c("Above-average value", "Below-average value", "Intermediate value"),
   sample.pct = 1,
+  sample.method = c("stratified", "top"),
   weights = NULL,
   proba = 0.05,
   generate = FALSE,
@@ -25,188 +27,126 @@ nail_condes(
 )
 }
 \arguments{
-\item{dataset}{a data frame made up of at least one quantitative variable and a set of quantitative variables and/or categorical variables.}
+\item{dataset}{A data frame containing one numeric target variable and
+quantitative and/or qualitative explanatory variables.}
 
-\item{num.var}{the index of the variable to be characterized.}
+\item{num.var}{Index of the numeric variable to characterize.}
 
-\item{introduction}{the introduction for the LLM prompt.}
+\item{introduction}{Optional contextual introduction added to the prompt.}
 
-\item{request}{the request made to the LLM.}
+\item{request}{Optional analytical request sent to the LLM.}
 
-\item{model}{the model name for the selected provider (e.g., 'llama3' for Ollama or 'gemini-2.5-flash' for Gemini).}
+\item{conclusion}{Optional final output-instruction block.}
 
-\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
+\item{model}{Model name for the selected provider.}
 
-\item{quanti.threshold}{the threshold above (resp. below) which a scaled variable is considered significantly above (resp. below) the average. Used when converting continuous variables to categorical ones.}
+\item{provider}{LLM backend. Currently \code{"ollama"} or \code{"gemini"}.}
 
-\item{quanti.cat}{a vector of the 3 possible technical categories used after discretizing continuous variables according to the threshold. Default is "High score", "Low score", "Intermediate score".}
+\item{quanti.threshold}{Threshold, in standard-deviation units, used to
+convert quantitative predictors into the three technical states defined
+by \code{quanti.cat} for end-profile construction.}
 
-\item{sample.pct}{the proportion of features to be sampled.}
+\item{quanti.cat}{Three distinct labels used for above-average,
+below-average, and intermediate quantitative predictor values, in that
+order. These labels describe predictor values, not the target variable.}
 
-\item{weights}{weights for the individuals (see \code{\link[FactoMineR:condes]{FactoMineR::condes()}}).}
+\item{sample.pct}{Proportion of each eligible evidence family included in
+the LLM evidence. This does not alter the canonical \code{continuous_profile}.}
 
-\item{proba}{the significance threshold considered to characterize the category (by default 0.05).}
+\item{sample.method}{Deterministic evidence-selection strategy when
+\code{sample.pct < 1}. \code{"stratified"} (default) preserves a statistical anchor
+and explores lower-ranked retained evidence; \code{"top"} retains only the
+strongest evidence.}
 
-\item{generate}{a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.}
+\item{weights}{Optional non-negative row weights passed to
+\code{\link[FactoMineR:condes]{FactoMineR::condes()}}. When supplied, quantitative predictors are also
+standardized with these weights for end-profile construction.}
 
-\item{interpretation_mode}{either "standard" or "latent".}
+\item{proba}{Significance threshold passed to \code{\link[FactoMineR:condes]{FactoMineR::condes()}}.}
 
-\item{prompt_style}{either "detailed" or "compact".}
+\item{generate}{If \code{FALSE}, build the prompt without calling an LLM. If
+\code{TRUE}, call the selected backend.}
 
-\item{target_concept}{generic concept used in the prompt to describe what the scale refers to.}
+\item{interpretation_mode}{Either \code{"standard"} for an observed variable or
+\code{"latent"} for a synthetic/latent continuum.}
 
-\item{target_label}{optional label for the target variable. If NULL, uses the name of the variable indexed by \code{num.var}.}
+\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
 
-\item{...}{additional provider-specific generation arguments passed to the selected LLM backend (e.g., \code{temperature}, \code{seed}).}
+\item{target_concept}{Optional contextual concept for latent interpretation.
+It guides but does not constrain the evidence-based naming of the
+continuum.}
+
+\item{target_label}{Optional display label for the target in the prompt.
+If \code{NULL}, the dataset column name is used. This does not alter the
+canonical target identity stored in \code{continuous_profile}.}
+
+\item{...}{Additional provider-specific generation arguments.}
 }
 \value{
-A data frame containing the LLM's prompt and response (if generate = TRUE).
+For backward compatibility, a prompt string when
+\code{generate = FALSE}, or the backend data frame when \code{generate = TRUE}.
+Analytical artifacts are attached as attributes:
+\itemize{
+\item \code{continuous_profile}: canonical R-derived evidence.
+\item \code{interpretation_evidence}: deterministic subset shown to the LLM.
+\item \code{semantic_facing_evidence}: explicit factual statements used in the
+prompt.
+\item \code{llm_io}: exact prompt and raw LLM response for \code{\link[=nail_prompt]{nail_prompt()}} and
+\code{\link[=nail_response]{nail_response()}}.
+\item \code{condes_result}: the single original FactoMineR result used as the
+statistical source of truth.
+\item \code{condes_profile_result}: deprecated compatibility alias of
+\code{condes_result}; no second \code{condes()} analysis is performed.
+\item \code{condes_settings}: execution settings.
+}
 }
 \description{
-Generate an LLM response to analyze a continuous variable.
+\code{nail_condes()} characterizes one continuous target using
+\code{\link[FactoMineR:condes]{FactoMineR::condes()}}. It first builds a canonical R-derived
+\code{continuous_profile}, then selects a deterministic subset of that evidence
+for semantic interpretation by the LLM.
 }
 \details{
-This function (when generate = TRUE) sends a prompt to the selected LLM backend.
+\code{interpretation_mode = "standard"} interprets an observed continuous
+variable whose label is already meaningful. \code{interpretation_mode = "latent"}
+interprets a synthetic or latent score as a continuum whose substantive
+meaning may need to be reconstructed.
+
+The canonical \code{continuous_profile} is invariant to \code{generate},
+\code{interpretation_mode}, \code{sample.pct}, \code{sample.method}, \code{prompt_style},
+\code{target_concept}, \code{target_label}, \code{introduction}, \code{request}, and
+\code{conclusion}. These arguments affect only the interpretation layer.
 }
 \examples{
 \dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
+data(decathlon, package = "FactoMineR")
 
-### Example 1: decathlon dataset ###
+# Observed-variable interpretation
+x <- nail_condes(
+  decathlon,
+  num.var = 12,
+  interpretation_mode = "standard",
+  generate = FALSE
+)
+nail_prompt(x)
 
-library(FactoMineR)
-data(decathlon)
-
-names(decathlon) <- c('Time taken to complete the 100m',
-'Distance reached for the long jump',
-'Distance reached for the shot put',
-'Height reached for the high jump',
-'Time taken to complete the 400m',
-'Time taken to complete the 110m hurdle',
-'Distance reached for the discus',
-'Height reached for the pole vault',
-'Distance reached for the javeline',
-'Time taken to complete the 1500 m',
-'Rank/Counter-performance indicator',
-'Points', 'Competition')
-
-res_pca_deca <- FactoMineR::PCA(decathlon,
-quanti.sup = 11:12, quali.sup = 13, graph = FALSE)
-plot.PCA(res_pca_deca, choix = 'var')
-deca_work <- res_pca_deca$ind$coord |> as.data.frame()
-deca_work <- deca_work[,1] |> cbind(decathlon)
-
-intro_deca <- "A study was led on athletes
-participating in a decathlon event.
-Their performance was assessed on each part of the decathlon,
-and they were all placed on an unidimensional scale."
-intro_deca <- gsub('\n', ' ', intro_deca) |>
-stringr::str_squish()
-
-res_deca <- nail_condes(deca_work,
-                        num.var = 1,
-                        quanti.threshold = 1,
-                        quanti.cat = c('High', 'Low', 'Average'),
-                        introduction = intro_deca,
-                        generate = TRUE)
-
-cat(res_deca$response)
-
-
-### Example 2: agri_studies dataset ###
-
-data(agri_studies)
-
-set.seed(1)
-res_mca_agri <- FactoMineR::MCA(agri_studies, quali.sup = 39:42,
-level.ventil = 0.05, graph = FALSE)
-plot.MCA(res_mca_agri, choix = 'ind',
-invisible = c('var', 'quali.sup'), label = 'none')
-
-agri_work <- res_mca_agri$ind$coord |> as.data.frame()
-agri_work <- agri_work[,1] |> cbind(agri_studies)
-
-intro_agri <- "These data were collected after a survey
-on students' expectations of agribusiness studies.
-Participants had to rank how much they agreed with 38 statements
-about possible benefits from agribusiness studies;
-then, they were asked personal questions."
-intro_agri <- gsub('\n', ' ', intro_agri) |>
-stringr::str_squish()
-
-res_agri <- nail_condes(agri_work,
-                        num.var = 1,
-                        introduction = intro_agri,
-                        generate = TRUE)
-
-cat(res_agri$response)
-
-### Example 3: glossophobia dataset ###
-
-data(glossophobia)
-
-set.seed(1)
-res_mca_phobia <- FactoMineR::MCA(glossophobia,
-quali.sup = 26:41, level.ventil = 0.05, graph = FALSE)
-plot.MCA(res_mca_phobia, choix = 'ind',
-invisible = c('var', 'quali.sup'), label = 'none')
-
-phobia_work <- res_mca_phobia$ind$coord |> as.data.frame()
-phobia_work <- phobia_work[,1] |> cbind(glossophobia)
-
-intro_phobia <- "These data were collected after a survey
-on participants' feelings about speaking in public.
-Participants had to rank how much they agreed with
-25 descriptions of speaking in public;
-then, they were asked personal questions."
-intro_phobia <- gsub('\n', ' ', intro_phobia) |>
-stringr::str_squish()
-
-res_phobia <- nail_condes(phobia_work,
-                          num.var = 1,
-                          introduction = intro_phobia,
-                          generate = TRUE)
-
-cat(res_phobia$response)
-
-### Example 4: beard_cont dataset ###
-
-data(beard_cont)
-
-set.seed(1)
-res_ca_beard <- FactoMineR::CA(beard_cont, graph = FALSE)
-plot.CA(res_ca_beard, invisible = 'col')
-
-beard_work <- res_ca_beard$row$coord |> as.data.frame()
-beard_work <- beard_work[,1] |> cbind(beard_cont)
-
-intro_beard <- "These data refer to 8 types of beards.
-Each beard was evaluated by 62 assessors."
-intro_beard <- gsub('\n', ' ', intro_beard) |>
-stringr::str_squish()
-
-req_beard <- "Please explain what differentiates beards
-on both sides of the scale.
-Then, give the scale a name."
-req_beard <- gsub('\n', ' ', req_beard) |>
-stringr::str_squish()
-
-res_beard <- nail_condes(beard_work,
-                         num.var = 1,
-                         quanti.threshold = 0.5,
-                         quanti.cat = c('Very often used', 'Never used', 'Sometimes used'),
-                         introduction = intro_beard,
-                         request = req_beard)
-
-res_beard
-
-ppt <- stringr::str_replace_all(res_beard, 'observations', 'beards')
-cat(ppt)
-
-res_beard <- ollamar::generate(model = 'llama3', prompt = ppt, output = 'text')
-
-cat(res_beard)
+# A synthetic dimension should use latent mode
+pca <- FactoMineR::PCA(
+  decathlon[, 1:10],
+  scale.unit = TRUE,
+  graph = FALSE
+)
+work <- data.frame(
+  Dim1 = pca$ind$coord[, 1],
+  decathlon[, 1:10]
+)
+dim1 <- nail_condes(
+  work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  generate = FALSE
+)
+nail_prompt(dim1)
 }
-
 }
