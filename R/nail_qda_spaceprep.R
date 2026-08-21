@@ -170,11 +170,18 @@ parse_qda_spaceprep_response <- function(text) {
 # Main
 # ---------------------------------------------------------------------------
 
-#' Prepare product-wise LLM summaries for later product-space interpretation
+#' Prepare historical product-wise summaries for product-space interpretation
 #'
-#' This function reuses `nail_qda()` in isolated mode with a dedicated prompt
-#' designed to create short, structured, reusable product summaries for a later
-#' multidimensional interpretation of the product space.
+#' `nail_qda_spaceprep()` is retained for backward compatibility with the
+#' historical QDA-space workflow. It is no longer required by the rebuilt
+#' [nail_qda_space()] implementation.
+#'
+#' New analyses should use [nail_qda()] directly, optionally inspect or revise
+#' product interpretations with [nail_qda_interpretation()], and then pass the
+#' resulting QDA object to [nail_qda_space()].
+#'
+#' The historical function still reuses `nail_qda()` in isolated mode with a
+#' dedicated prompt to create structured product summaries for older code.
 #'
 #' @param dataset QDA dataset.
 #' @param formul Formula passed to `nail_qda()`.

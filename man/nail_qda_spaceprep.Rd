@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_qda_spaceprep.R
 \name{nail_qda_spaceprep}
 \alias{nail_qda_spaceprep}
-\title{Prepare product-wise LLM summaries for later product-space interpretation}
+\title{Prepare historical product-wise summaries for product-space interpretation}
 \usage{
 nail_qda_spaceprep(
   dataset,
@@ -58,7 +58,15 @@ If \code{generate = TRUE}, a named list where each element contains:
 }
 }
 \description{
-This function reuses \code{nail_qda()} in isolated mode with a dedicated prompt
-designed to create short, structured, reusable product summaries for a later
-multidimensional interpretation of the product space.
+\code{nail_qda_spaceprep()} is retained for backward compatibility with the
+historical QDA-space workflow. It is no longer required by the rebuilt
+\code{\link[=nail_qda_space]{nail_qda_space()}} implementation.
+}
+\details{
+New analyses should use \code{\link[=nail_qda]{nail_qda()}} directly, optionally inspect or revise
+product interpretations with \code{\link[=nail_qda_interpretation]{nail_qda_interpretation()}}, and then pass the
+resulting QDA object to \code{\link[=nail_qda_space]{nail_qda_space()}}.
+
+The historical function still reuses \code{nail_qda()} in isolated mode with a
+dedicated prompt to create structured product summaries for older code.
 }

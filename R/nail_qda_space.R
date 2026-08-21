@@ -156,6 +156,68 @@ validate_qda_space_inputs <- function(ncp,
 }
 
 
+.qda_space_inform_parse_failures <- function(product_interpretations) {
+  if (is.null(product_interpretations) ||
+      !is.list(product_interpretations) ||
+      !is.list(product_interpretations$products) ||
+      length(product_interpretations$products) == 0L) {
+    return(invisible(character(0)))
+  }
+
+  products <- product_interpretations$products
+  product_names <- names(products)
+
+  if (is.null(product_names)) {
+    return(invisible(character(0)))
+  }
+
+  statuses <- vapply(
+    products,
+    function(item) {
+      if (is.null(item$status) || length(item$status) == 0L) {
+        return(NA_character_)
+      }
+      as.character(item$status[[1L]])
+    },
+    character(1)
+  )
+
+  failed <- product_names[
+    !is.na(statuses) & statuses == "parse_failed"
+  ]
+
+  if (length(failed) == 0L) {
+    return(invisible(character(0)))
+  }
+
+  if (length(failed) == 1L) {
+    message(
+      paste0(
+        "Reusable QDA product interpretation could not be parsed for '",
+        failed,
+        "'. `nail_qda_space()` will use the statistical QDA evidence ",
+        "for this product. Inspect the original response with ",
+        "`nail_response()` or revise the interpretation with ",
+        "`nail_qda_interpretation()`."
+      )
+    )
+  } else {
+    message(
+      paste0(
+        "Reusable QDA product interpretations could not be parsed for: ",
+        paste(failed, collapse = ", "),
+        ". `nail_qda_space()` will use the statistical QDA evidence ",
+        "for these products. Inspect the original responses with ",
+        "`nail_response()` or revise the interpretations with ",
+        "`nail_qda_interpretation()`."
+      )
+    )
+  }
+
+  invisible(failed)
+}
+
+
 # ===========================================================================
 # Canonical QDA inputs
 # ===========================================================================
@@ -1720,6 +1782,10 @@ nail_qda_space <- function(
   }
 
   inputs <- .qda_space_extract_inputs(x)
+
+  .qda_space_inform_parse_failures(
+    inputs$product_interpretations
+  )
 
   space <- .build_qda_space_pca(
     adjmean = inputs$adjmean,

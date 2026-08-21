@@ -1450,8 +1450,8 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'   * `qda_settings`: execution settings.
 #'
 #'   `profile_summary` is retained temporarily as a deprecated compatibility
-#'   view for the current `nail_qda_space()` implementation. It is not the
-#'   canonical QDA evidence.
+#'   view for older workflows. It is not canonical QDA evidence and is not
+#'   used by the rebuilt [nail_qda_space()] implementation.
 #'
 #' @export
 nail_qda <- function(dataset, formul, firstvar,

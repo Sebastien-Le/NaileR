@@ -98,8 +98,8 @@ reusable blocks are marked \code{parse_failed} rather than reconstructed.
 }
 
 \code{profile_summary} is retained temporarily as a deprecated compatibility
-view for the current \code{nail_qda_space()} implementation. It is not the
-canonical QDA evidence.
+view for older workflows. It is not canonical QDA evidence and is not
+used by the rebuilt \code{\link[=nail_qda_space]{nail_qda_space()}} implementation.
 }
 \description{
 \code{nail_qda()} first computes a canonical R-derived sensory profile for every

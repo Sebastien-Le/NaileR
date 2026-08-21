@@ -7,7 +7,7 @@
 #' interpretations. With a `product` and no interpretation fields, it returns
 #' the retained interpretation for that product. If at least one
 #' interpretation field is supplied, the function updates that product
-#' interpretation, marks it as expert-retained, and returns the modified QDA
+#' interpretation, marks it as expert-edited, and returns the modified QDA
 #' object.
 #'
 #' The function does not call an LLM and does not modify the canonical
