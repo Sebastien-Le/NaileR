@@ -1346,7 +1346,15 @@ get_prompt_qda <- function(semantic_facing_evidence,
     )
   }
 
+  product_interpretations <- .build_product_interpretations_qda(
+    responses = responses,
+    semantic_facing_evidence = semantic_facing_evidence,
+    product_profiles = product_profiles,
+    scope = scope
+  )
+
   attr(x, "product_profiles") <- product_profiles
+  attr(x, "product_interpretations") <- product_interpretations
   attr(x, "interpretation_evidence") <- interpretation_evidence
   attr(x, "semantic_facing_evidence") <- semantic_facing_evidence
   attr(x, "qda_prompts") <- prompt_list
@@ -1430,6 +1438,10 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'
 #'   * `product_profiles`: canonical R evidence, including adjusted means for
 #'     every sensory attribute and retained `decat()` markers.
+#'   * `product_interpretations`: reusable PASS1 LLM interpretations for each
+#'     product/stimulus, linked to the evidence IDs actually shown to the LLM.
+#'     When generation has not run, status is `not_generated`; malformed
+#'     reusable blocks are marked `parse_failed` rather than reconstructed.
 #'   * `interpretation_evidence`: deterministic subset selected for the LLM.
 #'   * `semantic_facing_evidence`: explicit factual sensory statements.
 #'   * `llm_io`: exact prompts and raw LLM responses used by
@@ -1506,6 +1518,17 @@ nail_qda <- function(dataset, formul, firstvar,
       product_knowledge = product_knowledge
     )
   }
+
+  # The visible PASS1 answer remains free to follow the requested reporting
+  # style, but it also carries a compact hidden product interpretation block
+  # that can be parsed and reused downstream without a second LLM call.
+  conclusion <- paste(
+    conclusion,
+    .build_qda_product_interpretation_instruction(
+      product_knowledge = product_knowledge
+    ),
+    sep = "\n\n"
+  )
 
   guide <- build_guide_qda(
     proba = proba,

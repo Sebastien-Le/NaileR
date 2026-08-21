@@ -85,6 +85,10 @@ The following analytical artifacts are attached:
 \itemize{
 \item \code{product_profiles}: canonical R evidence, including adjusted means for
 every sensory attribute and retained \code{decat()} markers.
+\item \code{product_interpretations}: reusable PASS1 LLM interpretations for each
+product/stimulus, linked to the evidence IDs actually shown to the LLM.
+When generation has not run, status is \code{not_generated}; malformed
+reusable blocks are marked \code{parse_failed} rather than reconstructed.
 \item \code{interpretation_evidence}: deterministic subset selected for the LLM.
 \item \code{semantic_facing_evidence}: explicit factual sensory statements.
 \item \code{llm_io}: exact prompts and raw LLM responses used by
