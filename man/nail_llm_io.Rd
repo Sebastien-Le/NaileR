@@ -47,6 +47,16 @@ parsing and epistemic validation.
 These helpers do not rebuild prompts and do not call an LLM. They only read
 content already stored in the supplied object.
 
+The preferred internal contract for future/rebuilt NaileR analyses is a
+canonical \code{llm_io} artifact containing the current analytical \code{stage}, the
+exact \code{prompts}, the raw \code{responses}, and optional metadata. The public
+functions deliberately hide that internal representation: users only need
+\code{nail_prompt()} and \code{nail_response()}.
+
+Compatibility adapters remain available for current historical return
+structures while \code{nail_condes()}, \code{nail_qda()}, \code{nail_textual()}, and other
+analyses are progressively rebuilt around the evidence-first architecture.
+
 For \code{nail_catdes()}, the local semantic profiles take precedence over the
 historical combined outer return shape, so \code{nail_prompt()} exposes the
 actual local prompts used by the local-first architecture.

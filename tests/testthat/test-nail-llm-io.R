@@ -245,3 +245,60 @@ test_that("public LLM IO helpers are exported", {
   expect_true("nail_prompt" %in% getNamespaceExports("NaileR"))
   expect_true("nail_response" %in% getNamespaceExports("NaileR"))
 })
+
+
+test_that("canonical llm_io contract has priority over historical storage", {
+  x <- data.frame(
+    prompt = "Historical prompt",
+    response = "Historical response",
+    stringsAsFactors = FALSE
+  )
+
+  attr(x, "llm_io") <- .new_nail_llm_io(
+    stage = "interpretation",
+    prompts = list(A = "Canonical prompt"),
+    responses = list(A = "Canonical response")
+  )
+
+  expect_identical(
+    nail_prompt(x, select = "A", print = FALSE),
+    "Canonical prompt"
+  )
+
+  expect_identical(
+    nail_response(x, select = "A", print = FALSE),
+    "Canonical response"
+  )
+})
+
+test_that("canonical llm_io can be stored as an object component", {
+  x <- list(
+    llm_io = .new_nail_llm_io(
+      stage = "interpretation",
+      prompts = list(Dim1 = "Dimension prompt"),
+      responses = list(Dim1 = "Dimension response")
+    )
+  )
+
+  expect_identical(
+    nail_prompt(x, select = "Dim1", print = FALSE),
+    "Dimension prompt"
+  )
+
+  expect_identical(
+    nail_response(x, select = "Dim1", print = FALSE),
+    "Dimension response"
+  )
+})
+
+test_that("canonical llm_io constructor normalizes scalar IO", {
+  io <- .new_nail_llm_io(
+    stage = "interpretation",
+    prompts = "Prompt",
+    responses = "Response"
+  )
+
+  expect_identical(io$stage, "interpretation")
+  expect_identical(io$prompts, list(`1` = "Prompt"))
+  expect_identical(io$responses, list(`1` = "Response"))
+})

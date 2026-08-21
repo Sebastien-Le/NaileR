@@ -2,6 +2,138 @@
 # Public UX helpers for inspecting LLM prompts and responses
 # ---------------------------------------------------------------------------
 
+.new_nail_llm_io <- function(stage,
+                             prompts,
+                             responses = NULL,
+                             metadata = list()) {
+  if (!is.character(stage) || length(stage) != 1L ||
+      is.na(stage) || !nzchar(trimws(stage))) {
+    stop("`stage` must be one non-empty character string.", call. = FALSE)
+  }
+
+  normalize_units <- function(x, name) {
+    if (is.null(x)) {
+      return(NULL)
+    }
+
+    if (is.character(x) && length(x) == 1L && !is.na(x)) {
+      return(list(`1` = x))
+    }
+
+    if (!is.list(x) || length(x) == 0L) {
+      stop(
+        sprintf(
+          "`%s` must be NULL, one character string, or a named list of character strings.",
+          name
+        ),
+        call. = FALSE
+      )
+    }
+
+    ok <- vapply(
+      x,
+      function(value) {
+        is.character(value) &&
+          length(value) == 1L &&
+          !is.na(value)
+      },
+      logical(1)
+    )
+
+    if (!all(ok)) {
+      stop(
+        sprintf(
+          "Every `%s` item must be one non-missing character string.",
+          name
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (is.null(names(x)) || any(!nzchar(names(x)))) {
+      names(x) <- as.character(seq_along(x))
+    }
+
+    x
+  }
+
+  prompts <- normalize_units(prompts, "prompts")
+  responses <- normalize_units(responses, "responses")
+
+  structure(
+    list(
+      stage = trimws(stage),
+      prompts = prompts,
+      responses = responses,
+      metadata = metadata
+    ),
+    class = c("nail_llm_io", "list")
+  )
+}
+
+.nail_io_from_canonical <- function(x, field) {
+  io <- attr(x, "llm_io", exact = TRUE)
+
+  if (is.null(io) && is.list(x) && !is.null(x$llm_io)) {
+    io <- x$llm_io
+  }
+
+  if (is.null(io)) {
+    return(NULL)
+  }
+
+  if (!is.list(io)) {
+    stop(
+      "The stored `llm_io` artifact is malformed: expected a list.",
+      call. = FALSE
+    )
+  }
+
+  slot <- if (identical(field, "prompt")) "prompts" else "responses"
+  units <- io[[slot]]
+
+  if (is.null(units)) {
+    return(NULL)
+  }
+
+  if (is.character(units) && length(units) == 1L && !is.na(units)) {
+    return(list(`1` = units))
+  }
+
+  if (!is.list(units) || length(units) == 0L) {
+    stop(
+      sprintf("The stored `llm_io$%s` artifact is malformed.", slot),
+      call. = FALSE
+    )
+  }
+
+  ok <- vapply(
+    units,
+    function(value) {
+      is.character(value) &&
+        length(value) == 1L &&
+        !is.na(value)
+    },
+    logical(1)
+  )
+
+  if (!all(ok)) {
+    stop(
+      sprintf(
+        "The stored `llm_io$%s` artifact contains non-character items.",
+        slot
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (is.null(names(units)) || any(!nzchar(names(units)))) {
+    names(units) <- as.character(seq_along(units))
+  }
+
+  units
+}
+
 .nail_io_assert_print <- function(print) {
   if (!is.logical(print) || length(print) != 1L || is.na(print)) {
     stop("`print` must be a single non-missing logical value.", call. = FALSE)
@@ -224,6 +356,19 @@
 .nail_io_extract_units <- function(x, field = c("prompt", "response")) {
   field <- match.arg(field)
 
+  # Canonical future contract. Rebuilt NaileR functions should store their
+  # current-stage LLM interaction here, independently of their analytical
+  # result structure.
+  units <- .nail_io_from_canonical(x, field)
+  if (!is.null(units)) {
+    return(units)
+  }
+
+  # Compatibility adapters below are intentionally secondary. They allow
+  # current/historical NaileR objects to use the same public UX while those
+  # analytical functions are progressively rebuilt around the canonical
+  # evidence-first architecture.
+
   # PASS 2 has its own current-stage prompt/response. This must take precedence
   # over the preserved PASS 1 semantic profiles stored inside the object.
   units <- .nail_io_units_from_ground(x, field)
@@ -399,6 +544,16 @@
 #' @details
 #' These helpers do not rebuild prompts and do not call an LLM. They only read
 #' content already stored in the supplied object.
+#'
+#' The preferred internal contract for future/rebuilt NaileR analyses is a
+#' canonical `llm_io` artifact containing the current analytical `stage`, the
+#' exact `prompts`, the raw `responses`, and optional metadata. The public
+#' functions deliberately hide that internal representation: users only need
+#' `nail_prompt()` and `nail_response()`.
+#'
+#' Compatibility adapters remain available for current historical return
+#' structures while `nail_condes()`, `nail_qda()`, `nail_textual()`, and other
+#' analyses are progressively rebuilt around the evidence-first architecture.
 #'
 #' For `nail_catdes()`, the local semantic profiles take precedence over the
 #' historical combined outer return shape, so `nail_prompt()` exposes the
