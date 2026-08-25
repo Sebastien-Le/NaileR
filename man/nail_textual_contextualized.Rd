@@ -29,6 +29,8 @@ nail_textual_contextualized(
   provider = c("ollama", "gemini"),
   row.w = NULL,
   generate = FALSE,
+  catdes = NULL,
+  textual = NULL,
   ...
 )
 }
