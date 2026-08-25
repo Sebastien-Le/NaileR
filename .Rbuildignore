@@ -1,8 +1,11 @@
 ^NaileR\.Rproj$
 ^\.Rproj\.user$
-^images
-^doc
+^images$
+^doc$
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
-^doc$
 ^Meta$
+^dev$
+^R_old$
+^R_old_old$
+^NaileR_stabilization_.*$

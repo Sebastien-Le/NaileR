@@ -2,17 +2,19 @@
 % Please edit documentation in R/nail_qda_space.R
 \name{nail_qda_space}
 \alias{nail_qda_space}
-\title{Interpret the product space built from QDA adjusted means}
+\title{Interpret the sensory product space derived from QDA profiles}
 \usage{
 nail_qda_space(
   x,
   profile_summary = NULL,
   llm_product_summaries = NULL,
   ncp = 2,
-  scale.unit = FALSE,
+  scale.unit = TRUE,
   min_inertia_pct = 10,
-  top_n_var = 5,
+  top_n_var = 12,
   top_n_products = 2,
+  top_n_profile_markers = 5,
+  condes_proba = 0.05,
   expertise_mode = c("sensory", "positioning", "hybrid"),
   introduction = NULL,
   request = NULL,
@@ -24,44 +26,89 @@ nail_qda_space(
 )
 }
 \arguments{
-\item{x}{Either an object returned by \code{nail_qda()} or a raw \code{decat} result.}
+\item{x}{Preferably an object returned by \code{\link[=nail_qda]{nail_qda()}}. A raw \code{decat} result
+containing \code{adjmean} is accepted for compatibility, but reusable product
+interpretations and canonical QDA marker evidence are then unavailable.}
 
-\item{profile_summary}{Optional structured profile summary. If \code{x} comes from
-\code{nail_qda()}, this is extracted automatically when available.}
+\item{profile_summary}{Deprecated compatibility argument. It is ignored by
+the rebuilt evidence-first implementation.}
 
-\item{llm_product_summaries}{Optional output from \code{nail_qda_spaceprep(generate = TRUE)}.}
+\item{llm_product_summaries}{Deprecated compatibility argument. It is ignored;
+reusable product interpretations now come directly from \code{\link[=nail_qda]{nail_qda()}}.}
 
-\item{ncp}{Number of dimensions to compute in the PCA.}
+\item{ncp}{Number of PCA dimensions to compute.}
 
-\item{scale.unit}{Should the adjusted mean variables be scaled before PCA?}
+\item{scale.unit}{Logical; whether sensory attributes are standardized in
+the PCA. The rebuilt workflow defaults to \code{TRUE}.}
 
-\item{min_inertia_pct}{Minimum inertia percentage required to interpret an axis automatically.}
+\item{min_inertia_pct}{Minimum percentage of inertia required for a computed
+dimension to receive a prompt.}
 
-\item{top_n_var}{Number of top positive and negative attributes to display per axis.}
+\item{top_n_var}{Maximum number of continuous sensory associations retained
+from the latent \code{\link[=nail_condes]{nail_condes()}} characterization for each dimension.}
 
-\item{top_n_products}{Number of extreme products to display at each end of the axis.}
+\item{top_n_products}{Number of extreme products displayed at each end.}
 
-\item{expertise_mode}{Either \code{"sensory"}, \code{"positioning"}, or \code{"hybrid"}.}
+\item{top_n_profile_markers}{Maximum number of product QDA markers displayed
+within each role (reinforcing, additional, conflicting).}
 
-\item{introduction}{Optional introduction for the LLM prompt.}
+\item{condes_proba}{Significance threshold used by the internal
+\code{\link[=nail_condes]{nail_condes()}} characterization of each PCA dimension.}
 
-\item{request}{Optional request for the LLM prompt.}
+\item{expertise_mode}{Interpretation mode: \code{"sensory"}, \code{"positioning"}, or
+\code{"hybrid"}.}
 
-\item{conclusion}{Optional conclusion/output-format block.}
+\item{introduction}{Optional introduction included in every axis prompt.}
+
+\item{request}{Optional analytical request included in every axis prompt.}
+
+\item{conclusion}{Optional final output-instruction block.}
 
 \item{model}{Model name for the selected provider.}
 
-\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
+\item{provider}{LLM backend: \code{"ollama"} or \code{"gemini"}.}
 
-\item{generate}{Logical; if FALSE returns prompt(s), otherwise calls the LLM.}
+\item{generate}{If \code{FALSE}, build prompts without calling the final LLM. If
+\code{TRUE}, call the selected backend once per retained axis.}
 
-\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
+\item{...}{Additional provider-specific arguments for the final LLM calls.}
 }
 \value{
-If \code{generate = FALSE}, a named list of prompts, one per retained axis.
-If \code{generate = TRUE}, a named list of data frames returned by the selected LLM backend.
+A named list of exact prompts when \code{generate = FALSE}, or a named
+list of backend results when \code{generate = TRUE}.
+
+Attached analytical artifacts include:
+\itemize{
+\item \code{qda_space_evidence}: canonical product-space evidence containing the
+adjusted means, PCA, eigenvalues, retained axes, latent continuous
+profiles, and product evidence.
+\item \code{axis_condes}: the actual preview objects returned by the internal
+\code{\link[=nail_condes]{nail_condes()}} calls, one per retained axis.
+\item \code{product_profiles}: canonical QDA evidence when available.
+\item \code{product_interpretations}: retained model-assisted or expert-edited
+product interpretations when available.
+\item \code{llm_io}: exact final prompts and raw final LLM responses for
+\code{\link[=nail_prompt]{nail_prompt()}} and \code{\link[=nail_response]{nail_response()}}.
+}
 }
 \description{
-Builds a PCA on the adjusted mean table returned by \code{decat()}, then prepares
-prompts to interpret the retained product-space dimensions.
+\code{nail_qda_space()} interprets the main dimensions of the product space built
+from QDA adjusted means. The normal workflow is:
+}
+\details{
+\code{nail_qda()} -> optional expert revision with
+\code{\link[=nail_qda_interpretation]{nail_qda_interpretation()}} -> \code{nail_qda_space()}.
+
+Internally, a PCA is computed from the canonical adjusted product means.
+Each retained PCA dimension is then characterized by a real call to
+\code{\link[=nail_condes]{nail_condes()}} in latent mode, with \code{generate = FALSE}. The continuous
+attribute associations from that characterization define the sensory
+continuum of the axis. The discretized \code{nail_condes()} end profiles are
+retained in the attached evidence for traceability but are deliberately not
+shown in the final product-space prompt: actual products at the extremes
+provide the pole exemplars.
+
+Product-level interpretation combines PCA geometry, canonical QDA markers,
+and the retained \code{product_interpretations} from \code{\link[=nail_qda]{nail_qda()}}. Expert-edited
+interpretations are therefore used automatically when present.
 }

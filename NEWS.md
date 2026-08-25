@@ -1,8 +1,105 @@
+# NaileR 2.1.0
+
+This release introduces the evidence-first analytical architecture that will
+serve as the stable baseline for the second edition of *Analyzing Sensory Data
+with R*.
+
+## Common evidence-first user interface
+
+* Added `nail_evidence()` as the public accessor for canonical analytical
+  evidence.
+* Stabilized `nail_prompt()` and `nail_response()` as the common interface for
+  inspecting exact LLM prompts and raw responses.
+* The recommended public workflow is now:
+  `analysis -> nail_evidence() -> nail_prompt() -> nail_response()`.
+* Rebuilt analyses preserve historical return shapes where practical while
+  storing canonical evidence independently from interpretation-only settings.
+
+## `nail_qda()`
+
+* Rebuilt QDA interpretation around canonical `product_profiles` derived from
+  `SensoMineR::decat()`.
+* Product profiles retain adjusted means, statistically retained markers,
+  directions, metrics, and deterministic evidence identifiers.
+* Added reusable product interpretations and the expert-in-the-loop
+  `nail_qda_interpretation()` editor.
+* Added `nail_qda_space()` for evidence-first interpretation of PCA dimensions
+  built from QDA adjusted product means.
+* `nail_qda_space()` characterizes retained axes through real latent
+  `nail_condes()` calls and combines axis geometry with product-level evidence.
+
+## `nail_condes()`
+
+* Rebuilt continuous-variable interpretation around canonical
+  `continuous_profile` evidence.
+* Continuous and qualitative associations, end profiles, evidence identifiers,
+  settings, and metrics remain inspectable independently of the LLM.
+* Added explicit `standard` and `latent` interpretation modes.
+
+## `nail_catdes()`
+
+* Rebuilt CATDES around canonical `statistical_profiles` produced by
+  `nail_catdes_prep()`.
+* Removed the parallel statistical characterization path from the semantic
+  stage.
+* Statistical evidence is now separated from deterministic prompt selection and
+  semantic-facing factual statements.
+* Observed categories and constructed/latent groups receive distinct
+  interpretation rules while sharing the same canonical evidence.
+
+## `nail_descfreq()`
+
+* Rebuilt contingency-table interpretation around canonical
+  `frequency_profiles`.
+* Complete row profiles are retained separately from statistically retained
+  markers.
+* Prompt selection is deterministic and does not alter canonical evidence.
+* Over- and under-represented attributes remain explicitly distinguishable.
+
+## `nail_textual()`
+
+* Rebuilt grouped textual analysis around canonical `textual_evidence`.
+* Added exact text identifiers and a complete text registry.
+* Sampling affects only the interpretation input; the complete textual evidence
+  remains unchanged.
+* Local responses can be parsed into reusable textual profiles containing core
+  profile, dominant themes, within-group coherence, internal diversity, and
+  representative/tension text identifiers.
+
+## Composed statistical and textual interpretation
+
+* Added `nail_catdes_textual()` to enrich CATDES group characterization with
+  previously generated textual profiles.
+* CATDES remains the statistical anchor; textual evidence is explicitly treated
+  as supplementary contextual information.
+* `nail_textual_contextualized()` remains available as a compatibility façade
+  for historical workflows.
+
+## LLM I/O and backend architecture
+
+* Rebuilt analyses store current-stage LLM interaction through a common
+  `llm_io` contract when available.
+* Ollama and Google Gemini remain the supported public backends.
+* Statistical functions are kept separate from backend implementation so that
+  additional LLM interfaces can be added later without changing the analytical
+  evidence contract.
+
+## Validation and book baseline
+
+* Added extensive tests for canonical evidence, invariance to
+  interpretation-only options, prompt/response access, and composed workflows.
+* Added an end-to-end operational stabilization campaign covering QDA,
+  QDA-space, observed and latent CONDES, observed and latent CATDES, DESCFREQ,
+  TEXTUAL, and CATDES + TEXTUAL.
+* The operational campaign is intended to remain in `dev/` as a reproducible
+  user-facing regression and book-baseline check.
+
+
 # NaileR 2.0.0
 
 This is a major release focused on robustness and maintainability.
-The most significant changes include a complete rewrite of `nail_sort()` to use JSON, 
-the addition of a new robust Google Gemini API client, 
+The most significant changes include a complete rewrite of `nail_sort()` to use JSON,
+the addition of a new robust Google Gemini API client,
 and the centralization of code into helper functions.
 
 ## New Features

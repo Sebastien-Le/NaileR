@@ -1,0 +1,1022 @@
+---
+title: "Understanding a qualitative target with nail_catdes()"
+author: "NaileR"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Understanding a qualitative target with nail_catdes()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center"
+)
+```
+
+> **PASS 2 is optional.**
+> You do not need `nail_catdes_ground()` to use `nail_catdes()`.
+> Use PASS 2 when you want an explicit critical review of how far each interpretation moves beyond the selected evidence.
+
+> **Key principle:** Epistemic temperature tells you how far a statement moves from direct observation; grounding tells you whether the available evidence is sufficient to support that statement as worded.
+
+## From statistical characteristics to interpretation — and, optionally, to epistemic review
+
+This guide presents a practical workflow for using the current `nail_catdes()` family in NaileR.
+
+The workflow has two independent passes:
+
+```text
+PASS 1 — nail_catdes()
+statistical evidence
+        ↓
+local semantic interpretation
+
+PASS 2 — nail_catdes_ground()
+frozen PASS 1 interpretation
+        +
+local statistical evidence
+        ↓
+epistemic review
+```
+
+**PASS 2 is optional.** An experienced analyst may stop after `nail_catdes()`.
+`nail_catdes_ground()` is useful when you want a rapid critical reading of the interpretation: which statements are direct facts, which are semantic recompositions, which are interpretations, and which are hypotheses that go beyond what was directly measured?
+
+---
+
+## The key idea
+
+`nail_catdes()` does not ask the LLM to calculate the statistics.
+
+R first selects statistically relevant characteristics and rewrites them as explicit factual statements. The LLM then works from those facts to construct a local semantic interpretation for each category or group.
+
+The important distinction is:
+
+```text
+R     → statistical evidence
+LLM   → semantic interpretation
+```
+
+The optional `nail_catdes_ground()` then asks a second analytical pass to review the already-produced interpretation against the local evidence.
+
+```text
+PASS 1 interpretation
+        ↓
+fact / semantic pattern / interpretation / hypothesis
+        ↓
+supported / contradicted / insufficient / mixed
+```
+
+The original PASS 1 response is preserved.
+
+---
+
+# 2. A complete observed-category example
+
+The example below creates three observed tea-consumption segments:
+
+- `Routine`
+- `Explorer`
+- `Involved`
+
+The names are known in advance. They are therefore **observed categories**, not latent profiles.
+
+```{r, eval=FALSE}
+library(NaileR)
+
+set.seed(20260819)
+
+n <- 240
+
+segment <- factor(
+  rep(c("Routine", "Explorer", "Involved"), each = n / 3)
+)
+
+tea <- data.frame(
+  specialist_shop = factor(c(
+    sample(c("yes", "no"), n / 3, TRUE, c(0.15, 0.85)),
+    sample(c("yes", "no"), n / 3, TRUE, c(0.45, 0.55)),
+    sample(c("yes", "no"), n / 3, TRUE, c(0.80, 0.20))
+  )),
+
+  loose_leaf = factor(c(
+    sample(c("yes", "no"), n / 3, TRUE, c(0.10, 0.90)),
+    sample(c("yes", "no"), n / 3, TRUE, c(0.50, 0.50)),
+    sample(c("yes", "no"), n / 3, TRUE, c(0.85, 0.15))
+  )),
+
+  organic = factor(c(
+    sample(c("yes", "no"), n / 3, TRUE, c(0.20, 0.80)),
+    sample(c("yes", "no"), n / 3, TRUE, c(0.65, 0.35)),
+    sample(c("yes", "no"), n / 3, TRUE, c(0.55, 0.45))
+  )),
+
+  consumption_frequency = c(
+    rnorm(n / 3, 2.5, 0.7),
+    rnorm(n / 3, 4.5, 0.8),
+    rnorm(n / 3, 6.5, 0.7)
+  ),
+
+  willingness_to_pay = c(
+    rnorm(n / 3, 3.5, 0.8),
+    rnorm(n / 3, 5.5, 0.9),
+    rnorm(n / 3, 7.5, 0.8)
+  ),
+
+  Segment = segment
+)
+```
+
+Here `Segment` is the target variable and is the last column:
+
+```{r, eval=FALSE}
+num.var <- ncol(tea)
+```
+
+---
+
+# 3. First inspect PASS 1 without calling an LLM
+
+A useful habit is to inspect what NaileR intends to send to the model before generating anything.
+
+```{r, eval=FALSE}
+pass1_preview <- nail_catdes(
+  tea,
+  num.var = num.var,
+
+  introduction = paste(
+    "A study investigates tea purchasing and consumption practices.",
+    "The three segments are observed categories defined before this analysis."
+  ),
+
+  request = paste(
+    "Explain the profile of each segment by combining the selected facts.",
+    "Keep the original segment names."
+  ),
+
+  interpretation_mode = "standard",
+  quali.sample = 0.10,
+  quanti.sample = 0.10,
+  drop.negative = FALSE,
+  generate = FALSE
+)
+
+cat(pass1_preview)
+```
+
+## What should you look at?
+
+First, verify that the **introduction** correctly describes the analytical situation. It is not decorative: it tells the LLM what kind of object it is interpreting.
+
+Second, verify the **request**. It should express the actual analytical question rather than merely asking for a generic summary.
+
+Third, inspect the `Data` section. The statements should be understandable without having to decode a statistical table. For example:
+
+```text
+"yes" is MORE FREQUENT in this group than in the full sample
+"no" is LESS FREQUENT in this group than in the full sample
+the mean is HIGHER in this group than in the full sample
+```
+
+These directions must be read literally.
+
+Finally, check that the prompt is local: the facts shown for one group should concern that group only.
+
+---
+
+# 4. Inspect the statistical facts behind PASS 1
+
+For a more detailed audit:
+
+```{r, eval=FALSE}
+semantic_facts <- attr(
+  pass1_preview,
+  "semantic_facing_evidence"
+)
+
+semantic_facts$groups$Involved$text
+```
+
+A typical pattern for `Involved` is:
+
+```text
+loose leaf:
+  "no"  LESS FREQUENT
+  "yes" MORE FREQUENT
+
+consumption frequency:
+  HIGHER
+```
+
+This is the factual basis of the interpretation.
+
+For binary qualitative variables, NaileR may display both sides of the significant contrast. This makes polarity easier to read and reduces errors such as interpreting "`no` is less frequent" in the wrong direction.
+
+---
+
+# 5. Generate PASS 1
+
+Choose the LLM backend and model that you want to use.
+
+Example with Ollama:
+
+```{r, eval=FALSE}
+pass1 <- nail_catdes(
+  tea,
+  num.var = num.var,
+
+  introduction = paste(
+    "A study investigates tea purchasing and consumption practices.",
+    "The three segments are observed categories defined before this analysis."
+  ),
+
+  request = paste(
+    "Explain the profile of each segment by combining the selected facts.",
+    "Keep the original segment names."
+  ),
+
+  interpretation_mode = "standard",
+  quali.sample = 0.10,
+  quanti.sample = 0.10,
+  drop.negative = FALSE,
+
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = TRUE
+)
+```
+
+Display the combined interpretation:
+
+```{r, eval=FALSE}
+cat(pass1$response)
+```
+
+Or inspect the local response for one category:
+
+```{r, eval=FALSE}
+profiles <- attr(pass1, "semantic_profiles")
+
+cat(
+  profiles$groups$Involved$response
+)
+```
+
+## What should you look at in PASS 1?
+
+Do not only ask whether the response sounds plausible.
+
+Read it in this order:
+
+1. **Does it correctly reproduce the statistical direction?**
+2. **Does it combine several facts into a meaningful pattern?**
+3. **Does it introduce concepts that were not directly measured?**
+4. **Are those additional concepts useful interpretations, or are they being stated too strongly?**
+
+For example, from:
+
+```text
+more loose-leaf tea
++
+higher tea-consumption frequency
+```
+
+an interpretation such as:
+
+```text
+greater involvement with tea
+```
+
+may be useful.
+
+But statements such as:
+
+```text
+greater expertise
+values tradition
+values quality
+```
+
+go further than the variables directly establish.
+
+That does not make them useless. It means they should be read as hypotheses rather than as direct results.
+
+---
+
+# 6. PASS 2 is optional
+
+If you are comfortable making this distinction yourself, you can stop here.
+
+```{r, eval=FALSE}
+pass1
+```
+
+`nail_catdes_ground()` is intended for users who want a rapid, explicit critical review of the PASS 1 interpretation.
+
+It does **not** regenerate or rewrite PASS 1.
+
+---
+
+# 7. Preview the epistemic review
+
+Before calling the reviewer:
+
+```{r, eval=FALSE}
+ground_preview <- nail_catdes_ground(
+  pass1,
+  generate = FALSE
+)
+```
+
+Inspect one grounding prompt:
+
+```{r, eval=FALSE}
+cat(
+  ground_preview$grounding_prompts$Explorer
+)
+```
+
+The prompt contains:
+
+```text
+Frozen PASS 1 Response
++
+Local Evidence
++
+Epistemic Contract
+```
+
+The evidence references shown to the LLM (`G001E001`, `G001E002`, ...) are short local references. NaileR maps them back to the canonical internal Evidence IDs after generation.
+
+---
+
+# 8. Generate PASS 2
+
+```{r, eval=FALSE}
+ground <- nail_catdes_ground(
+  pass1,
+  generate = TRUE
+)
+```
+
+By default, `nail_catdes_ground()` inherits the model and provider recorded in PASS 1. You can override them explicitly if required.
+
+PASS 2 performs one independent local review per eligible group.
+
+---
+
+# 9. Read one grounded profile
+
+A small display helper is convenient:
+
+```{r, eval=FALSE}
+print_ground_profile <- function(x, group) {
+
+  profile <- x$grounded_profiles[[group]]
+
+  cat("\n##", group, "\n\n")
+
+  for (a in profile$assertions) {
+
+    cat(
+      sprintf(
+        "[%s | temperature=%d | %s | support=%s]\n",
+        toupper(a$epistemic_level),
+        a$epistemic_temperature,
+        toupper(a$grounding$status),
+        toupper(a$grounding$support_type)
+      )
+    )
+
+    cat(a$text, "\n")
+
+    if (length(a$grounding$supporting_evidence_ids)) {
+      cat(
+        "supporting evidence:",
+        paste(
+          a$grounding$supporting_evidence_ids,
+          collapse = " | "
+        ),
+        "\n"
+      )
+    }
+
+    if (length(a$grounding$contradicting_evidence_ids)) {
+      cat(
+        "contradicting evidence:",
+        paste(
+          a$grounding$contradicting_evidence_ids,
+          collapse = " | "
+        ),
+        "\n"
+      )
+    }
+
+    cat("rationale:", a$grounding$rationale, "\n\n")
+  }
+}
+```
+
+Then:
+
+```{r, eval=FALSE}
+print_ground_profile(
+  ground,
+  "Explorer"
+)
+
+print_ground_profile(
+  ground,
+  "Involved"
+)
+
+print_ground_profile(
+  ground,
+  "Routine"
+)
+```
+
+---
+
+# 10. How to read epistemic temperature
+
+Temperature represents the **distance from direct observation**, not truth.
+
+| Temperature | Level | Meaning |
+|---:|---|---|
+| 0 | `fact` | Directly restatable from the statistical evidence |
+| 1 | `semantic_pattern` | Recomposition of convergent facts |
+| 2 | `interpretation` | Higher-level meaning given to the pattern |
+| 3 | `hypothesis` | Explanation, extension, mechanism or unmeasured characteristic |
+
+A hot statement is not necessarily bad.
+
+A hypothesis may be scientifically useful. The important point is to know that it is a hypothesis.
+
+---
+
+# 11. Grounding is a different question
+
+Grounding asks whether the local evidence is sufficient for the assertion **as worded**.
+
+| Status | Meaning |
+|---|---|
+| `supported` | The listed evidence is sufficient to justify the assertion |
+| `contradicted` | The local evidence points against the assertion |
+| `insufficient` | Evidence may be relevant, but does not establish the assertion |
+| `mixed` | Evidence genuinely points in more than one direction |
+
+Temperature and grounding are therefore independent.
+
+For example:
+
+```text
+FACT + SUPPORTED
+"The mean consumption frequency is higher."
+
+HYPOTHESIS + INSUFFICIENT
+"The group may be more knowledgeable about tea."
+
+INTERPRETATION + INSUFFICIENT
+"The observed organic purchasing pattern reflects environmental values."
+```
+
+A particularly important distinction is:
+
+```text
+compatible with the evidence
+≠
+supported by sufficient evidence
+```
+
+---
+
+# 12. Understand the support type
+
+Each reviewed assertion also receives a support type:
+
+| Support type | Meaning |
+|---|---|
+| `direct` | The evidence nearly restates the assertion |
+| `convergent` | Several pieces of evidence jointly support the assertion |
+| `indirect` | The evidence is relevant but the assertion passes through an interpretation or proxy |
+| `none` | No listed evidence genuinely supports the assertion |
+
+A useful combination is:
+
+```text
+INSUFFICIENT + INDIRECT
+```
+
+This means:
+
+> there is a real connection to the data, but the data are not enough to establish the statement.
+
+This is often the appropriate status for a useful analytical hypothesis.
+
+---
+
+# 13. A practical reading order
+
+When reviewing a grounded profile, use the following order.
+
+### First: cold, directly supported statements
+
+Look for:
+
+```text
+FACT
+temperature = 0
+SUPPORTED
+DIRECT
+```
+
+These are the statistical anchors of the profile.
+
+### Second: convergent semantic patterns
+
+Look for:
+
+```text
+SEMANTIC_PATTERN
+temperature = 1
+SUPPORTED
+CONVERGENT
+```
+
+These are often the most useful bridge between statistical description and substantive interpretation.
+
+### Third: interpretations
+
+Interpretations may be supported, or they may be only indirectly grounded.
+
+Ask:
+
+> Is this meaning genuinely supported by several facts, or is it simply plausible?
+
+### Fourth: hypotheses
+
+Look especially for:
+
+```text
+HYPOTHESIS
+temperature = 3
+INSUFFICIENT
+INDIRECT
+```
+
+Do not discard them. Treat them as questions for further investigation.
+
+### Finally: contradicted statements
+
+Any:
+
+```text
+CONTRADICTED
+```
+
+deserves immediate attention.
+
+This may reveal a polarity inversion, an incorrect reading of a modality, or an interpretation that conflicts with the actual local evidence.
+
+---
+
+# 14. Quickly inspect only the assertions that need caution
+
+A useful helper:
+
+```{r, eval=FALSE}
+collect_assertions <- function(x) {
+
+  do.call(
+    rbind,
+    lapply(
+      names(x$grounded_profiles),
+      function(group) {
+
+        assertions <-
+          x$grounded_profiles[[group]]$assertions
+
+        if (!length(assertions))
+          return(NULL)
+
+        do.call(
+          rbind,
+          lapply(
+            assertions,
+            function(a) {
+              data.frame(
+                group = group,
+                text = a$text,
+                epistemic_level =
+                  a$epistemic_level,
+                temperature =
+                  a$epistemic_temperature,
+                grounding =
+                  a$grounding$status,
+                support =
+                  a$grounding$support_type,
+                stringsAsFactors = FALSE
+              )
+            }
+          )
+        )
+      }
+    )
+  )
+}
+
+review_table <- collect_assertions(ground)
+```
+
+Show only assertions that are not fully supported:
+
+```{r, eval=FALSE}
+subset(
+  review_table,
+  grounding != "supported"
+)
+```
+
+Show only hypotheses:
+
+```{r, eval=FALSE}
+subset(
+  review_table,
+  epistemic_level == "hypothesis"
+)
+```
+
+Show the hottest assertions first:
+
+```{r, eval=FALSE}
+review_table[
+  order(
+    review_table$temperature,
+    decreasing = TRUE
+  ),
+]
+```
+
+This is often the fastest way to use PASS 2 in practice.
+
+---
+
+# 15. Inspect computation time
+
+`nail_catdes_ground()` records wall-clock and CPU timing.
+
+Total PASS 2 time:
+
+```{r, eval=FALSE}
+ground$timing$total
+```
+
+For one group:
+
+```{r, eval=FALSE}
+ground$timing$grounding_calls$Explorer
+```
+
+This separates:
+
+```text
+total
+backend
+parse_and_validate
+```
+
+For local LLMs, the wall-clock `elapsed_seconds` is generally the most useful quantity.
+
+A convenient summary:
+
+```{r, eval=FALSE}
+data.frame(
+  group = names(ground$timing$grounding_calls),
+
+  elapsed = vapply(
+    ground$timing$grounding_calls,
+    function(x)
+      x$total$elapsed_seconds,
+    numeric(1)
+  ),
+
+  backend = vapply(
+    ground$timing$grounding_calls,
+    function(x)
+      x$backend$elapsed_seconds,
+    numeric(1)
+  ),
+
+  parse_validate = vapply(
+    ground$timing$grounding_calls,
+    function(x)
+      x$parse_and_validate$elapsed_seconds,
+    numeric(1)
+  )
+)
+```
+
+The distinction is useful because LLM inference time may dominate the R processing time.
+
+---
+
+# 16. Observed categories versus latent groups
+
+The choice of `interpretation_mode` is important.
+
+## Observed categories
+
+Use:
+
+```{r, eval=FALSE}
+interpretation_mode = "standard"
+```
+
+when categories already have a substantive meaning:
+
+```text
+Species
+Country
+Product
+Treatment
+Segment defined before the analysis
+```
+
+NaileR preserves their names and interprets what statistically characterizes each category.
+
+## Constructed or latent groups
+
+Use:
+
+```{r, eval=FALSE}
+interpretation_mode = "latent"
+```
+
+when the groups were constructed by an analytical method, for example clustering.
+
+In this case, the group identifiers are not substantive meanings. The LLM may reconstruct the common semantic pattern and propose an interpretive name.
+
+Example:
+
+```{r, eval=FALSE}
+library(FactoMineR)
+
+data(local_food, package = "NaileR")
+
+set.seed(1)
+
+food_mca <- MCA(
+  local_food,
+  quali.sup = 46:63,
+  ncp = 30,
+  level.ventil = 0.05,
+  graph = FALSE
+)
+
+food_hcpc <- HCPC(
+  food_mca,
+  nb.clust = 3,
+  graph = FALSE
+)
+
+food_cluster_data <- food_hcpc$data.clust
+
+latent_pass1 <- nail_catdes(
+  food_cluster_data,
+  num.var = ncol(food_cluster_data),
+
+  introduction = paste(
+    "A study on sustainable food systems was conducted with French participants.",
+    "The groups were obtained by clustering individuals in an MCA factorial space."
+  ),
+
+  request = paste(
+    "For each group, infer the common meaning of the strongest convergent characteristics.",
+    "Explain what the group seems to represent and propose a concise interpretive name."
+  ),
+
+  interpretation_mode = "latent",
+  quali.sample = 0.10,
+  quanti.sample = 0.10,
+  drop.negative = FALSE,
+
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = TRUE
+)
+
+latent_ground <- nail_catdes_ground(
+  latent_pass1,
+  generate = TRUE
+)
+```
+
+In a latent analysis, pay particular attention to broad interpretive labels. A proposed group name is necessarily a semantic abstraction and should be read in light of the underlying assertions.
+
+---
+
+# 17. Parameters worth thinking about
+
+## `introduction`
+
+Describe the study, population, origin of the target variable and any context required to interpret the evidence.
+
+A good introduction reduces ambiguity.
+
+## `request`
+
+State the substantive analytical objective.
+
+Compare:
+
+```text
+"Describe the groups."
+```
+
+with:
+
+```text
+"Explain how the groups differ in their relationship to local food policy,
+identify the strongest convergent characteristics, and avoid causal claims."
+```
+
+The second request gives the model a much clearer analytical task.
+
+## `interpretation_mode`
+
+Use:
+
+```{r, eval=FALSE}
+"standard"
+```
+
+for meaningful observed categories, and:
+
+```{r, eval=FALSE}
+"latent"
+```
+
+for constructed profiles/classes.
+
+## `quali.sample` and `quanti.sample`
+
+These control how much selected evidence enters the semantic interpretation.
+
+A smaller value produces a more selective profile. A larger value provides a richer but potentially more crowded prompt.
+
+There is no universally optimal value. Start with a selective specification and inspect the semantic-facing evidence.
+
+## `drop.negative`
+
+Keeping:
+
+```{r, eval=FALSE}
+drop.negative = FALSE
+```
+
+is often useful.
+
+Under-representation and lower-than-average characteristics may be essential for understanding a group. A negative statistical direction is not a negative substantive judgment.
+
+---
+
+# 18. Advanced audit objects
+
+Most users do not need these objects for ordinary interpretation, but they make the workflow auditable.
+
+From PASS 1:
+
+```{r, eval=FALSE}
+attr(pass1, "statistical_profiles")
+attr(pass1, "interpretation_evidence")
+attr(pass1, "semantic_facing_evidence")
+attr(pass1, "local_prompts")
+attr(pass1, "semantic_profiles")
+attr(pass1, "catdes_settings")
+```
+
+From PASS 2:
+
+```{r, eval=FALSE}
+ground$semantic_profiles
+ground$grounding_prompts
+ground$evidence_reference_maps
+ground$grounded_profiles
+ground$settings
+ground$metadata
+ground$timing
+```
+
+The important architectural property is that the PASS 1 semantic response is preserved in PASS 2:
+
+```{r, eval=FALSE}
+ground$grounded_profiles$Explorer$raw_response
+```
+
+PASS 2 reviews PASS 1; it does not silently replace it.
+
+---
+
+# 19. What PASS 2 does not mean
+
+Do **not** interpret:
+
+```text
+INSUFFICIENT
+```
+
+as:
+
+```text
+false
+```
+
+It means that the available local evidence does not establish the assertion as worded.
+
+Do **not** interpret:
+
+```text
+HYPOTHESIS
+```
+
+as:
+
+```text
+bad interpretation
+```
+
+A hypothesis can be the most scientifically interesting output.
+
+Do **not** interpret:
+
+```text
+SUPPORTED
+```
+
+as proof of a causal mechanism.
+
+Grounding is relative to the selected local evidence and to the assertion as stated.
+
+Finally, PASS 2 itself is an LLM-assisted critical reading. Its classifications remain analytical judgments that can be inspected and challenged by the user.
+
+---
+
+# 20. Recommended workflow
+
+For routine use:
+
+```{r, eval=FALSE}
+# 1. Inspect the PASS 1 prompt
+preview <- nail_catdes(..., generate = FALSE)
+
+# 2. Generate local semantic profiles
+pass1 <- nail_catdes(..., generate = TRUE)
+
+# 3. Read PASS 1 yourself
+cat(pass1$response)
+
+# 4. Optional: inspect PASS 2 before generation
+ground_preview <- nail_catdes_ground(
+  pass1,
+  generate = FALSE
+)
+
+# 5. Optional: perform epistemic review
+ground <- nail_catdes_ground(
+  pass1,
+  generate = TRUE
+)
+
+# 6. Focus on hot / insufficient / contradicted assertions
+review_table <- collect_assertions(ground)
+
+subset(
+  review_table,
+  temperature >= 2 |
+    grounding != "supported"
+)
+```
+
+The intended analytical progression is:
+
+```text
+What statistically characterizes this group?
+        ↓
+What common meaning emerges from these characteristics?
+        ↓
+How far does each interpretation move beyond the observed evidence?
+        ↓
+What should I retain as a result,
+what should I phrase cautiously,
+and what should I investigate as a hypothesis?
+```
+
+That is the practical role of `nail_catdes()` followed, when useful, by `nail_catdes_ground()`.

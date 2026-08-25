@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_descfreq.R
 \name{nail_descfreq}
 \alias{nail_descfreq}
-\title{Interpret the rows of a contingency table}
+\title{Interpret the rows of a contingency table using evidence-first frequency profiles}
 \usage{
 nail_descfreq(
   dataset,
@@ -24,146 +24,105 @@ nail_descfreq(
 )
 }
 \arguments{
-\item{dataset}{a data frame corresponding to a contingency table.}
+\item{dataset}{A data frame corresponding to a contingency table. Cells must
+contain non-negative integer-like frequencies.}
 
-\item{introduction}{the introduction for the LLM prompt.}
+\item{introduction}{Optional study context included in the LLM prompt.}
 
-\item{request}{the request made to the LLM.}
+\item{request}{Optional analytical request sent to the LLM.}
 
-\item{conclusion}{the conclusion for the LLM prompt.}
+\item{conclusion}{Optional final output-instruction block.}
 
-\item{model}{the model name for the selected provider ('llama3' by default for Ollama).}
+\item{model}{Model name for the selected provider.}
 
-\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
+\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
 
-\item{isolate.groups}{a boolean that indicates whether to give the LLM a single prompt, or one prompt per row. Recommended if the contingency table has a great number of rows.}
+\item{isolate.groups}{Logical. If \code{TRUE}, build one independent prompt per
+row. If \code{FALSE}, build one prompt containing all rows.}
 
-\item{sample.pct}{from 0 to 1, the proportion of descriptive features that are randomly kept.}
+\item{sample.pct}{Proportion in \verb{[0, 1]} of eligible retained markers shown
+to the LLM. This never changes the canonical \code{frequency_profiles}.}
 
-\item{drop.negative}{a boolean that indicates whether to drop negative v.test values for interpretation (keeping only positive v.tests).}
+\item{drop.negative}{Logical. If \code{TRUE}, under-represented attributes are
+excluded only from the prompt-selection layer.}
 
-\item{by.quali}{a factor used to merge the data from different rows of the contingency table; by default NULL and each row is characterized.}
+\item{by.quali}{Optional grouping vector with one value per source row.
+Source rows sharing a level are summed before row characterization, as in
+\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}.}
 
-\item{proba}{the significance threshold considered to characterize the category (by default 0.05).}
+\item{proba}{Significance threshold passed to \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}.}
 
-\item{interpretation_mode}{either "description" or "comparison".}
+\item{interpretation_mode}{Either \code{"description"} or \code{"comparison"}.}
 
-\item{rows_are_ordered}{logical; if TRUE, the prompt encourages the LLM to look for a gradient across rows.}
+\item{rows_are_ordered}{Logical contextual flag indicating that row order has
+external substantive meaning. It does not alter statistical evidence.}
 
-\item{explicit_row_labels}{logical; if TRUE, the prompt tells the LLM not to rename the rows.}
+\item{explicit_row_labels}{Logical contextual flag indicating that row names
+already have substantive meaning and should not be renamed by the LLM.}
 
-\item{generate}{a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.}
+\item{generate}{Logical. If \code{FALSE}, build prompt(s) without contacting an
+LLM. If \code{TRUE}, call the selected backend.}
 
-\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend
-(e.g., \code{temperature}, \code{seed}).}
+\item{...}{Additional provider-specific generation arguments.}
 }
 \value{
-A data frame, or a list of data frames, containing the LLM's prompt and response (if generate = TRUE).
+For backward compatibility, a prompt string or named list of prompts
+when \code{generate = FALSE}; a model/prompt/response list or named list of such
+results when \code{generate = TRUE}.
+
+Every return carries:
+\itemize{
+\item \code{frequency_profiles}: complete canonical contingency-frequency evidence;
+\item \code{interpretation_evidence}: deterministic subset selected for the prompt;
+\item \code{semantic_facing_evidence}: plain-language factual evidence shown to the
+LLM;
+\item \code{descfreq_result}: the original single \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}} result;
+\item \code{descfreq_settings}: execution and interpretation settings;
+\item \code{llm_io}: exact prompt(s) and raw LLM response(s) for \code{\link[=nail_prompt]{nail_prompt()}} and
+\code{\link[=nail_response]{nail_response()}}.
+}
 }
 \description{
-Describes the rows of a contingency table. For each row, this description is based on the columns of the contingency table that are significantly related to it.
+\code{nail_descfreq()} characterizes the rows of a contingency table with
+\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}. It first stores complete canonical
+\code{frequency_profiles}, then selects a deterministic subset of retained
+statistical markers for semantic interpretation.
 }
 \details{
-This function directly sends a prompt to an LLM. Therefore, to get a consistent answer, we highly recommend to customize the parameters introduction and request and add all relevant information on your data for the LLM.
+The canonical evidence is invariant to \code{generate}, \code{isolate.groups},
+\code{sample.pct}, \code{drop.negative}, \code{interpretation_mode}, \code{rows_are_ordered},
+\code{explicit_row_labels}, \code{introduction}, \code{request}, and \code{conclusion}. These
+arguments affect only the interpretation layer.
 
-Additionally, if isolate.groups = TRUE, you will need an introduction and a request that take into account the fact that only one group is analyzed at a time.
+FactoMineR retains row-column cells using its two-sided hypergeometric test.
+NaileR does not recompute or replace that test. It normalizes the returned
+statistics into stable row profiles and assigns deterministic evidence IDs.
+
+For prompt selection, NaileR ranks retained evidence by increasing p-value,
+then decreasing absolute v-test. When both over- and under-represented
+evidence are eligible and at least two prompt slots are available, the
+strongest marker from each direction is preserved before remaining slots
+are filled by canonical rank.
+
+Technical p-values, v-tests, counts, and the full table remain inspectable
+through \code{\link[=nail_evidence]{nail_evidence()}}. The LLM-facing semantic facts use only explicit
+direction and row-versus-global frequency information.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
+tab <- data.frame(
+  sweet = c(30, 5, 10),
+  bitter = c(5, 30, 10),
+  neutral = c(10, 10, 30),
+  row.names = c("A", "B", "C")
+)
 
-### Example 1: beard dataset ###
+preview <- nail_descfreq(
+  tab,
+  isolate.groups = TRUE,
+  generate = FALSE
+)
 
-data(beard_cont)
-
-intro_beard_iso <- 'A survey was conducted about beards
-and 8 types of beards were described.
-I will give you the results for one type of beard.'
-intro_beard_iso <- gsub('\n', ' ', intro_beard_iso) |>
-stringr::str_squish()
-
-req_beard_iso <- 'Please give a name to this beard
-and summarize what makes this beard unique.'
-req_beard_iso <- gsub('\n', ' ', req_beard_iso) |>
-stringr::str_squish()
-
-res_beard <- nail_descfreq(beard_cont,
-                           introduction = intro_beard_iso,
-                           request = req_beard_iso,
-                           isolate.groups = TRUE,
-                           generate = FALSE)
-
-res_beard[[1]]
-res_beard[[2]]
-
-intro_beard <- 'A survey was conducted about beards
-and 8 types of beards were described.
-In the data that follow, beards are named B1 to B8.'
-intro_beard <- gsub('\n', ' ', intro_beard) |>
-stringr::str_squish()
-
-req_beard <- 'Please give a name to each beard
-and summarize what makes this beard unique.'
-req_beard <- gsub('\n', ' ', req_beard) |>
-stringr::str_squish()
-
-res_beard <- nail_descfreq(beard_cont,
-                           introduction = intro_beard,
-                           request = req_beard,
-                           generate = TRUE)
-
-cat(res_beard$response)
-
-text <- res_beard$response
-titles <- stringr::str_extract_all(text, "\\\\*\\\\*B[0-9]+: [^\\\\*\\\\*]+\\\\*\\\\*")[[1]]
-
-titles
-
-# for the following code to work, the response must have the beards'
-# new names with this format: **B1: The Nice beard**, etc.
-
-titles <- stringr::str_replace_all(titles, "\\\\*\\\\*", "")  # remove asterisks
-names <- stringr::str_extract(titles, ": .+")
-names <- stringr::str_replace_all(names, ": ", "")  # remove the colon and space
-
-rownames(beard_cont) <- names
-
-library(FactoMineR)
-
-res_ca_beard <- CA(beard_cont, graph = F)
-plot.CA(res_ca_beard, invisible = "col")
-
-
-### Example 2: children dataset ###
-
-data(children)
-
-children <- children[1:14, 1:5] |> t() |> as.data.frame()
-rownames(children) <- c('No education', 'Elementary school',
-'Middle school', 'High school', 'University')
-
-intro_children <- 'The data used here is a contingency table
-that summarizes the answers
-given by different categories of people to the following question:
-"according to you, what are the reasons that can make
-a woman or a couple hesitate to have children?".
-Each row corresponds to a level of education, and columns are reasons.'
-intro_children <- gsub('\n', ' ', intro_children) |>
-stringr::str_squish()
-
-req_children <- "Please explain the main differences
-between more educated and less educated couples,
-when it comes to hesitating to have children."
-req_children <- gsub('\n', ' ', req_children) |>
-stringr::str_squish()
-
-res_children <- nail_descfreq(children,
-                              introduction = intro_children,
-                              request = req_children,
-                              generate = TRUE)
-
-cat(res_children$response)
-}
+nail_evidence(preview, select = "A")
+nail_prompt(preview, select = "A")
 
 }

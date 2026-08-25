@@ -1,130 +1,265 @@
 <br />
 <div align="center">
-  <a href="https://github.com/Nelhe/NaileR">
-    <img src="images/Nailer_final.png" alt="Logo" width="244" height="284">
-  </a>
+  <img src="images/Nailer_final.png" alt="NaileR logo" width="244" height="284">
 
   <h3 align="center">NaileR</h3>
 
   <p align="center">
-    <i>Prep, polish, top coat, this vanity case is exactly what you need to put the final touch to your statistical analysis.</i>
+    <i>Evidence first, interpretation second.</i>
+  </p>
 </div>
-
-
 
 ## Overview
 
-Thanks to the Ollama API that allows to use Large Language Model (LLM) locally, we developed a small package designed for interpreting continuous or categorical latent variables. You provide a data set with a latent variable you want to understand and some other explanatory variables. It provides a description of the latent variable based on the explanatory variables. It also provides a name to the latent variable. 'NaileR' is an R package that uses convenience functions offered by the <a href="https://CRAN.R-project.org/package=FactoMineR">'FactoMineR' package</a> (condes(), catdes(), descfreq()) in conjunction with the <a href="https://CRAN.R-project.org/package=ollamar">'ollamar' package</a>.
+`NaileR` connects statistical characterization in R with large language
+models (LLMs). Its central principle is simple:
 
-Its two main goals are to:
-* generate latent variables descriptions with the help of AI
-* offer similarity measure tools for textual data
-
-
-
-## Installation (from GitHub)
-
-1. If needed, install the devtools package.
-``` r
-install.packages('devtools')
+```text
+statistical or textual evidence produced in R
+                    ↓
+          selected factual evidence
+                    ↓
+              LLM interpretation
 ```
 
-2. Install and load the 'NaileR' package from GitHub.
-``` r
-devtools::install_github('Nelhe/NaileR')
+The statistical evidence is retained independently of the LLM. The exact
+prompt and the raw model response are retained as well. This makes the
+interpretive workflow inspectable and allows the analyst to distinguish what
+was established mechanically from what was proposed semantically.
+
+NaileR currently supports local models through Ollama and Google Gemini.
+
+## Installation
+
+Install the current GitHub version with:
+
+```r
+install.packages("devtools")
+devtools::install_github("Sebastien-Le/NaileR")
 library(NaileR)
 ```
 
-## Usage
+## A common user interface
 
-'NaileR' currently features 15 datasets and 9 functions.
+The main evidence-first analyses share the same inspection grammar:
 
-### Datasets
+```r
+res <- nail_xxx(...)
 
-* agri_studies: contains the results of a Q method-like survey on agribusiness studies
-* beard, beard_cont and beard_wide: contain the results of a sensometrics experiment on beards
-* boss: contains the results of a Q method-like survey on the ideal boss
-* glossophobia: contains the results of a Q method-like survey on feelings about speaking in public
-* local_food: contains the results of a Q method-like survey on sustainable food systems
-* quality: contains the results of a survey on French food certification logos
-* waste: contains the results of a survey on food waste
-* rorschach: this dataset was initially collected to understand the perception of the Rorschach test
-* fabric: this dataset was initially collected to understand the free jar data
-* atomic_habit, car_alone, atomic_habit_clust: a survey for understanding atomic habits
-* nutriscore: these data were collected after a survey on the nutri-score
-
-### Functions
-
-* nail_catdes(): performs a catdes analysis on a dataset and describes each category
-* nail_condes(): performs a condes analysis on a dataset and describes the chosen continuous variable
-* nail_descfreq(): performs a descfreq analysis on a contingency table and describes the rows
-* nail_textual(): generate an LLM response to analyze a categorical latent variable, based on answers to open-ended questions
-* nail_qda(): performs a decat analysis on QDA dara and describes the stimuli
-* nail_sort(): performs clustering on textual data from sensometrics experiments
-* sim_llm(): computes the similarity between texts
-* dist_mat_llm(): computes a distance matrix based on sim_llm
-* dist_ref_llm(): computes a distance vector based on sim_llm
-
-## Example
-
-For complete case studies and a showcase of the main functions of the 'NaileR' package, see the [documentation](https://github.com/Nelhe/NaileR/tree/master/doc).
-
-Let's have a look at how we can interpret HCPC clusters:
-
-``` r
-library(FactoMineR)
-data(local_food)
-
-set.seed(1)      # for consistency
-
-res_mca <- MCA(local_food, quali.sup = 46:63, ncp = 100, level.ventil = 0.05, graph = F)
-plot.MCA(res_mca, choix = "ind", invisible = c("var", "quali.sup"), label = "none")
-res_hcpc <- HCPC(res_mca, nb.clust = 3, graph = F)
-plot.HCPC(res_hcpc, choice = "map", draw.tree = F, ind.names = F)
-don_clust <- res_hcpc$data.clust
+nail_evidence(res, select = ...)
+nail_prompt(res, select = ...)
+nail_response(res, select = ...)
 ```
 
-Due to the very long and explicit variable names, the category description result is practically illegible. Let's provide clear context and see how a LLM can make sense of it:
+- `nail_evidence()` returns the canonical evidence retained for the analysis;
+- `nail_prompt()` returns the exact prompt sent to the LLM;
+- `nail_response()` returns the raw LLM response.
 
-``` r
-res = nail_catdes(don_clust, ncol(don_clust),
-                   
-                   introduction = 'A study on sustainable food systems was led on several French participants. This study had 2 parts. 
-                   In the first part, participants had to rate how acceptable "a food system that..." (e.g, "a food system that only uses renewable energy") was to them.
-                   In the second part, they had to say if they agreed or disagreed with some statements.',
-                   
-                   request = 'I will give you the answers from one group.
-                   Please explain who the individuals of this group are, what their beliefs are. Then, give this group a new name, and explain why you chose this name.',
-                   
-                   isolate.groups = T, drop.negative = T)
+Use `generate = FALSE` to inspect evidence and prompts without calling an LLM.
+Use `generate = TRUE` when a model response is required.
+
+## Main analyses
+
+### Sensory product profiles: `nail_qda()`
+
+`nail_qda()` characterizes products from QDA data using
+`SensoMineR::decat()` and retains canonical product profiles.
+
+```r
+library(SensoMineR)
+data(chocolates)
+
+res_qda <- nail_qda(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  isolate.groups = TRUE,
+  product_knowledge = "known",
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = FALSE
+)
+
+nail_evidence(res_qda, select = "choc1")
+nail_prompt(res_qda, select = "choc1")
 ```
 
-Out comes a list of results, for each group.
+With `generate = TRUE`, reusable product interpretations can be reviewed or
+edited by an expert with `nail_qda_interpretation()`.
 
-In the same fashion, nail_condes can be used to interpret axis from a PCA - although a bit more work is needed, to bind the original data frame with the coordinates on the PCA axis.
+### Sensory product space: `nail_qda_space()`
 
+A QDA result can be projected into a PCA product space and interpreted
+dimension by dimension:
 
-## Roadmap
+```r
+res_space <- nail_qda_space(
+  res_qda,
+  ncp = 2,
+  expertise_mode = "sensory",
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = FALSE
+)
 
-- [X] Implement a validation function to test the consistency of a response
-- [X] Implement a function to generate multiple responses and pick the most "central"
-- [X] Add a <s>nail_textual</s> nail_sort for textual data
-- [ ] Consider adding a nail_decat
-- [ ] Implement a way to generate reports (pptx)
+nail_evidence(res_space, select = "Dim1")
+nail_prompt(res_space, select = "Dim1")
+```
 
+### Continuous variables and latent dimensions: `nail_condes()`
+
+```r
+data(decathlon, package = "FactoMineR")
+
+res_condes <- nail_condes(
+  dataset = decathlon,
+  num.var = 12,
+  interpretation_mode = "standard",
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = FALSE
+)
+
+nail_evidence(res_condes)
+nail_prompt(res_condes)
+```
+
+For a synthetic score or factor axis, use `interpretation_mode = "latent"`.
+When variable scales have domain-specific meanings, provide that information
+in `introduction`; for example, lower running times mean better performance.
+
+### Groups and clusters: `nail_catdes()`
+
+Observed categories and constructed clusters use the same statistical engine
+but different interpretation modes.
+
+```r
+res_catdes <- nail_catdes(
+  dataset = iris,
+  num.var = 5,
+  interpretation_mode = "standard",
+  isolate.groups = TRUE,
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = FALSE
+)
+
+nail_evidence(res_catdes, select = "setosa")
+nail_prompt(res_catdes, select = "setosa")
+```
+
+Use `interpretation_mode = "latent"` for clusters or other constructed
+profiles whose substantive meaning must be inferred.
+
+### Frequency and contingency profiles: `nail_descfreq()`
+
+```r
+data(beard_cont)
+
+res_descfreq <- nail_descfreq(
+  beard_cont,
+  interpretation_mode = "description",
+  isolate.groups = TRUE,
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = FALSE
+)
+
+nail_evidence(res_descfreq, select = "B1")
+nail_prompt(res_descfreq, select = "B1")
+```
+
+The complete contingency profile remains available in `nail_evidence()`,
+whereas only statistically retained markers are used for interpretation.
+
+### Grouped open-ended text: `nail_textual()`
+
+```r
+data(fabric)
+
+fabric_A <- droplevels(
+  fabric[fabric$Fabric == "A", , drop = FALSE]
+)
+
+res_text <- nail_textual(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  isolate.groups = TRUE,
+  sample.pct = 0.35,
+  seed = 123,
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = FALSE
+)
+
+nail_evidence(res_text, select = "0")
+nail_prompt(res_text, select = "0")
+```
+
+The canonical textual evidence contains the complete text registry. Sampling
+affects only the subset shown to the LLM.
+
+### Statistical anchor plus textual enrichment: `nail_catdes_textual()`
+
+`nail_catdes_textual()` combines an existing CATDES result with an existing
+TEXTUAL result. The statistical profile remains the anchor; text is used as a
+supplementary interpretive layer.
+
+```text
+CATDES statistical evidence
+           ↓
+        anchor
+           ↑
+    textual enrichment
+```
+
+The function does not recompute CATDES and does not re-analyze the raw text.
+
+## Evidence-first interpretation does not remove expert judgment
+
+A model response is an interpretation, not a statistical result. In particular,
+domain semantics can matter. A negative association between running time and a
+performance score means something different from a negative association
+between an ordinary increasing measurement and that score.
+
+NaileR therefore keeps three objects distinct:
+
+```r
+nail_evidence(res)
+nail_prompt(res)
+nail_response(res)
+```
+
+This separation makes disagreement between the statistical evidence and an LLM
+interpretation visible rather than hiding it.
+
+## LLM backends
+
+The current public analytical API supports:
+
+- `provider = "ollama"` for local Ollama models;
+- `provider = "gemini"` for Google Gemini.
+
+Backend selection is deliberately separated from the statistical analysis so
+that additional LLM interfaces can be added later without changing the
+evidence-first analytical contract.
 
 ## License
 
-This package is under the GPL (>= 2) License. Details can be found [here](https://cran.r-project.org/web/licenses/).
+NaileR is released under the GPL (>= 2) license.
 
 ## Contact
 
-Sébastien Lê - sebastien.le@institut-agro.fr
+Sébastien Lê — sebastien.le@institut-agro.fr
 
-Project link: [https://github.com/Nelhe/NaileR](https://github.com/Nelhe/NaileR)
+Project: https://github.com/Sebastien-Le/NaileR
 
 ## Acknowledgements
 
-This work has benefited from a government grant managed by the Agence Nationale de la Recherche under the France 2030 programme under the reference ANR-23-PESA-0005.
+This work has benefited from a government grant managed by the Agence
+Nationale de la Recherche under the France 2030 programme under reference
+ANR-23-PESA-0005.
 
-Ce travail a bénéficié d'une aide de l'Etat gérée par l'Agence Nationale de la Recherche au titre de France 2030 portant la référence ANR-23-PESA-0005.
+Ce travail a bénéficié d'une aide de l'Etat gérée par l'Agence Nationale de la
+Recherche au titre de France 2030 portant la référence ANR-23-PESA-0005.

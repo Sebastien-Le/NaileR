@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_qda.R
 \name{nail_qda}
 \alias{nail_qda}
-\title{Interpret QDA data}
+\title{Interpret QDA data using evidence-first sensory profiles}
 \usage{
 nail_qda(
   dataset,
@@ -18,6 +18,7 @@ nail_qda(
   drop.negative = FALSE,
   proba = 0.05,
   sample.pct = 1,
+  sample.method = c("stratified", "top"),
   prompt_style = c("detailed", "compact"),
   product_knowledge = c("known", "unknown"),
   generate = FALSE,
@@ -25,49 +26,90 @@ nail_qda(
 )
 }
 \arguments{
-\item{dataset}{a data frame made up of at least two categorical variables
-(product, panelist) and a set of quantitative variables (sensory attributes).}
+\item{dataset}{A data frame containing the product factor, panelist/design
+variables, and quantitative sensory attributes.}
 
-\item{formul}{the analysis of variance model to be evaluated for each sensory attribute.}
+\item{formul}{The analysis-of-variance model evaluated for each sensory
+attribute. The first right-hand-side term is treated as the product factor.}
 
-\item{firstvar}{the index of the first sensory attribute.}
+\item{firstvar}{Index of the first sensory attribute.}
 
-\item{lastvar}{the index of the last sensory attribute.}
+\item{lastvar}{Index of the last sensory attribute.}
 
-\item{introduction}{the introduction for the LLM prompt.}
+\item{introduction}{Optional introduction included in the LLM prompt.}
 
-\item{request}{the request for the LLM prompt.}
+\item{request}{Optional user request included in the LLM prompt.}
 
-\item{conclusion}{the conclusion for the LLM prompt.}
+\item{conclusion}{Optional output-instruction block.}
 
-\item{model}{the model name for the selected provider ('llama3' by default for Ollama).}
+\item{model}{Model name for the selected provider.}
 
-\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
+\item{provider}{LLM backend. Currently \code{"ollama"} or \code{"gemini"}.}
 
-\item{isolate.groups}{a boolean that indicates whether to give the LLM
-a single prompt, or one prompt per product.}
+\item{isolate.groups}{If \code{FALSE}, one joint portfolio prompt is built. If
+\code{TRUE}, one independent prompt is built per product/stimulus.}
 
-\item{drop.negative}{a boolean that indicates whether to drop negative
-v.test values for interpretation.}
+\item{drop.negative}{If \code{TRUE}, sensory markers below the average profile
+remain in the canonical evidence but are excluded from the LLM evidence.}
 
-\item{proba}{the significance threshold used to retain results for interpretation.}
+\item{proba}{Significance threshold passed to \code{\link[SensoMineR:decat]{SensoMineR::decat()}}.}
 
-\item{sample.pct}{proportion of retained attributes to keep in the prompt.}
+\item{sample.pct}{Proportion of eligible retained markers included in the
+LLM evidence. Selection is deterministic and does not alter
+\code{product_profiles}.}
 
-\item{prompt_style}{either "detailed" or "compact".}
+\item{sample.method}{Marker-selection strategy when \code{sample.pct < 1}.
+\code{"stratified"} (default) uses an anchor + exploration strategy: the
+strongest retained markers form the statistical backbone and the remaining
+slots sample lower-ranked retained evidence. When the anchor contains only
+one direction, the strongest opposite-direction marker is prioritized when
+available. \code{"top"} keeps only the statistically strongest eligible markers.}
 
-\item{product_knowledge}{either "known" or "unknown".}
+\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
 
-\item{generate}{a boolean that indicates whether to generate the LLM response.
-If FALSE, the function only returns the prompt.}
+\item{product_knowledge}{Either \code{"known"} for meaningful product names or
+\code{"unknown"} for identifier-like stimulus labels.}
 
-\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend
-(e.g., \code{temperature}, \code{seed}).}
+\item{generate}{If \code{FALSE}, build prompt(s) without calling an LLM. If
+\code{TRUE}, call the selected backend.}
+
+\item{...}{Additional provider-specific generation arguments.}
 }
 \value{
-If \code{generate = FALSE}, a prompt string or a named list of prompt strings.
-If \code{generate = TRUE}, a data frame or named list of data frames.
+For backward compatibility, the outer return type remains:
+a prompt string or named list of prompts when \code{generate = FALSE}, and a
+backend data frame or named list of backend data frames when
+\code{generate = TRUE}.
+
+The following analytical artifacts are attached:
+\itemize{
+\item \code{product_profiles}: canonical R evidence, including adjusted means for
+every sensory attribute and retained \code{decat()} markers.
+\item \code{product_interpretations}: reusable PASS1 LLM interpretations for each
+product/stimulus, linked to the evidence IDs actually shown to the LLM.
+When generation has not run, status is \code{not_generated}; malformed
+reusable blocks are marked \code{parse_failed} rather than reconstructed.
+\item \code{interpretation_evidence}: deterministic subset selected for the LLM.
+\item \code{semantic_facing_evidence}: explicit factual sensory statements.
+\item \code{llm_io}: exact prompts and raw LLM responses used by
+\code{\link[=nail_prompt]{nail_prompt()}} and \code{\link[=nail_response]{nail_response()}}.
+\item \code{decat_result}: original standardized \code{decat()} result.
+\item \code{qda_settings}: execution settings.
+}
+
+\code{profile_summary} is retained temporarily as a deprecated compatibility
+view for older workflows. It is not canonical QDA evidence and is not
+used by the rebuilt \code{\link[=nail_qda_space]{nail_qda_space()}} implementation.
 }
 \description{
-Generate an LLM response to analyze QDA data.
+\code{nail_qda()} first computes a canonical R-derived sensory profile for every
+product or stimulus using \code{\link[SensoMineR:decat]{SensoMineR::decat()}}. The statistical evidence is
+kept separate from the subset shown to the LLM. The LLM then interprets
+explicit sensory facts derived from the selected evidence.
+}
+\details{
+The canonical \code{product_profiles} object is invariant to \code{generate},
+\code{isolate.groups}, \code{sample.pct}, \code{sample.method}, \code{drop.negative},
+\code{prompt_style}, and \code{product_knowledge}. These arguments only affect the
+interpretation layer.
 }
