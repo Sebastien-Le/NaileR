@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_textual.R
 \name{nail_textual}
 \alias{nail_textual}
-\title{Interpret a group based on answers to open-ended questions}
+\title{Interpret grouped open-ended textual responses}
 \usage{
 nail_textual(
   dataset,
@@ -30,39 +30,76 @@ and one textual variable.}
 
 \item{num.text}{Index of the textual variable.}
 
-\item{introduction}{Introduction for the LLM prompt.}
+\item{introduction}{Study context included in every local LLM prompt.
+A generic default is used when \code{NULL}.}
 
-\item{request}{Request for the LLM prompt.}
+\item{request}{Analytical request included in every local LLM prompt.
+A generic textual-profiling request is used when \code{NULL}.}
 
-\item{conclusion}{Conclusion/output block for the LLM prompt.}
+\item{conclusion}{Output instruction appended to every local LLM prompt.
+When \code{NULL}, NaileR requests the canonical structured textual profile.
+A custom value is preserved for backward compatibility; if its output
+format is incompatible with the canonical parser, \code{textual_profiles}
+may report \code{status = "parse_failed"} while preserving the raw response.}
 
-\item{model}{Model name for the selected provider (\code{"llama3"} by default for Ollama).}
+\item{model}{Model name for the selected provider (\code{"llama3"} by default
+for Ollama).}
 
-\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
+\item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a
+local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
-\item{isolate.groups}{Logical; if TRUE, create one prompt per group.}
+\item{isolate.groups}{Logical. Interpretation is always local-first, one
+group at a time. If \code{TRUE}, return the local prompts/results as a named
+list. If \code{FALSE}, preserve the historical outer return shape by combining
+the independent local prompts/results. No global comparative synthesis is
+performed at this stage.}
 
-\item{sample.pct}{Proportion of non-empty texts to retain per group.}
+\item{sample.pct}{Proportion of non-empty texts shown to the LLM within
+each group. This affects only \code{interpretation_input}; the complete
+\code{textual_evidence} object is invariant to this option.}
 
-\item{seed}{Optional seed used to sample texts reproducibly without altering the user's RNG state.}
+\item{seed}{Optional seed used to sample texts reproducibly without
+altering the user's RNG state.}
 
 \item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
 
 \item{text_role}{Either \code{"responses"}, \code{"comments"}, or \code{"verbatims"}.}
 
-\item{generate}{Logical; if FALSE, return prompt(s) only.}
+\item{generate}{Logical. If \code{FALSE}, return prompt(s) only. If \code{TRUE},
+generate one independent LLM response per group.}
 
-\item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
+\item{...}{Additional provider-specific generation arguments passed to the
+selected LLM backend.}
 }
 \value{
-If \code{generate = FALSE}, a prompt string or a named list of prompt strings.
-If \code{generate = TRUE}, a data frame or a named list of data frames.
-Attributes include:
-\itemize{
-\item \code{textual_data_summary}
-}
+When \code{generate = FALSE}, a character local-first preview when
+\code{isolate.groups = FALSE}, or the exact named local prompts when
+\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a combined data frame
+when \code{isolate.groups = FALSE}, or the named local backend results when
+\code{isolate.groups = TRUE}. Canonical mechanical and semantic artifacts are
+attached as attributes in all cases.
 }
 \description{
-Generate an LLM response to analyze a categorical grouping variable
-from raw open-ended textual answers.
+Build complete mechanical textual evidence, select the subset shown to the
+language model, and interpret each group independently before any future
+cross-group synthesis.
+}
+\details{
+\code{textual_evidence} is produced mechanically from the complete dataset before
+any sampling or LLM call. It contains an exact text registry with stable text
+IDs plus group-level coverage and volume metrics.
+
+\code{interpretation_input} records the exact subset of text IDs shown to the LLM
+and its interpretation coverage. Sampling never changes \code{textual_evidence}.
+
+With the default output instruction, each local LLM response is parsed into
+\code{textual_profiles}, which contains the core textual profile, dominant themes,
+within-group coherence (\code{strong}, \code{moderate}, \code{mixed}, or \code{weak}), internal
+diversity, and IDs of representative or tension texts. Referenced IDs must
+exist in the subset actually shown to the LLM.
+
+Every successful return carries \code{textual_evidence}, \code{interpretation_input},
+\code{local_prompts}, \code{textual_profiles}, \code{textual_settings},
+\code{textual_data_summary} (historical compatibility view), and canonical
+\code{llm_io} attributes.
 }

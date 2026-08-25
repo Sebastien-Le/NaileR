@@ -387,32 +387,71 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 # Main textual function
 # ---------------------------------------------------------------------------
 
-#' Interpret a group based on answers to open-ended questions
+#' Interpret grouped open-ended textual responses
 #'
-#' Generate an LLM response to analyze a categorical grouping variable
-#' from raw open-ended textual answers.
+#' Build complete mechanical textual evidence, select the subset shown to the
+#' language model, and interpret each group independently before any future
+#' cross-group synthesis.
 #'
 #' @param dataset A data frame containing at least one grouping variable
-#' and one textual variable.
+#'   and one textual variable.
 #' @param num.var Index of the grouping variable.
 #' @param num.text Index of the textual variable.
-#' @param introduction Introduction for the LLM prompt.
-#' @param request Request for the LLM prompt.
-#' @param conclusion Conclusion/output block for the LLM prompt.
-#' @param model Model name for the selected provider (`"llama3"` by default for Ollama).
-#' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
-#' @param isolate.groups Logical; if TRUE, create one prompt per group.
-#' @param sample.pct Proportion of non-empty texts to retain per group.
-#' @param seed Optional seed used to sample texts reproducibly without altering the user's RNG state.
+#' @param introduction Study context included in every local LLM prompt.
+#'   A generic default is used when `NULL`.
+#' @param request Analytical request included in every local LLM prompt.
+#'   A generic textual-profiling request is used when `NULL`.
+#' @param conclusion Output instruction appended to every local LLM prompt.
+#'   When `NULL`, NaileR requests the canonical structured textual profile.
+#'   A custom value is preserved for backward compatibility; if its output
+#'   format is incompatible with the canonical parser, `textual_profiles`
+#'   may report `status = "parse_failed"` while preserving the raw response.
+#' @param model Model name for the selected provider (`"llama3"` by default
+#'   for Ollama).
+#' @param provider LLM backend to use for generation. Use `"ollama"` for a
+#'   local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
+#' @param isolate.groups Logical. Interpretation is always local-first, one
+#'   group at a time. If `TRUE`, return the local prompts/results as a named
+#'   list. If `FALSE`, preserve the historical outer return shape by combining
+#'   the independent local prompts/results. No global comparative synthesis is
+#'   performed at this stage.
+#' @param sample.pct Proportion of non-empty texts shown to the LLM within
+#'   each group. This affects only `interpretation_input`; the complete
+#'   `textual_evidence` object is invariant to this option.
+#' @param seed Optional seed used to sample texts reproducibly without
+#'   altering the user's RNG state.
 #' @param prompt_style Either `"detailed"` or `"compact"`.
 #' @param text_role Either `"responses"`, `"comments"`, or `"verbatims"`.
-#' @param generate Logical; if FALSE, return prompt(s) only.
-#' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
+#' @param generate Logical. If `FALSE`, return prompt(s) only. If `TRUE`,
+#'   generate one independent LLM response per group.
+#' @param ... Additional provider-specific generation arguments passed to the
+#'   selected LLM backend.
 #'
-#' @return If `generate = FALSE`, a prompt string or a named list of prompt strings.
-#' If `generate = TRUE`, a data frame or a named list of data frames.
-#' Attributes include:
-#' - `textual_data_summary`
+#' @details
+#' `textual_evidence` is produced mechanically from the complete dataset before
+#' any sampling or LLM call. It contains an exact text registry with stable text
+#' IDs plus group-level coverage and volume metrics.
+#'
+#' `interpretation_input` records the exact subset of text IDs shown to the LLM
+#' and its interpretation coverage. Sampling never changes `textual_evidence`.
+#'
+#' With the default output instruction, each local LLM response is parsed into
+#' `textual_profiles`, which contains the core textual profile, dominant themes,
+#' within-group coherence (`strong`, `moderate`, `mixed`, or `weak`), internal
+#' diversity, and IDs of representative or tension texts. Referenced IDs must
+#' exist in the subset actually shown to the LLM.
+#'
+#' Every successful return carries `textual_evidence`, `interpretation_input`,
+#' `local_prompts`, `textual_profiles`, `textual_settings`,
+#' `textual_data_summary` (historical compatibility view), and canonical
+#' `llm_io` attributes.
+#'
+#' @return When `generate = FALSE`, a character local-first preview when
+#'   `isolate.groups = FALSE`, or the exact named local prompts when
+#'   `isolate.groups = TRUE`. When `generate = TRUE`, a combined data frame
+#'   when `isolate.groups = FALSE`, or the named local backend results when
+#'   `isolate.groups = TRUE`. Canonical mechanical and semantic artifacts are
+#'   attached as attributes in all cases.
 #'
 #' @export
 nail_textual <- function(dataset, num.var, num.text,
@@ -431,6 +470,7 @@ nail_textual <- function(dataset, num.var, num.text,
   prompt_style <- match.arg(prompt_style)
   text_role <- match.arg(text_role)
   provider <- match.arg(provider)
+
   validate_textual_inputs(
     dataset = dataset,
     num.var = num.var,
@@ -442,131 +482,188 @@ nail_textual <- function(dataset, num.var, num.text,
     text_role = text_role
   )
 
-  if (is.null(introduction)) {
-    introduction <- if (!isolate.groups) {
-      "For this study, individuals answered an open-ended question and were grouped into different categories."
-    } else {
-      "For this study, individuals answered an open-ended question. The texts below correspond to one specific group."
-    }
-  }
-
-  if (is.null(request)) {
-    request <- build_request_textual(
-      isolate.groups = isolate.groups,
-      prompt_style = prompt_style
-    )
-  }
-
-  if (is.null(conclusion)) {
-    conclusion <- build_conclusion_textual(
-      isolate.groups = isolate.groups
-    )
-  }
-
-  guide <- build_guide_textual(
-    sample.pct = sample.pct,
-    prompt_style = prompt_style,
-    text_role = text_role
-  )
-
-  introduction <- paste(introduction, guide, sep = "\n\n---\n\n")
-
-  textual_data_summary <- .summarize_textual_groups(
+  textual_evidence <- .build_textual_evidence(
     dataset = dataset,
     num.var = num.var,
     num.text = num.text
   )
 
-  ppt <- tryCatch(
-    get_prompt_textual(
-      dataset = dataset,
-      num.var = num.var,
-      num.text = num.text,
-      introduction = introduction,
-      request = request,
-      conclusion = conclusion,
-      isolate.groups = isolate.groups,
-      sample.pct = sample.pct,
-      text_role = text_role,
-      seed = seed
-    ),
-    error = function(e) {
-      if (grepl("No textual data found", conditionMessage(e))) {
-        "NAILER_NO_RESULTS_FOUND"
-      } else {
-        stop(e)
-      }
+  interpretation_input <- .build_textual_interpretation_input(
+    textual_evidence = textual_evidence,
+    sample.pct = sample.pct,
+    seed = seed
+  )
+
+  if (is.null(introduction)) {
+    introduction <- .textual_default_introduction()
+  }
+
+  if (is.null(request)) {
+    request <- .textual_default_request(
+      prompt_style = prompt_style
+    )
+  }
+
+  canonical_output_requested <- is.null(conclusion)
+
+  if (canonical_output_requested) {
+    conclusion <- .textual_canonical_conclusion()
+  }
+
+  local_prompts <- .build_local_textual_prompts(
+    textual_evidence = textual_evidence,
+    interpretation_input = interpretation_input,
+    introduction = introduction,
+    request = request,
+    conclusion = conclusion,
+    prompt_style = prompt_style,
+    text_role = text_role
+  )
+
+  combined_prompt_preview <- .combine_local_textual_prompt_preview(
+    local_prompts
+  )
+
+  textual_data_summary <- .build_textual_compatibility_summary(
+    textual_evidence
+  )
+
+  n_ready_groups <- interpretation_input$metadata$n_ready_groups
+
+  textual_settings <- list(
+    grouping_variable = textual_evidence$settings$grouping_variable,
+    text_variable = textual_evidence$settings$text_variable,
+    isolate_groups = isolate.groups,
+    sample_pct = sample.pct,
+    seed = seed,
+    prompt_style = prompt_style,
+    text_role = text_role,
+    generate = generate,
+    provider = provider,
+    model = model,
+    canonical_output_requested = canonical_output_requested,
+    generation_architecture = "local_first",
+    global_synthesis_performed = FALSE,
+    llm_calls = if (isTRUE(generate)) {
+      as.integer(n_ready_groups)
+    } else {
+      0L
     }
   )
 
-  if (identical(ppt, "NAILER_NO_RESULTS_FOUND")) {
-    no_results_message <- "*No textual data was found for the specified groups.*"
+  textual_profiles <- .build_textual_profiles(
+    local_results = NULL,
+    local_prompts = local_prompts,
+    interpretation_input = interpretation_input,
+    generated = FALSE
+  )
 
-    if (generate) {
-      message("Execution halted: No textual data found. Nothing to generate.")
-
-      if (isolate.groups) {
-        out <- list()
-        attr(out, "textual_data_summary") <- textual_data_summary
-        return(out)
-      }
-
-      out <- data.frame(
-        model = model,
-        response = "No textual data found.",
-        prompt = no_results_message,
-        stringsAsFactors = FALSE
-      )
-      attr(out, "textual_data_summary") <- textual_data_summary
-      return(out)
-    }
-
-    if (isolate.groups) {
-      out <- list()
-      attr(out, "textual_data_summary") <- textual_data_summary
-      return(out)
-    }
-
-    out <- build_standard_prompt(
-      introduction = introduction,
-      request = request,
-      data = no_results_message,
-      conclusion = NULL
+  llm_io <- .new_nail_llm_io(
+    stage = "interpretation",
+    prompts = local_prompts,
+    responses = NULL,
+    metadata = list(
+      analysis = "nail_textual",
+      scope = "group",
+      architecture = "local_first"
     )
-    attr(out, "textual_data_summary") <- textual_data_summary
-    return(out)
+  )
+
+  if (!isTRUE(generate)) {
+    result <- if (isTRUE(isolate.groups)) {
+      local_prompts
+    } else {
+      combined_prompt_preview
+    }
+
+    return(.attach_nail_textual_artifacts(
+      result = result,
+      textual_evidence = textual_evidence,
+      interpretation_input = interpretation_input,
+      local_prompts = local_prompts,
+      textual_profiles = textual_profiles,
+      textual_settings = textual_settings,
+      textual_data_summary = textual_data_summary,
+      llm_io = llm_io
+    ))
   }
 
-  if (!generate) {
-    attr(ppt, "textual_data_summary") <- textual_data_summary
-    return(ppt)
-  }
+  llm_api_options <- list(...)
 
-  extra_args <- list(...)
-  llm_api_options <- extra_args
-
-  .call_llm <- function(prompt) {
-    res_llm <- .call_llm_base(
+  call_llm <- function(prompt) {
+    response <- .call_llm_base(
       provider = provider,
       model = model,
       prompt = prompt,
       output = "df",
       llm_api_options = llm_api_options
     )
-    res_llm$prompt <- prompt
-    res_llm
+    response$prompt <- prompt
+    response
   }
 
-  if (!isolate.groups) {
-    out <- .call_llm(ppt)
-    attr(out, "textual_data_summary") <- textual_data_summary
-    return(out)
+  local_results <- stats::setNames(
+    vector("list", length(local_prompts)),
+    names(local_prompts)
+  )
+
+  for (group_name in names(local_prompts)) {
+    input_group <- interpretation_input$groups[[group_name]]
+
+    local_results[[group_name]] <- if (
+      identical(input_group$status, "ready")
+    ) {
+      call_llm(local_prompts[[group_name]])
+    } else {
+      .textual_no_results_data_frame(
+        model = model,
+        prompt = local_prompts[[group_name]],
+        group_name = group_name
+      )
+    }
   }
 
-  out <- lapply(ppt, .call_llm)
-  names(out) <- names(ppt)
-  attr(out, "textual_data_summary") <- textual_data_summary
-  out
+  textual_profiles <- .build_textual_profiles(
+    local_results = local_results,
+    local_prompts = local_prompts,
+    interpretation_input = interpretation_input,
+    generated = TRUE
+  )
+
+  llm_io <- .new_nail_llm_io(
+    stage = "interpretation",
+    prompts = local_prompts,
+    responses = .textual_llm_responses(
+      local_results,
+      interpretation_input
+    ),
+    metadata = list(
+      analysis = "nail_textual",
+      scope = "group",
+      architecture = "local_first"
+    )
+  )
+
+  result <- if (isTRUE(isolate.groups)) {
+    local_results
+  } else {
+    .combine_local_textual_results(
+      local_results = local_results,
+      combined_prompt = combined_prompt_preview,
+      model = model
+    )
+  }
+
+  .attach_nail_textual_artifacts(
+    result = result,
+    textual_evidence = textual_evidence,
+    interpretation_input = interpretation_input,
+    local_prompts = local_prompts,
+    textual_profiles = textual_profiles,
+    textual_settings = textual_settings,
+    textual_data_summary = textual_data_summary,
+    llm_io = llm_io
+  )
 }
 
 # ---------------------------------------------------------------------------
