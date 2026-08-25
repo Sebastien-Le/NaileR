@@ -83,6 +83,13 @@ nail_textual_contextualized(
 
 \item{generate}{Logical; if FALSE, return prompt(s) only.}
 
+\item{catdes}{Optional result returned by \code{nail_catdes()} for the
+canonical compatibility path. When supplied together with \code{textual},
+the call is routed through the canonical CATDES + textual workflow.}
+
+\item{textual}{Optional result returned by \code{nail_textual()} for the
+canonical compatibility path. Supply it together with \code{catdes}.}
+
 \item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
 }
 \value{

@@ -1435,11 +1435,11 @@ build_conclusion_condes <- function(
         "End with:",
         paste0(
           '1. **Meaning of "', target_label,
-          '"** — a concise synthesis of what the evidence shows.'
+          '"** - a concise synthesis of what the evidence shows.'
         ),
-        "2. **Lower end** — the main characteristics associated with lower values.",
-        "3. **Higher end** — the main characteristics associated with higher values.",
-        "4. **Overall interpretation** — the main coherent pattern, including any important nuance or mixed evidence.",
+        "2. **Lower end** - the main characteristics associated with lower values.",
+        "3. **Higher end** - the main characteristics associated with higher values.",
+        "4. **Overall interpretation** - the main coherent pattern, including any important nuance or mixed evidence.",
         "",
         "# Output format",
         "Your output must be **formatted using valid Quarto Markdown**.",
@@ -1451,11 +1451,11 @@ build_conclusion_condes <- function(
   paste(
     "# Final Summary Task",
     "End with:",
-    "1. **Main continuum** — one concise statement of the opposition represented by the score.",
-    "2. **Lower end** — the main characteristics of one end.",
-    "3. **Higher end** — the main characteristics of the other end.",
-    '4. **What separates the ends** — one sentence beginning with "What separates the higher end from the lower end of the continuum is...".',
-    "5. **Proposed latent dimension** — one concise name and its evidence-based justification.",
+    "1. **Main continuum** - one concise statement of the opposition represented by the score.",
+    "2. **Lower end** - the main characteristics of one end.",
+    "3. **Higher end** - the main characteristics of the other end.",
+    '4. **What separates the ends** - one sentence beginning with "What separates the higher end from the lower end of the continuum is...".',
+    "5. **Proposed latent dimension** - one concise name and its evidence-based justification.",
     "",
     "# Output format",
     "Your output must be **formatted using valid Quarto Markdown**.",

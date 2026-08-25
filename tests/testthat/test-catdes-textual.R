@@ -204,7 +204,7 @@ test_that("CATDES is the anchor and textual evidence is explicitly supplementary
 
   expect_match(
     prompt,
-    "Statistical anchor — mechanical CATDES evidence",
+    "Statistical anchor - mechanical CATDES evidence",
     fixed = TRUE
   )
   expect_match(

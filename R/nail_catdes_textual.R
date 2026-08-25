@@ -532,7 +532,7 @@
 
   paste0(
     "## Group \"", group_name, "\"\n\n",
-    "### Statistical anchor — mechanical CATDES evidence\n\n",
+    "### Statistical anchor - mechanical CATDES evidence\n\n",
     stat$factual_text,
     "\n\n### Existing CATDES interpretation\n\n",
     existing_interpretation,

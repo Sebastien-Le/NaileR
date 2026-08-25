@@ -743,6 +743,11 @@ get_prompt_textual_contextualized <- function(group_profile_summary,
 #' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
 #' @param row.w Optional row weights forwarded to `nail_group_profile_prep()`.
 #' @param generate Logical; if FALSE, return prompt(s) only.
+#' @param catdes Optional result returned by `nail_catdes()` for the
+#'   canonical compatibility path. When supplied together with `textual`,
+#'   the call is routed through the canonical CATDES + textual workflow.
+#' @param textual Optional result returned by `nail_textual()` for the
+#'   canonical compatibility path. Supply it together with `catdes`.
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
 #'
 #' @return If `generate = FALSE`, a prompt string or a named list of prompts.

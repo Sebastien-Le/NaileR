@@ -1267,21 +1267,21 @@ build_conclusion_qda_space <- function(
   last_item <- switch(
     expertise_mode,
     sensory =
-      "6. **Proposed dimension** — one concise sensory name and a short evidence-based justification.",
+      "6. **Proposed dimension** - one concise sensory name and a short evidence-based justification.",
     positioning =
-      "6. **Proposed dimension** — one concise product-space name grounded in the sensory evidence.",
+      "6. **Proposed dimension** - one concise product-space name grounded in the sensory evidence.",
     hybrid =
-      "6. **Proposed dimension** — one concise sensory name, plus a broader product-style interpretation only if justified."
+      "6. **Proposed dimension** - one concise sensory name, plus a broader product-style interpretation only if justified."
   )
 
   paste(
     "# Final Summary Task",
     "End with:",
-    "1. **Main sensory continuum** — one concise statement of the opposition represented by the dimension.",
-    "2. **Lower/negative sensory configuration** — the coherent pattern and the products that best embody it.",
-    "3. **Higher/positive sensory configuration** — the coherent pattern and the products that best embody it.",
-    "4. **Product-based refinements** — the most useful confirmations, nuances, or discrepancies.",
-    '5. **What separates the ends** — one sentence beginning with "What separates the higher/positive end from the lower/negative end of the dimension is...".',
+    "1. **Main sensory continuum** - one concise statement of the opposition represented by the dimension.",
+    "2. **Lower/negative sensory configuration** - the coherent pattern and the products that best embody it.",
+    "3. **Higher/positive sensory configuration** - the coherent pattern and the products that best embody it.",
+    "4. **Product-based refinements** - the most useful confirmations, nuances, or discrepancies.",
+    '5. **What separates the ends** - one sentence beginning with "What separates the higher/positive end from the lower/negative end of the dimension is...".',
     last_item,
     "",
     "# Output format",
@@ -1327,7 +1327,7 @@ build_conclusion_qda_space <- function(
         ": ",
         toupper(lower_direction),
         " at the lower/negative end",
-        " ↔ ",
+        " <-> ",
         toupper(higher_direction),
         " at the higher/positive end",
         " (|r|=",
@@ -1416,7 +1416,7 @@ build_conclusion_qda_space <- function(
       pieces,
       "",
       paste0(
-        "**Product sensory summary — ",
+        "**Product sensory summary - ",
         .qda_space_source_label(
           interpretation$source
         ),
