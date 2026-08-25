@@ -410,3 +410,37 @@ test_that("nail_evidence does not fall back to interpretation evidence", {
     fixed = TRUE
   )
 })
+
+
+test_that("nail_evidence exposes DESCFREQ frequency profiles", {
+  tab <- data.frame(
+    sweet = c(40, 5),
+    bitter = c(5, 40),
+    row.names = c("A", "B")
+  )
+
+  x <- nail_descfreq(
+    tab,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+
+  expected <- attr(
+    x,
+    "frequency_profiles",
+    exact = TRUE
+  )
+
+  expect_identical(
+    nail_evidence(x),
+    expected
+  )
+
+  expect_identical(
+    nail_evidence(
+      x,
+      select = "A"
+    ),
+    expected$rows$A
+  )
+})

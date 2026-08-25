@@ -11,14 +11,15 @@ nail_evidence(x, select = NULL)
 object.}
 
 \item{select}{Optional evidence-unit selector. Use a group name for CATDES
-or textual evidence, a product name for QDA evidence, a dimension name for
-QDA-space evidence, or a positive integer position. For CONDES, which has
+or textual evidence, a product name for QDA evidence, a row name for
+DESCFREQ evidence, a dimension name for QDA-space evidence, or a positive
+integer position. For CONDES, which has
 one target, \code{select = 1} or the target variable name returns the complete
 continuous profile.}
 }
 \value{
 With \code{select = NULL}, the complete canonical evidence object. With
-\code{select} supplied, the selected group, product, or dimension evidence.
+\code{select} supplied, the selected group, product, row, or dimension evidence.
 For textual evidence, a selected group also contains a \code{texts} data frame
 with the exact registered texts belonging to that group.
 }
@@ -41,6 +42,7 @@ The current canonical mappings are:
 \item \code{\link[=nail_catdes]{nail_catdes()}} -> \code{statistical_profiles};
 \item \code{\link[=nail_condes]{nail_condes()}} -> \code{continuous_profile};
 \item \code{\link[=nail_qda]{nail_qda()}} -> \code{product_profiles};
+\item \code{\link[=nail_descfreq]{nail_descfreq()}} -> \code{frequency_profiles};
 \item \code{\link[=nail_textual]{nail_textual()}} -> \code{textual_evidence};
 \item \code{\link[=nail_qda_space]{nail_qda_space()}} -> \code{qda_space_evidence};
 \item \code{\link[=nail_catdes_textual]{nail_catdes_textual()}} -> \code{contextualized_evidence}.

@@ -1,36 +1,141 @@
-#' @importFrom dplyr filter select arrange desc
-#' @importFrom glue glue
-#' @importFrom tibble rownames_to_column
+#' @importFrom FactoMineR descfreq
 #' @importFrom utils globalVariables
-
-utils::globalVariables(c("v.test", "p.value", ".data"))
+utils::globalVariables(c())
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Validation and input normalization
 # ---------------------------------------------------------------------------
 
+.validate_descfreq_table <- function(dataset) {
+  if (!is.data.frame(dataset)) {
+    stop("`dataset` must be a data frame corresponding to a contingency table.", call. = FALSE)
+  }
 
-.row_heading <- function(row_name) {
-  glue::glue("## Row '{row_name}'")
+  if (nrow(dataset) < 1L || ncol(dataset) < 2L) {
+    stop("`dataset` must contain at least one row and two columns.", call. = FALSE)
+  }
+
+  numeric_cols <- vapply(dataset, is.numeric, logical(1))
+  if (!all(numeric_cols)) {
+    stop("Every column of `dataset` must be numeric.", call. = FALSE)
+  }
+
+  values <- as.matrix(dataset)
+  storage.mode(values) <- "double"
+
+  if (any(!is.finite(values))) {
+    stop("`dataset` must contain only finite contingency frequencies.", call. = FALSE)
+  }
+
+  if (any(values < 0)) {
+    stop("`dataset` cannot contain negative frequencies.", call. = FALSE)
+  }
+
+  integer_like <- abs(values - round(values)) <= sqrt(.Machine$double.eps)
+  if (!all(integer_like)) {
+    stop(
+      paste(
+        "`dataset` must contain non-negative integer-like frequencies.",
+        "`FactoMineR::descfreq()` uses a hypergeometric test on contingency counts."
+      ),
+      call. = FALSE
+    )
+  }
+
+  row_totals <- rowSums(values)
+  col_totals <- colSums(values)
+
+  if (any(row_totals <= 0)) {
+    stop("Every row of `dataset` must have a strictly positive total.", call. = FALSE)
+  }
+
+  if (any(col_totals <= 0)) {
+    stop(
+      paste(
+        "Every column of `dataset` must have a strictly positive total.",
+        "Remove all-zero columns before calling `nail_descfreq()`."
+      ),
+      call. = FALSE
+    )
+  }
+
+  column_names <- colnames(dataset)
+  if (is.null(column_names) ||
+      anyNA(column_names) ||
+      any(!nzchar(trimws(column_names))) ||
+      anyDuplicated(column_names)) {
+    stop("`dataset` must have unique non-empty column names.", call. = FALSE)
+  }
+
+  # FactoMineR replaces literal spaces by dots before assigning descriptor names
+  # to its retained-marker tables. Detect collisions before the statistical call
+  # so that the original descriptor can always be recovered unambiguously.
+  factominer_names <- gsub(" ", ".", column_names, fixed = TRUE)
+  if (anyDuplicated(factominer_names)) {
+    stop(
+      paste(
+        "Column names become ambiguous after FactoMineR replaces spaces by dots.",
+        "Rename the affected columns before calling `nail_descfreq()`."
+      ),
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
 }
 
-.section_heading_descfreq <- function() {
-  "### Key Descriptive Attributes (Compared to Global Proportions)"
+
+.normalize_by_quali_descfreq <- function(by.quali, n_rows) {
+  if (is.null(by.quali)) {
+    return(NULL)
+  }
+
+  if (length(by.quali) != n_rows) {
+    stop("`by.quali` must have one value per row of `dataset`.", call. = FALSE)
+  }
+
+  if (anyNA(by.quali)) {
+    stop("`by.quali` cannot contain missing values.", call. = FALSE)
+  }
+
+  out <- droplevels(factor(by.quali))
+
+  if (nlevels(out) < 1L) {
+    stop("`by.quali` must define at least one non-empty group.", call. = FALSE)
+  }
+
+  out
 }
 
 
-validate_descfreq_inputs <- function(dataset, sample.pct, proba,
+validate_descfreq_inputs <- function(dataset,
+                                     sample.pct,
+                                     proba,
                                      isolate.groups,
                                      drop.negative,
                                      rows_are_ordered,
                                      explicit_row_labels,
-                                     generate) {
-  assert_data_frame(dataset, "dataset")
-  if (nrow(dataset) < 1 || ncol(dataset) < 2) {
-    stop("`dataset` must contain at least one row and two columns.", call. = FALSE)
+                                     generate,
+                                     by.quali = NULL) {
+  .validate_descfreq_table(dataset)
+
+  if (!is.numeric(sample.pct) ||
+      length(sample.pct) != 1L ||
+      is.na(sample.pct) ||
+      !is.finite(sample.pct) ||
+      sample.pct < 0 ||
+      sample.pct > 1) {
+    stop("`sample.pct` must be a single numeric value in [0, 1].", call. = FALSE)
   }
-  assert_proportion(sample.pct, "sample.pct")
-  assert_proportion(proba, "proba")
+
+  if (!is.numeric(proba) ||
+      length(proba) != 1L ||
+      is.na(proba) ||
+      !is.finite(proba) ||
+      proba <= 0 ||
+      proba > 1) {
+    stop("`proba` must be a single numeric value in (0, 1].", call. = FALSE)
+  }
 
   logical_args <- list(
     isolate.groups = isolate.groups,
@@ -40,123 +145,838 @@ validate_descfreq_inputs <- function(dataset, sample.pct, proba,
     generate = generate
   )
 
-  invalid_logicals <- names(logical_args)[!vapply(logical_args, function(x) is.logical(x) && length(x) == 1 && !is.na(x), logical(1))]
+  valid_logical <- vapply(
+    logical_args,
+    function(x) is.logical(x) && length(x) == 1L && !is.na(x),
+    logical(1)
+  )
 
-  if (length(invalid_logicals) > 0) {
+  if (!all(valid_logical)) {
     stop(
-      sprintf(
-        "The following arguments must be single non-missing logical values: %s.",
-        paste(invalid_logicals, collapse = ", ")
+      paste0(
+        "The following arguments must be single non-missing logical values: ",
+        paste(names(logical_args)[!valid_logical], collapse = ", "),
+        "."
       ),
       call. = FALSE
     )
   }
+
+  .normalize_by_quali_descfreq(by.quali, nrow(dataset))
   invisible(TRUE)
 }
 
+
+.aggregate_descfreq_table <- function(dataset, by.quali = NULL) {
+  # The canonical analyzed contingency table is always stored as a numeric
+  # matrix. This avoids data-frame row extraction returning list-like objects
+  # and gives the same stable representation with and without `by.quali`.
+  values <- as.matrix(dataset)
+  storage.mode(values) <- "double"
+
+  if (is.null(by.quali)) {
+    return(values)
+  }
+
+  group <- .normalize_by_quali_descfreq(by.quali, nrow(dataset))
+  levels_group <- levels(group)
+
+  pieces <- lapply(
+    levels_group,
+    function(level) {
+      colSums(
+        values[group == level, , drop = FALSE]
+      )
+    }
+  )
+
+  mat <- do.call(rbind, pieces)
+  rownames(mat) <- levels_group
+  colnames(mat) <- colnames(dataset)
+  storage.mode(mat) <- "double"
+
+  mat
+}
+
+
+
+# ---------------------------------------------------------------------------
+# Canonical frequency evidence
+# ---------------------------------------------------------------------------
+
+.empty_descfreq_marker_table <- function() {
+  data.frame(
+    evidence_id = character(0),
+    row = character(0),
+    attribute = character(0),
+    direction = character(0),
+    row_percentage = numeric(0),
+    global_percentage = numeric(0),
+    difference_percentage_points = numeric(0),
+    row_frequency = numeric(0),
+    global_frequency = numeric(0),
+    p_value = numeric(0),
+    v_test = numeric(0),
+    abs_v_test = numeric(0),
+    source_order = integer(0),
+    rank = integer(0),
+    source = character(0),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+}
+
+
+.escape_descfreq_evidence_component <- function(x) {
+  x <- as.character(x)[1L]
+  x <- gsub("%", "%25", x, fixed = TRUE)
+  gsub("::", "%3A%3A", x, fixed = TRUE)
+}
+
+
+.make_descfreq_evidence_id <- function(row, attribute) {
+  paste(
+    "DESCF",
+    .escape_descfreq_evidence_component(row),
+    .escape_descfreq_evidence_component(attribute),
+    sep = "::"
+  )
+}
+
+
+.descfreq_original_attribute <- function(label, original_names) {
+  internal_names <- gsub(" ", ".", original_names, fixed = TRUE)
+  index <- match(as.character(label), internal_names)
+
+  if (is.na(index)) {
+    index <- match(as.character(label), original_names)
+  }
+
+  if (is.na(index)) {
+    stop(
+      paste0(
+        "Could not map the FactoMineR descriptor `", label,
+        "` back to a source column."
+      ),
+      call. = FALSE
+    )
+  }
+
+  original_names[[index]]
+}
+
+
+.normalize_descfreq_row_result <- function(x,
+                                           row_name,
+                                           original_names) {
+  if (is.null(x)) {
+    return(.empty_descfreq_marker_table())
+  }
+
+  raw <- as.data.frame(
+    x,
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+
+  if (nrow(raw) == 0L) {
+    return(.empty_descfreq_marker_table())
+  }
+
+  names(raw) <- trimws(names(raw))
+
+  required <- c(
+    "Intern %",
+    "glob %",
+    "Intern freq",
+    "Glob freq",
+    "p.value",
+    "v.test"
+  )
+
+  missing_cols <- setdiff(required, names(raw))
+  if (length(missing_cols) > 0L) {
+    stop(
+      paste0(
+        "The `FactoMineR::descfreq()` result is missing expected columns: ",
+        paste(missing_cols, collapse = ", "),
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  source_labels <- rownames(raw)
+  if (is.null(source_labels) ||
+      length(source_labels) != nrow(raw)) {
+    stop(
+      "The `FactoMineR::descfreq()` result has no usable descriptor labels.",
+      call. = FALSE
+    )
+  }
+
+  attributes <- vapply(
+    source_labels,
+    .descfreq_original_attribute,
+    character(1),
+    original_names = original_names
+  )
+
+  row_pct <- suppressWarnings(as.numeric(raw[["Intern %"]]))
+  global_pct <- suppressWarnings(as.numeric(raw[["glob %"]]))
+  row_freq <- suppressWarnings(as.numeric(raw[["Intern freq"]]))
+  global_freq <- suppressWarnings(as.numeric(raw[["Glob freq"]]))
+  p_value <- suppressWarnings(as.numeric(raw[["p.value"]]))
+  v_test <- suppressWarnings(as.numeric(raw[["v.test"]]))
+
+  numeric_ok <- is.finite(row_pct) &
+    is.finite(global_pct) &
+    is.finite(row_freq) &
+    is.finite(global_freq) &
+    is.finite(p_value) &
+    is.finite(v_test)
+
+  if (!all(numeric_ok)) {
+    stop(
+      paste0(
+        "The `FactoMineR::descfreq()` result for row `",
+        row_name,
+        "` contains non-finite statistical values."
+      ),
+      call. = FALSE
+    )
+  }
+
+  direction <- ifelse(
+    v_test > 0,
+    "overrepresented",
+    ifelse(v_test < 0, "underrepresented", "neutral")
+  )
+
+  out <- data.frame(
+    evidence_id = vapply(
+      attributes,
+      function(attribute) {
+        .make_descfreq_evidence_id(
+          row = row_name,
+          attribute = attribute
+        )
+      },
+      character(1)
+    ),
+    row = rep(as.character(row_name), length(attributes)),
+    attribute = attributes,
+    direction = direction,
+    row_percentage = row_pct,
+    global_percentage = global_pct,
+    difference_percentage_points = row_pct - global_pct,
+    row_frequency = row_freq,
+    global_frequency = global_freq,
+    p_value = p_value,
+    v_test = v_test,
+    abs_v_test = abs(v_test),
+    source_order = seq_along(attributes),
+    rank = integer(length(attributes)),
+    source = rep("FactoMineR::descfreq", length(attributes)),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+
+  ordering <- order(
+    out$p_value,
+    -out$abs_v_test,
+    out$attribute,
+    out$source_order,
+    na.last = TRUE
+  )
+
+  out <- out[ordering, , drop = FALSE]
+  rownames(out) <- NULL
+  out$rank <- seq_len(nrow(out))
+  out
+}
+
+
+.build_descfreq_column_profile <- function(analyzed_table,
+                                           row_index) {
+  values <- as.numeric(analyzed_table[row_index, , drop = TRUE])
+  row_total <- sum(values)
+  col_totals <- colSums(analyzed_table)
+  grand_total <- sum(col_totals)
+
+  data.frame(
+    attribute = colnames(analyzed_table),
+    frequency = values,
+    row_percentage = 100 * values / row_total,
+    global_frequency = as.numeric(col_totals),
+    global_percentage = 100 * as.numeric(col_totals) / grand_total,
+    difference_percentage_points =
+      100 * values / row_total -
+      100 * as.numeric(col_totals) / grand_total,
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+}
+
+
+.build_frequency_profiles_descfreq <- function(dataset,
+                                               by.quali,
+                                               descfreq_result,
+                                               proba) {
+  analyzed_table <- .aggregate_descfreq_table(
+    dataset = dataset,
+    by.quali = by.quali
+  )
+
+  row_names <- rownames(analyzed_table)
+  if (is.null(row_names)) {
+    row_names <- as.character(seq_len(nrow(analyzed_table)))
+    rownames(analyzed_table) <- row_names
+  }
+
+  if (is.null(names(descfreq_result))) {
+    stop(
+      "`FactoMineR::descfreq()` returned an unnamed row list.",
+      call. = FALSE
+    )
+  }
+
+  if (!identical(names(descfreq_result), row_names)) {
+    if (!setequal(names(descfreq_result), row_names)) {
+      stop(
+        paste(
+          "The rows returned by `FactoMineR::descfreq()` do not match",
+          "the rows of the analyzed contingency table."
+        ),
+        call. = FALSE
+      )
+    }
+
+    descfreq_result <- descfreq_result[row_names]
+  }
+
+  rows <- stats::setNames(
+    vector("list", length(row_names)),
+    row_names
+  )
+
+  registry_parts <- vector("list", length(row_names))
+
+  for (i in seq_along(row_names)) {
+    row_name <- row_names[[i]]
+
+    markers <- .normalize_descfreq_row_result(
+      x = descfreq_result[[row_name]],
+      row_name = row_name,
+      original_names = colnames(dataset)
+    )
+
+    over <- markers[
+      markers$direction == "overrepresented",
+      ,
+      drop = FALSE
+    ]
+    under <- markers[
+      markers$direction == "underrepresented",
+      ,
+      drop = FALSE
+    ]
+
+    column_profile <- .build_descfreq_column_profile(
+      analyzed_table = analyzed_table,
+      row_index = i
+    )
+
+    p_values <- markers$p_value[is.finite(markers$p_value)]
+    v_values <- markers$v_test[is.finite(markers$v_test)]
+
+    rows[[row_name]] <- list(
+      row = row_name,
+      row_total = as.numeric(sum(analyzed_table[i, , drop = TRUE])),
+      row_share_percent = as.numeric(
+        100 * sum(analyzed_table[i, , drop = TRUE]) /
+          sum(as.matrix(analyzed_table))
+      ),
+      column_profile = column_profile,
+      retained_markers = markers,
+      overrepresented = over,
+      underrepresented = under,
+      metrics = list(
+        n_attributes_total = as.integer(ncol(analyzed_table)),
+        n_markers_retained = as.integer(nrow(markers)),
+        n_overrepresented = as.integer(nrow(over)),
+        n_underrepresented = as.integer(nrow(under)),
+        min_p_value = if (length(p_values) > 0L) {
+          min(p_values)
+        } else {
+          NA_real_
+        },
+        max_abs_v_test = if (length(v_values) > 0L) {
+          max(abs(v_values))
+        } else {
+          NA_real_
+        }
+      )
+    )
+
+    registry_parts[[i]] <- markers
+  }
+
+  non_empty <- registry_parts[
+    vapply(registry_parts, nrow, integer(1)) > 0L
+  ]
+
+  evidence_registry <- if (length(non_empty) == 0L) {
+    .empty_descfreq_marker_table()
+  } else {
+    do.call(rbind, non_empty)
+  }
+  rownames(evidence_registry) <- NULL
+
+  if (anyDuplicated(evidence_registry$evidence_id)) {
+    stop(
+      "Internal error: duplicated DESCFREQ evidence identifiers were created.",
+      call. = FALSE
+    )
+  }
+
+  row_totals <- rowSums(analyzed_table)
+  col_totals <- colSums(analyzed_table)
+  grand_total <- sum(row_totals)
+
+  source_row_names <- rownames(dataset)
+  if (is.null(source_row_names)) {
+    source_row_names <- as.character(seq_len(nrow(dataset)))
+  }
+
+  analyzed_row_for_source <- if (is.null(by.quali)) {
+    source_row_names
+  } else {
+    as.character(by.quali)
+  }
+
+  aggregation_map <- data.frame(
+    source_row = as.integer(seq_len(nrow(dataset))),
+    source_row_label = as.character(source_row_names),
+    analyzed_row = analyzed_row_for_source,
+    stringsAsFactors = FALSE
+  )
+
+  out <- list(
+    contingency_table = analyzed_table,
+    rows = rows,
+    evidence_registry = evidence_registry,
+    margins = list(
+      row_totals = row_totals,
+      column_totals = col_totals,
+      grand_total = as.numeric(grand_total)
+    ),
+    aggregation = list(
+      performed = !is.null(by.quali),
+      source_to_analyzed_row = aggregation_map
+    ),
+    settings = list(
+      proba = proba,
+      by_quali_supplied = !is.null(by.quali),
+      statistical_source = "FactoMineR::descfreq",
+      statistical_test = "two-sided hypergeometric tail test as implemented by FactoMineR::descfreq",
+      retention_rule = "FactoMineR retains cells with p.value < proba.",
+      ranking_rule = paste(
+        "Within each row: increasing p.value, then decreasing absolute v.test,",
+        "then attribute and source order."
+      )
+    ),
+    metadata = list(
+      schema = "NaileR::descfreq_frequency_profiles",
+      schema_version = "1.0.0",
+      n_source_rows = as.integer(nrow(dataset)),
+      n_rows = as.integer(nrow(analyzed_table)),
+      n_attributes = as.integer(ncol(analyzed_table)),
+      n_retained_evidence = as.integer(nrow(evidence_registry)),
+      aggregation_performed = !is.null(by.quali)
+    )
+  )
+
+  class(out) <- c(
+    "nail_descfreq_frequency_profiles",
+    "list"
+  )
+  out
+}
+
+
+# ---------------------------------------------------------------------------
+# Deterministic prompt selection
+# ---------------------------------------------------------------------------
+
+.select_descfreq_markers <- function(markers,
+                                     sample_pct,
+                                     drop_negative) {
+  if (!is.data.frame(markers) || nrow(markers) == 0L) {
+    return(.empty_descfreq_marker_table())
+  }
+
+  eligible <- markers
+
+  if (isTRUE(drop_negative)) {
+    eligible <- eligible[
+      eligible$direction != "underrepresented",
+      ,
+      drop = FALSE
+    ]
+  }
+
+  n_available <- nrow(eligible)
+
+  if (n_available == 0L || sample_pct <= 0) {
+    return(eligible[0, , drop = FALSE])
+  }
+
+  n_keep <- if (sample_pct >= 1) {
+    n_available
+  } else {
+    ceiling(n_available * sample_pct)
+  }
+
+  n_keep <- min(n_keep, n_available)
+
+  if (n_keep >= n_available) {
+    return(eligible)
+  }
+
+  selected <- integer(0)
+
+  directions <- intersect(
+    c("overrepresented", "underrepresented"),
+    unique(as.character(eligible$direction))
+  )
+
+  # Preserve the strongest signal from both directions whenever at least two
+  # prompt slots are available. Remaining slots follow canonical evidence rank.
+  if (!isTRUE(drop_negative) &&
+      length(directions) == 2L &&
+      n_keep >= 2L) {
+    first_over <- which(
+      eligible$direction == "overrepresented"
+    )[1L]
+    first_under <- which(
+      eligible$direction == "underrepresented"
+    )[1L]
+
+    selected <- c(first_over, first_under)
+  }
+
+  selected <- unique(selected)
+  remaining <- setdiff(seq_len(n_available), selected)
+
+  if (length(selected) < n_keep) {
+    selected <- c(
+      selected,
+      utils::head(
+        remaining,
+        n_keep - length(selected)
+      )
+    )
+  }
+
+  selected <- sort(unique(selected))[seq_len(n_keep)]
+
+  out <- eligible[selected, , drop = FALSE]
+  out <- out[order(out$rank), , drop = FALSE]
+  rownames(out) <- NULL
+  out
+}
+
+
+.build_interpretation_evidence_descfreq <- function(frequency_profiles,
+                                                    sample_pct,
+                                                    drop_negative) {
+  row_names <- names(frequency_profiles$rows)
+
+  rows <- stats::setNames(
+    vector("list", length(row_names)),
+    row_names
+  )
+
+  selected_ids <- character(0)
+
+  for (row_name in row_names) {
+    full <- frequency_profiles$rows[[row_name]]$retained_markers
+    selected <- .select_descfreq_markers(
+      markers = full,
+      sample_pct = sample_pct,
+      drop_negative = drop_negative
+    )
+
+    ids <- selected$evidence_id
+    selected_ids <- c(selected_ids, ids)
+
+    rows[[row_name]] <- list(
+      row = row_name,
+      status = if (nrow(selected) > 0L) {
+        "ready"
+      } else {
+        "no_selected_evidence"
+      },
+      selected_markers = selected,
+      selected_evidence_ids = ids,
+      metrics = list(
+        n_retained_markers = as.integer(nrow(full)),
+        n_eligible_markers = as.integer(
+          if (isTRUE(drop_negative)) {
+            sum(full$direction != "underrepresented")
+          } else {
+            nrow(full)
+          }
+        ),
+        n_selected_markers = as.integer(nrow(selected))
+      )
+    )
+  }
+
+  out <- list(
+    rows = rows,
+    selected_evidence_ids = selected_ids,
+    settings = list(
+      sample_pct = sample_pct,
+      drop_negative = drop_negative,
+      selection_rule = paste(
+        "Deterministic canonical ranking; when both directions are eligible",
+        "and at least two slots are available, preserve the strongest marker",
+        "from each direction before filling remaining slots by rank."
+      )
+    ),
+    metadata = list(
+      schema = "NaileR::descfreq_interpretation_evidence",
+      schema_version = "1.0.0",
+      n_rows = as.integer(length(rows)),
+      n_ready_rows = as.integer(sum(vapply(
+        rows,
+        function(row) identical(row$status, "ready"),
+        logical(1)
+      ))),
+      n_selected_evidence = as.integer(length(selected_ids))
+    )
+  )
+
+  class(out) <- c(
+    "nail_descfreq_interpretation_evidence",
+    "list"
+  )
+  out
+}
+
+
+# ---------------------------------------------------------------------------
+# Semantic-facing factual evidence
+# ---------------------------------------------------------------------------
+
+.format_descfreq_pct <- function(x) {
+  if (!is.finite(x)) {
+    return("NA")
+  }
+  paste0(format(round(x, 2), trim = TRUE, nsmall = 0), "%")
+}
+
+
+.format_descfreq_count <- function(x) {
+  if (!is.finite(x)) {
+    return("NA")
+  }
+  format(round(x), trim = TRUE, scientific = FALSE)
+}
+
+
+.descfreq_fact_statement <- function(row) {
+  direction <- if (identical(
+    as.character(row$direction[[1L]]),
+    "overrepresented"
+  )) {
+    "higher"
+  } else if (identical(
+    as.character(row$direction[[1L]]),
+    "underrepresented"
+  )) {
+    "lower"
+  } else {
+    "similar"
+  }
+
+  paste0(
+    'Attribute "', row$attribute[[1L]],
+    '" has a ', direction,
+    ' relative frequency in this row than in the whole table ',
+    '(row profile=', .format_descfreq_pct(row$row_percentage[[1L]]),
+    '; global profile=', .format_descfreq_pct(row$global_percentage[[1L]]),
+    '; row frequency=', .format_descfreq_count(row$row_frequency[[1L]]),
+    '; total attribute frequency=', .format_descfreq_count(row$global_frequency[[1L]]),
+    ').'
+  )
+}
+
+
+.build_semantic_facing_evidence_descfreq <- function(interpretation_evidence) {
+  row_names <- names(interpretation_evidence$rows)
+  rows <- stats::setNames(
+    vector("list", length(row_names)),
+    row_names
+  )
+
+  n_displayed <- 0L
+
+  for (row_name in row_names) {
+    selected <- interpretation_evidence$rows[[row_name]]
+    markers <- selected$selected_markers
+
+    statements <- if (nrow(markers) > 0L) {
+      vapply(
+        seq_len(nrow(markers)),
+        function(i) {
+          .descfreq_fact_statement(
+            markers[i, , drop = FALSE]
+          )
+        },
+        character(1)
+      )
+    } else {
+      character(0)
+    }
+
+    n_displayed <- n_displayed + length(statements)
+
+    factual_text <- if (length(statements) == 0L) {
+      paste(
+        "No retained statistical attribute is shown for this row",
+        "under the current prompt-selection settings."
+      )
+    } else {
+      paste(
+        paste0("- ", statements),
+        collapse = "\n"
+      )
+    }
+
+    rows[[row_name]] <- list(
+      row = row_name,
+      status = selected$status,
+      selected_evidence_ids = selected$selected_evidence_ids,
+      displayed_evidence = markers,
+      factual_statements = statements,
+      text = factual_text
+    )
+  }
+
+  out <- list(
+    rows = rows,
+    settings = interpretation_evidence$settings,
+    metadata = list(
+      schema = "NaileR::descfreq_semantic_facing_evidence",
+      schema_version = "1.0.0",
+      n_rows = as.integer(length(rows)),
+      n_displayed_evidence = as.integer(n_displayed)
+    )
+  )
+
+  class(out) <- c(
+    "nail_descfreq_semantic_facing_evidence",
+    "list"
+  )
+  out
+}
+
+
+# ---------------------------------------------------------------------------
+# Prompt builders
+# ---------------------------------------------------------------------------
 
 build_request_descfreq <- function(isolate.groups = FALSE,
                                    interpretation_mode = c("description", "comparison"),
                                    rows_are_ordered = FALSE,
                                    explicit_row_labels = FALSE) {
   interpretation_mode <- match.arg(interpretation_mode)
-  if (interpretation_mode == "description") {
-    if (!isolate.groups) {
-      lines <- c(
-        "Using only the results below, describe each row as a relative profile.",
-        "Identify the main over-represented and under-represented attributes for each row.",
-        "Explain what distinguishes each row when relevant.",
-        "If the evidence is limited, mixed, or weak, say so explicitly.",
-        "Keep the interpretation close to the reported attributes.",
-        "Do not interpret the results as causal explanations."
-      )
 
-      if (rows_are_ordered) {
-        lines <- c(
-          lines,
-          "If the row labels form an ordered sequence, you may comment on intermediate positions, local shifts, or broader tendencies across rows.",
-          "Do not force a single overall gradient unless it is clearly supported by the results."
-        )
-      } else {
-        lines <- c(
-          lines,
-          "Do not assume that the rows form a progression or a continuum unless this is directly supported by the results."
-        )
-      }
-
-      if (explicit_row_labels) {
-        lines <- c(lines, "Do not rename the rows because they already have an explicit meaning.")
-      } else {
-        lines <- c(lines, "Propose a short descriptive name only when the evidence is sufficient.")
-      }
-
-      return(paste(lines, collapse = "\n"))
-    }
-
+  if (isTRUE(isolate.groups)) {
     lines <- c(
-      "Using only the results below, describe this row as a relative profile.",
-      "Identify the main over-represented and under-represented attributes.",
-      "Keep the interpretation close to the reported attributes.",
-      "If the evidence is limited, mixed, or weak, say so explicitly.",
-      "Do not interpret the results as causal explanations."
+      "Using only the statistical facts below, interpret this row as a relative frequency profile.",
+      "Identify the attributes that most clearly characterize or distinguish it.",
+      "Do not infer causal explanations or properties that are not supported by the displayed frequency evidence."
     )
 
-    if (explicit_row_labels) {
-      lines <- c(lines, "Do not rename the row because it already has an explicit meaning.")
+    if (isTRUE(rows_are_ordered)) {
+      lines <- c(
+        lines,
+        "The rows have an external order, but this prompt contains only one row; do not invent a broader gradient from this row alone."
+      )
+    }
+
+    if (isTRUE(explicit_row_labels)) {
+      lines <- c(lines, "Keep the existing row label and do not rename it.")
     } else {
-      lines <- c(lines, "Propose a short descriptive name only when the evidence is sufficient.")
+      lines <- c(
+        lines,
+        "You may propose a short descriptive name only if it is clearly supported by the displayed attributes."
+      )
     }
 
     return(paste(lines, collapse = "\n"))
   }
 
-  if (!isolate.groups) {
+  if (identical(interpretation_mode, "comparison")) {
     lines <- c(
-      "Using only the results below, compare the rows in terms of their relative profiles.",
-      "Focus on the main contrasts across rows rather than on separate row-by-row descriptions.",
-      "Use over-represented and under-represented attributes as evidence.",
-      "Do not interpret the results as causal explanations."
+      "Using only the statistical facts below, compare the rows as relative frequency profiles.",
+      "Identify the main contrasts and the attributes that distinguish the rows.",
+      "Do not interpret frequency differences as causal explanations."
     )
 
-    if (rows_are_ordered) {
+    if (isTRUE(rows_are_ordered)) {
       lines <- c(
         lines,
-        "Treat the rows as ordered levels from lower rows to higher rows.",
-        "Identify the main gradient across rows and what changes along it.",
-        "If the pattern is not strictly linear, mention intermediate transitions, mixed patterns, or exceptions."
+        "The rows form an externally ordered sequence. Describe a broader gradient only if the displayed facts support it, and mention transitions or exceptions."
       )
     } else {
       lines <- c(
         lines,
-        "Do not assume that the rows form a progression or a continuum unless this is directly supported by the results.",
-        "Highlight the main oppositions, proximities, and especially distinctive profiles."
+        "Do not impose a progression or continuum on rows that are not externally ordered."
       )
     }
 
-    if (explicit_row_labels) {
-      lines <- c(lines, "Do not rename the rows because they already have an explicit meaning.")
+    if (isTRUE(explicit_row_labels)) {
+      lines <- c(lines, "Keep the existing row labels and do not rename them.")
     } else {
-      lines <- c(lines, "Rename rows only if doing so truly helps summarize their relative profiles.")
+      lines <- c(
+        lines,
+        "You may propose concise descriptive names when they help summarize well-supported profiles."
+      )
     }
 
     return(paste(lines, collapse = "\n"))
   }
 
   lines <- c(
-    "Using only the results below, describe how this row is positioned relative to the overall table.",
-    "Use over-represented and under-represented attributes as evidence.",
-    "Focus on the relative profile of this row, not on raw totals.",
-    "Do not interpret the results as causal explanations."
+    "Using only the statistical facts below, describe each row as a relative frequency profile.",
+    "For each row, identify the main attributes that characterize or distinguish it.",
+    "Do not interpret frequency differences as causal explanations."
   )
 
-  if (rows_are_ordered) {
-    lines <- c(lines, "If the rows form an ordered sequence, explain how this row fits into that broader pattern only when the results clearly support it.")
+  if (isTRUE(rows_are_ordered)) {
+    lines <- c(
+      lines,
+      "The rows have an external order. You may mention broader tendencies only when they are directly supported by the displayed facts."
+    )
+  } else {
+    lines <- c(
+      lines,
+      "Do not assume that the rows form a progression or continuum."
+    )
   }
 
-  if (explicit_row_labels) {
-    lines <- c(lines, "Do not rename the row because it already has an explicit meaning.")
+  if (isTRUE(explicit_row_labels)) {
+    lines <- c(lines, "Keep the existing row labels and do not rename them.")
   } else {
-    lines <- c(lines, "Rename the row only if doing so helps summarize its profile and the evidence is sufficient.")
+    lines <- c(
+      lines,
+      "You may propose concise descriptive names when they are clearly supported by the evidence."
+    )
   }
 
   paste(lines, collapse = "\n")
@@ -169,434 +989,354 @@ build_conclusion_descfreq <- function(isolate.groups = FALSE,
                                       explicit_row_labels = FALSE) {
   interpretation_mode <- match.arg(interpretation_mode)
 
-  if (interpretation_mode == "description") {
-    if (!isolate.groups) {
-      items <- c("# Final Summary Task")
+  if (isTRUE(isolate.groups)) {
+    items <- c(
+      "# Final Summary Task",
+      "1. **A concise interpretation of the row as a relative frequency profile**.",
+      "2. **The main attributes supporting that interpretation**."
+    )
 
-      if (rows_are_ordered) {
-        items <- c(
-          items,
-          "1. **A description of each row as a relative profile**.",
-          "2. **A brief synthesis of the most distinctive row profiles**.",
-          "3. **Any intermediate positions, mixed profiles, or rows with limited evidence**."
-        )
-      } else {
-        items <- c(
-          items,
-          "1. **A description of each row as a relative profile**.",
-          "2. **A brief synthesis of the most distinctive row profiles**.",
-          "3. **A note about rows with limited, mixed, or weak evidence**."
-        )
-      }
-
-      if (!explicit_row_labels) {
-        items <- c(items, "4. **A list of row names you assigned**, if any, and the attributes supporting them.")
-      }
-
-      items <- c(items, "", "# Output format", "Your output must be **formatted using valid Quarto Markdown**.")
-      return(paste(items, collapse = "\n"))
-    }
-
-    items <- c("# Final Summary Task", "1. **A description of the row as a relative profile**.")
-
-    if (!explicit_row_labels) {
-      items <- c(items, "2. **A row name you assigned**, if any, and the attributes supporting it.")
-    }
-
-    items <- c(items, "", "# Output format", "Your output must be **formatted using valid Quarto Markdown**.")
-    return(paste(items, collapse = "\n"))
-  }
-
-  if (!isolate.groups) {
-    items <- c("# Final Summary Task")
-
-    if (rows_are_ordered) {
+    if (!isTRUE(explicit_row_labels)) {
       items <- c(
         items,
-        "1. **A synthesis of the main differences across rows**.",
-        "2. **The main gradient from lower rows to higher rows**.",
-        "3. **Any intermediate transitions, mixed patterns, or exceptions**."
+        "3. **An optional descriptive row name**, only if clearly supported."
       )
-      if (!explicit_row_labels) {
-        items <- c(items, "4. **A list of row names you assigned**, if you chose to rename them, and their distinguishing features.")
-      }
-    } else {
-      items <- c(
-        items,
-        "1. **A synthesis of the main contrasts, proximities, and distinctive profiles across rows**."
-      )
-      if (!explicit_row_labels) {
-        items <- c(items, "2. **A list of row names you assigned**, if you chose to rename them, and their distinguishing features.")
-      }
     }
 
-    items <- c(items, "", "# Output format", "Your output must be **formatted using valid Quarto Markdown**.")
-    return(paste(items, collapse = "\n"))
+    return(
+      paste(
+        c(
+          items,
+          "",
+          "# Output format",
+          "Your output must be **formatted using valid Quarto Markdown**."
+        ),
+        collapse = "\n"
+      )
+    )
   }
 
-  items <- c("# Final Summary Task", "1. **A description of the row as a relative profile**.")
+  if (identical(interpretation_mode, "comparison")) {
+    items <- c(
+      "# Final Summary Task",
+      "1. **A concise synthesis of the main differences across rows**.",
+      "2. **The statistical attributes supporting the main contrasts**."
+    )
 
-  if (rows_are_ordered) {
-    items <- c(items, "2. **How this row fits into the broader gradient across rows**, if clearly supported.")
+    if (isTRUE(rows_are_ordered)) {
+      items <- c(
+        items,
+        "3. **Any supported gradient, transition, or exception across the ordered rows**."
+      )
+    }
+
+    if (!isTRUE(explicit_row_labels)) {
+      items <- c(
+        items,
+        paste0(
+          if (isTRUE(rows_are_ordered)) "4." else "3.",
+          " **Optional descriptive row names**, only where clearly supported."
+        )
+      )
+    }
+  } else {
+    items <- c(
+      "# Final Summary Task",
+      "1. **A concise interpretation of each row as a relative frequency profile**.",
+      "2. **The main statistical attributes supporting each interpretation**."
+    )
+
+    if (!isTRUE(explicit_row_labels)) {
+      items <- c(
+        items,
+        "3. **Optional descriptive row names**, only where clearly supported."
+      )
+    }
   }
 
-  if (!explicit_row_labels) {
-    next_num <- if (rows_are_ordered) 3 else 2
-    items <- c(items, paste0(next_num, ". **A row name you assigned**, if you chose to rename it."))
-  }
-
-  items <- c(items, "", "# Output format", "Your output must be **formatted using valid Quarto Markdown**.")
-  paste(items, collapse = "\n")
+  paste(
+    c(
+      items,
+      "",
+      "# Output format",
+      "Your output must be **formatted using valid Quarto Markdown**."
+    ),
+    collapse = "\n"
+  )
 }
 
 
-build_guide_descfreq <- function(proba = 0.05,
-                                 interpretation_mode = c("description", "comparison"),
+build_guide_descfreq <- function(interpretation_mode = c("description", "comparison"),
                                  rows_are_ordered = FALSE,
                                  explicit_row_labels = FALSE) {
   interpretation_mode <- match.arg(interpretation_mode)
 
   lines <- c(
-    "## How to Read the Tables",
-    "For each row, the analysis compares the proportion of each column attribute within that row to its overall proportion across the whole table.",
-    "The tables below contain the attributes retained using the chosen significance threshold.",
-    "",
-    "* **Intern %**: percentage of the attribute within this row.",
-    "* **glob %**: overall percentage of the attribute across all rows.",
-    "* **Intern freq**: observed frequency of the attribute within this row.",
-    "* **Glob freq**: overall frequency of the attribute across all rows.",
-    "* **p.value**: smaller values indicate stronger evidence; larger values indicate weaker or more tentative evidence.",
-    "* **v.test**: positive = over-represented; negative = under-represented; larger absolute values indicate a stronger difference from the global proportion.",
-    "",
-    "Interpret each row as a relative profile, not as a raw total.",
-    "Characteristic attributes are more frequent than expected given their global proportion.",
-    "Uncharacteristic attributes are less frequent than expected given their global proportion.",
-    "",
-    "Treat evidence as graded:",
-    "* very strong: p.value <= 0.01",
-    "* strong: 0.01 < p.value <= 0.05",
-    "* moderate: 0.05 < p.value <= 0.10",
-    paste0("* weak/tentative: 0.10 < p.value <= ", proba),
-    "Prioritize the strongest signals."
+    "## How to Read the Evidence",
+    "The source is a contingency table: rows are the entities or categories to interpret, and columns are frequency attributes.",
+    "For each row, FactoMineR identifies attributes whose relative frequency differs statistically from the overall table profile.",
+    "The factual statements below report the retained direction and the row-versus-global relative frequencies.",
+    "They are statistical characterizations, not causal explanations.",
+    "A higher relative frequency means that an attribute is over-represented in that row relative to the global table profile.",
+    "A lower relative frequency means that an attribute is under-represented.",
+    "Technical p-values and v-tests remain available in `nail_evidence()` for audit but are deliberately not used as semantic content in this prompt.",
+    "Prioritize coherent configurations of several attributes over isolated single signals."
   )
 
-  if (interpretation_mode == "comparison") {
-    lines <- c(lines, "When comparing rows, focus on contrasts in relative profiles rather than on isolated row descriptions.")
-    if (rows_are_ordered) {
-      lines <- c(lines, "Treat the rows as ordered levels from lower rows to higher rows.")
-    } else {
-      lines <- c(lines, "Do not assume that the rows form a progression or a continuum unless this is directly supported by the results.")
-    }
-  } else {
-    if (rows_are_ordered) {
-      lines <- c(lines, "If the row labels form an ordered sequence, you may comment on intermediate positions or broader tendencies, but do not force a single gradient unless the results support it.")
-    } else {
-      lines <- c(lines, "Do not assume that the rows form a progression or a continuum unless this is directly supported by the results.")
-    }
+  if (identical(interpretation_mode, "comparison")) {
+    lines <- c(
+      lines,
+      "When several rows are shown together, comparisons may be made directly from their displayed statistical facts."
+    )
   }
 
-  if (explicit_row_labels) {
-    lines <- c(lines, "Do not rename the rows if they already have an explicit meaning.")
+  if (isTRUE(rows_are_ordered)) {
+    lines <- c(
+      lines,
+      "Row order is contextual information supplied by the analyst; it is not statistical evidence by itself."
+    )
   }
 
-  lines <- c(lines, "Do not interpret the results as causal explanations.")
+  if (isTRUE(explicit_row_labels)) {
+    lines <- c(
+      lines,
+      "Existing row labels carry user-supplied meaning and must be preserved."
+    )
+  }
+
   paste(lines, collapse = "\n")
 }
 
-get_sentences_descfreq <- function(res_df, sample.pct, drop.negative, proba = 0.05) {
-  ppts <- list()
 
-  for (i in seq_along(res_df)) {
-    grp_name <- names(res_df)[i]
-    res_mat <- as.data.frame(res_df[[i]])
-    names(res_mat) <- trimws(names(res_mat))
-
-    if (is.null(res_mat) || nrow(res_mat) == 0 || !"v.test" %in% colnames(res_mat)) {
-      ppts[[grp_name]] <- paste0(
-        "This row has **no descriptive attributes retained under the chosen threshold** (p <= ", proba, ")."
-      )
-      next
-    }
-
-    num_index <- which(colnames(res_mat) == "v.test")
-    if (sample.pct < 1) {
-      res_sampled <- sample_numeric_distribution(
-        res_mat,
-        num_var_index = num_index,
-        sample_pct = sample.pct,
-        method = "stratified",
-        bins = 5,
-        return_matrix = FALSE
-      )
-    } else {
-      res_sampled <- res_mat
-    }
-
-    cols_to_show <- c("Intern %", "glob %", "Intern freq", "Glob freq", "p.value", "v.test")
-    cols_to_show <- cols_to_show[cols_to_show %in% colnames(res_sampled)]
-
-    positive_df <- res_sampled |>
-      dplyr::filter(v.test > 0) |>
-      dplyr::arrange(p.value)
-
-    negative_df <- res_sampled |>
-      dplyr::filter(v.test < 0) |>
-      dplyr::arrange(p.value)
-
-    has_positive_results <- nrow(positive_df) > 0
-    has_negative_results <- nrow(negative_df) > 0
-
-    if (!has_positive_results && (drop.negative || !has_negative_results)) {
-      if (drop.negative && has_negative_results) {
-        ppts[[grp_name]] <- paste(
-          glue::glue("This row has **no over-represented attributes retained under the chosen threshold** (p <= {proba})."),
-          "(Note: Under-represented attributes were found but are hidden because `drop.negative` is TRUE.)",
-          sep = "\n"
-        )
-      } else if (drop.negative) {
-        ppts[[grp_name]] <- paste(
-          glue::glue("This row has **no over-represented attributes retained under the chosen threshold** (p <= {proba})."),
-          "(Note: Under-represented attributes are excluded from this analysis.)",
-          sep = "\n"
-        )
-      } else {
-        ppts[[grp_name]] <- glue::glue(
-          "This row has **no descriptive attributes retained under the chosen threshold** (neither over- nor under-represented, p <= {proba})."
-        )
-      }
-    } else {
-      ppt1 <- if (has_positive_results) {
-        format_stats_as_markdown(
-          positive_df[, cols_to_show, drop = FALSE],
-          title = "Over-represented Attributes (v.test > 0)"
-        )
-      } else {
-        "This row has no retained **over-represented** attributes under the chosen threshold."
-      }
-
-      ppt2 <- ""
-      if (!drop.negative) {
-        ppt2 <- if (has_negative_results) {
-          format_stats_as_markdown(
-            negative_df[, cols_to_show, drop = FALSE],
-            title = "Under-represented Attributes (v.test < 0)"
-          )
-        } else {
-          "This row has no retained **under-represented** attributes under the chosen threshold."
-        }
-      }
-
-      ppts[[grp_name]] <- normalize_blank_lines(paste(ppt1, ppt2, sep = "\n\n"))
-    }
-  }
-
-  ppts
+.descfreq_row_data_block <- function(row_name,
+                                     semantic_row) {
+  paste(
+    paste0("## Row '", row_name, "'"),
+    "",
+    "### Retained relative-frequency facts",
+    "",
+    semantic_row$text,
+    sep = "\n"
+  )
 }
 
 
-
-get_prompt_descfreq <- function(res_df, introduction, request, conclusion,
-                                isolate.groups, sample.pct, drop.negative,
-                                proba = 0.05,
+get_prompt_descfreq <- function(semantic_facing_evidence,
+                                introduction,
+                                request,
+                                conclusion,
+                                isolate.groups,
                                 interpretation_mode = c("description", "comparison"),
                                 rows_are_ordered = FALSE) {
   interpretation_mode <- match.arg(interpretation_mode)
-  stces_list <- get_sentences_descfreq(res_df, sample.pct, drop.negative, proba = proba)
 
-  if (length(stces_list) == 0 ||
-      all(vapply(stces_list, function(x) is.null(x) || !nzchar(x), logical(1)))) {
-    stop("No significant differences between rows, execution was halted.")
-  }
+  row_names <- names(semantic_facing_evidence$rows)
 
-  all_groups <- names(stces_list)
-  stces <- c()
-
-  for (grp in all_groups) {
-    quant <- if (is.null(stces_list[[grp]])) "" else stces_list[[grp]]
-    ppt_grp <- glue::glue(
-      "{.row_heading(grp)}\n\n",
-      "{.section_heading_descfreq()}\n\n",
-      "{quant}",
-      .trim = TRUE
-    )
-    stces <- c(stces, ppt_grp)
-  }
-
-  data_intro <- if (interpretation_mode == "comparison") {
-    if (rows_are_ordered) {
-      paste(
-        "Use the results below to compare the rows as ordered relative profiles.",
-        "Assess whether they form a clear gradient, and mention intermediate transitions, mixed profiles, or exceptions when relevant.",
-        sep = "\n"
+  blocks <- vapply(
+    row_names,
+    function(row_name) {
+      .descfreq_row_data_block(
+        row_name = row_name,
+        semantic_row = semantic_facing_evidence$rows[[row_name]]
       )
-    } else {
-      "Use the results below to compare the rows as relative profiles."
-    }
-  } else {
-    if (rows_are_ordered) {
-      paste(
-        "Use the results below to describe each row as a relative profile.",
-        "You may use the row order as contextual information, but do not force a single overall gradient unless it is directly supported by the results.",
-        sep = "\n"
-      )
-    } else {
-      "Use the results below to describe each row as a relative profile."
-    }
-  }
-
-  header <- glue::glue(
-    "# Introduction - Objective\n\n{introduction}\n\n",
-    "# Task\n\n{request}\n\n",
-    "---\n\n",
-    "# Data\n\n{data_intro}\n\n\n"
+    },
+    character(1)
   )
 
-  if (!isolate.groups) {
-    body <- paste(stces, collapse = "\n\n---\n\n")
-    return(normalize_blank_lines(paste(header, body, "\n\n", conclusion, sep = "")))
-  }
+  if (!isTRUE(isolate.groups)) {
+    data_text <- paste(
+      blocks,
+      collapse = "\n\n---\n\n"
+    )
 
-  prompts_list <- list()
-  for (i in seq_along(stces)) {
-    grp_name <- names(stces_list)[i]
-    grp_body <- stces[i]
-    prompts_list[[grp_name]] <- normalize_blank_lines(
-      paste(header, grp_body, "\n\n", conclusion, sep = "")
+    return(
+      build_standard_prompt(
+        introduction = introduction,
+        request = request,
+        data = data_text,
+        conclusion = conclusion
+      )
     )
   }
-  prompts_list
+
+  out <- lapply(
+    seq_along(row_names),
+    function(i) {
+      build_standard_prompt(
+        introduction = introduction,
+        request = request,
+        data = blocks[[i]],
+        conclusion = conclusion
+      )
+    }
+  )
+
+  names(out) <- row_names
+  out
 }
 
-#' Interpret the rows of a contingency table
+
+# ---------------------------------------------------------------------------
+# LLM IO and artifact attachment
+# ---------------------------------------------------------------------------
+
+.descfreq_backend_response_text <- function(x) {
+  if (is.character(x)) {
+    return(paste(x, collapse = "\n"))
+  }
+
+  if (is.data.frame(x) &&
+      "response" %in% names(x) &&
+      nrow(x) > 0L) {
+    return(paste(as.character(x$response), collapse = "\n"))
+  }
+
+  if (is.list(x) &&
+      !is.null(x$response)) {
+    return(paste(as.character(x$response), collapse = "\n"))
+  }
+
+  stop(
+    "The DESCFREQ LLM backend result does not contain a readable raw response.",
+    call. = FALSE
+  )
+}
+
+
+.attach_descfreq_artifacts <- function(x,
+                                       frequency_profiles,
+                                       interpretation_evidence,
+                                       semantic_facing_evidence,
+                                       descfreq_result,
+                                       prompts,
+                                       responses,
+                                       settings) {
+  attr(x, "frequency_profiles") <- frequency_profiles
+  attr(x, "interpretation_evidence") <- interpretation_evidence
+  attr(x, "semantic_facing_evidence") <- semantic_facing_evidence
+  attr(x, "descfreq_result") <- descfreq_result
+  attr(x, "descfreq_settings") <- settings
+  attr(x, "llm_io") <- .new_nail_llm_io(
+    stage = "interpretation",
+    prompts = prompts,
+    responses = responses,
+    metadata = list(
+      analysis = "nail_descfreq",
+      scope = if (isTRUE(settings$isolate_groups)) {
+        "row"
+      } else {
+        "table"
+      },
+      provider = settings$provider,
+      model = settings$model,
+      interpretation_mode = settings$interpretation_mode
+    )
+  )
+  x
+}
+
+
+.descfreq_no_evidence_result <- function(model,
+                                         prompt,
+                                         message = "No selected statistical evidence found.") {
+  list(
+    prompt = prompt,
+    model = model,
+    status = "not_generated_no_selected_evidence",
+    message = message
+  )
+}
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+#' Interpret the rows of a contingency table using evidence-first frequency profiles
 #'
-#' Describes the rows of a contingency table. For each row, this description is based on the columns of the contingency table that are significantly related to it.
+#' `nail_descfreq()` characterizes the rows of a contingency table with
+#' [FactoMineR::descfreq()]. It first stores complete canonical
+#' `frequency_profiles`, then selects a deterministic subset of retained
+#' statistical markers for semantic interpretation.
 #'
-#' @param dataset a data frame corresponding to a contingency table.
-#' @param introduction the introduction for the LLM prompt.
-#' @param request the request made to the LLM.
-#' @param conclusion the conclusion for the LLM prompt.
-#' @param model the model name for the selected provider ('llama3' by default for Ollama).
-#' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
-#' @param isolate.groups a boolean that indicates whether to give the LLM a single prompt, or one prompt per row. Recommended if the contingency table has a great number of rows.
-#' @param sample.pct from 0 to 1, the proportion of descriptive features that are randomly kept.
-#' @param drop.negative a boolean that indicates whether to drop negative v.test values for interpretation (keeping only positive v.tests).
-#' @param proba the significance threshold considered to characterize the category (by default 0.05).
-#' @param interpretation_mode either "description" or "comparison".
-#' @param rows_are_ordered logical; if TRUE, the prompt encourages the LLM to look for a gradient across rows.
-#' @param explicit_row_labels logical; if TRUE, the prompt tells the LLM not to rename the rows.
-#' @param by.quali a factor used to merge the data from different rows of the contingency table; by default NULL and each row is characterized.
-#' @param generate a boolean that indicates whether to generate the LLM response. If FALSE, the function only returns the prompt.
-#' @param ... Additional provider-specific generation arguments passed to the selected LLM backend
-#' (e.g., `temperature`, `seed`).
+#' The canonical evidence is invariant to `generate`, `isolate.groups`,
+#' `sample.pct`, `drop.negative`, `interpretation_mode`, `rows_are_ordered`,
+#' `explicit_row_labels`, `introduction`, `request`, and `conclusion`. These
+#' arguments affect only the interpretation layer.
 #'
-#' @return A data frame, or a list of data frames, containing the LLM's prompt and response (if generate = TRUE).
+#' @param dataset A data frame corresponding to a contingency table. Cells must
+#'   contain non-negative integer-like frequencies.
+#' @param introduction Optional study context included in the LLM prompt.
+#' @param request Optional analytical request sent to the LLM.
+#' @param conclusion Optional final output-instruction block.
+#' @param model Model name for the selected provider.
+#' @param provider LLM backend, either `"ollama"` or `"gemini"`.
+#' @param isolate.groups Logical. If `TRUE`, build one independent prompt per
+#'   row. If `FALSE`, build one prompt containing all rows.
+#' @param sample.pct Proportion in `[0, 1]` of eligible retained markers shown
+#'   to the LLM. This never changes the canonical `frequency_profiles`.
+#' @param drop.negative Logical. If `TRUE`, under-represented attributes are
+#'   excluded only from the prompt-selection layer.
+#' @param by.quali Optional grouping vector with one value per source row.
+#'   Source rows sharing a level are summed before row characterization, as in
+#'   [FactoMineR::descfreq()].
+#' @param proba Significance threshold passed to [FactoMineR::descfreq()].
+#' @param interpretation_mode Either `"description"` or `"comparison"`.
+#' @param rows_are_ordered Logical contextual flag indicating that row order has
+#'   external substantive meaning. It does not alter statistical evidence.
+#' @param explicit_row_labels Logical contextual flag indicating that row names
+#'   already have substantive meaning and should not be renamed by the LLM.
+#' @param generate Logical. If `FALSE`, build prompt(s) without contacting an
+#'   LLM. If `TRUE`, call the selected backend.
+#' @param ... Additional provider-specific generation arguments.
 #'
-#' @details This function directly sends a prompt to an LLM. Therefore, to get a consistent answer, we highly recommend to customize the parameters introduction and request and add all relevant information on your data for the LLM.
+#' @return For backward compatibility, a prompt string or named list of prompts
+#'   when `generate = FALSE`; a model/prompt/response list or named list of such
+#'   results when `generate = TRUE`.
 #'
-#' Additionally, if isolate.groups = TRUE, you will need an introduction and a request that take into account the fact that only one group is analyzed at a time.
+#'   Every return carries:
 #'
-#' @export
+#'   * `frequency_profiles`: complete canonical contingency-frequency evidence;
+#'   * `interpretation_evidence`: deterministic subset selected for the prompt;
+#'   * `semantic_facing_evidence`: plain-language factual evidence shown to the
+#'     LLM;
+#'   * `descfreq_result`: the original single [FactoMineR::descfreq()] result;
+#'   * `descfreq_settings`: execution and interpretation settings;
+#'   * `llm_io`: exact prompt(s) and raw LLM response(s) for [nail_prompt()] and
+#'     [nail_response()].
+#'
+#' @details
+#' FactoMineR retains row-column cells using its two-sided hypergeometric test.
+#' NaileR does not recompute or replace that test. It normalizes the returned
+#' statistics into stable row profiles and assigns deterministic evidence IDs.
+#'
+#' For prompt selection, NaileR ranks retained evidence by increasing p-value,
+#' then decreasing absolute v-test. When both over- and under-represented
+#' evidence are eligible and at least two prompt slots are available, the
+#' strongest marker from each direction is preserved before remaining slots
+#' are filled by canonical rank.
+#'
+#' Technical p-values, v-tests, counts, and the full table remain inspectable
+#' through [nail_evidence()]. The LLM-facing semantic facts use only explicit
+#' direction and row-versus-global frequency information.
 #'
 #' @examples
-#'\dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
+#' tab <- data.frame(
+#'   sweet = c(30, 5, 10),
+#'   bitter = c(5, 30, 10),
+#'   neutral = c(10, 10, 30),
+#'   row.names = c("A", "B", "C")
+#' )
 #'
-#' ### Example 1: beard dataset ###
+#' preview <- nail_descfreq(
+#'   tab,
+#'   isolate.groups = TRUE,
+#'   generate = FALSE
+#' )
 #'
-#' data(beard_cont)
+#' nail_evidence(preview, select = "A")
+#' nail_prompt(preview, select = "A")
 #'
-#' intro_beard_iso <- 'A survey was conducted about beards
-#' and 8 types of beards were described.
-#' I will give you the results for one type of beard.'
-#' intro_beard_iso <- gsub('\n', ' ', intro_beard_iso) |>
-#' stringr::str_squish()
-#'
-#' req_beard_iso <- 'Please give a name to this beard
-#' and summarize what makes this beard unique.'
-#' req_beard_iso <- gsub('\n', ' ', req_beard_iso) |>
-#' stringr::str_squish()
-#'
-#' res_beard <- nail_descfreq(beard_cont,
-#'                            introduction = intro_beard_iso,
-#'                            request = req_beard_iso,
-#'                            isolate.groups = TRUE,
-#'                            generate = FALSE)
-#'
-#' res_beard[[1]]
-#' res_beard[[2]]
-#'
-#' intro_beard <- 'A survey was conducted about beards
-#' and 8 types of beards were described.
-#' In the data that follow, beards are named B1 to B8.'
-#' intro_beard <- gsub('\n', ' ', intro_beard) |>
-#' stringr::str_squish()
-#'
-#' req_beard <- 'Please give a name to each beard
-#' and summarize what makes this beard unique.'
-#' req_beard <- gsub('\n', ' ', req_beard) |>
-#' stringr::str_squish()
-#'
-#' res_beard <- nail_descfreq(beard_cont,
-#'                            introduction = intro_beard,
-#'                            request = req_beard,
-#'                            generate = TRUE)
-#'
-#' cat(res_beard$response)
-#'
-#' text <- res_beard$response
-#' titles <- stringr::str_extract_all(text, "\\*\\*B[0-9]+: [^\\*\\*]+\\*\\*")[[1]]
-#'
-#' titles
-#'
-#' # for the following code to work, the response must have the beards'
-#' # new names with this format: **B1: The Nice beard**, etc.
-#'
-#' titles <- stringr::str_replace_all(titles, "\\*\\*", "")  # remove asterisks
-#' names <- stringr::str_extract(titles, ": .+")
-#' names <- stringr::str_replace_all(names, ": ", "")  # remove the colon and space
-#'
-#' rownames(beard_cont) <- names
-#'
-#' library(FactoMineR)
-#'
-#' res_ca_beard <- CA(beard_cont, graph = F)
-#' plot.CA(res_ca_beard, invisible = "col")
-#'
-#'
-#' ### Example 2: children dataset ###
-#'
-#' data(children)
-#'
-#' children <- children[1:14, 1:5] |> t() |> as.data.frame()
-#' rownames(children) <- c('No education', 'Elementary school',
-#' 'Middle school', 'High school', 'University')
-#'
-#' intro_children <- 'The data used here is a contingency table
-#' that summarizes the answers
-#' given by different categories of people to the following question:
-#' "according to you, what are the reasons that can make
-#' a woman or a couple hesitate to have children?".
-#' Each row corresponds to a level of education, and columns are reasons.'
-#' intro_children <- gsub('\n', ' ', intro_children) |>
-#' stringr::str_squish()
-#'
-#' req_children <- "Please explain the main differences
-#' between more educated and less educated couples,
-#' when it comes to hesitating to have children."
-#' req_children <- gsub('\n', ' ', req_children) |>
-#' stringr::str_squish()
-#'
-#' res_children <- nail_descfreq(children,
-#'                               introduction = intro_children,
-#'                               request = req_children,
-#'                               generate = TRUE)
-#'
-#' cat(res_children$response)
-#' }
-#'
-#' @importFrom FactoMineR descfreq
-#' @importFrom glue glue
 #' @export
 nail_descfreq <- function(dataset,
                           introduction = NULL,
@@ -614,9 +1354,7 @@ nail_descfreq <- function(dataset,
                           explicit_row_labels = FALSE,
                           generate = FALSE,
                           ...) {
-
   interpretation_mode <- match.arg(interpretation_mode)
-
   provider <- match.arg(provider)
 
   validate_descfreq_inputs(
@@ -627,11 +1365,44 @@ nail_descfreq <- function(dataset,
     drop.negative = drop.negative,
     rows_are_ordered = rows_are_ordered,
     explicit_row_labels = explicit_row_labels,
-    generate = generate
+    generate = generate,
+    by.quali = by.quali
+  )
+
+  normalized_by_quali <- .normalize_by_quali_descfreq(
+    by.quali,
+    nrow(dataset)
+  )
+
+  descfreq_result <- FactoMineR::descfreq(
+    dataset,
+    by.quali = normalized_by_quali,
+    proba = proba
+  )
+
+  frequency_profiles <- .build_frequency_profiles_descfreq(
+    dataset = dataset,
+    by.quali = normalized_by_quali,
+    descfreq_result = descfreq_result,
+    proba = proba
+  )
+
+  interpretation_evidence <- .build_interpretation_evidence_descfreq(
+    frequency_profiles = frequency_profiles,
+    sample_pct = sample.pct,
+    drop_negative = drop.negative
+  )
+
+  semantic_facing_evidence <- .build_semantic_facing_evidence_descfreq(
+    interpretation_evidence = interpretation_evidence
   )
 
   if (is.null(introduction)) {
-    introduction <- "The table analyzed here is a contingency table. Each row represents a category to be interpreted through the column attributes that are unusually frequent or unusually infrequent relative to the overall table."
+    introduction <- paste(
+      "The table analyzed here is a contingency table.",
+      "Each row is interpreted through column attributes whose relative",
+      "frequency differs from the overall table profile."
+    )
   }
 
   if (is.null(request)) {
@@ -652,86 +1423,71 @@ nail_descfreq <- function(dataset,
     )
   }
 
-  guide_descfreq <- build_guide_descfreq(
-    proba = proba,
+  guide <- build_guide_descfreq(
     interpretation_mode = interpretation_mode,
     rows_are_ordered = rows_are_ordered,
     explicit_row_labels = explicit_row_labels
   )
 
-  introduction <- paste(
+  prompt_introduction <- paste(
     introduction,
-    guide_descfreq,
+    guide,
     sep = "\n\n---\n\n"
   )
 
-  res_df <- FactoMineR::descfreq(dataset, by.quali = by.quali, proba = proba)
-
-  ppt <- tryCatch(
-    get_prompt_descfreq(
-      res_df = res_df,
-      introduction = introduction,
-      request = request,
-      conclusion = conclusion,
-      isolate.groups = isolate.groups,
-      sample.pct = sample.pct,
-      drop.negative = drop.negative,
-      proba = proba,
-      interpretation_mode = interpretation_mode,
-      rows_are_ordered = rows_are_ordered
-    ),
-    error = function(e) {
-      if (grepl("No significant differences", conditionMessage(e))) {
-        "NAILER_NO_RESULTS_FOUND"
-      } else {
-        stop(e)
-      }
-    }
+  prompts <- get_prompt_descfreq(
+    semantic_facing_evidence = semantic_facing_evidence,
+    introduction = prompt_introduction,
+    request = request,
+    conclusion = conclusion,
+    isolate.groups = isolate.groups,
+    interpretation_mode = interpretation_mode,
+    rows_are_ordered = rows_are_ordered
   )
 
-  if (identical(ppt, "NAILER_NO_RESULTS_FOUND")) {
-    no_results_message <- glue::glue(
-      "*No retained over- or under-represented attributes were found under the chosen threshold (p <= {proba}).*"
-    )
+  prompt_list <- if (isTRUE(isolate.groups)) {
+    prompts
+  } else {
+    list(all_rows = prompts)
+  }
 
-    if (generate) {
-      message("Execution halted: No retained differences found. Nothing to generate.")
-      if (isolate.groups) {
-        out <- list()
-        attr(out, "descfreq_result") <- res_df
-        return(out)
-      }
-      out <- data.frame(
-        model = model,
-        response = "No retained differences found.",
-        prompt = no_results_message,
-        stringsAsFactors = FALSE
+  settings <- list(
+    proba = proba,
+    sample_pct = sample.pct,
+    drop_negative = drop.negative,
+    by_quali_supplied = !is.null(by.quali),
+    interpretation_mode = interpretation_mode,
+    rows_are_ordered = rows_are_ordered,
+    explicit_row_labels = explicit_row_labels,
+    isolate_groups = isolate.groups,
+    generate = generate,
+    provider = provider,
+    model = model,
+    statistical_source = "single_FactoMineR_descfreq_call",
+    n_selected_evidence =
+      interpretation_evidence$metadata$n_selected_evidence
+  )
+
+  if (!isTRUE(generate)) {
+    return(
+      .attach_descfreq_artifacts(
+        x = prompts,
+        frequency_profiles = frequency_profiles,
+        interpretation_evidence = interpretation_evidence,
+        semantic_facing_evidence = semantic_facing_evidence,
+        descfreq_result = descfreq_result,
+        prompts = prompt_list,
+        responses = NULL,
+        settings = settings
       )
-      attr(out, "descfreq_result") <- res_df
-      return(out)
-    }
-
-    header <- glue::glue(
-      "# Introduction - Objective\n\n{introduction}\n\n",
-      "# Task\n\n{request}\n\n",
-      "---\n\n",
-      "# Data\n\n"
     )
-    out <- normalize_blank_lines(paste0(header, no_results_message))
-    attr(out, "descfreq_result") <- res_df
-    return(out)
   }
 
-  if (!generate) {
-    attr(ppt, "descfreq_result") <- res_df
-    return(ppt)
-  }
-
-  extra_args <- list(...)
-  llm_api_options <- extra_args
+  n_selected <- interpretation_evidence$metadata$n_selected_evidence
+  llm_api_options <- list(...)
 
   .call_llm <- function(prompt) {
-    res_llm <- .call_llm_base(
+    raw <- .call_llm_base(
       provider = provider,
       model = model,
       prompt = prompt,
@@ -739,19 +1495,83 @@ nail_descfreq <- function(dataset,
       llm_api_options = llm_api_options
     )
 
-    list(prompt = prompt, response = res_llm, model = model)
+    response <- .descfreq_backend_response_text(raw)
+
+    list(
+      prompt = prompt,
+      response = response,
+      model = model
+    )
   }
 
-  if (!isolate.groups) {
-    out <- .call_llm(ppt)
-    attr(out, "descfreq_result") <- res_df
-    return(out)
+  if (!isTRUE(isolate.groups)) {
+    if (n_selected == 0L) {
+      out <- .descfreq_no_evidence_result(
+        model = model,
+        prompt = prompts
+      )
+      responses <- NULL
+    } else {
+      out <- .call_llm(prompts)
+      responses <- list(
+        all_rows = out$response
+      )
+    }
+
+    return(
+      .attach_descfreq_artifacts(
+        x = out,
+        frequency_profiles = frequency_profiles,
+        interpretation_evidence = interpretation_evidence,
+        semantic_facing_evidence = semantic_facing_evidence,
+        descfreq_result = descfreq_result,
+        prompts = prompt_list,
+        responses = responses,
+        settings = settings
+      )
+    )
   }
 
-  res_list <- lapply(ppt, .call_llm)
-  if (!is.null(names(ppt))) {
-    names(res_list) <- names(ppt)
+  row_names <- names(prompts)
+  out <- stats::setNames(
+    vector("list", length(row_names)),
+    row_names
+  )
+  responses <- list()
+
+  for (row_name in row_names) {
+    row_status <- interpretation_evidence$rows[[row_name]]$status
+
+    if (identical(row_status, "ready")) {
+      out[[row_name]] <- .call_llm(
+        prompts[[row_name]]
+      )
+      responses[[row_name]] <- out[[row_name]]$response
+    } else {
+      out[[row_name]] <- .descfreq_no_evidence_result(
+        model = model,
+        prompt = prompts[[row_name]],
+        message = paste0(
+          "No selected statistical evidence found for row '",
+          row_name,
+          "'."
+        )
+      )
+    }
   }
-  attr(res_list, "descfreq_result") <- res_df
-  res_list
+
+  if (length(responses) == 0L) {
+    responses <- NULL
+  }
+
+  .attach_descfreq_artifacts(
+    x = out,
+    frequency_profiles = frequency_profiles,
+    interpretation_evidence = interpretation_evidence,
+    semantic_facing_evidence = semantic_facing_evidence,
+    descfreq_result = descfreq_result,
+    prompts = prompt_list,
+    responses = responses,
+    settings = settings
+  )
 }

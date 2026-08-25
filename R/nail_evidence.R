@@ -18,6 +18,13 @@
       unit_type = "dimension",
       analysis = "nail_qda_space"
     ),
+    frequency_profiles = list(
+      attribute = "frequency_profiles",
+      class = "nail_descfreq_frequency_profiles",
+      units = "rows",
+      unit_type = "row",
+      analysis = "nail_descfreq"
+    ),
     textual_evidence = list(
       attribute = "textual_evidence",
       class = "nail_textual_evidence",
@@ -98,8 +105,8 @@
     paste(
       "No canonical NaileR evidence could be found in `x`.",
       "Use a result from a rebuilt evidence-first function such as",
-      "`nail_catdes()`, `nail_condes()`, `nail_qda()`, `nail_textual()`,",
-      "`nail_qda_space()`, or `nail_catdes_textual()`."
+      "`nail_catdes()`, `nail_condes()`, `nail_qda()`, `nail_descfreq()`,",
+      "`nail_textual()`, `nail_qda_space()`, or `nail_catdes_textual()`."
     ),
     call. = FALSE
   )
@@ -429,6 +436,7 @@
 #' * [nail_catdes()] -> `statistical_profiles`;
 #' * [nail_condes()] -> `continuous_profile`;
 #' * [nail_qda()] -> `product_profiles`;
+#' * [nail_descfreq()] -> `frequency_profiles`;
 #' * [nail_textual()] -> `textual_evidence`;
 #' * [nail_qda_space()] -> `qda_space_evidence`;
 #' * [nail_catdes_textual()] -> `contextualized_evidence`.
@@ -439,13 +447,14 @@
 #' @param x A rebuilt NaileR analysis result, or a canonical NaileR evidence
 #'   object.
 #' @param select Optional evidence-unit selector. Use a group name for CATDES
-#'   or textual evidence, a product name for QDA evidence, a dimension name for
-#'   QDA-space evidence, or a positive integer position. For CONDES, which has
+#'   or textual evidence, a product name for QDA evidence, a row name for
+#'   DESCFREQ evidence, a dimension name for QDA-space evidence, or a positive
+#'   integer position. For CONDES, which has
 #'   one target, `select = 1` or the target variable name returns the complete
 #'   continuous profile.
 #'
 #' @return With `select = NULL`, the complete canonical evidence object. With
-#'   `select` supplied, the selected group, product, or dimension evidence.
+#'   `select` supplied, the selected group, product, row, or dimension evidence.
 #'   For textual evidence, a selected group also contains a `texts` data frame
 #'   with the exact registered texts belonging to that group.
 #'
