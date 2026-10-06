@@ -84,6 +84,36 @@ validate_qda_inputs <- function(dataset, formul, firstvar, lastvar,
 }
 
 
+validate_qda_default_blocks <- function(default_blocks) {
+  allowed <- c("reading", "interpretation", "local_task")
+
+  if (!is.character(default_blocks) || anyNA(default_blocks)) {
+    stop(
+      "`default_blocks` must be a character vector containing only: reading, interpretation, local_task.",
+      call. = FALSE
+    )
+  }
+
+  unknown <- setdiff(default_blocks, allowed)
+  if (length(unknown) > 0L) {
+    stop(
+      sprintf(
+        "Unknown QDA default block(s): %s. Allowed blocks are: %s.",
+        paste(sprintf("'%s'", unknown), collapse = ", "),
+        paste(allowed, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (anyDuplicated(default_blocks)) {
+    stop("`default_blocks` must not contain duplicated block names.", call. = FALSE)
+  }
+
+  default_blocks
+}
+
+
 # ===========================================================================
 # Mechanical helpers
 # ===========================================================================
@@ -1028,12 +1058,12 @@ validate_qda_inputs <- function(dataset, formul, firstvar, lastvar,
 # Prompt builders
 # ===========================================================================
 
-build_guide_qda <- function(proba = 0.05,
-                            sample.pct = 1,
-                            sample.method = c("stratified", "top"),
-                            drop.negative = FALSE,
-                            prompt_style = c("detailed", "compact"),
-                            product_knowledge = c("known", "unknown")) {
+.build_qda_guide_blocks <- function(proba = 0.05,
+                                    sample.pct = 1,
+                                    sample.method = c("stratified", "top"),
+                                    drop.negative = FALSE,
+                                    prompt_style = c("detailed", "compact"),
+                                    product_knowledge = c("known", "unknown")) {
   prompt_style <- match.arg(prompt_style)
   product_knowledge <- match.arg(product_knowledge)
   sample.method <- match.arg(sample.method)
@@ -1088,39 +1118,70 @@ build_guide_qda <- function(proba = 0.05,
     "Do not invent a new empirical sensory attribute that is not supported by the displayed evidence.",
     "A higher-level sensory concept is allowed when it is a reasonable synthesis of several displayed attributes; present it as an interpretation, not as a directly measured attribute.",
     "Do not turn associations into causal explanations.",
-    "If you move beyond direct sensory description, make clear that you are offering an interpretation or hypothesis."
+    "If you move beyond direct sensory description, make clear that you are offering an interpretation or hypothesis.",
+    "Preserve the direction of every displayed fact: HIGHER means more of the named attribute and LOWER means less of the named attribute.",
+    "Do not turn a LOWER attribute into a positive presence of that attribute or infer an opposite attribute that was not measured.",
+    "Do not change the technical meaning of an attribute or introduce unsupported sensory descriptors.",
+    "Do not present a synthesis as a directly measured sensory fact, and do not introduce unsupported hedonic, evaluative, marketing, positioning, or causal claims."
+  )
+
+  relative_interpretation <- c(
+    "Interpret every HIGHER/LOWER result relative to the average product profile.",
+    "Prefer:",
+    "- \"more marked by [attribute]\" for HIGHER;",
+    "- \"less marked by [attribute]\" for LOWER.",
+    "Preserve this relative meaning when building the overall sensory interpretation."
   )
 
   labels <- if (product_knowledge == "known") {
-    "Product labels are meaningful identifiers. Preserve them and do not rename the products."
+    paste(
+      "Product labels are meaningful identifiers. Preserve them as identifiers.",
+      "A descriptive name may supplement the identifier when requested, but it must not replace the original product label."
+    )
   } else {
     "Stimulus labels are identifiers only. A short descriptive name may be proposed when the sensory evidence is sufficiently coherent."
   }
 
-  if (prompt_style == "compact") {
-    return(
-      paste(
-        c(
-          common[1:2],
-          common[3],
-          selection,
-          epistemic[1:4],
-          labels
-        ),
-        collapse = "\n"
-      )
-    )
+  reading <- if (prompt_style == "compact") {
+    c(common[-1L], selection)
+  } else {
+    c(common[-1L], "", selection)
   }
+
+  interpretation <- if (prompt_style == "compact") {
+    c(epistemic[1:4], relative_interpretation, labels)
+  } else {
+    c(epistemic, relative_interpretation, labels)
+  }
+
+  list(
+    reading = paste(reading, collapse = "\n"),
+    interpretation = paste(interpretation, collapse = "\n")
+  )
+}
+
+
+build_guide_qda <- function(proba = 0.05,
+                            sample.pct = 1,
+                            sample.method = c("stratified", "top"),
+                            drop.negative = FALSE,
+                            prompt_style = c("detailed", "compact"),
+                            product_knowledge = c("known", "unknown")) {
+  blocks <- .build_qda_guide_blocks(
+    proba = proba,
+    sample.pct = sample.pct,
+    sample.method = sample.method,
+    drop.negative = drop.negative,
+    prompt_style = prompt_style,
+    product_knowledge = product_knowledge
+  )
 
   paste(
     c(
-      common,
+      "## How to Read the Evidence",
+      blocks$reading,
       "",
-      selection,
-      "",
-      epistemic,
-      "",
-      labels
+      blocks$interpretation
     ),
     collapse = "\n"
   )
@@ -1139,7 +1200,8 @@ build_request_qda <- function(isolate_groups = FALSE,
         paste(
           "Using only the evidence below, interpret this product as a coherent relative sensory profile.",
           "Identify the dominant sensory pattern, distinguish central from secondary evidence, and explain what makes the product distinctive relative to the average product profile.",
-          "Do not rename the product and do not claim specific pairwise differences that are not shown.",
+          "Preserve the product label as its identifier; a descriptive name, when requested, supplements rather than replaces it.",
+          "Do not claim specific pairwise differences that are not shown.",
           sep = "\n"
         )
       )
@@ -1191,7 +1253,7 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
           "End with:",
           "1. **Core sensory profile** - one concise synthesis of the product.",
           "2. **Main supporting evidence** - the most important retained sensory facts.",
-          "3. **Distinctive interpretation** - what this profile suggests relative to the evaluated set, without renaming the product.",
+          "3. **Distinctive interpretation** - what this profile suggests relative to the evaluated set, without replacing the product identifier.",
           "",
           "# Output format",
           "Your output must be **formatted using valid Quarto Markdown**.",
@@ -1242,6 +1304,193 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
     "# Output format",
     "Your output must be **formatted using valid Quarto Markdown**.",
     sep = "\n"
+  )
+}
+
+
+.build_qda_local_task <- function(product_name = NULL,
+                                  isolate_groups = FALSE,
+                                  product_knowledge = c("known", "unknown")) {
+  product_knowledge <- match.arg(product_knowledge)
+
+  if (!isTRUE(isolate_groups)) {
+    return(
+      paste(
+        "Interpret the complete set of products or stimuli shown below as",
+        "coherent sensory profiles and compare their supported patterns.",
+        sep = "\n"
+      )
+    )
+  }
+
+  unit <- if (identical(product_knowledge, "known")) {
+    "product"
+  } else {
+    "stimulus"
+  }
+
+  identifier_rule <- if (identical(product_knowledge, "known")) {
+    paste0("Preserve \"", product_name, "\" as its product identifier.")
+  } else {
+    paste0(
+      "Treat \"", product_name,
+      "\" as an identifier; propose a descriptive sensory name only if supported."
+    )
+  }
+
+  paste(
+    paste0("Interpret only ", unit, " \"", product_name, "\"."),
+    identifier_rule,
+    sep = "\n"
+  )
+}
+
+
+.format_qda_output_block <- function(conclusion,
+                                     conclusion_supplied = FALSE) {
+  if (is.null(conclusion) || !nzchar(trimws(conclusion))) {
+    stop("QDA final interpretation requirements cannot be empty.", call. = FALSE)
+  }
+
+  body <- conclusion
+  if (!isTRUE(conclusion_supplied)) {
+    body <- sub("^# Final Summary Task\\s*", "", body)
+  }
+
+  body
+}
+
+
+.render_qda_prompt_blocks <- function(blocks) {
+  section_values <- list(
+    c("# Introduction", blocks$context),
+    if (!is.null(blocks$reading)) {
+      c("## How to Read the Evidence", blocks$reading)
+    },
+    c("# Analytical Question", blocks$question),
+    if (!is.null(blocks$interpretation)) {
+      c("## Interpretation Rules", blocks$interpretation)
+    },
+    if (!is.null(blocks$local_task)) {
+      c("# Local Task", blocks$local_task)
+    },
+    c("# Data", blocks$evidence),
+    c("## Reusable NaileR Metadata", blocks$reusable),
+    c("# Final Interpretation Requirements", blocks$output)
+  )
+
+  section_values <- Filter(
+    function(value) !is.null(value) && length(value) > 0L,
+    section_values
+  )
+
+  normalize_blank_lines(
+    paste(
+      vapply(
+        section_values,
+        function(value) paste(value, collapse = "\n\n"),
+        character(1)
+      ),
+      collapse = "\n\n---\n\n"
+    )
+  )
+}
+
+
+.build_qda_prompt_bundle <- function(semantic_facing_evidence,
+                                     context,
+                                     question,
+                                     interpretation,
+                                     reusable,
+                                     output,
+                                     isolate_groups = FALSE,
+                                     product_knowledge = c("known", "unknown"),
+                                     default_blocks = c(
+                                       "reading",
+                                       "interpretation",
+                                       "local_task"
+                                     )) {
+  product_knowledge <- match.arg(product_knowledge)
+  default_blocks <- validate_qda_default_blocks(default_blocks)
+  product_names <- names(semantic_facing_evidence$products)
+
+  if (length(product_names) == 0L) {
+    stop(
+      "No QDA product evidence is available for prompt construction.",
+      call. = FALSE
+    )
+  }
+
+  reusable <- sub(
+    "^## Reusable product interpretation metadata\\s*",
+    "",
+    reusable
+  )
+
+  make_blocks <- function(product_name, evidence) {
+    blocks <- list(
+      context = context,
+      reading = if ("reading" %in% default_blocks) interpretation$reading else NULL,
+      question = question,
+      interpretation = if ("interpretation" %in% default_blocks) {
+        interpretation$interpretation
+      } else {
+        NULL
+      },
+      local_task = if ("local_task" %in% default_blocks) {
+        .build_qda_local_task(
+          product_name = product_name,
+          isolate_groups = isolate_groups,
+          product_knowledge = product_knowledge
+        )
+      } else {
+        NULL
+      },
+      evidence = evidence,
+      reusable = reusable,
+      output = output
+    )
+
+    blocks
+  }
+
+  if (!isTRUE(isolate_groups)) {
+    evidence <- paste(
+      vapply(
+        product_names,
+        function(product_name) {
+          semantic_facing_evidence$products[[product_name]]$prompt_text
+        },
+        character(1)
+      ),
+      collapse = "\n\n---\n\n"
+    )
+    blocks <- list(
+      portfolio = make_blocks(
+        product_name = NULL,
+        evidence = evidence
+      )
+    )
+  } else {
+    blocks <- stats::setNames(
+      lapply(
+        product_names,
+        function(product_name) {
+          make_blocks(
+            product_name = product_name,
+            evidence = semantic_facing_evidence$products[[product_name]]$prompt_text
+          )
+        }
+      ),
+      product_names
+    )
+  }
+
+  prompts <- lapply(blocks, .render_qda_prompt_blocks)
+
+  list(
+    blocks = blocks,
+    prompts = prompts
   )
 }
 
@@ -1328,6 +1577,7 @@ get_prompt_qda <- function(semantic_facing_evidence,
                                   product_profiles,
                                   interpretation_evidence,
                                   semantic_facing_evidence,
+                                  prompt_blocks,
                                   prompts,
                                   responses,
                                   decat_result,
@@ -1358,6 +1608,7 @@ get_prompt_qda <- function(semantic_facing_evidence,
   attr(x, "product_interpretations") <- product_interpretations
   attr(x, "interpretation_evidence") <- interpretation_evidence
   attr(x, "semantic_facing_evidence") <- semantic_facing_evidence
+  attr(x, "qda_prompt_blocks") <- prompt_blocks
   attr(x, "qda_prompts") <- prompt_list
 
   # Temporary compatibility views for the current qda_space implementation.
@@ -1395,8 +1646,8 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'
 #' The canonical `product_profiles` object is invariant to `generate`,
 #' `isolate.groups`, `sample.pct`, `sample.method`, `drop.negative`,
-#' `prompt_style`, and `product_knowledge`. These arguments only affect the
-#' interpretation layer.
+#' `prompt_style`, `product_knowledge`, and `default_blocks`. These arguments
+#' only affect the interpretation layer.
 #'
 #' @param dataset A data frame containing the product factor, panelist/design
 #'   variables, and quantitative sensory attributes.
@@ -1428,6 +1679,10 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'   `"unknown"` for identifier-like stimulus labels.
 #' @param generate If `FALSE`, build prompt(s) without calling an LLM. If
 #'   `TRUE`, call the selected backend.
+#' @param default_blocks QDA-specific default semantic blocks to include in
+#'   the prompt. Allowed values are `"reading"`, `"interpretation"`, and
+#'   `"local_task"`. The evidence and reusable metadata blocks are always
+#'   included. The default keeps all three blocks.
 #' @param ... Additional provider-specific generation arguments.
 #'
 #' @return For backward compatibility, the outer return type remains:
@@ -1445,6 +1700,8 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'     reusable blocks are marked `parse_failed` rather than reconstructed.
 #'   * `interpretation_evidence`: deterministic subset selected for the LLM.
 #'   * `semantic_facing_evidence`: explicit factual sensory statements.
+#'   * `qda_prompt_blocks`: QDA-specific ordered prompt blocks used to render
+#'     each exact prompt.
 #'   * `llm_io`: exact prompts and raw LLM responses used by
 #'     [nail_prompt()] and [nail_response()].
 #'   * `decat_result`: original standardized `decat()` result.
@@ -1470,11 +1727,19 @@ nail_qda <- function(dataset, formul, firstvar,
                      prompt_style = c("detailed", "compact"),
                      product_knowledge = c("known", "unknown"),
                      generate = FALSE,
+                     default_blocks = c(
+                       "reading",
+                       "interpretation",
+                       "local_task"
+                     ),
                      ...) {
   prompt_style <- match.arg(prompt_style)
   product_knowledge <- match.arg(product_knowledge)
   provider <- match.arg(provider)
   sample.method <- match.arg(sample.method)
+  default_blocks <- validate_qda_default_blocks(default_blocks)
+
+  conclusion_supplied <- !is.null(conclusion)
 
   validate_qda_inputs(
     dataset = dataset,
@@ -1520,32 +1785,6 @@ nail_qda <- function(dataset, formul, firstvar,
     )
   }
 
-  # The visible PASS1 answer remains free to follow the requested reporting
-  # style, but it also carries a compact hidden product interpretation block
-  # that can be parsed and reused downstream without a second LLM call.
-  conclusion <- paste(
-    conclusion,
-    .build_qda_product_interpretation_instruction(
-      product_knowledge = product_knowledge
-    ),
-    sep = "\n\n"
-  )
-
-  guide <- build_guide_qda(
-    proba = proba,
-    sample.pct = sample.pct,
-    sample.method = sample.method,
-    drop.negative = drop.negative,
-    prompt_style = prompt_style,
-    product_knowledge = product_knowledge
-  )
-
-  prompt_introduction <- paste(
-    introduction,
-    guide,
-    sep = "\n\n---\n\n"
-  )
-
   res_cd <- SensoMineR::decat(
     dataset,
     formul = formul,
@@ -1588,13 +1827,33 @@ nail_qda <- function(dataset, formul, firstvar,
     product_knowledge = product_knowledge
   )
 
-  prompts <- get_prompt_qda(
-    semantic_facing_evidence = semantic_facing_evidence,
-    introduction = prompt_introduction,
-    request = request,
-    conclusion = conclusion,
-    isolate_groups = isolate.groups
+  guide_blocks <- .build_qda_guide_blocks(
+    proba = proba,
+    sample.pct = sample.pct,
+    sample.method = sample.method,
+    drop.negative = drop.negative,
+    prompt_style = prompt_style,
+    product_knowledge = product_knowledge
   )
+
+  prompt_blocks <- .build_qda_prompt_bundle(
+    semantic_facing_evidence = semantic_facing_evidence,
+    context = introduction,
+    question = request,
+    interpretation = guide_blocks,
+    reusable = .build_qda_product_interpretation_instruction(
+      product_knowledge = product_knowledge
+    ),
+    output = .format_qda_output_block(
+      conclusion,
+      conclusion_supplied = conclusion_supplied
+    ),
+    isolate_groups = isolate.groups,
+    product_knowledge = product_knowledge,
+    default_blocks = default_blocks
+  )
+
+  prompts <- prompt_blocks$prompts
 
   profile_summary <- .build_profile_summary_compat_qda(
     product_profiles = product_profiles,
@@ -1614,6 +1873,7 @@ nail_qda <- function(dataset, formul, firstvar,
     isolate_groups = isolate.groups,
     prompt_style = prompt_style,
     product_knowledge = product_knowledge,
+    default_blocks = default_blocks,
     generate = generate,
     provider = provider,
     model = model
@@ -1632,6 +1892,7 @@ nail_qda <- function(dataset, formul, firstvar,
         product_profiles = product_profiles,
         interpretation_evidence = interpretation_evidence,
         semantic_facing_evidence = semantic_facing_evidence,
+        prompt_blocks = prompt_blocks$blocks,
         prompts = prompts,
         responses = NULL,
         decat_result = res_cd,
@@ -1666,6 +1927,7 @@ nail_qda <- function(dataset, formul, firstvar,
         product_profiles = product_profiles,
         interpretation_evidence = interpretation_evidence,
         semantic_facing_evidence = semantic_facing_evidence,
+        prompt_blocks = prompt_blocks$blocks,
         prompts = prompts,
         responses = list(
           portfolio = .qda_backend_response_text(result)
@@ -1692,6 +1954,7 @@ nail_qda <- function(dataset, formul, firstvar,
     product_profiles = product_profiles,
     interpretation_evidence = interpretation_evidence,
     semantic_facing_evidence = semantic_facing_evidence,
+    prompt_blocks = prompt_blocks$blocks,
     prompts = prompts,
     responses = raw_responses,
     decat_result = res_cd,

@@ -22,6 +22,7 @@ nail_qda(
   prompt_style = c("detailed", "compact"),
   product_knowledge = c("known", "unknown"),
   generate = FALSE,
+  default_blocks = c("reading", "interpretation", "local_task"),
   ...
 )
 }
@@ -73,6 +74,11 @@ available. \code{"top"} keeps only the statistically strongest eligible markers.
 \item{generate}{If \code{FALSE}, build prompt(s) without calling an LLM. If
 \code{TRUE}, call the selected backend.}
 
+\item{default_blocks}{QDA-specific default semantic blocks to include in
+the prompt. Allowed values are \code{"reading"}, \code{"interpretation"}, and
+\code{"local_task"}. The evidence and reusable metadata blocks are always
+included. The default keeps all three blocks.}
+
 \item{...}{Additional provider-specific generation arguments.}
 }
 \value{
@@ -91,6 +97,8 @@ When generation has not run, status is \code{not_generated}; malformed
 reusable blocks are marked \code{parse_failed} rather than reconstructed.
 \item \code{interpretation_evidence}: deterministic subset selected for the LLM.
 \item \code{semantic_facing_evidence}: explicit factual sensory statements.
+\item \code{qda_prompt_blocks}: QDA-specific ordered prompt blocks used to render
+each exact prompt.
 \item \code{llm_io}: exact prompts and raw LLM responses used by
 \code{\link[=nail_prompt]{nail_prompt()}} and \code{\link[=nail_response]{nail_response()}}.
 \item \code{decat_result}: original standardized \code{decat()} result.
@@ -110,6 +118,6 @@ explicit sensory facts derived from the selected evidence.
 \details{
 The canonical \code{product_profiles} object is invariant to \code{generate},
 \code{isolate.groups}, \code{sample.pct}, \code{sample.method}, \code{drop.negative},
-\code{prompt_style}, and \code{product_knowledge}. These arguments only affect the
-interpretation layer.
+\code{prompt_style}, \code{product_knowledge}, and \code{default_blocks}. These arguments
+only affect the interpretation layer.
 }
