@@ -320,8 +320,11 @@ test_that("standard and latent local tasks preserve target status", {
 
   expect_match(standard$A, "without renaming it", fixed = TRUE)
   expect_match(standard$A, "category name is contextual information, not statistical evidence", fixed = TRUE)
+  expect_match(standard$A, "higher-level interpretation", fixed = TRUE)
+  expect_match(standard$A, "contextual hypothesis", fixed = TRUE)
   expect_match(latent$A, "propose one concise interpretive name", fixed = TRUE)
   expect_match(latent$A, "current labels are identifiers", fixed = TRUE)
+  expect_false(grepl("do not rename", tolower(latent$A), fixed = TRUE))
 })
 
 test_that("semantic-facing projection never mutates canonical statistical profiles", {

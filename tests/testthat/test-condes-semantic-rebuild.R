@@ -222,6 +222,24 @@ test_that("standard and latent prompts use different semantic tasks", {
   )
 
   expect_match(
+    p_standard,
+    "broader substantive interpretation",
+    fixed = TRUE
+  )
+
+  expect_match(
+    p_standard,
+    "Keeping the observed target name does not prevent",
+    fixed = TRUE
+  )
+
+  expect_match(
+    p_standard,
+    "do not treat contextual information as statistical evidence",
+    fixed = TRUE
+  )
+
+  expect_match(
     p_latent,
     "What separates the higher end from the lower end",
     fixed = TRUE
@@ -231,6 +249,14 @@ test_that("standard and latent prompts use different semantic tasks", {
     p_latent,
     "propose one concise name",
     ignore.case = TRUE
+  )
+
+  expect_false(
+    grepl(
+      "Do not rename the target",
+      p_latent,
+      fixed = TRUE
+    )
   )
 
   expect_false(

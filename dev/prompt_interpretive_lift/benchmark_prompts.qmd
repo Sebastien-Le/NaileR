@@ -1,0 +1,266 @@
+---
+title: "NaileR interpretive-lift blind benchmark"
+format:
+  pdf:
+    include-in-header:
+      - text: |
+          \usepackage{fvextra}
+          \usepackage{pdflscape}
+          \usepackage{tabularx}
+          \usepackage{array}
+          \usepackage{booktabs}
+          \RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines=true,breakanywhere=true,fontsize=\small}
+execute:
+  echo: false
+  results: asis
+  warning: false
+  message: false
+---
+
+This report is intentionally rendered only after the blinded responses have
+been collected. It contains no condition reveal.
+
+## Method
+
+The benchmark compares two prompt conditions. Every pair was generated with
+the same statistical evidence, data, options, introduction, request,
+provider, model, and full sampling (`sample.pct = 1` where available).
+`generate = FALSE` was used throughout the preparation step.
+
+```{r, results='asis'}
+library(knitr)
+
+case_catalog <- data.frame(
+  case_id = sprintf("CASE_%02d", 1:7),
+  `function` = c("nail_qda", "nail_condes", "nail_condes", "nail_catdes",
+                 "nail_catdes", "nail_descfreq", "nail_textual"),
+  mode = c("product profile", "standard", "latent", "standard", "latent",
+           "description", "grouped textual responses"),
+  data = c("SensoMineR::sensochoc", "FactoMineR::decathlon, Points",
+           "FactoMineR::decathlon PCA Dim1", "datasets::iris, Species",
+           "NaileR::atomic_habit_clust, constructed groups",
+           "NaileR::beard_cont", "NaileR::fabric, Fabric == 'A'"),
+  selected = c("choc1", "<all>", "<all>", "setosa", "1", "B1", "0"),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+case_code <- c(
+  "data(chocolates, package = 'SensoMineR'); nail_qda(sensochoc, '~Product+Panelist', firstvar = 5, isolate.groups = TRUE, sample.pct = 1, generate = FALSE)",
+  "data(decathlon, package = 'FactoMineR'); nail_condes(decathlon, num.var = 12, interpretation_mode = 'standard', sample.pct = 1, generate = FALSE)",
+  "pca <- FactoMineR::PCA(decathlon[, 1:10], scale.unit = TRUE, graph = FALSE); work <- data.frame(Dim1 = pca$ind$coord[, 1], decathlon[, 1:10]); nail_condes(work, num.var = 1, interpretation_mode = 'latent', target_label = 'Dim1', sample.pct = 1, generate = FALSE)",
+  "data(iris); nail_catdes(iris, num.var = 5, interpretation_mode = 'standard', isolate.groups = TRUE, quali.sample = 1, quanti.sample = 1, generate = FALSE)",
+  "data(atomic_habit_clust, package = 'NaileR'); work <- atomic_habit_clust[, c(1:20, 51)]; nail_catdes(work, num.var = ncol(work), interpretation_mode = 'latent', isolate.groups = TRUE, quali.sample = 1, quanti.sample = 1, generate = FALSE)",
+  "data(beard_cont, package = 'NaileR'); nail_descfreq(beard_cont, interpretation_mode = 'description', isolate.groups = TRUE, sample.pct = 1, generate = FALSE)",
+  "data(fabric, package = 'NaileR'); work <- droplevels(fabric[fabric$Fabric == 'A', , drop = FALSE]); nail_textual(work, num.var = 4, num.text = 3, isolate.groups = TRUE, sample.pct = 1, seed = 123, generate = FALSE)"
+)
+
+case_catalog$code <- case_code
+for (i in seq_len(nrow(case_catalog))) {
+  cat("- `", case_catalog$case_id[i], "` — ", case_catalog$`function`[i],
+      " (", case_catalog$mode[i], "; ", case_catalog$data[i], "; unité: ",
+      case_catalog$selected[i], ")\n", sep = "")
+}
+```
+
+## Evidence verification
+
+The preparation run compared the hashes of the complete canonical evidence and
+the selected evidence for each pair. Every pair matched. The latent cases are
+also expected to have identical prompts because their prompt branches were not
+part of the interpretive-lift change.
+
+```{r}
+evidence_check <- data.frame(
+  case_id = sprintf("CASE_%02d", 1:7),
+  complete_evidence = c(
+    "6ef6cb8c60ca485a3c9bcc1b0412f059",
+    "6f1cc1d39a055a78145aa2ca3d2dd519",
+    "fac0e30ae7e3a9294acab10184128d38",
+    "0dee715e69b4919aed1192d70f4b13f5",
+    "f4e964ce5ab2df4e8e7521e0a7be2501",
+    "8cc93cf8ad746d6b614a13dac99d006d",
+    "6440b230c56e124ae167bab5c05489a2"
+  ),
+  selected_evidence = c(
+    "34bc4f42b5bda1302b1654f83fd4369f",
+    "6f1cc1d39a055a78145aa2ca3d2dd519",
+    "fac0e30ae7e3a9294acab10184128d38",
+    "8ffe8c7621222ac3dab47dfe9d5911d7",
+    "828613412e67933609c2e30ecb933fb7",
+    "04dc257731a4d1c6bc674862c9f7be3f",
+    "4208a06ae173b7fcda739090ea0bd300"
+  ),
+  identical_within_pair = TRUE,
+  stringsAsFactors = FALSE
+)
+kable(evidence_check[, c("case_id", "identical_within_pair")])
+```
+
+## Blind prompt and response review
+
+```{r, results='asis'}
+read_block <- function(path, blind_id) {
+  lines <- readLines(path, warn = FALSE, encoding = "UTF-8")
+  begin <- match(paste0("===== ", blind_id, " ====="), lines)
+  end <- match(paste0("===== END ", blind_id, " ====="), lines)
+  if (is.na(begin) || is.na(end) || end <= begin) {
+    stop("Missing block: ", blind_id)
+  }
+  paste(lines[(begin + 1):(end - 1)], collapse = "\n")
+}
+
+block_ids <- function(path, prefix = "CASE_") {
+  lines <- readLines(path, warn = FALSE, encoding = "UTF-8")
+  starts <- lines[grepl(paste0("^===== ", prefix), lines)]
+  gsub("^===== | =====$", "", starts)
+}
+
+prompt_ids <- block_ids("prompt_bundle_blinded.md")
+response_ids <- block_ids("responses_blinded.md")
+stopifnot(
+  length(prompt_ids) == 14L,
+  length(response_ids) == 14L,
+  length(unique(prompt_ids)) == 14L,
+  length(unique(response_ids)) == 14L,
+  setequal(prompt_ids, response_ids)
+)
+
+for (case_id in case_catalog$case_id) {
+  case_row <- case_catalog[case_catalog$case_id == case_id, , drop = FALSE]
+  evidence_row <- evidence_check[evidence_check$case_id == case_id, , drop = FALSE]
+  cat("\n## ", case_id, "\n\n", sep = "")
+  cat("**Function:** ", case_row$`function`, "  \n", sep = "")
+  cat("**Mode:** ", case_row$mode, "  \n", sep = "")
+  cat("**Data:** ", case_row$data, "  \n", sep = "")
+  cat("**Selected unit:** ", case_row$selected, "\n\n", sep = "")
+  cat("**Minimal R code**\n\n```r\n", case_row$code, "\n```\n\n", sep = "")
+  cat("**Evidence check:** complete and selected evidence hashes match within the pair;",
+      "the statistical evidence is identical.\n\n", sep = " ")
+  for (blind_id in paste0(case_id, c("_X", "_Y"))) {
+    cat("### Condition ", substr(blind_id, nchar(blind_id), nchar(blind_id)),
+        " (", blind_id, ")\n\n", sep = "")
+    cat("#### Prompt exact\n\n```text\n", read_block("prompt_bundle_blinded.md", blind_id),
+        "\n```\n\n", sep = "")
+    cat("#### Réponse ChatGPT exacte\n\n```text\n", read_block("responses_blinded.md", blind_id),
+        "\n```\n\n", sep = "")
+    cat("#### Evaluation\n\n")
+    cat("| Criterion | Score | Comment |\n|---|---:|---|\n")
+    cat("| Interpretive value |  |  |\n")
+    cat("| Grounding / traceability |  |  |\n")
+    cat("| Calibration |  |  |\n")
+    cat("| Synthesis |  |  |\n")
+    cat("| Unsupported overreach |  |  |\n")
+    cat("| Paraphrase tendency |  |  |\n\n")
+    cat("**Qualitative comment:**\n\n\n")
+  }
+}
+```
+
+For the first five criteria use `0 = insufficient`, `1 = acceptable`, and
+`2 = convincing`. For Paraphrase tendency use `0 = low`, `1 = moderate`, and
+`2 = high`. Add a qualitative comment for every criterion. Do not calculate a
+global score automatically.
+
+## Archived blind evaluation
+
+The following section is preserved verbatim from `blind_evaluation.md`. It was
+completed before the condition key was consulted; its scores, comments and
+blind preferences are not modified by the reveal below.
+
+```{r, results='asis'}
+cat(readLines("blind_evaluation.md", warn = FALSE, encoding = "UTF-8"),
+    sep = "\n")
+```
+
+# Condition reveal and conclusions
+
+The condition key is now consulted. The source-version mapping is displayed
+only in this final section.
+
+```{r, results='asis'}
+reveal <- data.frame(
+  case_id = sprintf("CASE_%02d", 1:7),
+  function_name = c("nail_qda", "nail_condes", "nail_condes", "nail_catdes",
+                    "nail_catdes", "nail_descfreq", "nail_textual"),
+  mode = c("product profile", "standard", "latent", "standard", "latent",
+           "description", "grouped textual responses"),
+  x_version = c("baseline_2.1.0", "baseline_2.1.0", "interpretive_lift",
+                "interpretive_lift", "interpretive_lift", "baseline_2.1.0",
+                "interpretive_lift"),
+  y_version = c("interpretive_lift", "interpretive_lift", "baseline_2.1.0",
+                "baseline_2.1.0", "baseline_2.1.0", "interpretive_lift",
+                "baseline_2.1.0"),
+  blind_preference = c("Y, avantage léger", "Y, avantage léger",
+                       "égalité, témoin inchangé", "X, avantage net",
+                       "égalité, témoin inchangé", "Y, avantage léger avec réserve",
+                       "X, avantage net"),
+  decision = c("KEEP", "KEEP", "UNCHANGED WITNESS", "KEEP", "UNCHANGED WITNESS",
+               "ADJUST", "KEEP"),
+  comment = c(
+    "Le concept sensoriel de niveau supérieur reste explicitement relié aux attributs affichés.",
+    "Le gain principal est une meilleure séparation entre synthèse substantive et résultat statistique.",
+    "Les prompts latent sont substantivement identiques ; la capacité de nommer le continuum reste le témoin de référence.",
+    "La synthèse morphologique apporte un lift interprétatif net sans perte de grounding.",
+    "Les prompts latent sont substantivement identiques. Le nom utile mais trop comportemental ‘adopters’ appelle une réserve indépendante.",
+    "Le lift est réel, mais le nom ‘Polished Urban Classic’ donne peut-être trop de poids aux signaux rares ‘Parisian bobo’ et ‘educated’.",
+    "La synthèse thématique construit une interprétation de niveau supérieur sans inventer de motivations cachées."
+  ),
+  stringsAsFactors = FALSE
+)
+
+for (i in seq_len(nrow(reveal))) {
+  cat("## ", reveal$case_id[i], " — ", reveal$function_name[i], " (",
+      reveal$mode[i], ")\n\n", sep = "")
+  cat("- **Condition X:** `", reveal$x_version[i], "`\n", sep = "")
+  cat("- **Condition Y:** `", reveal$y_version[i], "`\n", sep = "")
+  cat("- **Préférence aveugle :** ", reveal$blind_preference[i], "\n", sep = "")
+  cat("- **Décision :** `", reveal$decision[i], "`\n", sep = "")
+  cat("- **Commentaire :** ", reveal$comment[i], "\n\n", sep = "")
+}
+
+table_view <- reveal
+table_view$comment <- c(
+  "Grounded lift.",
+  "Clearer calibration.",
+  "Latent witness.",
+  "Grounded synthesis.",
+  "Naming caution.",
+  "Sparse-signal caution.",
+  "Grounded thematic lift."
+)
+cat("\\begin{landscape}\n\\scriptsize\n")
+cat("\\resizebox{\\linewidth}{!}{%\n")
+print(kable(table_view[, c("case_id", "function_name", "mode", "x_version", "y_version",
+                           "blind_preference", "decision", "comment")],
+            format = "latex", booktabs = TRUE, longtable = FALSE, escape = TRUE,
+            col.names = c("Case", "Function", "Mode", "Baseline condition",
+                          "Revised condition", "Blind preference", "Decision",
+                          "Comment")))
+cat("}\n")
+cat("\\end{landscape}\n")
+```
+
+## Cross-case conclusion
+
+The benchmark supports the hypothesis that the revised formulations increase
+interpretive lift without an important general degradation of grounding or
+epistemic calibration. The effect is not a generic permission to speculate:
+
+- **Interpretive lift:** the preferred revised responses more often synthesize
+  several displayed results into a defensible higher-level concept.
+- **Grounding:** the preferred interpretations retain identifiable support in
+  the displayed evidence; the latent witnesses remain unchanged.
+- **Calibration:** the strongest revised responses distinguish a statistical
+  fact from its substantive interpretation and from any broader hypothesis.
+- **Unsupported overreach:** no material degradation appears overall, but
+  DESCFREQ shows a concrete boundary case in which a concise label can amplify
+  sparse contextual signals. CATDES latent shows a separate naming issue: the
+  useful label `Broadly capable, low-constraint adopters` can suggest effective
+  adoption although the evidence concerns perceived capability and constraint.
+
+The central criterion remains whether the higher-level interpretation is
+reasonably defensible from the displayed evidence. A concept absent from the
+literal variable names is not automatically overreach when its supporting
+pattern is traceable. The appropriate next step is therefore selective
+calibration, not a general return to evidence-only paraphrase.

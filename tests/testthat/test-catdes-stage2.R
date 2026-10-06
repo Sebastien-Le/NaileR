@@ -269,8 +269,12 @@ test_that("standard and latent modes preserve the historical semantic contract",
 
   expect_match(standard, "Do not reinterpret the categories as latent profiles", fixed = TRUE)
   expect_match(standard, "do not rename them", fixed = TRUE)
+  expect_match(standard, "higher-level interpretation", fixed = TRUE)
+  expect_match(standard, "new statistical fact", fixed = TRUE)
+  expect_match(standard, "contextual hypothesis", fixed = TRUE)
   expect_match(latent, "meaning must be inferred from the results", fixed = TRUE)
   expect_match(latent, "propose a meaningful name for each group", fixed = TRUE)
+  expect_false(grepl("do not rename", tolower(latent), fixed = TRUE))
 })
 
 test_that("markdown formatting preserves ordinary r and n characters", {

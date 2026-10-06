@@ -212,19 +212,21 @@
 
   if (identical(prompt_style, "compact")) {
     return(paste(
-      "Using only the texts shown for this group, characterize its discourse.",
+      "Ground your characterization in the texts shown for this group and make its support traceable to recurring themes or texts.",
       "Identify the main recurring themes, assess whether a common interpretive",
-      "frame is present, and report meaningful internal diversity or tensions."
+      "frame is present, and report meaningful internal diversity or tensions.",
+      "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation and label it as an interpretation rather than a literal statement by respondents."
     ))
   }
 
   paste(
-    "Using only the texts shown for this group, characterize its discourse.",
+    "Ground your characterization in the texts shown for this group and make its support traceable to recurring themes or texts.",
     "Identify the core textual profile and the dominant recurring themes.",
     "Assess whether a common interpretive frame structures the responses.",
     "Distinguish a shared frame with variations from the coexistence of several",
     "different frames, and report meaningful internal diversity or tensions.",
-    "Stay close to the texts and do not infer hidden motives, personality traits,",
+    "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation and label it as an interpretation rather than a literal statement by respondents.",
+    "Do not infer hidden motives, personality traits, moral qualities,",
     "or attitudes that are not expressed in the corpus."
   )
 }
@@ -270,6 +272,8 @@
     "Do not assume that a statistical or observed group necessarily has a homogeneous discourse.",
     "Base the interpretation on recurring patterns across several texts.",
     "A shared discourse may consist of a common interpretive frame even when positions vary within that frame.",
+    "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation.",
+    "Distinguish that interpretation from what respondents literally expressed, and do not present it as a direct quotation or empirical fact stated by them.",
     "Do not treat the absence of a theme as evidence that the group rejects or ignores it.",
     "Do not infer hidden motives, personality traits, or moral qualities.",
     "Representative and tension texts must be referenced only by supplied text IDs."

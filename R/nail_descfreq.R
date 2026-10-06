@@ -897,9 +897,12 @@ build_request_descfreq <- function(isolate.groups = FALSE,
 
   if (isTRUE(isolate.groups)) {
     lines <- c(
-      "Using only the statistical facts below, interpret this row as a relative frequency profile.",
+      "Ground your interpretation in the statistical facts below and interpret this row as a relative frequency profile.",
       "Identify the attributes that most clearly characterize or distinguish it.",
-      "Do not infer causal explanations or properties that are not supported by the displayed frequency evidence."
+      "When several frequency patterns converge, you may synthesize them into a higher-level substantive characterization of the row.",
+      "Present that characterization as an interpretation of the profile, not as an additional directly observed frequency.",
+      "Do not invent a new empirical fact or causal explanation from the displayed frequencies.",
+      "A broader contextual extension is allowed only when it is clearly presented as an interpretation or hypothesis."
     )
 
     if (isTRUE(rows_are_ordered)) {
@@ -923,9 +926,12 @@ build_request_descfreq <- function(isolate.groups = FALSE,
 
   if (identical(interpretation_mode, "comparison")) {
     lines <- c(
-      "Using only the statistical facts below, compare the rows as relative frequency profiles.",
+      "Ground your comparison in the statistical facts below and compare the rows as relative frequency profiles.",
       "Identify the main contrasts and the attributes that distinguish the rows.",
-      "Do not interpret frequency differences as causal explanations."
+      "When several frequency patterns converge, you may synthesize them into higher-level substantive characterizations of the rows or their contrast.",
+      "Present those characterizations as interpretations of the profiles, not as additional directly observed frequencies.",
+      "Do not invent a new empirical fact or causal explanation from the displayed frequencies.",
+      "A broader contextual extension is allowed only when it is clearly presented as an interpretation or hypothesis."
     )
 
     if (isTRUE(rows_are_ordered)) {
@@ -953,9 +959,12 @@ build_request_descfreq <- function(isolate.groups = FALSE,
   }
 
   lines <- c(
-    "Using only the statistical facts below, describe each row as a relative frequency profile.",
+    "Ground your description in the statistical facts below and describe each row as a relative frequency profile.",
     "For each row, identify the main attributes that characterize or distinguish it.",
-    "Do not interpret frequency differences as causal explanations."
+    "When several frequency patterns converge, you may synthesize them into a higher-level substantive characterization of each row.",
+    "Present that characterization as an interpretation of the profile, not as an additional directly observed frequency.",
+    "Do not invent a new empirical fact or causal explanation from the displayed frequencies.",
+    "A broader contextual extension is allowed only when it is clearly presented as an interpretation or hypothesis."
   )
 
   if (isTRUE(rows_are_ordered)) {
@@ -1080,7 +1089,9 @@ build_guide_descfreq <- function(interpretation_mode = c("description", "compari
     "A higher relative frequency means that an attribute is over-represented in that row relative to the global table profile.",
     "A lower relative frequency means that an attribute is under-represented.",
     "Technical p-values and v-tests remain available in `nail_evidence()` for audit but are deliberately not used as semantic content in this prompt.",
-    "Prioritize coherent configurations of several attributes over isolated single signals."
+    "Prioritize coherent configurations of several attributes over isolated single signals.",
+    "A higher-level substantive characterization may synthesize several displayed frequency facts, but it is an interpretation of the profile rather than an additional measured frequency.",
+    "Build the main interpretation and any descriptive name primarily from the strongest coherent pattern. Rare or sparsely represented attributes may provide secondary contextual nuance, but they should not drive the descriptive name unless supported by several convergent signals."
   )
 
   if (identical(interpretation_mode, "comparison")) {

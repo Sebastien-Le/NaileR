@@ -532,6 +532,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
         return(paste(
           "Describe what characterizes each category and what distinguishes it from the others.",
           "For each category, identify the most distinctive results, distinguish strong evidence from more secondary evidence, and say whether the main differences seem expected, unexpected, or mixed.",
+          "You may synthesize several displayed results into a higher-level interpretation when the connection is reasonable and traceable; do not present that synthesis as a new statistical fact.",
           "Do not rename the categories.",
           sep = "\n"
         ))
@@ -539,6 +540,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
         return(paste(
           "Describe what characterizes this category.",
           "Identify the most distinctive results, distinguish strong evidence from more secondary evidence, and say whether the main characteristics seem expected, unexpected, or mixed.",
+          "You may synthesize several displayed results into a higher-level interpretation when the connection is reasonable and traceable; do not present that synthesis as a new statistical fact.",
           "Do not rename the category.",
           sep = "\n"
         ))
@@ -550,6 +552,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
         "Based on the results, describe what characterizes each category and what distinguishes it from the others.",
         "Use the results to clarify the meaning of each category, not to rename it.",
         "For each category, identify the most distinctive characteristics, distinguish the strongest results from the more secondary ones, and comment on whether the main differences seem expected, unexpected, or mixed given the apparent meaning of the categories.",
+        "You may synthesize several displayed characteristics into a higher-level interpretation when the connection is reasonable and traceable; do not present that synthesis as a new statistical fact.",
         "If some categories are more clearly defined than others, say so explicitly.",
         sep = "\n"
       ))
@@ -558,6 +561,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
         "Based on the results, describe what characterizes this category.",
         "Use the results to clarify the meaning of this category, not to rename it.",
         "Identify its most distinctive characteristics, distinguish the strongest results from the more secondary ones, and comment on whether its main characteristics seem expected, unexpected, or mixed given the apparent meaning of the category.",
+        "You may synthesize several displayed characteristics into a higher-level interpretation when the connection is reasonable and traceable; do not present that synthesis as a new statistical fact.",
         "If the evidence is weak, ambiguous, or only moderately distinctive, say so explicitly.",
         sep = "\n"
       ))
@@ -1493,6 +1497,17 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     )
   }
 
+  empirical_rule <- if (identical(interpretation_mode, "standard")) {
+    paste(
+      "Do not invent a new empirical characteristic or present a synthesis as if it were a direct statistical fact.",
+      "A higher-level interpretation is encouraged when it reasonably synthesizes several displayed facts and remains traceable to them.",
+      "A broader contextual hypothesis is allowed only when it is clearly identified as a hypothesis.",
+      sep = "\n"
+    )
+  } else {
+    "Do not invent an unlisted statistical characteristic."
+  }
+
   paste(
     "R has already performed the statistical analysis.",
     "Every line in the Data section is a plain-language factual statement mechanically derived from selected significant statistical markers.",
@@ -1500,7 +1515,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     "For binary qualitative variables, both significant sides of the binary contrast may be displayed together even when only one side entered the original sampling quota.",
     "For multi-level qualitative variables, only selected modalities are displayed.",
     "Facts listed under this group belong ONLY to this group.",
-    "Do not invent an unlisted statistical characteristic.",
+    empirical_rule,
     "Your role is to combine convergent facts into a higher-level semantic interpretation, not to recalculate the statistics or paraphrase every line.",
     mode_rule
   )
@@ -1512,7 +1527,10 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       "Interpret ONLY the observed category shown below.",
       "Combine its qualitative and quantitative facts to identify the strongest convergent semantic pattern.",
       "Explain what characterizes this category without renaming it.",
-      "Do not infer characteristics that are not listed below and do not compare it with unseen categories."
+      "Do not invent a new empirical characteristic or present a synthesis as if it were a direct statistical fact.",
+      "A higher-level interpretation is encouraged when it reasonably synthesizes several listed facts and remains traceable to them.",
+      "A broader contextual hypothesis is allowed only when it is clearly identified as a hypothesis.",
+      "Do not compare it with unseen categories."
     ))
   }
 

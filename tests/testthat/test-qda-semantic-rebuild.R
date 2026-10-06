@@ -112,6 +112,38 @@ test_that("QDA product_profiles are invariant to interpretation options", {
 })
 
 
+test_that("QDA prompts allow traceable higher-level sensory concepts", {
+  x <- do.call(
+    nail_qda,
+    c(
+      qda_semantic_args(),
+      list(
+        isolate.groups = TRUE,
+        generate = FALSE
+      )
+    )
+  )
+
+  prompt <- nail_prompt(x, select = "A", print = FALSE)
+
+  expect_match(
+    prompt,
+    "higher-level sensory concept",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "reasonable synthesis of several displayed attributes",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "not as a directly measured attribute",
+    fixed = TRUE
+  )
+})
+
+
 test_that("QDA selection is deterministic and separate from product_profiles", {
   args <- qda_semantic_args()
 

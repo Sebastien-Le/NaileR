@@ -1085,7 +1085,8 @@ build_guide_qda <- function(proba = 0.05,
 
   epistemic <- c(
     "Interpret the retained attributes as a sensory profile: first identify the coherent pattern formed by the bundle, then use individual facts to justify that interpretation.",
-    "Do not invent sensory attributes that are not supported by the displayed evidence.",
+    "Do not invent a new empirical sensory attribute that is not supported by the displayed evidence.",
+    "A higher-level sensory concept is allowed when it is a reasonable synthesis of several displayed attributes; present it as an interpretation, not as a directly measured attribute.",
     "Do not turn associations into causal explanations.",
     "If you move beyond direct sensory description, make clear that you are offering an interpretation or hypothesis."
   )
@@ -1103,7 +1104,7 @@ build_guide_qda <- function(proba = 0.05,
           common[1:2],
           common[3],
           selection,
-          epistemic[1:3],
+          epistemic[1:4],
           labels
         ),
         collapse = "\n"

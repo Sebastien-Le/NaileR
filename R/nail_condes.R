@@ -1343,10 +1343,11 @@ build_request_condes <- function(
           paste0(
             'Interpret the observed continuous variable "',
             target_label,
-            '" using only the evidence below.'
+            '". Ground your interpretation in the statistical evidence below. Use the study context provided in the introduction to help give substantive meaning to the pattern, but do not treat contextual information as statistical evidence.'
           ),
           "Identify the main associations and describe what characterizes its lower and higher ends.",
           "Synthesize what the evidence adds to the understanding of the variable without renaming it.",
+          "Keeping the observed target name does not prevent a broader substantive interpretation when it reasonably synthesizes several displayed associations; distinguish that interpretation from a direct statistical association.",
           "Do not invent causal explanations.",
           sep = "\n"
         )
@@ -1356,7 +1357,7 @@ build_request_condes <- function(
     return(
       paste(
         paste0(
-          'Using only the evidence below, interpret the observed continuous variable "',
+          'Ground your interpretation in the statistical evidence below. Use the study context provided in the introduction to help give substantive meaning to the pattern, but do not treat contextual information as statistical evidence. Interpret the observed continuous variable "',
           target_label,
           '".'
         ),
@@ -1366,6 +1367,7 @@ build_request_condes <- function(
         "4. Describe what characterizes the higher end of the target.",
         "5. Use the end-profile evidence to illustrate or qualify the variable-level pattern.",
         "6. Explain what these associations add to the understanding of the target as a whole.",
+        "7. Keeping the observed target name does not prevent a broader substantive interpretation when it reasonably synthesizes several displayed associations; distinguish that interpretation from a direct statistical association.",
         "Do not rename the target, do not force coherence, and do not invent causal explanations.",
         sep = "\n"
       )

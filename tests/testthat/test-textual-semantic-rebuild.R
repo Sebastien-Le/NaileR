@@ -186,6 +186,8 @@ test_that("textual prompts are local-first and preserve user instructions", {
 
   expect_match(prompt_a, "USER INTRODUCTION SENTINEL", fixed = TRUE)
   expect_match(prompt_a, "USER REQUEST SENTINEL", fixed = TRUE)
+  expect_match(prompt_a, "higher-level contextual interpretation", fixed = TRUE)
+  expect_match(prompt_a, "what respondents literally expressed", fixed = TRUE)
   expect_match(prompt_a, '## Group "A"', fixed = TRUE)
   expect_false(grepl('## Group "B"', prompt_a, fixed = TRUE))
 
