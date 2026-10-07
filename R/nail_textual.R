@@ -422,6 +422,10 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'   altering the user's RNG state.
 #' @param prompt_style Either `"detailed"` or `"compact"`.
 #' @param text_role Either `"responses"`, `"comments"`, or `"verbatims"`.
+#' @param default_blocks Character vector selecting optional NaileR prompt
+#'   blocks. Allowed values are `"reading"`, `"interpretation"`, and
+#'   `"local_task"`; the default includes all three. Context, question,
+#'   evidence, and output are always retained.
 #' @param generate Logical. If `FALSE`, return prompt(s) only. If `TRUE`,
 #'   generate one independent LLM response per group.
 #' @param ... Additional provider-specific generation arguments passed to the
@@ -442,7 +446,7 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #' exist in the subset actually shown to the LLM.
 #'
 #' Every successful return carries `textual_evidence`, `interpretation_input`,
-#' `local_prompts`, `textual_profiles`, `textual_settings`,
+#' `textual_prompt_blocks`, `local_prompts`, `textual_profiles`, `textual_settings`,
 #' `textual_data_summary` (historical compatibility view), and canonical
 #' `llm_io` attributes.
 #'
@@ -466,10 +470,16 @@ nail_textual <- function(dataset, num.var, num.text,
                          prompt_style = c("detailed", "compact"),
                          text_role = c("responses", "comments", "verbatims"),
                          generate = FALSE,
+                         default_blocks = c(
+                           "reading",
+                           "interpretation",
+                           "local_task"
+                         ),
                          ...) {
   prompt_style <- match.arg(prompt_style)
   text_role <- match.arg(text_role)
   provider <- match.arg(provider)
+  default_blocks <- .validate_textual_default_blocks(default_blocks)
 
   validate_textual_inputs(
     dataset = dataset,
@@ -510,14 +520,24 @@ nail_textual <- function(dataset, num.var, num.text,
     conclusion <- .textual_canonical_conclusion()
   }
 
-  local_prompts <- .build_local_textual_prompts(
+  prompt_bundles <- .build_local_textual_prompt_bundles(
     textual_evidence = textual_evidence,
     interpretation_input = interpretation_input,
     introduction = introduction,
     request = request,
     conclusion = conclusion,
     prompt_style = prompt_style,
-    text_role = text_role
+    text_role = text_role,
+    default_blocks = default_blocks
+  )
+
+  local_prompts <- lapply(
+    prompt_bundles,
+    function(bundle) bundle$prompt
+  )
+  prompt_blocks <- lapply(
+    prompt_bundles,
+    function(bundle) bundle$blocks
   )
 
   combined_prompt_preview <- .combine_local_textual_prompt_preview(
@@ -538,6 +558,7 @@ nail_textual <- function(dataset, num.var, num.text,
     seed = seed,
     prompt_style = prompt_style,
     text_role = text_role,
+    default_blocks = default_blocks,
     generate = generate,
     provider = provider,
     model = model,
@@ -580,6 +601,7 @@ nail_textual <- function(dataset, num.var, num.text,
       result = result,
       textual_evidence = textual_evidence,
       interpretation_input = interpretation_input,
+      prompt_blocks = prompt_blocks,
       local_prompts = local_prompts,
       textual_profiles = textual_profiles,
       textual_settings = textual_settings,
@@ -658,6 +680,7 @@ nail_textual <- function(dataset, num.var, num.text,
     result = result,
     textual_evidence = textual_evidence,
     interpretation_input = interpretation_input,
+    prompt_blocks = prompt_blocks,
     local_prompts = local_prompts,
     textual_profiles = textual_profiles,
     textual_settings = textual_settings,

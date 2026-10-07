@@ -200,6 +200,196 @@ test_that("textual prompts are local-first and preserve user instructions", {
 })
 
 
+test_that("textual prompts expose ordered semantic blocks", {
+  dat <- make_textual_semantic_test_data()
+
+  x <- nail_textual(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+
+  blocks <- attr(x, "textual_prompt_blocks", exact = TRUE)
+  expect_named(blocks, c("A", "B"))
+  expect_named(
+    blocks$A,
+    c(
+      "context",
+      "reading",
+      "question",
+      "interpretation",
+      "local_task",
+      "evidence",
+      "output"
+    )
+  )
+  expect_true(all(vapply(blocks$A, is.character, logical(1))))
+
+  prompt_a <- nail_prompt(x, select = "A", print = FALSE)
+  headings <- c(
+    "# Introduction",
+    "## How to Read the Textual Evidence",
+    "# Overall Analytical Request",
+    "## Interpretation Rules",
+    "# Local Task",
+    "# Data",
+    "# Required output"
+  )
+  positions <- vapply(
+    headings,
+    function(heading) regexpr(heading, prompt_a, fixed = TRUE)[[1L]],
+    integer(1)
+  )
+  expect_true(all(positions > 0L))
+  expect_true(all(diff(positions) > 0L))
+
+  expect_match(
+    blocks$A$reading,
+    "raw responses",
+    fixed = TRUE
+  )
+  expect_match(
+    blocks$A$interpretation,
+    "higher-level contextual interpretation",
+    fixed = TRUE
+  )
+  expect_match(
+    blocks$A$interpretation,
+    "what respondents literally expressed",
+    fixed = TRUE
+  )
+  expect_false(
+    grepl("higher-level contextual interpretation", blocks$A$evidence, fixed = TRUE)
+  )
+  expect_false(
+    grepl("higher-level contextual interpretation", blocks$A$local_task, fixed = TRUE)
+  )
+  expect_false(grepl('## Group "B"', blocks$A$evidence, fixed = TRUE))
+  expect_true(
+    regexpr("# Required output", prompt_a, fixed = TRUE)[[1L]] >
+      regexpr("# Data", prompt_a, fixed = TRUE)[[1L]]
+  )
+})
+
+
+test_that("textual default blocks support ablation without changing evidence", {
+  dat <- make_textual_semantic_test_data()
+  args <- list(
+    dataset = dat,
+    num.var = 1,
+    num.text = 2,
+    isolate.groups = TRUE,
+    sample.pct = 0.5,
+    seed = 123,
+    generate = FALSE
+  )
+
+  conditions <- list(
+    M = character(0),
+    R = "reading",
+    I = "interpretation",
+    L = "local_task",
+    RI = c("reading", "interpretation"),
+    RL = c("reading", "local_task"),
+    IL = c("interpretation", "local_task"),
+    F = c("reading", "interpretation", "local_task")
+  )
+  results <- lapply(
+    conditions,
+    function(default_blocks) {
+      do.call(
+        nail_textual,
+        c(args, list(default_blocks = default_blocks))
+      )
+    }
+  )
+
+  reference <- results$M
+  full_blocks <- attr(results$F, "textual_prompt_blocks", exact = TRUE)$A
+  minimal_blocks <- attr(results$M, "textual_prompt_blocks", exact = TRUE)$A
+  reading_blocks <- attr(results$R, "textual_prompt_blocks", exact = TRUE)$A
+  interpretation_blocks <- attr(
+    results$I,
+    "textual_prompt_blocks",
+    exact = TRUE
+  )$A
+  local_task_blocks <- attr(
+    results$L,
+    "textual_prompt_blocks",
+    exact = TRUE
+  )$A
+
+  expect_true(all(vapply(full_blocks, is.character, logical(1))))
+  expect_true(all(vapply(minimal_blocks[c("context", "question", "evidence", "output")], is.character, logical(1))))
+  expect_null(minimal_blocks$reading)
+  expect_null(minimal_blocks$interpretation)
+  expect_null(minimal_blocks$local_task)
+  expect_true(is.character(reading_blocks$reading))
+  expect_null(reading_blocks$interpretation)
+  expect_null(reading_blocks$local_task)
+  expect_true(is.character(interpretation_blocks$interpretation))
+  expect_null(interpretation_blocks$reading)
+  expect_null(interpretation_blocks$local_task)
+  expect_true(is.character(local_task_blocks$local_task))
+  expect_null(local_task_blocks$reading)
+  expect_null(local_task_blocks$interpretation)
+
+  for (condition_name in names(results)) {
+    result <- results[[condition_name]]
+    expect_identical(
+      attr(result, "textual_evidence", exact = TRUE),
+      attr(reference, "textual_evidence", exact = TRUE),
+      info = condition_name
+    )
+    expect_identical(
+      attr(result, "interpretation_input", exact = TRUE),
+      attr(reference, "interpretation_input", exact = TRUE),
+      info = condition_name
+    )
+    expect_identical(
+      attr(result, "textual_data_summary", exact = TRUE),
+      attr(reference, "textual_data_summary", exact = TRUE),
+      info = condition_name
+    )
+    expect_identical(
+      nail_evidence(result),
+      nail_evidence(reference),
+      info = condition_name
+    )
+
+    for (group_name in names(
+      attr(reference, "interpretation_input", exact = TRUE)$groups
+    )) {
+      expect_identical(
+        attr(result, "interpretation_input", exact = TRUE)$groups[[group_name]]$selected_text_ids,
+        attr(reference, "interpretation_input", exact = TRUE)$groups[[group_name]]$selected_text_ids,
+        info = paste(condition_name, group_name, sep = ":")
+      )
+    }
+  }
+})
+
+
+test_that("textual default blocks validate names, duplicates, and missing values", {
+  dat <- make_textual_semantic_test_data()
+
+  expect_error(
+    nail_textual(dat, 1, 2, default_blocks = "banana"),
+    "Unknown TEXTUAL default block"
+  )
+  expect_error(
+    nail_textual(dat, 1, 2, default_blocks = c("reading", "reading")),
+    "must not contain duplicate"
+  )
+  expect_error(
+    nail_textual(dat, 1, 2, default_blocks = NA_character_),
+    "without NA"
+  )
+})
+
+
 test_that("isolate.groups = FALSE still performs local-first generation", {
   dat <- make_textual_semantic_test_data()
   counter <- new.env(parent = emptyenv())
@@ -290,6 +480,70 @@ test_that("default generation creates canonical textual_profiles", {
     expect_true(all(profile$representative_text_ids %in% allowed))
     expect_true(all(profile$tension_text_ids %in% allowed))
   }
+})
+
+
+test_that("identical mock responses preserve parsed textual profiles across block ablation", {
+  dat <- make_textual_semantic_test_data()
+
+  build <- function(default_blocks) {
+    testthat::local_mocked_bindings(
+      .call_llm_base = function(provider,
+                                model,
+                                prompt,
+                                output,
+                                llm_api_options) {
+        data.frame(
+          model = model,
+          response = mock_textual_response(prompt),
+          stringsAsFactors = FALSE
+        )
+      },
+      .package = "NaileR"
+    )
+
+    nail_textual(
+      dat,
+      num.var = 1,
+      num.text = 2,
+      isolate.groups = TRUE,
+      generate = TRUE,
+      model = "mock-model",
+      default_blocks = default_blocks
+    )
+  }
+
+  full <- build(c("reading", "interpretation", "local_task"))
+  minimal <- build(character(0))
+
+  full_profiles <- attr(full, "textual_profiles", exact = TRUE)
+  minimal_profiles <- attr(minimal, "textual_profiles", exact = TRUE)
+  parsed_fields <- c(
+    "group",
+    "status",
+    "core_textual_profile",
+    "dominant_themes",
+    "within_group_coherence",
+    "internal_diversity",
+    "representative_text_ids",
+    "tension_text_ids",
+    "parse_issues"
+  )
+
+  expect_identical(
+    lapply(
+      full_profiles$groups,
+      function(group) group[intersect(parsed_fields, names(group))]
+    ),
+    lapply(
+      minimal_profiles$groups,
+      function(group) group[intersect(parsed_fields, names(group))]
+    )
+  )
+  expect_identical(
+    nail_response(full, select = "A", print = FALSE),
+    nail_response(minimal, select = "A", print = FALSE)
+  )
 })
 
 
@@ -433,6 +687,10 @@ test_that("custom conclusion remains compatible with historical textual_prep pro
     nail_prompt(x, select = "A", print = FALSE),
     "CUSTOM HISTORICAL OUTPUT SENTINEL",
     fixed = TRUE
+  )
+  expect_identical(
+    attr(x, "textual_prompt_blocks", exact = TRUE)$A$output,
+    "CUSTOM HISTORICAL OUTPUT SENTINEL"
   )
 
   settings <- attr(x, "textual_settings", exact = TRUE)

@@ -19,6 +19,7 @@ nail_textual(
   prompt_style = c("detailed", "compact"),
   text_role = c("responses", "comments", "verbatims"),
   generate = FALSE,
+  default_blocks = c("reading", "interpretation", "local_task"),
   ...
 )
 }
@@ -68,6 +69,11 @@ altering the user's RNG state.}
 \item{generate}{Logical. If \code{FALSE}, return prompt(s) only. If \code{TRUE},
 generate one independent LLM response per group.}
 
+\item{default_blocks}{Character vector selecting optional NaileR prompt
+blocks. Allowed values are \code{"reading"}, \code{"interpretation"}, and
+\code{"local_task"}; the default includes all three. Context, question,
+evidence, and output are always retained.}
+
 \item{...}{Additional provider-specific generation arguments passed to the
 selected LLM backend.}
 }
@@ -99,7 +105,7 @@ diversity, and IDs of representative or tension texts. Referenced IDs must
 exist in the subset actually shown to the LLM.
 
 Every successful return carries \code{textual_evidence}, \code{interpretation_input},
-\code{local_prompts}, \code{textual_profiles}, \code{textual_settings},
+\code{textual_prompt_blocks}, \code{local_prompts}, \code{textual_profiles}, \code{textual_settings},
 \code{textual_data_summary} (historical compatibility view), and canonical
 \code{llm_io} attributes.
 }

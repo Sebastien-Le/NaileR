@@ -260,8 +260,44 @@
 }
 
 
-.textual_semantic_guide <- function(prompt_style = c("detailed", "compact"),
-                                    text_role = c("responses", "comments", "verbatims")) {
+.validate_textual_default_blocks <- function(default_blocks) {
+  allowed <- c("reading", "interpretation", "local_task")
+
+  if (!is.character(default_blocks) || anyNA(default_blocks)) {
+    stop(
+      "`default_blocks` must be a character vector without NA values.",
+      call. = FALSE
+    )
+  }
+
+  unknown <- setdiff(default_blocks, allowed)
+  if (length(unknown) > 0L) {
+    stop(
+      paste0(
+        "Unknown TEXTUAL default block(s): ",
+        paste(sprintf('"%s"', unknown), collapse = ", "),
+        ". Allowed blocks are: ",
+        paste(allowed, collapse = ", "),
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (anyDuplicated(default_blocks)) {
+    stop(
+      "`default_blocks` must not contain duplicate block names.",
+      call. = FALSE
+    )
+  }
+
+  default_blocks
+}
+
+
+.build_textual_guide_blocks <- function(
+    prompt_style = c("detailed", "compact"),
+    text_role = c("responses", "comments", "verbatims")) {
   prompt_style <- match.arg(prompt_style)
   text_role <- match.arg(text_role)
   unit <- .text_unit_word(text_role, plural = TRUE)
@@ -280,10 +316,32 @@
   )
 
   if (identical(prompt_style, "compact")) {
-    core <- core[c(1, 2, 3, 4, 8)]
+    reading <- core[c(1, 2, 3, 8)]
+    interpretation <- core[4]
+  } else {
+    reading <- core[c(1, 2, 3, 8, 10)]
+    interpretation <- core[c(4, 5, 6, 7, 9)]
   }
 
-  paste(core, collapse = "\n")
+  list(
+    reading = paste(reading, collapse = "\n"),
+    interpretation = paste(interpretation, collapse = "\n")
+  )
+}
+
+
+.textual_semantic_guide <- function(prompt_style = c("detailed", "compact"),
+                                    text_role = c("responses", "comments", "verbatims")) {
+  blocks <- .build_textual_guide_blocks(
+    prompt_style = prompt_style,
+    text_role = text_role
+  )
+
+  paste(
+    blocks$reading,
+    blocks$interpretation,
+    sep = "\n"
+  )
 }
 
 
@@ -339,58 +397,159 @@
 }
 
 
+.render_textual_prompt_blocks <- function(blocks) {
+  sections <- list(
+    c("# Introduction", blocks$context),
+    if (!is.null(blocks$reading)) {
+      c("## How to Read the Textual Evidence", blocks$reading)
+    },
+    c("# Overall Analytical Request", blocks$question),
+    if (!is.null(blocks$interpretation)) {
+      c("## Interpretation Rules", blocks$interpretation)
+    },
+    if (!is.null(blocks$local_task)) {
+      c("# Local Task", blocks$local_task)
+    },
+    c("# Data", blocks$evidence),
+    blocks$output
+  )
+
+  sections <- Filter(
+    function(section) !is.null(section) && length(section) > 0L,
+    sections
+  )
+
+  normalize_blank_lines(
+    paste(
+      vapply(
+        sections,
+        function(section) paste(section, collapse = "\n\n"),
+        character(1)
+      ),
+      collapse = "\n\n---\n\n"
+    )
+  )
+}
+
+
+.build_textual_prompt_bundle <- function(
+    textual_evidence,
+    interpretation_input,
+    group_name,
+    introduction,
+    request,
+    conclusion,
+    prompt_style,
+    text_role,
+    default_blocks) {
+  default_blocks <- .validate_textual_default_blocks(default_blocks)
+  guide_blocks <- .build_textual_guide_blocks(
+    prompt_style = prompt_style,
+    text_role = text_role
+  )
+
+  local_task <- if (identical(
+    interpretation_input$groups[[group_name]]$status,
+    "ready"
+  )) {
+    paste(
+      "Interpret only the group shown below.",
+      "Do not compare it with groups whose texts are not shown.",
+      "Address the overall analytical request while respecting the evidence rules."
+    )
+  } else {
+    paste(
+      "This group has no non-empty textual response.",
+      "Do not invent a textual profile for it."
+    )
+  }
+
+  blocks <- list(
+    context = introduction,
+    reading = if ("reading" %in% default_blocks) {
+      guide_blocks$reading
+    } else {
+      NULL
+    },
+    question = request,
+    interpretation = if ("interpretation" %in% default_blocks) {
+      guide_blocks$interpretation
+    } else {
+      NULL
+    },
+    local_task = if ("local_task" %in% default_blocks) {
+      local_task
+    } else {
+      NULL
+    },
+    evidence = .textual_group_data_block(
+      textual_evidence = textual_evidence,
+      interpretation_input = interpretation_input,
+      group_name = group_name
+    ),
+    output = conclusion
+  )
+
+  list(
+    blocks = blocks,
+    prompt = .render_textual_prompt_blocks(blocks)
+  )
+}
+
+
+.build_local_textual_prompt_bundles <- function(textual_evidence,
+                                                interpretation_input,
+                                                introduction,
+                                                request,
+                                                conclusion,
+                                                prompt_style,
+                                                text_role,
+                                                default_blocks) {
+  group_names <- names(textual_evidence$groups)
+  bundles <- stats::setNames(vector("list", length(group_names)), group_names)
+
+  for (g in group_names) {
+    bundles[[g]] <- .build_textual_prompt_bundle(
+      textual_evidence = textual_evidence,
+      interpretation_input = interpretation_input,
+      group_name = g,
+      introduction = introduction,
+      request = request,
+      conclusion = conclusion,
+      prompt_style = prompt_style,
+      text_role = text_role,
+      default_blocks = default_blocks
+    )
+  }
+
+  bundles
+}
+
+
 .build_local_textual_prompts <- function(textual_evidence,
                                          interpretation_input,
                                          introduction,
                                          request,
                                          conclusion,
                                          prompt_style,
-                                         text_role) {
-  group_names <- names(textual_evidence$groups)
-  prompts <- stats::setNames(vector("list", length(group_names)), group_names)
-  guide <- .textual_semantic_guide(
+                                         text_role,
+                                         default_blocks = c(
+                                           "reading",
+                                           "interpretation",
+                                           "local_task"
+                                         )) {
+  bundles <- .build_local_textual_prompt_bundles(
+    textual_evidence = textual_evidence,
+    interpretation_input = interpretation_input,
+    introduction = introduction,
+    request = request,
+    conclusion = conclusion,
     prompt_style = prompt_style,
-    text_role = text_role
+    text_role = text_role,
+    default_blocks = default_blocks
   )
 
-  for (g in group_names) {
-    local_task <- if (identical(
-      interpretation_input$groups[[g]]$status,
-      "ready"
-    )) {
-      paste(
-        "Interpret only the group shown below.",
-        "Do not compare it with groups whose texts are not shown.",
-        "Address the overall analytical request while respecting the evidence rules."
-      )
-    } else {
-      paste(
-        "This group has no non-empty textual response.",
-        "Do not invent a textual profile for it."
-      )
-    }
-
-    prompts[[g]] <- normalize_blank_lines(paste0(
-      "# Introduction\n\n",
-      introduction,
-      "\n\n---\n\n## How to Read the Textual Evidence\n\n",
-      guide,
-      "\n\n# Overall Analytical Request\n\n",
-      request,
-      "\n\n# Local Task\n\n",
-      local_task,
-      "\n\n# Data\n\n",
-      .textual_group_data_block(
-        textual_evidence = textual_evidence,
-        interpretation_input = interpretation_input,
-        group_name = g
-      ),
-      "\n\n",
-      conclusion
-    ))
-  }
-
-  prompts
+  lapply(bundles, function(bundle) bundle$prompt)
 }
 
 
@@ -759,6 +918,7 @@
 .attach_nail_textual_artifacts <- function(result,
                                            textual_evidence,
                                            interpretation_input,
+                                           prompt_blocks,
                                            local_prompts,
                                            textual_profiles,
                                            textual_settings,
@@ -766,6 +926,7 @@
                                            llm_io) {
   attr(result, "textual_evidence") <- textual_evidence
   attr(result, "interpretation_input") <- interpretation_input
+  attr(result, "textual_prompt_blocks") <- prompt_blocks
   attr(result, "local_prompts") <- local_prompts
   attr(result, "textual_profiles") <- textual_profiles
   attr(result, "textual_settings") <- textual_settings
