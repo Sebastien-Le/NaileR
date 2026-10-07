@@ -1,0 +1,7 @@
+"blind_id","condition","repetition"
+"R01","B2_operational_relative",1
+"R02","B3_explicit_relative_synthesis",3
+"R03","B2_operational_relative",3
+"R04","B3_explicit_relative_synthesis",1
+"R05","B2_operational_relative",2
+"R06","B3_explicit_relative_synthesis",2

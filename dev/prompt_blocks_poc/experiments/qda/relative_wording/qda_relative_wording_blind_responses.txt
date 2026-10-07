@@ -1,0 +1,269 @@
+===== R01 =====
+### Interpretation of Product "Target"
+
+**Core Sensory Profile:**
+Product "Target" exhibits a sensory profile characterized by a subdued vanilla presence and a pronounced acidic note.
+
+**Dominant Sensory Configuration:**
+- Lower vanilla intensity;
+- Higher acidity.
+
+**Secondary Sensory Configuration:**
+- None.
+
+**Distinctive Sensory Feature:**
+What distinguishes "Target" is its combination of reduced vanilla perception and heightened acidity relative to the average evaluated-product profile.
+
+**Descriptive Name:**
+- None.
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: A sensory profile with subdued vanilla and pronounced acidity.
+dominant_configuration: Lower vanilla intensity; Higher acidity.
+secondary_configuration: none
+distinctive_interpretation: Combination of reduced vanilla perception and heightened acidity relative to the average evaluated-product profile.
+descriptive_name: none
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R02 =====
+### Interpretation of Product "Target"
+
+**Core Sensory Profile:**
+The "Target" product exhibits a distinct sensory profile characterized by a notable reduction in vanilla perception and an elevated level of acidity compared to the average evaluated product.
+
+**Dominant Sensory Characteristics:**
+- Lower vanilla intensity;
+- Higher acidity.
+
+**Secondary Sensory Characteristics:**
+- None.
+
+**Distinctive Sensory Feature:**
+The "Target" product is distinguished by its subdued vanilla presence and pronounced acidity, setting it apart from the average sensory profile of the evaluated set.
+
+**Descriptive Name:**
+- None.
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: A product with subdued vanilla and pronounced acidity.
+dominant_configuration: Lower vanilla intensity; Higher acidity.
+secondary_configuration: none
+distinctive_interpretation: The Target product is distinguished by its subdued vanilla presence and pronounced acidity.
+descriptive_name: none
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R03 =====
+### Interpretation of Product "Target"
+
+**Core Sensory Profile:**
+Product "Target" exhibits a sensory profile characterized by a notable reduction in vanilla perception and an elevated level of acidity compared to the average evaluated product.
+
+**Dominant Sensory Characteristics:**
+- Lower vanilla intensity;
+- Higher acidity.
+
+**Secondary Sensory Characteristics:**
+- None.
+
+**Distinctive Sensory Feature:**
+The product "Target" is distinguished by its significantly lower vanilla aroma or flavor and a pronounced acidity, setting it apart from the average sensory profile of the evaluated set.
+
+**Descriptive Name:**
+- None.
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: A sensory profile with reduced vanilla and elevated acidity.
+dominant_configuration: Lower vanilla intensity; Higher acidity.
+secondary_configuration: none
+distinctive_interpretation: The product is distinguished by its significantly lower vanilla aroma or flavor and a pronounced acidity.
+descriptive_name: none
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R04 =====
+# Interpretation of Product "Target"
+
+Product "Target" exhibits a distinct sensory profile characterized by a notable absence of vanilla notes and a pronounced acidity.
+
+- **Core Profile**: A tangy, acid-forward profile with subdued vanilla characteristics.
+- **Dominant Configuration**: Low vanilla; high acidity.
+- **Secondary Configuration**: None.
+- **Distinctive Interpretation**: The product stands out due to its significantly lower vanilla intensity and higher acidity compared to the average evaluated-product profile.
+- **Descriptive Name**: Tangy Low-Vanilla.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: A tangy, acid-forward profile with subdued vanilla characteristics.
+dominant_configuration: Low vanilla; high acidity.
+secondary_configuration: none
+distinctive_interpretation: The product stands out due to its significantly lower vanilla intensity and higher acidity compared to the average evaluated-product profile.
+descriptive_name: Tangy Low-Vanilla
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R05 =====
+### Interpretation of Product "Target"
+
+**Core Sensory Profile:**
+Product "Target" has a sensory profile characterized by lower vanilla intensity and higher acidity compared to the average of the evaluated products.
+
+**Dominant Sensory Configuration:**
+- Lower vanilla;
+- Higher acidity.
+
+**Secondary Sensory Configuration:**
+None.
+
+**Distinctive Sensory Feature:**
+The product "Target" is distinguished by its reduced vanilla perception and elevated acidity, setting it apart from the average sensory profile of the evaluated set.
+
+**Descriptive Name:**
+None.
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: Lower vanilla intensity and higher acidity compared to the average.
+dominant_configuration: Lower vanilla; Higher acidity.
+secondary_configuration: none
+distinctive_interpretation: The product is distinguished by its reduced vanilla perception and elevated acidity.
+descriptive_name: none
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R06 =====
+### Interpretation of Product "Target"
+
+**Core Sensory Profile:**
+Product "Target" exhibits a sensory profile characterized by a relatively subdued vanilla presence combined with a pronounced acidic note.
+
+**Dominant Sensory Configuration:**
+- Lower vanilla intensity;
+- Higher acidity.
+
+**Secondary Sensory Configuration:**
+- None.
+
+**Distinctive Sensory Feature:**
+The product is distinguished by its significantly lower vanilla intensity compared to the average profile, while also having a notably higher level of acidity.
+
+**Descriptive Name:**
+"Tangy Low-Vanilla"
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: A sensory profile with subdued vanilla and pronounced acidity.
+dominant_configuration: Lower vanilla intensity; Higher acidity.
+secondary_configuration: none
+distinctive_interpretation: The product is distinguished by its significantly lower vanilla intensity and higher acidity compared to the average profile.
+descriptive_name: Tangy Low-Vanilla
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R07 =====
+### Interpretation of Product "Target"
+
+**Core Sensory Profile:**
+Product "Target" exhibits a sensory profile characterized by a moderate level of vanilla intensity and a notable presence of acidity.
+
+**Dominant Sensory Characteristics:**
+- Lower vanilla intensity (adjusted mean = 7.51);
+- Higher acidity (adjusted mean = 2.48).
+
+**Secondary Sensory Characteristics:**
+- None.
+
+**Distinctive Sensory Feature:**
+Product "Target" is distinguished by its relatively subdued vanilla flavor compared to the average profile, coupled with a more pronounced acidity.
+
+**Descriptive Name:**
+"Mild Vanilla with Tangy Acidity"
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: Moderate vanilla intensity with notable acidity
+dominant_configuration: Lower vanilla intensity; Higher acidity
+secondary_configuration: none
+distinctive_interpretation: Relatively subdued vanilla flavor with more pronounced acidity
+descriptive_name: Mild Vanilla with Tangy Acidity
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R08 =====
+### Interpretation of Product "Target"
+
+**Core Sensory Profile:**
+Product "Target" exhibits a sensory profile characterized by a subdued vanilla presence and a pronounced acidic note.
+
+**Dominant Sensory Configuration:**
+- Lower vanilla intensity;
+- Higher acidity.
+
+**Secondary Sensory Configuration:**
+- None.
+
+**Distinctive Sensory Feature:**
+The product is notably less vanilla-forward compared to the average evaluated product, while its acidity is significantly more pronounced.
+
+**Descriptive Name:**
+"Tangy Low-Vanilla"
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: A sensory profile characterized by a subdued vanilla presence and a pronounced acidic note.
+dominant_configuration: Lower vanilla intensity; Higher acidity.
+secondary_configuration: None.
+distinctive_interpretation: The product is notably less vanilla-forward compared to the average evaluated product, while its acidity is significantly more pronounced.
+descriptive_name: Tangy Low-Vanilla
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R09 =====
+### Interpretation of Product "Target"
+
+**Core Sensory Profile:**
+Product "Target" exhibits a sensory profile characterized by a subdued vanilla presence and a pronounced acidity.
+
+**Dominant Sensory Configuration:**
+- Lower vanilla intensity;
+- Higher acidity.
+
+**Secondary Sensory Configuration:**
+- None.
+
+**Distinctive Sensory Feature:**
+The product is distinguished by its relatively weak vanilla note and its stronger acidity compared to the average evaluated-product profile.
+
+**Descriptive Name:**
+- None.
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: Target
+core_profile: A sensory profile with subdued vanilla and pronounced acidity.
+dominant_configuration: Lower vanilla intensity; Higher acidity.
+secondary_configuration: None.
+distinctive_interpretation: The product is distinguished by its relatively weak vanilla note and its stronger acidity compared to the average evaluated-product profile.
+descriptive_name: None.
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+

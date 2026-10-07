@@ -1,0 +1,174 @@
+===== R01 =====
+### Interpretation of Product 'choc1'
+
+**Descriptive Name:** Dark Chocolate with Intense Cocoa and Bitterness
+
+**Sensory Profile:**
+- **Dominant Configuration:**
+  - Strong cocoa flavor and aroma;
+  - Pronounced bitterness;
+  - Noticeable acidity;
+  - Higher astringency.
+
+- **Secondary Configuration:**
+  - Reduced milk flavor and aroma;
+  - Lower sweetness;
+  - Minimal caramel and vanilla notes.
+
+**Distinctive Interpretation:**
+'choc1' stands out for its robust and intense cocoa profile, characterized by a pronounced bitterness and acidity, with a significant reduction in milk-related and sweet attributes. The absence of caramel and vanilla further emphasizes its dark, unadulterated cocoa character.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc1
+core_profile: Dark Chocolate with Intense Cocoa and Bitterness
+dominant_configuration: Strong cocoa flavor and aroma; Pronounced bitterness; Noticeable acidity; Higher astringency
+secondary_configuration: Reduced milk flavor and aroma; Lower sweetness; Minimal caramel and vanilla notes
+distinctive_interpretation: 'choc1' stands out for its robust and intense cocoa profile, characterized by a pronounced bitterness and acidity, with a significant reduction in milk-related and sweet attributes.
+descriptive_name: Dark Chocolate with Intense Cocoa and Bitterness
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R02 =====
+### Interpretation of Product 'choc1'
+
+**Descriptive Name:** Dark Chocolate with Intense Cocoa and Bitterness
+
+**Sensory Profile:**
+'choc1' exhibits a strong and distinct sensory configuration characterized by a pronounced cocoa presence and bitterness. The higher levels of "Bitterness," "CocoaF," "Astringency," "Acidity," and "CocoaA" suggest a robust, intense cocoa flavor profile with a slightly sharp and drying mouthfeel. The lower levels of "MilkF," "Sweetness," "Caramel," "Vanilla," and "MilkA" indicate a minimal presence of milky, sweet, or caramelized notes, reinforcing the dark and unadulterated cocoa character of this chocolate.
+
+**Dominant Configuration:**
+- Intense cocoa flavor;
+- Pronounced bitterness;
+- Noticeable astringency;
+- Moderate acidity.
+
+**Secondary Configuration:**
+- Minimal sweetness;
+- Absence of caramel or vanilla notes;
+- Low milk flavor.
+
+**Distinctive Interpretation:**
+'choc1' stands out for its strong, unadulterated cocoa profile with a marked bitterness and astringency, making it distinctly different from milder, sweeter chocolates in the evaluated set.
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc1
+core_profile: Dark Chocolate with Intense Cocoa and Bitterness
+dominant_configuration: Intense cocoa flavor; Pronounced bitterness; Noticeable astringency; Moderate acidity
+secondary_configuration: Minimal sweetness; Absence of caramel or vanilla notes; Low milk flavor
+distinctive_interpretation: 'choc1' stands out for its strong, unadulterated cocoa profile with a marked bitterness and astringency, making it distinctly different from milder, sweeter chocolates in the evaluated set.
+descriptive_name: Dark Chocolate with Intense Cocoa and Bitterness
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R03 =====
+### Interpretation of Product "choc1"
+
+**Descriptive Name:** Dark Chocolate with Intense Cocoa and Bitterness
+
+**Sensory Profile:**
+"choc1" exhibits a strong and distinct sensory profile characterized by a pronounced cocoa presence and a notable bitterness. The higher levels of "Bitterness," "CocoaF," "Astringency," "Acidity," and "CocoaA" suggest a robust, dark chocolate flavor with a sharp, slightly tart, and drying mouthfeel. The lower levels of "MilkF," "Sweetness," "Caramel," "Vanilla," and "MilkA" indicate a minimal presence of milky, sweet, or caramelized notes, reinforcing the intensity of the cocoa and bitter attributes.
+
+**Dominant Configuration:**
+- Intense cocoa flavor;
+- Pronounced bitterness;
+- Noticeable astringency;
+- Moderate acidity.
+
+**Secondary Configuration:**
+- Minimal sweetness;
+- Absence of caramel or vanilla notes.
+
+**Distinctive Interpretation:**
+"choc1" stands out due to its strong, unadulterated cocoa and bitter profile, making it distinctly different from milder or sweeter chocolate varieties.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc1
+core_profile: Dark Chocolate with Intense Cocoa and Bitterness
+dominant_configuration: Intense cocoa flavor; Pronounced bitterness; Noticeable astringency; Moderate acidity
+secondary_configuration: Minimal sweetness; Absence of caramel or vanilla notes
+distinctive_interpretation: "choc1" stands out due to its strong, unadulterated cocoa and bitter profile, making it distinctly different from milder or sweeter chocolate varieties.
+descriptive_name: Dark Chocolate with Intense Cocoa and Bitterness
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R04 =====
+### Interpretation of Product 'choc1'
+
+**Product 'choc1'** exhibits a distinct sensory profile characterized by a pronounced **cocoa-forward** and **bitter-acidic** configuration. The dominant sensory descriptors include:
+
+- **Higher Bitterness** and **Acidity**, suggesting a sharp, tangy edge.
+- **Higher CocoaF** and **CocoaA**, indicating a strong cocoa presence both in flavor and aroma.
+- **Lower Sweetness**, **MilkF**, and **MilkA**, which reduces the creamy, milky notes typically found in chocolates.
+- **Higher Astringency**, contributing to a drying, mouth-coating sensation.
+- **Lower Caramel** and **Vanilla**, minimizing the usual sweet, comforting undertones.
+
+This product stands out as a **robust, intense dark chocolate** with minimal sweetness and dairy influence, making it more **astringent and acidic** compared to the average profile.
+
+**Descriptive Name:** *Dark Cocoa Bite*
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc1
+core_profile: Robust, intense dark chocolate with minimal sweetness and dairy influence
+dominant_configuration: Higher Bitterness; Higher CocoaF; Higher Acidity; Higher Astringency; Lower Sweetness
+secondary_configuration: Higher CocoaA; Lower MilkF; Lower MilkA; Lower Caramel; Lower Vanilla
+distinctive_interpretation: More astringent and acidic with a strong cocoa presence compared to the average profile
+descriptive_name: Dark Cocoa Bite
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R05 =====
+### Interpretation of Product 'choc1'
+
+**Descriptive Name:** Dark Chocolate with Intense Cocoa and Bitterness
+
+**Sensory Profile:**
+'choc1' exhibits a strong and distinct sensory configuration characterized by a pronounced cocoa presence and a notable bitterness. The higher levels of "Bitterness," "CocoaF," "Astringency," "Acidity," and "CocoaA" suggest a robust, dark chocolate profile with a sharp, tangy edge. The lower levels of "MilkF," "Sweetness," "Caramel," "Vanilla," and "MilkA" indicate a minimal presence of milky or sweet notes, reinforcing the intensity of the cocoa and bitter attributes.
+
+**Dominant Configuration:**
+- Strong cocoa flavor;
+- Pronounced bitterness;
+- High astringency;
+- Noticeable acidity.
+
+**Secondary Configuration:**
+- Minimal sweetness;
+- Absence of caramel and vanilla notes.
+
+**Distinctive Interpretation:**
+'choc1' is distinguished by its intense, unadulterated cocoa profile with a sharp, bitter edge, making it stand out as a bold, dark chocolate with minimal milky or sweet undertones.
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc1
+core_profile: Dark Chocolate with Intense Cocoa and Bitterness
+dominant_configuration: Strong cocoa flavor; Pronounced bitterness; High astringency; Noticeable acidity
+secondary_configuration: Minimal sweetness; Absence of caramel and vanilla notes
+distinctive_interpretation: 'choc1' is distinguished by its intense, unadulterated cocoa profile with a sharp, bitter edge, making it stand out as a bold, dark chocolate with minimal milky or sweet undertones.
+descriptive_name: Dark Chocolate with Intense Cocoa and Bitterness
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+
+===== R06 =====
+### Interpretation of Product "choc1"
+
+**Product "choc1"** exhibits a distinct sensory profile characterized by a pronounced **cocoa-forward** and **bitter** character. The higher levels of **Bitterness**, **CocoaF**, **CocoaA**, and **Acidity** suggest a strong cocoa presence with a sharp, slightly astringent edge. The lower levels of **MilkF**, **Sweetness**, **Caramel**, **Vanilla**, and **MilkA** indicate a minimal influence of milky or sweet notes, reinforcing the product's intense and robust cocoa profile.
+
+**Descriptive Name:** "Dark Cocoa Bitter"
+
+---
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc1
+core_profile: Dark Cocoa Bitter
+dominant_configuration: Cocoa-forward; Bitter; Astringent
+secondary_configuration: Acidic; Minimal sweetness; Low milk notes
+distinctive_interpretation: Strong cocoa presence with sharp bitterness and minimal sweetness
+descriptive_name: Dark Cocoa Bitter
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+

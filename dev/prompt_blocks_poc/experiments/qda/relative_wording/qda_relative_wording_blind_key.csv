@@ -1,0 +1,10 @@
+"blind_id","condition","repetition"
+"R01","C_short_relative",3
+"R02","A_current",1
+"R03","A_current",3
+"R04","C_short_relative",1
+"R05","A_current",2
+"R06","B_full_statistical",2
+"R07","B_full_statistical",3
+"R08","B_full_statistical",1
+"R09","C_short_relative",2
