@@ -224,7 +224,7 @@ test_that("local prompts contain only evidence from their own group", {
   }
 })
 
-test_that("non-isolated prompt preview preserves outer compatibility but exposes local prompts", {
+test_that("non-isolated mode returns the actual joint prompt and exposes local audit prompts", {
   profiles <- .catdes_stage3_profiles()
   result <- nail_catdes(
     x = profiles,
@@ -234,23 +234,36 @@ test_that("non-isolated prompt preview preserves outer compatibility but exposes
 
   expect_true(is.character(result))
   expect_length(result, 1L)
-  expect_match(result, "Local-first semantic interpretation plan", fixed = TRUE)
-  expect_match(result, 'Local prompt for Category "A"', fixed = TRUE)
-  expect_match(result, 'Local prompt for Category "B"', fixed = TRUE)
+  expect_match(result, '# Data', fixed = TRUE)
+  expect_match(result, 'Category "A"', fixed = TRUE)
+  expect_match(result, 'Category "B"', fixed = TRUE)
+  expect_false(grepl("Local-first semantic interpretation plan", result, fixed = TRUE))
+  expect_identical(nail_prompt(result, print = FALSE), result)
+  expect_identical(
+    names(attr(result, "catdes_prompt_blocks", exact = TRUE)),
+    "portfolio"
+  )
 
   local_prompts <- attr(result, "local_prompts")
   expect_true(is.list(local_prompts))
   expect_setequal(names(local_prompts), c("A", "B"))
 })
 
-test_that("generation is always local-first and semantic profiles freeze each response", {
+test_that("joint generation stores one response without fabricating local profiles", {
   profiles <- .catdes_stage3_profiles()
   calls <- 0L
 
   testthat::local_mocked_bindings(
     .call_llm_base = function(provider, model, prompt, output, llm_api_options) {
       calls <<- calls + 1L
-      .catdes_stage3_mock(model, prompt)
+      data.frame(
+        model = model,
+        created_at = as.POSIXct("2026-08-19", tz = "UTC"),
+        response = "joint semantic interpretation",
+        done = TRUE,
+        prompt = prompt,
+        stringsAsFactors = FALSE
+      )
     },
     .package = "NaileR"
   )
@@ -264,20 +277,21 @@ test_that("generation is always local-first and semantic profiles freeze each re
   evidence <- attr(result, "interpretation_evidence")
   semantic_profiles <- attr(result, "semantic_profiles")
 
-  expect_identical(calls, evidence$metadata$n_ready_groups)
+  expect_identical(calls, 1L)
   expect_true(is.data.frame(result))
-  expect_match(result$response, "local semantic profile A", fixed = TRUE)
-  expect_match(result$response, "local semantic profile B", fixed = TRUE)
+  expect_match(result$response, "joint semantic interpretation", fixed = TRUE)
+  expect_identical(nail_prompt(result, print = FALSE), result$prompt)
 
   expect_s3_class(semantic_profiles, "nail_catdes_semantic_profiles")
-  expect_identical(semantic_profiles$settings$architecture, "local_first")
+  expect_identical(semantic_profiles$settings$architecture, "joint")
   expect_false(semantic_profiles$settings$global_synthesis_performed)
-  expect_identical(semantic_profiles$groups$A$response, "local semantic profile A")
-  expect_identical(semantic_profiles$groups$B$response, "local semantic profile B")
-  expect_identical(semantic_profiles$metadata$n_generated, 2L)
+  expect_false(semantic_profiles$settings$local_responses_generated)
+  expect_null(semantic_profiles$groups$A$response)
+  expect_null(semantic_profiles$groups$B$response)
+  expect_identical(semantic_profiles$metadata$n_generated, 0L)
 })
 
-test_that("isolate.groups changes presentation, not first-pass generation architecture", {
+test_that("isolate.groups selects local generation architecture", {
   profiles <- .catdes_stage3_profiles()
   calls <- 0L
 
@@ -298,7 +312,7 @@ test_that("isolate.groups changes presentation, not first-pass generation archit
   expect_true(is.list(result))
   expect_setequal(names(result), c("A", "B"))
   expect_identical(calls, 2L)
-  expect_identical(attr(result, "catdes_settings")$generation_architecture, "local_first")
+  expect_identical(attr(result, "catdes_settings")$generation_architecture, "local")
   expect_false(attr(result, "catdes_settings")$global_synthesis_performed)
 })
 

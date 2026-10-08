@@ -241,6 +241,43 @@ test_that("nail_prompt integrates with a real catdes local-first preview", {
   )
 })
 
+test_that("joint CATDES accessors do not inspect a missing llm_io column", {
+  data(atomic_habit, package = "NaileR")
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider, model, prompt, output, llm_api_options) {
+      data.frame(
+        model = model,
+        created_at = as.POSIXct("2026-01-01", tz = "UTC"),
+        response = "joint response",
+        done = TRUE,
+        prompt = prompt,
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  x <- nail_catdes(
+    dataset = atomic_habit,
+    num.var = 2,
+    interpretation_mode = "standard",
+    isolate.groups = FALSE,
+    generate = TRUE,
+    provider = "ollama",
+    model = "mistral-small3.2"
+  )
+
+  expect_no_warning(
+    prompt <- nail_prompt(x, print = FALSE)
+  )
+  expect_no_warning(
+    response <- nail_response(x, print = FALSE)
+  )
+  expect_identical(prompt, x$prompt[[1L]])
+  expect_identical(response, x$response[[1L]])
+})
+
 test_that("public LLM IO helpers are exported", {
   expect_true("nail_prompt" %in% getNamespaceExports("NaileR"))
   expect_true("nail_response" %in% getNamespaceExports("NaileR"))

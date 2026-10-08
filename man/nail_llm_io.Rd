@@ -57,9 +57,9 @@ Compatibility adapters remain available for current historical return
 structures while \code{nail_condes()}, \code{nail_qda()}, \code{nail_textual()}, and other
 analyses are progressively rebuilt around the evidence-first architecture.
 
-For \code{nail_catdes()}, the local semantic profiles take precedence over the
-historical combined outer return shape, so \code{nail_prompt()} exposes the
-actual local prompts used by the local-first architecture.
+For \code{nail_catdes()}, \code{nail_prompt()} exposes the actual joint prompt when
+\code{isolate.groups = FALSE}, while the named local prompts remain available
+when \code{isolate.groups = TRUE}.
 }
 \examples{
 data(iris)

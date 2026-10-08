@@ -74,8 +74,8 @@
 .nail_io_from_canonical <- function(x, field) {
   io <- attr(x, "llm_io", exact = TRUE)
 
-  if (is.null(io) && is.list(x) && !is.null(x$llm_io)) {
-    io <- x$llm_io
+  if (is.null(io) && is.list(x) && "llm_io" %in% names(x)) {
+    io <- x[["llm_io"]]
   }
 
   if (is.null(io)) {
@@ -195,6 +195,18 @@
 }
 
 .nail_io_units_from_semantic_profiles <- function(x, field) {
+  catdes_settings <- attr(x, "catdes_settings", exact = TRUE)
+  if (identical(field, "prompt") &&
+      is.list(catdes_settings) &&
+      identical(catdes_settings$generation_architecture, "joint")) {
+    if (is.data.frame(x) && "prompt" %in% names(x) && nrow(x) > 0L) {
+      return(list(`1` = as.character(x$prompt[[1L]])))
+    }
+    if (is.character(x) && length(x) == 1L && !is.na(x)) {
+      return(list(`1` = x))
+    }
+  }
+
   semantic_profiles <- attr(x, "semantic_profiles", exact = TRUE)
 
   if (is.null(semantic_profiles) &&
@@ -555,9 +567,9 @@
 #' structures while `nail_condes()`, `nail_qda()`, `nail_textual()`, and other
 #' analyses are progressively rebuilt around the evidence-first architecture.
 #'
-#' For `nail_catdes()`, the local semantic profiles take precedence over the
-#' historical combined outer return shape, so `nail_prompt()` exposes the
-#' actual local prompts used by the local-first architecture.
+#' For `nail_catdes()`, `nail_prompt()` exposes the actual joint prompt when
+#' `isolate.groups = FALSE`, while the named local prompts remain available
+#' when `isolate.groups = TRUE`.
 #'
 #' @examples
 #' data(iris)

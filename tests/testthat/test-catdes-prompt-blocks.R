@@ -1,11 +1,12 @@
-.catdes_prompt_blocks_example <- function(interpretation_mode = "standard") {
+.catdes_prompt_blocks_example <- function(interpretation_mode = "standard",
+                                           isolate_groups = TRUE) {
   data(atomic_habit, package = "NaileR")
 
   nail_catdes(
     dataset = atomic_habit,
     num.var = 2,
     interpretation_mode = interpretation_mode,
-    isolate.groups = TRUE,
+    isolate.groups = isolate_groups,
     quali.sample = 1,
     quanti.sample = 1,
     generate = FALSE
@@ -155,4 +156,139 @@ test_that("CATDES prompt modularization preserves displayed and canonical eviden
   expect_false(grepl("p.value", semantic_group$text, fixed = TRUE))
   expect_false(grepl("v.test", semantic_group$text, fixed = TRUE))
   expect_false(grepl("Evidence ID", semantic_group$text, fixed = TRUE))
+})
+
+test_that("CATDES non-isolated mode stores and renders one joint portfolio prompt", {
+  result <- .catdes_prompt_blocks_example(
+    interpretation_mode = "standard",
+    isolate_groups = FALSE
+  )
+  blocks <- attr(result, "catdes_prompt_blocks", exact = TRUE)
+  portfolio <- blocks$portfolio
+
+  expect_identical(names(blocks), "portfolio")
+  expect_identical(
+    names(portfolio),
+    c("context", "reading", "question", "interpretation",
+      "local_task", "evidence", "output")
+  )
+  expect_true(is.character(result))
+  expect_length(result, 1L)
+  expect_match(result, "Interpret the complete set of observed categories", fixed = TRUE)
+  expect_match(result, "Preserve all observed category names", fixed = TRUE)
+  expect_match(result, "do not present a contrast between two categories", fixed = TRUE)
+  expect_match(result, "Category \"I feel able not to take the plane\"", fixed = TRUE)
+  expect_false(grepl("Local-first semantic interpretation plan", result, fixed = TRUE))
+  expect_identical(attr(result, "catdes_settings")$generation_architecture, "joint")
+  expect_identical(attr(result, "catdes_settings")$prompt_scope, "joint")
+  expect_true(attr(result, "catdes_settings")$local_prompts_for_audit_only)
+})
+
+test_that("CATDES joint and local scopes preserve identical evidence", {
+  data(atomic_habit, package = "NaileR")
+  local <- nail_catdes(
+    dataset = atomic_habit,
+    num.var = 2,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  prepared <- attr(local, "statistical_profiles")
+  joint <- nail_catdes(
+    x = prepared,
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+
+  expect_identical(
+    attr(local, "statistical_profiles"),
+    attr(joint, "statistical_profiles")
+  )
+  expect_identical(
+    attr(local, "interpretation_evidence"),
+    attr(joint, "interpretation_evidence")
+  )
+  expect_identical(
+    attr(local, "semantic_facing_evidence"),
+    attr(joint, "semantic_facing_evidence")
+  )
+  expect_identical(
+    nail_evidence(local),
+    nail_evidence(joint)
+  )
+  expect_identical(
+    names(attr(local, "semantic_facing_evidence")$groups),
+    names(attr(joint, "semantic_facing_evidence")$groups)
+  )
+})
+
+test_that("CATDES latent joint mode keeps group naming and comparison rules", {
+  result <- .catdes_prompt_blocks_example(
+    interpretation_mode = "latent",
+    isolate_groups = FALSE
+  )
+  portfolio <- attr(result, "catdes_prompt_blocks", exact = TRUE)$portfolio
+
+  expect_match(portfolio$reading, "under which it appears", fixed = TRUE)
+  expect_match(portfolio$reading, "pairwise statistical test", fixed = TRUE)
+  expect_match(portfolio$interpretation, "labels are identifiers", fixed = TRUE)
+  expect_match(portfolio$interpretation, "meaningful names may be proposed", fixed = TRUE)
+  expect_match(portfolio$local_task, "A concise interpretive name may be proposed", fixed = TRUE)
+  expect_false(grepl("Preserve all observed category names", portfolio$local_task, fixed = TRUE))
+  expect_false(grepl("do not rename", tolower(portfolio$interpretation), fixed = TRUE))
+})
+
+test_that("CATDES default requests express interpretive rather than statistical hierarchy", {
+  requests <- unlist(lapply(c("standard", "latent"), function(mode) {
+    unlist(lapply(c(FALSE, TRUE), function(isolate) {
+      c(
+        detailed = build_request_catdes(mode, isolate, "detailed"),
+        compact = build_request_catdes(mode, isolate, "compact")
+      )
+    }), use.names = FALSE)
+  }), use.names = FALSE)
+
+  expect_true(all(grepl("central interpretive pattern", requests, fixed = TRUE)))
+  expect_true(all(grepl("secondary displayed characteristics", requests, fixed = TRUE)))
+  expect_false(any(grepl("strongest results", requests, fixed = TRUE)))
+  expect_false(any(grepl("strong evidence", requests, fixed = TRUE)))
+})
+
+test_that("CATDES joint generation uses one backend response without fabricating local responses", {
+  profiles <- .catdes_prompt_blocks_example("standard", isolate_groups = TRUE)
+  calls <- 0L
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider, model, prompt, output, llm_api_options) {
+      calls <<- calls + 1L
+      data.frame(
+        model = model,
+        created_at = as.POSIXct("2026-01-01", tz = "UTC"),
+        response = "joint mock response",
+        done = TRUE,
+        prompt = prompt,
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  result <- nail_catdes(
+    x = attr(profiles, "statistical_profiles"),
+    isolate.groups = FALSE,
+    generate = TRUE
+  )
+  semantic_profiles <- attr(result, "semantic_profiles")
+
+  expect_identical(calls, 1L)
+  expect_true(is.data.frame(result))
+  expect_identical(attr(result, "catdes_settings")$llm_calls, 1L)
+  expect_identical(semantic_profiles$settings$architecture, "joint")
+  expect_false(semantic_profiles$settings$local_responses_generated)
+  expect_identical(semantic_profiles$metadata$n_generated, 0L)
+  expect_true(all(vapply(
+    semantic_profiles$groups,
+    function(group) is.null(group$response) &&
+      identical(group$status, "joint_response_not_stored"),
+    logical(1)
+  )))
 })

@@ -267,13 +267,13 @@ test_that("standard and latent modes preserve the historical semantic contract",
     generate = FALSE
   )
 
-  expect_match(standard, "Do not reinterpret this category as a latent profile", fixed = TRUE)
-  expect_match(standard, "do not rename it", fixed = TRUE)
-  expect_match(standard, "higher-level interpretation", fixed = TRUE)
-  expect_match(standard, "new statistical fact", fixed = TRUE)
-  expect_match(standard, "contextual hypothesis", fixed = TRUE)
-  expect_match(latent, "meaning must be inferred from the results", fixed = TRUE)
-  expect_match(latent, "propose a meaningful name for each group", fixed = TRUE)
+  expect_match(standard, "These are observed categories", fixed = TRUE)
+  expect_match(standard, "Preserve their original names", fixed = TRUE)
+  expect_match(standard, "Higher-level synthesis across displayed categories", fixed = TRUE)
+  expect_match(standard, "hypotheses", fixed = TRUE)
+  expect_match(latent, "constructed profiles or latent classes", fixed = TRUE)
+  expect_match(latent, "meaningful names may be proposed", fixed = TRUE)
+  expect_match(latent, "A concise interpretive name may be proposed for each group", fixed = TRUE)
   expect_false(grepl("do not rename", tolower(latent), fixed = TRUE))
 })
 
@@ -308,11 +308,22 @@ test_that("joint and isolated prompt forms remain available", {
 
   expect_true(is.character(joint))
   expect_length(joint, 1L)
+  expect_match(joint, 'Category "A"', fixed = TRUE)
+  expect_match(joint, 'Category "B"', fixed = TRUE)
+  expect_false(grepl("Local-first semantic interpretation plan", joint, fixed = TRUE))
+  expect_identical(
+    names(attr(joint, "catdes_prompt_blocks", exact = TRUE)),
+    "portfolio"
+  )
   expect_true(is.list(isolated))
   expect_setequal(names(isolated), names(profiles$groups))
+  expect_setequal(
+    names(attr(isolated, "catdes_prompt_blocks", exact = TRUE)),
+    names(profiles$groups)
+  )
 })
 
-test_that("non-isolated generation is local-first while preserving data-frame return", {
+test_that("non-isolated generation is joint while preserving data-frame return", {
   profiles <- .catdes_stage2_profiles()
   calls <- 0L
 
@@ -327,17 +338,24 @@ test_that("non-isolated generation is local-first while preserving data-frame re
   result <- nail_catdes(x = profiles, generate = TRUE)
   evidence <- attr(result, "interpretation_evidence")
 
-  expect_identical(calls, evidence$metadata$n_ready_groups)
+  expect_identical(calls, 1L)
   expect_true(is.data.frame(result))
   expect_identical(
     attr(result, "catdes_settings")$llm_calls,
-    evidence$metadata$n_ready_groups
+    1L
   )
   expect_identical(
     attr(result, "catdes_settings")$generation_architecture,
-    "local_first"
+    "joint"
   )
   expect_false(attr(result, "catdes_settings")$global_synthesis_performed)
+  expect_false(attr(result, "semantic_profiles")$settings$local_responses_generated)
+  expect_identical(attr(result, "semantic_profiles")$metadata$n_generated, 0L)
+  expect_true(all(vapply(
+    attr(result, "semantic_profiles")$groups,
+    function(group) is.null(group$response),
+    logical(1)
+  )))
 })
 
 test_that("isolated generation calls only groups with selected evidence", {
@@ -359,6 +377,10 @@ test_that("isolated generation calls only groups with selected evidence", {
   expect_identical(
     attr(result, "catdes_settings")$llm_calls,
     evidence$metadata$n_ready_groups
+  )
+  expect_identical(
+    attr(result, "catdes_settings")$generation_architecture,
+    "local"
   )
   expect_match(result$Empty$response, "No selected statistical evidence", fixed = TRUE)
 })

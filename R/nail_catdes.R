@@ -531,7 +531,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       if (plural) {
         return(paste(
           "Describe what characterizes each category and what distinguishes it from the others.",
-          "For each category, identify the most distinctive results, distinguish strong evidence from more secondary evidence, and say whether the main differences seem expected, unexpected, or mixed.",
+          "For each category, identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and say whether the main differences seem expected, unexpected, or mixed.",
           "You may synthesize several displayed results into a higher-level interpretation when the connection is reasonable and traceable; do not present that synthesis as a new statistical fact.",
           "Do not rename the categories.",
           sep = "\n"
@@ -539,7 +539,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       } else {
         return(paste(
           "Describe what characterizes this category.",
-          "Identify the most distinctive results, distinguish strong evidence from more secondary evidence, and say whether the main characteristics seem expected, unexpected, or mixed.",
+          "Identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and say whether the main characteristics seem expected, unexpected, or mixed.",
           "You may synthesize several displayed results into a higher-level interpretation when the connection is reasonable and traceable; do not present that synthesis as a new statistical fact.",
           "Do not rename the category.",
           sep = "\n"
@@ -551,7 +551,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       return(paste(
         "Based on the results, describe what characterizes each category and what distinguishes it from the others.",
         "Use the results to clarify the meaning of each category, not to rename it.",
-        "For each category, identify the most distinctive characteristics, distinguish the strongest results from the more secondary ones, and comment on whether the main differences seem expected, unexpected, or mixed given the apparent meaning of the categories.",
+        "For each category, identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and comment on whether the main differences seem expected, unexpected, or mixed given the apparent meaning of the categories.",
         "You may synthesize several displayed characteristics into a higher-level interpretation when the connection is reasonable and traceable; do not present that synthesis as a new statistical fact.",
         "If some categories are more clearly defined than others, say so explicitly.",
         sep = "\n"
@@ -560,7 +560,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       return(paste(
         "Based on the results, describe what characterizes this category.",
         "Use the results to clarify the meaning of this category, not to rename it.",
-        "Identify its most distinctive characteristics, distinguish the strongest results from the more secondary ones, and comment on whether its main characteristics seem expected, unexpected, or mixed given the apparent meaning of the category.",
+        "Identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and comment on whether its main characteristics seem expected, unexpected, or mixed given the apparent meaning of the category.",
         "You may synthesize several displayed characteristics into a higher-level interpretation when the connection is reasonable and traceable; do not present that synthesis as a new statistical fact.",
         "If the evidence is weak, ambiguous, or only moderately distinctive, say so explicitly.",
         sep = "\n"
@@ -573,7 +573,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     if (plural) {
       return(paste(
         "Describe what characterizes each group and what distinguishes it from the others.",
-        "For each group, identify the most distinctive results, distinguish strong evidence from more secondary evidence, and say whether some groups are clearer or more ambiguous than others.",
+        "For each group, identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and say whether some groups are clearer or more ambiguous than others.",
         "Then propose a meaningful name for each group.",
         sep = "\n"
       ))
@@ -581,7 +581,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       return(paste(
         "Describe what characterizes this group based only on the results shown here.",
         "Do not treat the group label as its interpretation.",
-        "Identify the most distinctive results, distinguish strong evidence from more secondary evidence, and say whether the group seems clearly defined or somewhat ambiguous.",
+        "Identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and say whether the group seems clearly defined or somewhat ambiguous.",
         "Then infer a meaningful name for this group from the results.",
         sep = "\n"
       ))
@@ -591,7 +591,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
   if (plural) {
     paste(
       "Based on the results, describe what characterizes each group and what sets it apart from the other groups.",
-      "For each group, identify the most distinctive characteristics, distinguish the strongest results from the more secondary ones, and comment on whether some groups seem more clearly defined or more ambiguous than others.",
+      "For each group, identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and comment on whether some groups seem more clearly defined or more ambiguous than others.",
       "Then, based on these characteristics, propose a meaningful name for each group.",
       sep = "\n"
     )
@@ -599,7 +599,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     paste(
       "Based on the results shown here, describe what characterizes this group and what makes it distinctive.",
       "Do not treat the group label as the interpretation of the group.",
-      "Identify its most distinctive characteristics, distinguish the strongest results from the more secondary ones, and comment on whether the group appears clearly defined or somewhat ambiguous.",
+      "Identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and comment on whether the group appears clearly defined or somewhat ambiguous.",
       "Then, based on these characteristics, propose a meaningful name for this group.",
       sep = "\n"
     )
@@ -1479,8 +1479,39 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
   out
 }
 
-.reading_nail_catdes <- function(interpretation_mode) {
+.reading_nail_catdes <- function(interpretation_mode,
+                                 joint = FALSE) {
   unit <- .unit_noun(interpretation_mode)
+
+  if (isTRUE(joint)) {
+    return(paste(
+      "R has already performed the statistical analysis.",
+      paste0(
+        "Read each statement below as a factual comparison between the ",
+        unit, " under which it appears and the full sample."
+      ),
+      paste0(
+        "MORE FREQUENT and LESS FREQUENT describe relative modality prevalence in that ",
+        unit, "."
+      ),
+      paste0(
+        "HIGHER and LOWER describe that ", unit,
+        "'s mean relative to the full-sample mean for the same variable."
+      ),
+      paste0(
+        "When percentages are shown, the ", unit,
+        " percentage describes the modality within that ", unit,
+        " and the full-sample percentage describes the same modality in the full sample; these are descriptive values, not p-values or measures of statistical strength."
+      ),
+      paste0(
+        "When means are shown, compare each ", unit,
+        " mean only with the full-sample mean for that same variable; do not compare mean values across variables as if they shared one scale."
+      ),
+      "An undisplayed modality or variable is not thereby absent, average, rejected, or unimportant.",
+      "You may compare the displayed profiles, but do not present a contrast between two categories/groups as a direct pairwise statistical test unless such a test is explicitly shown.",
+      sep = "\n"
+    ))
+  }
 
   paste(
     "R has already performed the statistical analysis.",
@@ -1513,7 +1544,35 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
 }
 
 .interpretation_nail_catdes <- function(interpretation_mode,
-                                        target_label) {
+                                        target_label,
+                                        joint = FALSE) {
+  if (isTRUE(joint)) {
+    if (identical(interpretation_mode, "standard")) {
+      return(paste(
+        paste0(
+          "These are observed categories of '", target_label, "'."
+        ),
+        "Preserve their original names.",
+        "Do not reinterpret them as latent profiles and do not rename them.",
+        "Category names are contextual information, not statistical evidence.",
+        "Do not invent empirical characteristics.",
+        "Higher-level synthesis across displayed categories is allowed when traceable to the displayed evidence.",
+        "Broader contextual hypotheses are allowed only when explicitly identified as hypotheses.",
+        sep = "\n"
+      ))
+    }
+
+    return(paste(
+      "These are constructed profiles or latent classes whose meaning must be inferred from the results.",
+      "Their current labels are identifiers, not interpretations.",
+      "Their meanings may be inferred from the displayed evidence and concise meaningful names may be proposed.",
+      "Do not invent unlisted statistical characteristics.",
+      "Higher-level synthesis across displayed groups is allowed when traceable to the evidence.",
+      "Broader contextual hypotheses must be identified as hypotheses.",
+      sep = "\n"
+    ))
+  }
+
   if (identical(interpretation_mode, "standard")) {
     return(paste(
       paste0(
@@ -1540,7 +1599,28 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
   )
 }
 
-.local_task_nail_catdes <- function(interpretation_mode) {
+.local_task_nail_catdes <- function(interpretation_mode,
+                                    joint = FALSE) {
+  if (isTRUE(joint)) {
+    if (identical(interpretation_mode, "standard")) {
+      return(paste(
+        "Interpret the complete set of observed categories shown below.",
+        "For each category, identify its main coherent pattern.",
+        "Then compare the supported profiles to identify the most important similarities and differences.",
+        "Preserve all observed category names.",
+        "Do not claim pairwise statistical significance that is not explicitly shown."
+      ))
+    }
+
+    return(paste(
+      "Interpret the complete set of constructed groups shown below.",
+      "For each group, identify its main coherent pattern.",
+      "Then compare the supported profiles to identify the main similarities, differences, and broader structure.",
+      "A concise interpretive name may be proposed for each group.",
+      "Do not claim pairwise statistical significance that is not explicitly shown."
+    ))
+  }
+
   if (identical(interpretation_mode, "standard")) {
     return(paste(
       "Interpret ONLY the observed category shown below.",
@@ -1562,8 +1642,38 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
                                                     introduction,
                                                     request,
                                                     interpretation_mode,
-                                                    target_label) {
+                                                    target_label,
+                                                    isolate_groups = TRUE) {
   group_names <- names(semantic_facing_evidence$groups)
+
+  if (!isTRUE(isolate_groups)) {
+    group_label <- .unit_label(interpretation_mode)
+    evidence <- vapply(group_names, function(group_name) {
+      paste0(
+        "## ", group_label, " \"", group_name, "\"\n\n",
+        semantic_facing_evidence$groups[[group_name]]$text
+      )
+    }, character(1))
+
+    return(list(
+      portfolio = list(
+        context = introduction,
+        reading = .reading_nail_catdes(interpretation_mode, joint = TRUE),
+        question = request,
+        interpretation = .interpretation_nail_catdes(
+          interpretation_mode,
+          target_label,
+          joint = TRUE
+        ),
+        local_task = .local_task_nail_catdes(
+          interpretation_mode,
+          joint = TRUE
+        ),
+        evidence = paste(evidence, collapse = "\n\n---\n\n"),
+        output = NULL
+      )
+    ))
+  }
 
   stats::setNames(lapply(group_names, function(group_name) {
     group <- semantic_facing_evidence$groups[[group_name]]
@@ -1583,8 +1693,17 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
 }
 
 .render_catdes_prompt_blocks_nail_catdes <- function(blocks,
-                                                     group_label,
-                                                     group_name) {
+                                                     group_label = NULL,
+                                                     group_name = NULL) {
+  data_block <- if (is.null(group_name)) {
+    blocks$evidence
+  } else {
+    paste0(
+      "## ", group_label, " \"", group_name, "\"\n\n",
+      blocks$evidence
+    )
+  }
+
   parts <- c(
     "# Introduction",
     blocks$context,
@@ -1598,8 +1717,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     "# Local Task",
     blocks$local_task,
     "# Data",
-    paste0("## ", group_label, " \"", group_name, "\""),
-    blocks$evidence
+    data_block
   )
 
   if (!is.null(blocks$output) && nzchar(trimws(blocks$output))) {
@@ -1623,7 +1741,8 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     introduction = introduction,
     request = request,
     interpretation_mode = interpretation_mode,
-    target_label = target_label
+    target_label = target_label,
+    isolate_groups = TRUE
   )
 
   prompts <- lapply(
@@ -1642,29 +1761,13 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
   prompts
 }
 
-.combine_local_prompt_preview_nail_catdes <- function(local_prompts,
-                                                       interpretation_mode) {
-  group_label <- .unit_label(interpretation_mode)
-  parts <- vapply(names(local_prompts), function(group_name) {
-    paste0(
-      "## Local prompt for ", group_label, " \"", group_name, "\"\n\n",
-      local_prompts[[group_name]]
-    )
-  }, character(1))
-
-  normalize_blank_lines(paste0(
-    "# Local-first semantic interpretation plan\n\n",
-    "Each group will be interpreted independently. No group receives statistical facts from another group.\n\n",
-    paste(parts, collapse = "\n\n---\n\n")
-  ))
-}
-
 .build_semantic_profiles_nail_catdes <- function(local_results,
                                                   local_prompts,
                                                   semantic_facing_evidence,
                                                   interpretation_mode,
                                                   target_label,
-                                                  generated) {
+                                                  generated,
+                                                  architecture = "local") {
   group_names <- names(semantic_facing_evidence$groups)
   groups <- stats::setNames(vector("list", length(group_names)), group_names)
 
@@ -1681,6 +1784,8 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       group = group_name,
       status = if (!identical(evidence_group$status, "ready")) {
         evidence_group$status
+      } else if (identical(architecture, "joint") && isTRUE(generated)) {
+        "joint_response_not_stored"
       } else if (isTRUE(generated) && is.null(response)) {
         "generation_missing"
       } else if (isTRUE(generated)) {
@@ -1691,6 +1796,11 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       prompt = local_prompts[[group_name]],
       response = response,
       backend_result = result_group,
+      prompt_role = if (identical(architecture, "joint")) {
+        "local_audit_only"
+      } else {
+        "generation_prompt"
+      },
       selected_evidence_ids = evidence_group$selected_evidence_ids,
       n_selected_evidence = evidence_group$metrics$n_selected,
       n_displayed_evidence = evidence_group$metrics$n_displayed
@@ -1702,8 +1812,10 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     settings = list(
       interpretation_mode = interpretation_mode,
       target_label = target_label,
-      architecture = "local_first",
-      global_synthesis_performed = FALSE
+      architecture = architecture,
+      global_synthesis_performed = FALSE,
+      local_responses_generated = identical(architecture, "local") &&
+        isTRUE(generated)
     ),
     metadata = list(
       schema = "NaileR::catdes_semantic_profiles",
@@ -1719,34 +1831,6 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
   class(out) <- c("nail_catdes_semantic_profiles", "list")
   out
 }
-
-.combine_local_results_nail_catdes <- function(local_results,
-                                                combined_prompt,
-                                                model,
-                                                interpretation_mode) {
-  group_label <- .unit_label(interpretation_mode)
-  responses <- vapply(names(local_results), function(group_name) {
-    result <- local_results[[group_name]]
-    response <- if (is.data.frame(result) &&
-                    "response" %in% names(result) &&
-                    nrow(result) > 0L) {
-      as.character(result$response[[1L]])
-    } else {
-      "No local semantic interpretation was generated."
-    }
-    paste0("## ", group_label, " \"", group_name, "\"\n\n", response)
-  }, character(1))
-
-  data.frame(
-    model = model,
-    created_at = Sys.time(),
-    response = paste(responses, collapse = "\n\n"),
-    done = TRUE,
-    prompt = combined_prompt,
-    stringsAsFactors = FALSE
-  )
-}
-
 
 # ---------------------------------------------------------------------------
 # Validation and compatibility artifacts
@@ -1845,9 +1929,10 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'
 #' Interpret the statistical characteristics of an observed categorical
 #' variable or of statistically constructed groups. Statistical markers are
-#' selected mechanically, translated by R into plain-language factual
-#' statements, and interpreted locally one group at a time before any future
-#' cross-group synthesis.
+#' selected mechanically and translated by R into plain-language factual
+#' statements. The LLM interpretation scope is controlled by
+#' `isolate.groups`: one joint comparative prompt by default, or one local
+#' prompt per group when isolation is requested.
 #'
 #' @param dataset Historical raw-data input. A data frame containing the
 #'   grouping variable and at least one descriptor. Positional calls such as
@@ -1863,11 +1948,12 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   `interpretation_mode`, `prompt_style`, and `isolate.groups` when `NULL`.
 #' @param model Model name used by the selected provider.
 #' @param provider LLM backend, either `"ollama"` or `"gemini"`.
-#' @param isolate.groups Logical. Local interpretation is always performed one
-#'   category/group at a time. If `TRUE`, return the local prompts/results as a
-#'   named list. If `FALSE`, preserve the historical outer return shape by
-#'   combining the independent local prompts/results into one preview/result.
-#'   No global comparative synthesis is performed at this stage.
+#' @param isolate.groups Logical. If `FALSE`, all categories/groups and their
+#'   selected semantic-facing evidence are presented jointly in one prompt and
+#'   one LLM call is made when `generate = TRUE`. If `TRUE`, each
+#'   category/group is presented independently in its own prompt and
+#'   interpreted separately. Isolation can be useful for long CATDES results
+#'   or when an autonomous portrait of each group is desired.
 #' @param quali.sample,quanti.sample Numbers in `[0, 1]` controlling the
 #'   deterministic proportion of ranked qualitative or quantitative markers
 #'   shown to the LLM. Zero selects none; one selects every eligible marker;
@@ -1905,21 +1991,23 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' evidence identifiers remain available for audit but are not exposed to the
 #' semantic prompt.
 #'
-#' Every group is interpreted independently. This prevents statistical facts
-#' from one group being transferred to another during the first semantic pass.
-#' A future global synthesis can then work from the frozen local semantic
-#' profiles instead of from the original statistical tables.
+#' `isolate.groups` controls the LLM interpretation scope, not the statistical
+#' analysis. With `FALSE`, the model receives one joint prompt containing all
+#' category/group evidence and can compare the displayed profiles. With
+#' `TRUE`, each model call receives only one category/group and produces an
+#' autonomous portrait. In both cases, the statistical and semantic-facing
+#' evidence are constructed once before prompt projection.
 #'
 #' Every successful return carries `statistical_profiles`,
 #' `interpretation_evidence`, `semantic_facing_evidence`, `local_prompts`,
 #' `semantic_profiles`, `catdes_result` when available, and `catdes_settings` as
 #' attributes.
 #'
-#' @return When `generate = FALSE`, a character local-first preview when
+#' @return When `generate = FALSE`, the actual joint prompt when
 #'   `isolate.groups = FALSE`, or the exact named local prompts when
-#'   `isolate.groups = TRUE`. When `generate = TRUE`, a combined data frame when
-#'   `isolate.groups = FALSE`, or the named local backend results when
-#'   `isolate.groups = TRUE`. Mechanical and semantic-stage artifacts are
+#'   `isolate.groups = TRUE`. When `generate = TRUE`, a single backend data
+#'   frame when `isolate.groups = FALSE`, or the named local backend results
+#'   when `isolate.groups = TRUE`. Mechanical and semantic-stage artifacts are
 #'   attached as attributes in all cases.
 #'
 #' @importFrom dplyr mutate filter arrange desc pull select slice_sample group_by n ungroup
@@ -2039,15 +2127,37 @@ nail_catdes <- function(dataset = NULL,
     interpretation_mode = interpretation_mode,
     target_label = normalized$target_label
   )
-  prompt_blocks <- attr(local_prompts, "catdes_prompt_blocks", exact = TRUE)
-  combined_prompt_preview <- .combine_local_prompt_preview_nail_catdes(
-    local_prompts,
-    interpretation_mode
-  )
+  local_prompt_blocks <- attr(local_prompts, "catdes_prompt_blocks", exact = TRUE)
+
+  if (isTRUE(isolate.groups)) {
+    prompt_blocks <- local_prompt_blocks
+    actual_prompt <- NULL
+  } else {
+    prompt_blocks <- .build_catdes_prompt_blocks_nail_catdes(
+      semantic_facing_evidence = semantic_facing_evidence,
+      introduction = introduction,
+      request = request,
+      interpretation_mode = interpretation_mode,
+      target_label = normalized$target_label,
+      isolate_groups = FALSE
+    )
+    actual_prompt <- .render_catdes_prompt_blocks_nail_catdes(
+      blocks = prompt_blocks$portfolio
+    )
+  }
 
   n_ready_groups <- interpretation_evidence$metadata$n_ready_groups
   n_selected <- interpretation_evidence$metadata$n_selected_evidence
-  llm_calls <- if (isTRUE(generate)) as.integer(n_ready_groups) else 0L
+  generation_architecture <- if (isTRUE(isolate.groups)) "local" else "joint"
+  llm_calls <- if (!isTRUE(generate)) {
+    0L
+  } else if (isTRUE(isolate.groups)) {
+    as.integer(n_ready_groups)
+  } else if (n_selected > 0L) {
+    1L
+  } else {
+    0L
+  }
 
   catdes_settings <- list(
     source_type = normalized$source_type,
@@ -2073,7 +2183,9 @@ nail_catdes <- function(dataset = NULL,
       normalized$metadata$statistical_profiles_canonicalized
     ),
     semantic_representation = "hybrid_plain",
-    generation_architecture = "local_first",
+    generation_architecture = generation_architecture,
+    prompt_scope = generation_architecture,
+    local_prompts_for_audit_only = !isTRUE(isolate.groups),
     global_synthesis_performed = FALSE,
     n_selected_evidence = as.integer(n_selected),
     n_displayed_evidence = as.integer(
@@ -2090,14 +2202,15 @@ nail_catdes <- function(dataset = NULL,
     semantic_facing_evidence = semantic_facing_evidence,
     interpretation_mode = interpretation_mode,
     target_label = normalized$target_label,
-    generated = FALSE
+    generated = FALSE,
+    architecture = generation_architecture
   )
 
   if (!isTRUE(generate)) {
     result <- if (isTRUE(isolate.groups)) {
       local_prompts
     } else {
-      combined_prompt_preview
+      actual_prompt
     }
 
     return(.attach_nail_catdes_artifacts(
@@ -2125,52 +2238,59 @@ nail_catdes <- function(dataset = NULL,
     response
   }
 
-  local_results <- stats::setNames(
-    vector("list", length(local_prompts)),
-    names(local_prompts)
-  )
+  if (isTRUE(isolate.groups)) {
+    local_results <- stats::setNames(
+      vector("list", length(local_prompts)),
+      names(local_prompts)
+    )
 
-  for (group_name in names(local_prompts)) {
-    group_evidence <- interpretation_evidence$groups[[group_name]]
-    local_results[[group_name]] <- if (identical(group_evidence$status, "ready")) {
-      call_llm(local_prompts[[group_name]])
-    } else {
+    for (group_name in names(local_prompts)) {
+      group_evidence <- interpretation_evidence$groups[[group_name]]
+      local_results[[group_name]] <- if (identical(group_evidence$status, "ready")) {
+        call_llm(local_prompts[[group_name]])
+      } else {
+        .catdes_no_results_data_frame(
+          model = model,
+          prompt = local_prompts[[group_name]],
+          response = paste0(
+            "No selected statistical evidence found for group '",
+            group_name,
+            "'."
+          )
+        )
+      }
+    }
+
+    semantic_profiles <- .build_semantic_profiles_nail_catdes(
+      local_results = local_results,
+      local_prompts = local_prompts,
+      semantic_facing_evidence = semantic_facing_evidence,
+      interpretation_mode = interpretation_mode,
+      target_label = normalized$target_label,
+      generated = TRUE,
+      architecture = "local"
+    )
+    result <- local_results
+  } else {
+    result <- if (n_selected == 0L) {
+      message("Execution halted: No selected statistical evidence. Nothing to generate.")
       .catdes_no_results_data_frame(
         model = model,
-        prompt = local_prompts[[group_name]],
-        response = paste0(
-          "No selected statistical evidence found for group '",
-          group_name,
-          "'."
-        )
+        prompt = actual_prompt,
+        response = "No selected statistical evidence found."
       )
+    } else {
+      call_llm(actual_prompt)
     }
-  }
 
-  semantic_profiles <- .build_semantic_profiles_nail_catdes(
-    local_results = local_results,
-    local_prompts = local_prompts,
-    semantic_facing_evidence = semantic_facing_evidence,
-    interpretation_mode = interpretation_mode,
-    target_label = normalized$target_label,
-    generated = TRUE
-  )
-
-  result <- if (isTRUE(isolate.groups)) {
-    local_results
-  } else if (n_selected == 0L) {
-    message("Execution halted: No selected statistical evidence. Nothing to generate.")
-    .catdes_no_results_data_frame(
-      model = model,
-      prompt = combined_prompt_preview,
-      response = "No selected statistical evidence found."
-    )
-  } else {
-    .combine_local_results_nail_catdes(
-      local_results = local_results,
-      combined_prompt = combined_prompt_preview,
-      model = model,
-      interpretation_mode = interpretation_mode
+    semantic_profiles <- .build_semantic_profiles_nail_catdes(
+      local_results = NULL,
+      local_prompts = local_prompts,
+      semantic_facing_evidence = semantic_facing_evidence,
+      interpretation_mode = interpretation_mode,
+      target_label = normalized$target_label,
+      generated = TRUE,
+      architecture = "joint"
     )
   }
 

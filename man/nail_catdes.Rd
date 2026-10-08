@@ -41,11 +41,12 @@ generated when \code{NULL}.}
 
 \item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
 
-\item{isolate.groups}{Logical. Local interpretation is always performed one
-category/group at a time. If \code{TRUE}, return the local prompts/results as a
-named list. If \code{FALSE}, preserve the historical outer return shape by
-combining the independent local prompts/results into one preview/result.
-No global comparative synthesis is performed at this stage.}
+\item{isolate.groups}{Logical. If \code{FALSE}, all categories/groups and their
+selected semantic-facing evidence are presented jointly in one prompt and
+one LLM call is made when \code{generate = TRUE}. If \code{TRUE}, each
+category/group is presented independently in its own prompt and
+interpreted separately. Isolation can be useful for long CATDES results
+or when an autonomous portrait of each group is desired.}
 
 \item{quali.sample, quanti.sample}{Numbers in \verb{[0, 1]} controlling the
 deterministic proportion of ranked qualitative or quantitative markers
@@ -80,19 +81,20 @@ attribute. Do not supply \code{x} together with \code{dataset}.}
 backend.}
 }
 \value{
-When \code{generate = FALSE}, a character local-first preview when
+When \code{generate = FALSE}, the actual joint prompt when
 \code{isolate.groups = FALSE}, or the exact named local prompts when
-\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a combined data frame when
-\code{isolate.groups = FALSE}, or the named local backend results when
-\code{isolate.groups = TRUE}. Mechanical and semantic-stage artifacts are
+\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a single backend data
+frame when \code{isolate.groups = FALSE}, or the named local backend results
+when \code{isolate.groups = TRUE}. Mechanical and semantic-stage artifacts are
 attached as attributes in all cases.
 }
 \description{
 Interpret the statistical characteristics of an observed categorical
 variable or of statistically constructed groups. Statistical markers are
-selected mechanically, translated by R into plain-language factual
-statements, and interpreted locally one group at a time before any future
-cross-group synthesis.
+selected mechanically and translated by R into plain-language factual
+statements. The LLM interpretation scope is controlled by
+\code{isolate.groups}: one joint comparative prompt by default, or one local
+prompt per group when isolation is requested.
 }
 \details{
 With raw data, \code{\link[=nail_catdes_prep]{nail_catdes_prep()}} performs the only \code{catdes()} computation
@@ -111,10 +113,12 @@ variables keep only the selected modalities. \code{p.value}, \code{v.test}, and 
 evidence identifiers remain available for audit but are not exposed to the
 semantic prompt.
 
-Every group is interpreted independently. This prevents statistical facts
-from one group being transferred to another during the first semantic pass.
-A future global synthesis can then work from the frozen local semantic
-profiles instead of from the original statistical tables.
+\code{isolate.groups} controls the LLM interpretation scope, not the statistical
+analysis. With \code{FALSE}, the model receives one joint prompt containing all
+category/group evidence and can compare the displayed profiles. With
+\code{TRUE}, each model call receives only one category/group and produces an
+autonomous portrait. In both cases, the statistical and semantic-facing
+evidence are constructed once before prompt projection.
 
 Every successful return carries \code{statistical_profiles},
 \code{interpretation_evidence}, \code{semantic_facing_evidence}, \code{local_prompts},
