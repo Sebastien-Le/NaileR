@@ -1273,7 +1273,6 @@ build_guide_condes <- function(mode = c("standard", "latent"),
   }
 
   common <- c(
-    "## How to Read the Evidence",
     paste0(
       "The R-derived facts below come from `FactoMineR::condes()`",
       " under the current retention threshold (p <= ",
@@ -1289,8 +1288,7 @@ build_guide_condes <- function(mode = c("standard", "latent"),
       quanti.threshold,
       " standard-deviation unit(s); original qualitative categories are preserved."
     ),
-    sampling_line,
-    "Do not infer causality from these associations."
+    sampling_line
   )
 
   if (prompt_style == "detailed") {
@@ -1299,9 +1297,7 @@ build_guide_condes <- function(mode = c("standard", "latent"),
       "A positive correlation means that higher values of the predictor tend to accompany higher values of the target; a negative correlation means the opposite.",
       "For continuous predictors, the absolute correlation reflects the magnitude of the linear association, while its sign gives the direction.",
       "For end profiles, Estimate is a signed effect relative to the fitted coding/model: a negative value orients toward the lower end and a positive value toward the higher end; it is not an importance measure or an independent confirmation.",
-      "Among the displayed retained results, smaller p.values indicate stronger statistical evidence against the corresponding null association under the fitted analysis. They do not measure substantive importance or association magnitude.",
-      "Do not equate statistical evidence strength or association magnitude with interpretive importance. Identify the central pattern from the coherence of the displayed evidence as a whole.",
-      "Interpret the pattern formed by several coherent variables rather than merely paraphrasing each line."
+      "Among the displayed retained results, smaller p.values indicate stronger statistical evidence against the corresponding null association under the fitted analysis. They do not measure substantive importance or association magnitude."
     )
   } else {
     common <- c(
@@ -1310,28 +1306,7 @@ build_guide_condes <- function(mode = c("standard", "latent"),
     )
   }
 
-  mode_lines <- if (mode == "standard") {
-    c(
-      paste0(
-        'The target label "', target_label,
-        '" is meaningful and refers to an observed continuous variable.'
-      ),
-      "Preserve this meaning and do not rename the target."
-    )
-  } else {
-    c(
-      paste0(
-        'The target label "', target_label,
-        '" may be a technical label for a synthetic or latent continuous score.'
-      ),
-      "Treat its two ends as opposite manifestations of one continuum and reconstruct its substantive meaning from the evidence."
-    )
-  }
-
-  paste(
-    c(common, mode_lines),
-    collapse = "\n"
-  )
+  paste(common, collapse = "\n")
 }
 
 
@@ -1344,39 +1319,79 @@ build_request_condes <- function(
   prompt_style <- match.arg(prompt_style)
 
   if (mode == "standard") {
+    return(
+      paste0(
+        'Interpret the observed continuous variable "',
+        target_label,
+        '".'
+      )
+    )
+  }
+
+  paste0(
+    'Interpret "',
+    target_label,
+    '" as one continuous latent or synthetic dimension.'
+  )
+}
+
+
+.build_condes_interpretation <- function(
+    mode = c("standard", "latent"),
+    target_concept = "the target concept",
+    target_label = "the target variable",
+    prompt_style = c("detailed", "compact")) {
+  mode <- match.arg(mode)
+  prompt_style <- match.arg(prompt_style)
+
+  if (mode == "standard") {
+    common <- c(
+      "Ground your interpretation in the statistical evidence below. Use the study context provided in the introduction to help give substantive meaning to the pattern, but do not treat contextual information as statistical evidence.",
+      "Do not infer causality from these associations.",
+      "Do not equate statistical evidence strength or association magnitude with interpretive importance. Identify the central pattern from the coherence of the displayed evidence as a whole.",
+      "Interpret the pattern formed by several coherent variables rather than merely paraphrasing each line."
+    )
+
     if (prompt_style == "compact") {
       return(
         paste(
-          paste0(
-            'Interpret the observed continuous variable "',
-            target_label,
-            '". Ground your interpretation in the statistical evidence below. Use the study context provided in the introduction to help give substantive meaning to the pattern, but do not treat contextual information as statistical evidence.'
-          ),
+          c(
+          common,
           "Identify the main associations and describe what characterizes its lower and higher ends.",
           "Synthesize what the evidence adds to the understanding of the variable without renaming it.",
           "Keeping the observed target name does not prevent a broader substantive interpretation when it reasonably synthesizes several displayed associations; distinguish that interpretation from a direct statistical association.",
-          "Do not invent causal explanations.",
-          sep = "\n"
+          paste0(
+            'The target label "', target_label,
+            '" is meaningful and refers to an observed continuous variable.'
+          ),
+          "Preserve this meaning and do not rename the target.",
+          "Do not invent causal explanations."
+          ),
+          collapse = "\n"
         )
       )
     }
 
     return(
       paste(
-        paste0(
-          'Ground your interpretation in the statistical evidence below. Use the study context provided in the introduction to help give substantive meaning to the pattern, but do not treat contextual information as statistical evidence. Interpret the observed continuous variable "',
-          target_label,
-          '".'
+        c(
+          common,
+          paste0(
+            'The target label "', target_label,
+            '" is meaningful and refers to an observed continuous variable.'
+          ),
+          "Preserve this meaning and do not rename the target.",
+          "1. Identify the main coherent variable-level associations, considering statistical support and association magnitude as distinct properties.",
+          "2. Translate their directions into substantive meaning.",
+          "3. Describe what characterizes the lower end of the target.",
+          "4. Describe what characterizes the higher end of the target.",
+          "5. Use the end-profile evidence to illustrate or qualify the variable-level pattern.",
+          "6. Explain what these associations add to the understanding of the target as a whole.",
+          "7. Keeping the observed target name does not prevent a broader substantive interpretation when it reasonably synthesizes several displayed associations; distinguish that interpretation from a direct statistical association.",
+          "Do not rename the target, do not force coherence, and do not invent causal explanations.",
+          "Interpret the pattern formed by several coherent variables rather than merely paraphrasing each line."
         ),
-        "1. Identify the main coherent variable-level associations, considering statistical support and association magnitude as distinct properties.",
-        "2. Translate their directions into substantive meaning.",
-        "3. Describe what characterizes the lower end of the target.",
-        "4. Describe what characterizes the higher end of the target.",
-        "5. Use the end-profile evidence to illustrate or qualify the variable-level pattern.",
-        "6. Explain what these associations add to the understanding of the target as a whole.",
-        "7. Keeping the observed target name does not prevent a broader substantive interpretation when it reasonably synthesizes several displayed associations; distinguish that interpretation from a direct statistical association.",
-        "Do not rename the target, do not force coherence, and do not invent causal explanations.",
-        sep = "\n"
+        collapse = "\n"
       )
     )
   }
@@ -1396,26 +1411,26 @@ build_request_condes <- function(
   if (prompt_style == "compact") {
     return(
       paste(
-        paste0(
-          'Interpret "', target_label,
-          '" as one continuous latent or synthetic dimension using only the evidence below.'
-        ),
+        "Ground the reconstruction in the statistical evidence below and do not infer causality.",
+        "Do not equate statistical evidence strength or association magnitude with interpretive importance.",
         "Identify the main variable-level associations, describe the two ends, and infer the common meaning that best explains their opposition.",
         'State explicitly: "What separates the higher end from the lower end of the continuum is..."',
         "Then propose one concise name for the continuum.",
         concept_rule,
-        "Do not invent causal explanations.",
+        "Treat the two ends as opposite manifestations of one continuum and reconstruct its substantive meaning from the evidence.",
         sep = "\n"
       )
     )
   }
 
   paste(
+    "Ground the reconstruction in the statistical evidence below and do not infer causality.",
+    "Do not equate statistical evidence strength or association magnitude with interpretive importance.",
     paste0(
-      'Using the evidence below, interpret "',
-      target_label,
-      '" as one continuous latent or synthetic dimension.'
+      'The target label "', target_label,
+      '" may be a technical label for a synthetic or latent continuous score.'
     ),
+    "Treat its two ends as opposite manifestations of one continuum and reconstruct its substantive meaning from the evidence.",
     "1. Identify the main coherent variable-level associations, considering statistical support and association magnitude as distinct properties.",
     "2. Translate their directions into substantive meaning.",
     "3. Describe the lower end of the continuum.",
@@ -1428,6 +1443,102 @@ build_request_condes <- function(
     concept_rule,
     "Do not simply restate the evidence line by line and do not invent causal explanations.",
     sep = "\n"
+  )
+}
+
+
+.build_condes_prompt_blocks <- function(context,
+                                         reading,
+                                         question,
+                                         interpretation,
+                                         evidence,
+                                         output) {
+  blocks <- list(
+    context = context,
+    reading = reading,
+    question = question,
+    interpretation = interpretation,
+    evidence = evidence,
+    output = output
+  )
+
+  expected_names <- c(
+    "context",
+    "reading",
+    "question",
+    "interpretation",
+    "evidence",
+    "output"
+  )
+
+  if (!identical(names(blocks), expected_names)) {
+    stop(
+      "Internal CONDES prompt blocks do not have the expected names.",
+      call. = FALSE
+    )
+  }
+
+  blocks
+}
+
+
+.render_condes_prompt <- function(blocks) {
+  expected_names <- c(
+    "context",
+    "reading",
+    "question",
+    "interpretation",
+    "evidence",
+    "output"
+  )
+
+  if (!is.list(blocks) || !identical(names(blocks), expected_names)) {
+    stop(
+      paste(
+        "`blocks` must be the ordered six-block CONDES prompt object",
+        "with names context, reading, question, interpretation, evidence, output."
+      ),
+      call. = FALSE
+    )
+  }
+
+  headings <- c(
+    context = "# Introduction",
+    reading = "## How to Read the Evidence",
+    question = "# Analytical Question",
+    interpretation = "## Interpretation Rules",
+    evidence = "# Data",
+    output = "# Final Output Requirements"
+  )
+
+  sections <- vapply(
+    expected_names,
+    function(name) {
+      value <- blocks[[name]]
+      if (is.null(value) || length(value) == 0L) {
+        return("")
+      }
+      if (!is.character(value) || length(value) != 1L) {
+        stop(
+          paste0(
+            "CONDES prompt block `",
+            name,
+            "` must be NULL, empty, or one character string."
+          ),
+          call. = FALSE
+        )
+      }
+      if (!nzchar(trimws(value))) {
+        return("")
+      }
+      paste(headings[[name]], value, sep = "\n\n")
+    },
+    character(1)
+  )
+
+  sections <- sections[nzchar(sections)]
+  normalize_blank_lines(
+    paste(sections, collapse = "\n\n---\n\n")
   )
 }
 
@@ -1521,6 +1632,7 @@ build_conclusion_condes <- function(
                                      continuous_profile,
                                      interpretation_evidence,
                                      semantic_facing_evidence,
+                                     prompt_blocks,
                                      prompt,
                                      response,
                                      condes_result,
@@ -1544,6 +1656,7 @@ build_conclusion_condes <- function(
   attr(x, "continuous_profile") <- continuous_profile
   attr(x, "interpretation_evidence") <- interpretation_evidence
   attr(x, "semantic_facing_evidence") <- semantic_facing_evidence
+  attr(x, "condes_prompt_blocks") <- prompt_blocks
   attr(x, "condes_prompt") <- prompt
 
   # Historical raw objects retained as compatibility/direct-evidence views.
@@ -1835,7 +1948,7 @@ nail_condes <- function(dataset,
     target_label = target_label
   )
 
-  guide <- build_guide_condes(
+  reading <- build_guide_condes(
     mode = interpretation_mode,
     target_label = target_label,
     prompt_style = prompt_style,
@@ -1845,18 +1958,23 @@ nail_condes <- function(dataset,
     quanti.threshold = quanti.threshold
   )
 
-  prompt_introduction <- paste(
-    introduction,
-    guide,
-    sep = "\n\n---\n\n"
+  interpretation <- .build_condes_interpretation(
+    mode = interpretation_mode,
+    target_concept = target_concept,
+    target_label = target_label,
+    prompt_style = prompt_style
   )
 
-  final_prompt <- build_standard_prompt(
-    introduction = prompt_introduction,
-    request = request,
-    data = semantic_facing_evidence$prompt_text,
-    conclusion = conclusion
+  prompt_blocks <- .build_condes_prompt_blocks(
+    context = introduction,
+    reading = reading,
+    question = request,
+    interpretation = interpretation,
+    evidence = semantic_facing_evidence$prompt_text,
+    output = conclusion
   )
+
+  final_prompt <- .render_condes_prompt(prompt_blocks)
 
   condes_settings <- list(
     num_var = as.integer(num.var),
@@ -1884,6 +2002,7 @@ nail_condes <- function(dataset,
         continuous_profile = continuous_profile,
         interpretation_evidence = interpretation_evidence,
         semantic_facing_evidence = semantic_facing_evidence,
+        prompt_blocks = prompt_blocks,
         prompt = final_prompt,
         response = NULL,
         condes_result = res_cd,
@@ -1914,6 +2033,7 @@ nail_condes <- function(dataset,
     continuous_profile = continuous_profile,
     interpretation_evidence = interpretation_evidence,
     semantic_facing_evidence = semantic_facing_evidence,
+    prompt_blocks = prompt_blocks,
     prompt = final_prompt,
     response = raw_response,
     condes_result = res_cd,
