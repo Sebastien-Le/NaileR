@@ -1479,45 +1479,64 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
   out
 }
 
-.semantic_guide_nail_catdes <- function(interpretation_mode,
-                                         target_label) {
-  mode_rule <- if (identical(interpretation_mode, "standard")) {
-    paste(
-      paste0(
-        "These are observed categories of '", target_label,
-        "'. Preserve their original names."
-      ),
-      "Do not reinterpret the categories as latent profiles and do not rename them.",
-      "A category name is contextual information, not statistical evidence."
-    )
-  } else {
-    paste(
-      "These groups are constructed profiles or latent classes whose meaning must be inferred from the results.",
-      "Their current labels are identifiers, not interpretations; you may propose a meaningful name for each group."
-    )
-  }
+.reading_nail_catdes <- function(interpretation_mode) {
+  unit <- .unit_noun(interpretation_mode)
 
-  empirical_rule <- if (identical(interpretation_mode, "standard")) {
-    paste(
+  paste(
+    "R has already performed the statistical analysis.",
+    paste0(
+      "Read each statement below as a factual comparison between this ",
+      unit, " and the full sample."
+    ),
+    paste0(
+      "MORE FREQUENT and LESS FREQUENT describe relative modality prevalence in this ",
+      unit, "."
+    ),
+    paste0(
+      "HIGHER and LOWER describe the ", unit,
+      " mean relative to the full-sample mean for the same variable."
+    ),
+    paste0(
+      "When percentages are shown, the ", unit,
+      " percentage describes the modality within this ", unit,
+      " and the full-sample percentage describes the same modality in the full sample; these are descriptive values, not p-values or measures of statistical strength."
+    ),
+    paste0(
+      "When means are shown, compare the ", unit,
+      " mean only with the full-sample mean for that same variable; do not compare mean values across variables as if they shared one scale."
+    ),
+    paste0(
+      "An undisplayed modality or variable is not thereby absent, average, rejected, or unimportant."
+    ),
+    sep = "\n"
+  )
+}
+
+.interpretation_nail_catdes <- function(interpretation_mode,
+                                        target_label) {
+  if (identical(interpretation_mode, "standard")) {
+    return(paste(
+      paste0(
+        "This is an observed category of '", target_label,
+        "'. Preserve its original name."
+      ),
+      "Do not reinterpret this category as a latent profile and do not rename it.",
+      "The category name is contextual information, not statistical evidence.",
       "Do not invent a new empirical characteristic or present a synthesis as if it were a direct statistical fact.",
       "A higher-level interpretation is encouraged when it reasonably synthesizes several displayed facts and remains traceable to them.",
       "A broader contextual hypothesis is allowed only when it is clearly identified as a hypothesis.",
       sep = "\n"
-    )
-  } else {
-    "Do not invent an unlisted statistical characteristic."
+    ))
   }
 
   paste(
-    "R has already performed the statistical analysis.",
-    "Every line in the Data section is a plain-language factual statement mechanically derived from selected significant statistical markers.",
-    "MORE FREQUENT, LESS FREQUENT, HIGHER and LOWER must be read literally.",
-    "For binary qualitative variables, both significant sides of the binary contrast may be displayed together even when only one side entered the original sampling quota.",
-    "For multi-level qualitative variables, only selected modalities are displayed.",
-    "Facts listed under this group belong ONLY to this group.",
-    empirical_rule,
-    "Your role is to combine convergent facts into a higher-level semantic interpretation, not to recalculate the statistics or paraphrase every line.",
-    mode_rule
+    "This is a constructed profile or latent class whose meaning must be inferred from the results.",
+    "Its current label is an identifier, not an interpretation.",
+    "Its meaning may be inferred from the displayed evidence and a concise meaningful name may be proposed.",
+    "Do not invent an unlisted statistical characteristic or present a synthesis as if it were a direct statistical fact.",
+    "A higher-level interpretation is allowed when it reasonably synthesizes several displayed facts and remains traceable to them.",
+    "A broader contextual hypothesis is allowed only when it is clearly identified as a hypothesis.",
+    sep = "\n"
   )
 }
 
@@ -1527,9 +1546,6 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       "Interpret ONLY the observed category shown below.",
       "Combine its qualitative and quantitative facts to identify the strongest convergent semantic pattern.",
       "Explain what characterizes this category without renaming it.",
-      "Do not invent a new empirical characteristic or present a synthesis as if it were a direct statistical fact.",
-      "A higher-level interpretation is encouraged when it reasonably synthesizes several listed facts and remains traceable to them.",
-      "A broader contextual hypothesis is allowed only when it is clearly identified as a hypothesis.",
       "Do not compare it with unseen categories."
     ))
   }
@@ -1542,27 +1558,86 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
   )
 }
 
+.build_catdes_prompt_blocks_nail_catdes <- function(semantic_facing_evidence,
+                                                    introduction,
+                                                    request,
+                                                    interpretation_mode,
+                                                    target_label) {
+  group_names <- names(semantic_facing_evidence$groups)
+
+  stats::setNames(lapply(group_names, function(group_name) {
+    group <- semantic_facing_evidence$groups[[group_name]]
+    list(
+      context = introduction,
+      reading = .reading_nail_catdes(interpretation_mode),
+      question = request,
+      interpretation = .interpretation_nail_catdes(
+        interpretation_mode,
+        target_label
+      ),
+      local_task = .local_task_nail_catdes(interpretation_mode),
+      evidence = group$text,
+      output = NULL
+    )
+  }), group_names)
+}
+
+.render_catdes_prompt_blocks_nail_catdes <- function(blocks,
+                                                     group_label,
+                                                     group_name) {
+  parts <- c(
+    "# Introduction",
+    blocks$context,
+    "---",
+    "## How to Read the Statistical Evidence",
+    blocks$reading,
+    "# Overall Analytical Request",
+    blocks$question,
+    "## Interpretation Rules",
+    blocks$interpretation,
+    "# Local Task",
+    blocks$local_task,
+    "# Data",
+    paste0("## ", group_label, " \"", group_name, "\""),
+    blocks$evidence
+  )
+
+  if (!is.null(blocks$output) && nzchar(trimws(blocks$output))) {
+    parts <- c(
+      parts,
+      "# Output",
+      blocks$output
+    )
+  }
+
+  normalize_blank_lines(paste(parts, collapse = "\n\n"))
+}
+
 .build_local_semantic_prompts_nail_catdes <- function(semantic_facing_evidence,
                                                        introduction,
                                                        request,
                                                        interpretation_mode,
                                                        target_label) {
-  group_names <- names(semantic_facing_evidence$groups)
-  prompts <- stats::setNames(vector("list", length(group_names)), group_names)
-  group_label <- .unit_label(interpretation_mode)
+  prompt_blocks <- .build_catdes_prompt_blocks_nail_catdes(
+    semantic_facing_evidence = semantic_facing_evidence,
+    introduction = introduction,
+    request = request,
+    interpretation_mode = interpretation_mode,
+    target_label = target_label
+  )
 
-  for (group_name in group_names) {
-    group <- semantic_facing_evidence$groups[[group_name]]
-    prompts[[group_name]] <- normalize_blank_lines(paste0(
-      "# Introduction\n\n", introduction,
-      "\n\n---\n\n## How to Read the Statistical Evidence\n\n",
-      .semantic_guide_nail_catdes(interpretation_mode, target_label),
-      "\n\n# Overall Analytical Request\n\n", request,
-      "\n\n# Local Task\n\n", .local_task_nail_catdes(interpretation_mode),
-      "\n\n# Data\n\n## ", group_label, " \"", group_name, "\"\n\n",
-      group$text
-    ))
-  }
+  prompts <- lapply(
+    names(prompt_blocks),
+    function(group_name) {
+      .render_catdes_prompt_blocks_nail_catdes(
+        blocks = prompt_blocks[[group_name]],
+        group_label = .unit_label(interpretation_mode),
+        group_name = group_name
+      )
+    }
+  )
+  names(prompts) <- names(prompt_blocks)
+  attr(prompts, "catdes_prompt_blocks") <- prompt_blocks
 
   prompts
 }
@@ -1749,12 +1824,14 @@ validate_catdes_inputs <- function(dataset = NULL,
                                           interpretation_evidence,
                                           semantic_facing_evidence,
                                           local_prompts,
+                                          prompt_blocks,
                                           semantic_profiles,
                                           catdes_settings) {
   attr(result, "statistical_profiles") <- normalized$statistical_profiles
   attr(result, "interpretation_evidence") <- interpretation_evidence
   attr(result, "semantic_facing_evidence") <- semantic_facing_evidence
   attr(result, "local_prompts") <- local_prompts
+  attr(result, "catdes_prompt_blocks") <- prompt_blocks
   attr(result, "semantic_profiles") <- semantic_profiles
   if (!is.null(normalized$catdes_result)) {
     attr(result, "catdes_result") <- normalized$catdes_result
@@ -1962,6 +2039,7 @@ nail_catdes <- function(dataset = NULL,
     interpretation_mode = interpretation_mode,
     target_label = normalized$target_label
   )
+  prompt_blocks <- attr(local_prompts, "catdes_prompt_blocks", exact = TRUE)
   combined_prompt_preview <- .combine_local_prompt_preview_nail_catdes(
     local_prompts,
     interpretation_mode
@@ -2028,6 +2106,7 @@ nail_catdes <- function(dataset = NULL,
       interpretation_evidence,
       semantic_facing_evidence,
       local_prompts,
+      prompt_blocks,
       semantic_profiles,
       catdes_settings
     ))
@@ -2101,6 +2180,7 @@ nail_catdes <- function(dataset = NULL,
     interpretation_evidence,
     semantic_facing_evidence,
     local_prompts,
+    prompt_blocks,
     semantic_profiles,
     catdes_settings
   )

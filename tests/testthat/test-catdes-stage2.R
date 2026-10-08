@@ -267,8 +267,8 @@ test_that("standard and latent modes preserve the historical semantic contract",
     generate = FALSE
   )
 
-  expect_match(standard, "Do not reinterpret the categories as latent profiles", fixed = TRUE)
-  expect_match(standard, "do not rename them", fixed = TRUE)
+  expect_match(standard, "Do not reinterpret this category as a latent profile", fixed = TRUE)
+  expect_match(standard, "do not rename it", fixed = TRUE)
   expect_match(standard, "higher-level interpretation", fixed = TRUE)
   expect_match(standard, "new statistical fact", fixed = TRUE)
   expect_match(standard, "contextual hypothesis", fixed = TRUE)

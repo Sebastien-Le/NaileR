@@ -323,7 +323,7 @@ test_that("standard and latent local tasks preserve target status", {
   expect_match(standard$A, "higher-level interpretation", fixed = TRUE)
   expect_match(standard$A, "contextual hypothesis", fixed = TRUE)
   expect_match(latent$A, "propose one concise interpretive name", fixed = TRUE)
-  expect_match(latent$A, "current labels are identifiers", fixed = TRUE)
+  expect_match(latent$A, "Its current label is an identifier", fixed = TRUE)
   expect_false(grepl("do not rename", tolower(latent$A), fixed = TRUE))
 })
 
