@@ -269,6 +269,50 @@ test_that("standard and latent prompts use different semantic tasks", {
 })
 
 
+test_that("condes reading distinguishes support magnitude and interpretive centrality", {
+  detailed <- NaileR:::build_guide_condes(
+    mode = "standard",
+    prompt_style = "detailed"
+  )
+
+  compact <- NaileR:::build_guide_condes(
+    mode = "standard",
+    prompt_style = "compact"
+  )
+
+  expect_match(
+    detailed,
+    "smaller p.values indicate stronger statistical evidence",
+    fixed = TRUE
+  )
+  expect_match(
+    detailed,
+    "absolute correlation reflects the magnitude of the linear association",
+    fixed = TRUE
+  )
+  expect_match(
+    detailed,
+    "Do not equate statistical evidence strength or association magnitude with interpretive importance",
+    fixed = TRUE
+  )
+  expect_match(
+    detailed,
+    "Estimate is a signed effect relative to the fitted coding/model",
+    fixed = TRUE
+  )
+  expect_match(
+    compact,
+    "p.values indicate statistical support",
+    fixed = TRUE
+  )
+  expect_match(
+    compact,
+    "absolute correlation indicates linear-association magnitude",
+    fixed = TRUE
+  )
+})
+
+
 test_that("semantic-facing evidence contains explicit R-derived facts", {
   x <- nail_condes(
     make_condes_semantic_data(),

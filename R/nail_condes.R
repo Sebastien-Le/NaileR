@@ -1297,9 +1297,16 @@ build_guide_condes <- function(mode = c("standard", "latent"),
     common <- c(
       common,
       "A positive correlation means that higher values of the predictor tend to accompany higher values of the target; a negative correlation means the opposite.",
-      "For end profiles, a negative Estimate indicates the lower end of the target and a positive Estimate indicates the higher end.",
-      "Treat smaller p.values as stronger evidence among the displayed retained results.",
+      "For continuous predictors, the absolute correlation reflects the magnitude of the linear association, while its sign gives the direction.",
+      "For end profiles, Estimate is a signed effect relative to the fitted coding/model: a negative value orients toward the lower end and a positive value toward the higher end; it is not an importance measure or an independent confirmation.",
+      "Among the displayed retained results, smaller p.values indicate stronger statistical evidence against the corresponding null association under the fitted analysis. They do not measure substantive importance or association magnitude.",
+      "Do not equate statistical evidence strength or association magnitude with interpretive importance. Identify the central pattern from the coherence of the displayed evidence as a whole.",
       "Interpret the pattern formed by several coherent variables rather than merely paraphrasing each line."
+    )
+  } else {
+    common <- c(
+      common,
+      "p.values indicate statistical support, whereas the absolute correlation indicates linear-association magnitude and its sign indicates direction; neither is by itself interpretive importance."
     )
   }
 
@@ -1361,7 +1368,7 @@ build_request_condes <- function(
           target_label,
           '".'
         ),
-        "1. Identify the strongest and most coherent variable-level associations.",
+        "1. Identify the main coherent variable-level associations, considering statistical support and association magnitude as distinct properties.",
         "2. Translate their directions into substantive meaning.",
         "3. Describe what characterizes the lower end of the target.",
         "4. Describe what characterizes the higher end of the target.",
@@ -1378,7 +1385,7 @@ build_request_condes <- function(
     target_concept,
     "the target concept"
   )) {
-    "Prefer the simplest unifying name supported by the strongest and most coherent evidence."
+    "Prefer the simplest unifying name supported by the coherent configuration of the evidence, not by any single statistic."
   } else {
     paste0(
       'Use "', target_concept,
@@ -1405,18 +1412,18 @@ build_request_condes <- function(
 
   paste(
     paste0(
-      'Using only the evidence below, interpret "',
+      'Using the evidence below, interpret "',
       target_label,
       '" as one continuous latent or synthetic dimension.'
     ),
-    "1. Identify the strongest and most coherent variable-level associations.",
+    "1. Identify the main coherent variable-level associations, considering statistical support and association magnitude as distinct properties.",
     "2. Translate their directions into substantive meaning.",
     "3. Describe the lower end of the continuum.",
     "4. Describe the higher end of the continuum.",
     "5. Use the end-profile evidence to illustrate, refine, or qualify those two ends.",
     "6. Infer the common underlying meaning that best explains both ends as opposite manifestations of one continuum.",
     '7. Write one sentence beginning with: "What separates the higher end from the lower end of the continuum is..."',
-    "8. Propose one concise name for the continuum and justify it from the strongest coherent evidence.",
+    "8. Propose one concise name for the continuum and justify it from the coherent configuration of the evidence, not from any single statistic.",
     "9. Mention mixed, ambiguous, or only weakly supported patterns when necessary.",
     concept_rule,
     "Do not simply restate the evidence line by line and do not invent causal explanations.",
