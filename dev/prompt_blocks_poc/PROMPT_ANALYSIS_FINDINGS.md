@@ -83,7 +83,167 @@ HIGHER / LOWER
 
 **Open question.** The result is based on a small, model-specific blind comparison. It supports retaining the wording in this PoC; it does not prove that the same wording is optimal for every model or QDA design.
 
-### 4.5 QDA lessons
+### 4.5 Evidence-level representation experiments
+
+These experiments tested how much deterministic statistical transformation R
+should perform before presenting QDA evidence to the LLM. They changed only
+the LLM-facing `reading` and `evidence` blocks. The canonical evidence,
+selected markers, product, context, question, interpretation, local task,
+reusable instruction, output requirement, model, and generation settings were
+held fixed within each comparison.
+
+#### Evidence-level experiment — `choc1`
+
+**Observed result.** The four conditions were:
+
+```text
+A = numeric table
+B = current semantic + numeric
+C = semantic minimal
+D = semantic + mechanical primary/secondary hierarchy
+```
+
+The experiment used `choc1`, Ollama `mistral-small3.2`, and the ten retained
+markers `QDAP001E001` through `QDAP001E010`. The blind review produced:
+
+| Condition | Ranks | Mean | Median |
+|---|---|---:|---:|
+| C | 1, 3, 4 | 2.67 | 3 |
+| A | 2, 7, 8 | 5.67 | 7 |
+| B | 5, 6, 12 | 7.67 | 6 |
+| D | 9, 10, 11 | 10.00 | 10 |
+
+The tested ordering was therefore `C > A > B > D` in this small blind
+comparison.
+
+**Interpretation.** Semantic minimal performed best on this dense and highly
+coherent product profile. The numeric table remained viable, while the
+semantic-plus-numeric condition did not outperform the simpler alternatives.
+The mechanically imposed `primary / secondary` dichotomy performed poorly.
+This is a result for the tested product, model, prompt, and small replication,
+not evidence that semantic minimal is universally superior.
+
+**Observed fidelity issue.** `LOWER` was sometimes converted into `absence
+of` or `lacks`. This is horizontal semantic distortion: it changes the
+meaning or polarity of a relative fact. It is not ordinary vertical
+interpretive lift.
+
+#### Less-dense replication — `choc2`
+
+**Observed result.** The replication compared A, B, and C on the six retained
+markers below, with the same six evidence IDs in all conditions:
+
+```text
+Crunchy     HIGHER   v.test =  6.92
+MilkF       LOWER    v.test = -5.16
+CocoaF      HIGHER   v.test =  2.95
+Melting     LOWER    v.test = -2.59
+Caramel     LOWER   v.test = -2.48
+Sweetness   LOWER   v.test = -2.08
+```
+
+The blind review produced:
+
+| Condition | Ranks | Mean | Median |
+|---|---|---:|---:|
+| A | 1, 6, 7 | 4.67 | 6 |
+| B | 2, 9, 3 | 4.67 | 3 |
+| C | 8, 4, 5 | 5.67 | 5 |
+
+The small development comparison was compatible with `A ≈ B > C`, but it is
+not a statistically demonstrated difference.
+
+**Observed hierarchy issue.** Even when numeric `v.test` values were visible,
+responses frequently placed HIGHER attributes in a `dominant_configuration`
+and LOWER attributes in a `secondary_configuration`. This occurred despite
+`MilkF` having stronger statistical characterization than `CocoaF`.
+
+**Interpretation.** Availability of statistical information does not
+guarantee that the LLM will use it according to its statistical meaning. A
+weaker statistical marker was also sometimes rendered as a “moderate” sensory
+intensity, conflating statistical evidence strength with sensory intensity.
+
+#### Signed-v.test ordering experiment — `choc2`
+
+**Observed result.** This experiment compared semantic minimal evidence in its
+existing order (C) with the same evidence ordered by signed decreasing
+`v.test` (E), while explicitly instructing the model to inspect both ends:
+
+```text
+C: Crunchy, MilkF, CocoaF, Melting, Caramel, Sweetness
+E: Crunchy, CocoaF, Sweetness, Caramel, Melting, MilkF
+```
+
+E preserved the signed ordering associated with the `decat()` output structure;
+it did not sort by `abs(v.test)` and did not create a primary/secondary label.
+The blind review produced:
+
+| Condition | Ranks | Mean | Median |
+|---|---|---:|---:|
+| C | 2, 4, 2 | 2.67 | 2 |
+| E | 6, 1, 5 | 4.00 | 5 |
+
+**Interpretation.** E produced the individually best response but also two
+weaker responses. It did not show a consistent improvement over C, and the
+explicit instruction to inspect both positive and negative extremes did not
+reliably make the local model express a two-sided statistical hierarchy in its
+structured interpretation.
+
+This does not show that signed `decat()` order is statistically or
+methodologically wrong. It distinguishes methodological justifiability from
+empirical prompt-ranking superiority:
+
+```text
+methodological justifiability != empirical prompt-ranking superiority
+```
+
+**Architectural / methodological consequences.** The canonical statistical
+output remains authoritative, while the LLM-facing representation may be a
+compact, traceable projection. Numeric visibility and ordering are prompt
+design variables, not replacements for the canonical evidence. The results do
+not justify a universal winning representation, a universal primary/secondary
+taxonomy, or removal of raw statistics from the canonical object.
+
+NaileR should preserve the canonical statistical evidence as the authoritative
+result and treat the LLM response as a model-based, revisable interpretation
+of that evidence.
+
+The experiments support keeping the LLM-facing evidence as simple as the
+analytical task permits, while retaining the complete numerical evidence in
+the canonical statistical object. They do not support the stronger claim that
+numeric statistics should be removed.
+
+The following concepts must remain distinct:
+
+```text
+statistical evidence strength
+sensory intensity
+effect size
+substantive importance
+semantic centrality in the LLM interpretation
+```
+
+A large absolute `v.test` supports stronger statistical characterization. It
+does not by itself imply a more intense sensory perception, a more substantively
+important descriptor, or mandatory membership in a “dominant sensory
+configuration”.
+
+**Methodological principle.** The LLM interpretation is a prediction
+conditional on the evidence, prompt, model, and generation settings.
+Variability between plausible responses is expected and should not be confused
+with variability in the underlying statistical result. Interpretive
+variability is not statistical error. However, horizontal semantic distortion
+such as `LOWER -> absent`, `LOWER -> an opposite positive attribute`,
+statistical strength becoming sensory intensity, or descriptive evidence
+becoming consumer preference remains a fidelity problem.
+
+**Open questions.** It remains unresolved how to expose evidence hierarchy
+without encouraging `HIGHER = dominant` and `LOWER = secondary`, how to
+preserve signed direction in a compact representation, and whether these
+patterns persist with other products, models, independent replications, or a
+different response contract.
+
+### 4.6 QDA lessons
 
 **Observed result.** The QDA artifacts preserve statistical evidence while making prompt layers inspectable and ablatable. Full and minimal prompts can be compared without recomputing the analysis.
 
@@ -223,6 +383,22 @@ not demonstrated laws.
 6. **A common conceptual grammar may be possible.** The shared block
    vocabulary appears useful for audit and experiment design, but a universal
    renderer is not currently justified.
+7. **Canonical and LLM-facing evidence are different layers.** Canonical
+   evidence should remain complete, authoritative, and auditable. LLM-facing
+   evidence is a method-specific projection designed for interpretation; the
+   QDA experiments do not justify assuming that every method should expose
+   the same representation.
+8. **Reading mediates between evidence and interpretation.** The `reading`
+   block defines the intended semantics of the displayed evidence:
+
+   ```text
+   evidence -> reading convention -> model interpretation
+   ```
+
+   Its wording is therefore neither evidence nor substantive interpretation.
+9. **Interpretation is a revisable prediction.** The LLM output is a
+   model-based interpretation conditional on the evidence, prompt, model, and
+   generation settings. It is not a computed statistical result.
 
 The following is a theoretical working principle, not a direct experimental
 result:
@@ -276,6 +452,25 @@ The distinction between vertical and horizontal movement is useful:
 
 **Working principle.** Interpretive distance itself is not the problem. Loss of accountability is the problem.
 
+A statistical data-analysis prompt should not be expected to make a stochastic
+language model perfectly deterministic or error-free. Its role is to make the
+path from evidence to interpretation explicit, inspectable, methodologically
+defensible, and revisable.
+
+NaileR does not replace statistical results with an LLM interpretation. It
+preserves the statistical evidence, exposes the prompt used to reason from it,
+and produces a model-based interpretation that should be treated as revisable
+rather than as an additional statistical result.
+
+The retained methodological doctrine is:
+
+> NaileR should not force the LLM to stay inside the vocabulary of the
+> evidence; it should force the LLM to remain accountable to the evidence.
+
+These three principles coexist. A higher-level concept may be substantively
+useful, but a change in the meaning or epistemic status of a displayed fact is
+still a fidelity problem.
+
 ## 9. Architectural consequences for NaileR
 
 **Architectural decision.** Keep a shared conceptual vocabulary but use method-specific structured objects and renderers for now.
@@ -306,6 +501,78 @@ The preserved combinations are useful for experiments, but they are not yet a pu
 
 **Open question.** A universal renderer could reduce duplication but could also erase method-specific epistemic distinctions. Generalization should wait until more methods have been audited.
 
+### Reading as a future editable convention
+
+**Observed in current QDA code.** `reading` is inspectable through
+`qda_prompt_blocks` and can be enabled or disabled through the current
+optional-block mechanism. It is not directly replaceable through the public
+`nail_qda()` API.
+
+**Working design principle.** `reading` should be treated as a method-provided
+default convention for reading the evidence, but it should ultimately be
+inspectable and editable by the user.
+
+This distinction matters because:
+
+```text
+reading != evidence != substantive interpretation
+```
+
+`reading` defines how the displayed evidence representation should be
+understood. Its default wording must remain method-specific, but an expert
+user should eventually be able to replace it without changing canonical
+evidence, evidence selection, or statistical computation.
+
+The provisional conceptual status is:
+
+```text
+User-facing / editable in principle
+-----------------------------------
+context
+reading
+question
+interpretation
+
+More strongly method/scope controlled
+-------------------------------------
+local_task
+
+Protected / evidence-derived
+----------------------------
+evidence
+reusable technical metadata
+```
+
+This is a design hypothesis, not an implemented API. Prompt modularity is not
+only an optimization mechanism; it is also an auditability and
+methodological-justification mechanism.
+
+### Audit chain
+
+The user should be able to inspect the three layers separately:
+
+```text
+nail_response()
+      ↓ why?
+nail_prompt()
+      ↓ based on what?
+nail_evidence()
+```
+
+Conceptually, this is:
+
+```text
+model interpretation
+      ↓
+prompt shown to the model
+      ↓
+canonical statistical evidence
+```
+
+The response is revisable; the prompt makes the reasoning instructions
+inspectable; the canonical evidence remains the authoritative statistical
+result.
+
 ## 10. Open questions
 
 - Which effects replicate with independently generated responses rather than reused benchmark cells?
@@ -315,6 +582,11 @@ The preserved combinations are useful for experiments, but they are not yet a pu
 - How should a custom human-facing conclusion coexist with a protected machine-readable output contract?
 - When does contextual information improve substantive meaning without being mistaken for statistical evidence?
 - Can prompt comparison be made reproducible without reducing evaluation to a single composite score?
+- Can `reading` become user-editable while preserving method-specific defaults
+  and keeping evidence selection/statistical computation unchanged?
+- Do output fields such as `dominant_configuration` and
+  `secondary_configuration` systematically encourage `HIGHER = dominant` and
+  `LOWER = secondary`, even when that is not statistically justified?
 
 For future work in EnTraineR, a related question is whether prompt
 architecture can preserve the same separation while adapting an explanation
@@ -335,6 +607,24 @@ evidence -> statistical interpretation -> audience-adapted explanation
 ## 11. Next methods to test
 
 These are candidates for later PoCs, not implementation decisions:
+
+### CATDES transition
+
+The CATDES architecture has now been audited separately in
+`dev/prompt_blocks_poc/catdes_prompt_audit.md`. CATDES is therefore no longer
+only an unaudited candidate; its current evidence contract, prompt anatomy,
+standard/latent asymmetry, legacy paths, and `isolate.groups` scope tension
+have been documented. This documentation does not refactor CATDES.
+
+The next methodological pass should examine:
+
+1. what CATDES canonical evidence objectively means;
+2. what CATDES should transform mechanically before the LLM;
+3. which percentages and means should remain visible;
+4. what the CATDES `reading` block needs to explain;
+5. how standard and latent interpretation permissions should be calibrated;
+6. how the `isolate.groups` plural/local contradiction should be resolved;
+7. whether `reading` should also be user-editable in CATDES.
 
 | Method | Priority | Reason to test |
 | --- | --- | --- |

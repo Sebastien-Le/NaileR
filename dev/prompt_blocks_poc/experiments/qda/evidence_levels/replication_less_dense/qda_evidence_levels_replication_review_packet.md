@@ -1,0 +1,530 @@
+# QDA Evidence-Level Representation — Less-Dense Replication Blind Review
+
+This packet contains nine responses under blind identifiers R01-R09.
+The representation condition is not identified here.
+
+## Common context
+
+Several products were evaluated by panelists using a common set of sensory or perceptual attributes.
+
+## Common analytical question
+
+Using only the evidence below, interpret this product as a coherent relative sensory profile.
+Identify the dominant sensory pattern, distinguish central from secondary evidence, and explain what makes the product distinctive relative to the average product profile.
+Preserve the product label as its identifier; a descriptive name, when requested, supplements rather than replaces it.
+Do not claim specific pairwise differences that are not shown.
+
+## Common evidence scope
+
+All responses concern the same product 'choc2' and the same six retained
+QDA markers. Review direction, reference, hierarchy, interpretive lift, and
+unsupported extrapolation without reconstructing the representation condition.
+
+## Blind responses
+
+### R01
+
+```markdown
+# Interpretation of Product 'choc2'
+
+## Sensory Profile
+
+Product 'choc2' is characterized by a distinctive sensory profile that is more marked by **Crunchy** and **CocoaF** attributes, while being less marked by **MilkF**, **Melting**, **Caramel**, and **Sweetness** compared to the average product profile.
+
+### Main Supporting Evidence
+
+- **Higher attributes**:
+  - Crunchy
+  - CocoaF
+
+- **Lower attributes**:
+  - MilkF
+  - Melting
+  - Caramel
+  - Sweetness
+
+### Distinctive Interpretation
+
+The product 'choc2' stands out due to its pronounced crunchiness and cocoa flavor, making it more robust and intense in these aspects. At the same time, it is less creamy, melts less, and has a reduced caramel and sweetness presence, which sets it apart from the average product profile.
+
+## Core Sensory Profile
+
+A crunchy and cocoa-forward chocolate with reduced creaminess, melting, caramel, and sweetness.
+
+## Main Supporting Evidence
+
+- More marked by Crunchy; more marked by CocoaF
+- Less marked by MilkF; less marked by Melting; less marked by Caramel; less marked by Sweetness
+
+## Distinctive Interpretation
+
+Product 'choc2' is distinctive for its robust crunchiness and strong cocoa flavor, combined with a notable absence of creaminess, melting, caramel, and sweetness, making it stand out in the evaluated set.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: A crunchy and cocoa-forward chocolate with reduced creaminess, melting, caramel, and sweetness.
+dominant_configuration: Crunchy; CocoaF
+secondary_configuration: less marked by MilkF; less marked by Melting; less marked by Caramel; less marked by Sweetness
+distinctive_interpretation: Product 'choc2' is distinctive for its robust crunchiness and strong cocoa flavor, combined with a notable absence of creaminess, melting, caramel, and sweetness, making it stand out in the evaluated set.
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+
+### R02
+
+```markdown
+# Interpretation of Product 'choc2'
+
+## Core Sensory Profile
+Product 'choc2' is characterized by a crunchy texture with a pronounced cocoa flavor, but it is less marked by milk flavor, sweetness, caramel notes, and melting properties compared to the average product profile.
+
+## Main Supporting Evidence
+- **Higher Attributes**:
+  - More marked by "Crunchy" (adjusted mean=7.71; v.test=6.92; p.value=<0.001).
+  - More marked by "CocoaF" (adjusted mean=6.91; v.test=2.95; p.value=0.003).
+- **Lower Attributes**:
+  - Less marked by "MilkF" (adjusted mean=2.38; v.test=-5.16; p.value=<0.001).
+  - Less marked by "Melting" (adjusted mean=4.33; v.test=-2.59; p.value=0.010).
+  - Less marked by "Caramel" (adjusted mean=2.78; v.test=-2.48; p.value=0.013).
+  - Less marked by "Sweetness" (adjusted mean=4.62; v.test=-2.08; p.value=0.038).
+
+## Distinctive Interpretation
+Product 'choc2' stands out due to its crunchy texture and strong cocoa flavor, while being less sweet, less melty, and lacking prominent milk and caramel notes.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: Crunchy texture with pronounced cocoa flavor, less sweet, melty, and lacking prominent milk and caramel notes.
+dominant_configuration: Crunchy; CocoaF
+secondary_configuration: Less marked by MilkF; Less marked by Melting; Less marked by Caramel; Less marked by Sweetness
+distinctive_interpretation: Product 'choc2' is distinctive for its crunchy texture and strong cocoa flavor, while being less sweet, less melty, and lacking prominent milk and caramel notes.
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+
+### R03
+
+```markdown
+# Interpretation of Product 'choc2'
+
+The product 'choc2' is characterized by a distinct sensory profile that sets it apart from the average product profile. The dominant sensory pattern is a combination of pronounced texture and reduced sweetness and melting characteristics.
+
+## Core Sensory Profile
+'choc2' is more marked by a crunchy texture and cocoa flavor, but less marked by milk flavor, melting, caramel, and sweetness.
+
+## Main Supporting Evidence
+- **Higher**: Crunchy (Coeff: 1.59, Adjust mean: 7.71, p.value: <0.001, v.test: 6.92); CocoaF (Coeff: 0.57, Adjust mean: 6.91, p.value: 0.003, v.test: 2.95)
+- **Lower**: MilkF (Coeff: -1.07, Adjust mean: 2.38, p.value: <0.001, v.test: -5.16); Melting (Coeff: -0.62, Adjust mean: 4.33, p.value: 0.010, v.test: -2.59); Caramel (Coeff: -0.58, Adjust mean: 2.78, p.value: 0.013, v.test: -2.48); Sweetness (Coeff: -0.46, Adjust mean: 4.62, p.value: 0.038, v.test: -2.08)
+
+## Distinctive Interpretation
+'choc2' is distinctive due to its prominent crunchy texture and cocoa flavor, combined with a notable reduction in milk flavor, melting, caramel, and sweetness, making it stand out relative to the average product profile.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: more marked by crunchy texture and cocoa flavor, but less marked by milk flavor, melting, caramel, and sweetness
+dominant_configuration: crunchy texture; cocoa flavor
+secondary_configuration: reduced milk flavor; reduced melting; reduced caramel; reduced sweetness
+distinctive_interpretation: 'choc2' is distinctive due to its prominent crunchy texture and cocoa flavor, combined with a notable reduction in milk flavor, melting, caramel, and sweetness
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+
+### R04
+
+```markdown
+# Interpretation of Product 'choc2'
+
+## Sensory Profile
+
+Product 'choc2' is characterized by a distinctive sensory profile that is more marked by **crunchiness** and **cocoa flavor**, while being less marked by **milk flavor**, **melting**, **caramel**, and **sweetness**. This combination suggests a product that is texturally robust and intensely cocoa-forward, with a reduced emphasis on creamy, sweet, or caramelized notes.
+
+## Main Supporting Evidence
+
+- **Higher Crunchiness**: The attribute "Crunchy" is significantly higher than average (adjusted mean=7.71; p.value=<0.001).
+- **Higher Cocoa Flavor**: The attribute "CocoaF" is significantly higher than average (adjusted mean=6.91; p.value=0.003).
+- **Lower Milk Flavor**: The attribute "MilkF" is significantly lower than average (adjusted mean=2.38; p.value=<0.001).
+- **Lower Melting**: The attribute "Melting" is significantly lower than average (adjusted mean=4.33; p.value=0.010).
+- **Lower Caramel**: The attribute "Caramel" is significantly lower than average (adjusted mean=2.78; p.value=0.013).
+- **Lower Sweetness**: The attribute "Sweetness" is significantly lower than average (adjusted mean=4.62; p.value=0.038).
+
+## Distinctive Interpretation
+
+The profile of 'choc2' is distinctive due to its pronounced crunchiness and strong cocoa flavor, which sets it apart from the average product profile. The reduced milk flavor, melting, caramel, and sweetness further accentuate its unique sensory characteristics, making it a standout option for those who prefer a more intense and texturally contrasting chocolate experience.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: A crunchy, cocoa-forward chocolate with reduced milk, melting, caramel, and sweetness.
+dominant_configuration: Crunchy; CocoaF
+secondary_configuration: Less MilkF; Less Melting; Less Caramel; Less Sweetness
+distinctive_interpretation: The pronounced crunchiness and strong cocoa flavor distinguish 'choc2' from the average product profile.
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+
+### R05
+
+```markdown
+# Interpretation of Product 'choc2'
+
+## Sensory Profile
+
+Product 'choc2' is characterized by a **crunchy texture** with a **strong cocoa presence**, but it is **less marked by milk flavor**, **melting quality**, **caramel notes**, and **sweetness** compared to the average product profile.
+
+## Main Supporting Evidence
+
+- **Higher**: Crunchy (Coeff: 1.59, Adjust mean: 7.71, p.value: <0.001, v.test: 6.92); CocoaF (Coeff: 0.57, Adjust mean: 6.91, p.value: 0.003, v.test: 2.95)
+- **Lower**: MilkF (Coeff: -1.07, Adjust mean: 2.38, p.value: <0.001, v.test: -5.16); Melting (Coeff: -0.62, Adjust mean: 4.33, p.value: 0.010, v.test: -2.59); Caramel (Coeff: -0.58, Adjust mean: 2.78, p.value: 0.013, v.test: -2.48); Sweetness (Coeff: -0.46, Adjust mean: 4.62, p.value: 0.038, v.test: -2.08)
+
+## Distinctive Interpretation
+
+'choc2' stands out due to its **prominent crunchy texture and cocoa flavor**, while being **less creamy, less sweet, and lacking caramel notes** compared to the average product profile.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: A crunchy chocolate with strong cocoa presence but less milk flavor, melting quality, caramel notes, and sweetness.
+dominant_configuration: crunchy texture; strong cocoa presence; less milk flavor; less melting quality; less caramel notes
+secondary_configuration: less sweetness
+distinctive_interpretation: 'choc2' is distinguished by its prominent crunchy texture and cocoa flavor, while being less creamy, less sweet, and lacking caramel notes compared to the average product profile.
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+
+### R06
+
+```markdown
+# Interpretation of Product 'choc2'
+
+## Sensory Profile
+
+Product 'choc2' is characterized by a distinctive sensory profile that is more marked by crunchiness and cocoa flavor, while being less marked by milk flavor, melting, caramel, and sweetness. This combination suggests a product that is more robust and intense in certain sensory aspects while being subdued in others.
+
+## Main Supporting Evidence
+
+- **Higher than average**: Crunchy, CocoaF
+- **Lower than average**: MilkF, Melting, Caramel, Sweetness
+
+## Distinctive Interpretation
+
+The product 'choc2' stands out due to its pronounced crunchiness and cocoa flavor, which are balanced by a reduced presence of milk flavor, melting, caramel, and sweetness. This makes it distinctive relative to the average product profile, suggesting a more intense and textured sensory experience.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: A crunchy and cocoa-forward chocolate with reduced milk flavor, melting, caramel, and sweetness.
+dominant_configuration: Crunchy; CocoaF
+secondary_configuration: Less marked by MilkF; Less marked by Melting; Less marked by Caramel; Less marked by Sweetness
+distinctive_interpretation: More intense and textured due to pronounced crunchiness and cocoa flavor, balanced by reduced milk flavor, melting, caramel, and sweetness.
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+
+### R07
+
+```markdown
+# Interpretation of Product 'choc2'
+
+## Sensory Profile
+
+Product 'choc2' is characterized by a **crunchy texture** combined with a **moderate cocoa flavor**, but it is **less marked by milk flavor**, **melting**, **caramel**, and **sweetness** compared to the average product profile.
+
+## Main Supporting Evidence
+
+- **Higher**: Crunchy (Coeff: 1.59, Adjust mean: 7.71, p.value: <0.001, v.test: 6.92); CocoaF (Coeff: 0.57, Adjust mean: 6.91, p.value: 0.003, v.test: 2.95)
+- **Lower**: MilkF (Coeff: -1.07, Adjust mean: 2.38, p.value: <0.001, v.test: -5.16); Melting (Coeff: -0.62, Adjust mean: 4.33, p.value: 0.010, v.test: -2.59); Caramel (Coeff: -0.58, Adjust mean: 2.78, p.value: 0.013, v.test: -2.48); Sweetness (Coeff: -0.46, Adjust mean: 4.62, p.value: 0.038, v.test: -2.08)
+
+## Distinctive Interpretation
+
+'choc2' stands out due to its **prominent crunchy texture** and **moderate cocoa flavor**, while being **less creamy, less sweet, and less caramel-like** than the average product in the evaluated set.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: A crunchy chocolate with moderate cocoa flavor, less marked by milk, melting, caramel, and sweetness.
+dominant_configuration: Crunchy; Moderate cocoa flavor
+secondary_configuration: Less milk flavor; Less melting; Less caramel; Less sweetness
+distinctive_interpretation: 'choc2' is distinguished by its prominent crunchy texture and moderate cocoa flavor, while being less creamy, less sweet, and less caramel-like than the average product.
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+
+### R08
+
+```markdown
+# Interpretation of Product 'choc2'
+
+Product 'choc2' is characterized by a distinct sensory profile that sets it apart from the average product profile. The dominant sensory pattern is a combination of increased crunchiness and cocoa flavor, coupled with reduced milk flavor, melting, caramel, and sweetness.
+
+## Core Sensory Profile
+'choc2' is more marked by a crunchy texture and a pronounced cocoa flavor, with less emphasis on milk flavor, melting, caramel, and sweetness.
+
+## Main Supporting Evidence
+- **Higher Crunchiness**: Attribute "Crunchy" is significantly higher than average (adjusted mean=7.71; v.test=6.92; p.value=<0.001).
+- **Higher Cocoa Flavor**: Attribute "CocoaF" is higher than average (adjusted mean=6.91; v.test=2.95; p.value=0.003).
+- **Lower Milk Flavor**: Attribute "MilkF" is lower than average (adjusted mean=2.38; v.test=-5.16; p.value=<0.001).
+- **Lower Melting**: Attribute "Melting" is lower than average (adjusted mean=4.33; v.test=-2.59; p.value=0.010).
+- **Lower Caramel**: Attribute "Caramel" is lower than average (adjusted mean=2.78; v.test=-2.48; p.value=0.013).
+- **Lower Sweetness**: Attribute "Sweetness" is lower than average (adjusted mean=4.62; v.test=-2.08; p.value=0.038).
+
+## Distinctive Interpretation
+'choc2' stands out due to its crunchy texture and strong cocoa flavor, making it less creamy and sweet compared to the average product profile.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: Crunchy and cocoa-forward with reduced milk, melting, caramel, and sweetness
+dominant_configuration: Crunchy; CocoaF
+secondary_configuration: Less MilkF; Less Melting; Less Caramel; Less Sweetness
+distinctive_interpretation: More marked by crunchy texture and cocoa flavor, with less emphasis on milk, melting, caramel, and sweetness
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+
+### R09
+
+```markdown
+# Interpretation of Product 'choc2'
+
+## Sensory Profile
+
+Product 'choc2' is characterized by a distinct sensory profile that is more marked by crunchiness and cocoa flavor, while being less marked by milk flavor, melting, caramel, and sweetness. This combination suggests a product that is more robust and intense in certain sensory aspects while being subdued in others.
+
+## Main Supporting Evidence
+
+- **Higher**: Crunchy, CocoaF
+- **Lower**: MilkF, Melting, Caramel, Sweetness
+
+## Distinctive Interpretation
+
+'choc2' stands out due to its pronounced crunchiness and cocoa flavor, making it more intense and texturally distinct compared to the average product profile. Its lower milk flavor, melting, caramel, and sweetness contribute to a less creamy and less sweet overall experience.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: A crunchy and cocoa-forward chocolate with subdued milk flavor, melting, caramel, and sweetness.
+dominant_configuration: Crunchy; CocoaF
+secondary_configuration: Less marked by MilkF; Less marked by Melting; Less marked by Caramel; Less marked by Sweetness
+distinctive_interpretation: More intense and texturally distinct due to pronounced crunchiness and cocoa flavor.
+descriptive_name: Crunchy Cocoa Chocolate
+END_NAILER_PRODUCT_INTERPRETATION -->
+```
+
+Statistical fidelity:
+[ ] high
+[ ] minor direction/reference issue
+[ ] meaning changed
+
+Evidence hierarchy:
+[ ] central/secondary distinction appropriate
+[ ] partly appropriate
+[ ] hierarchy distorted
+
+Interpretive lift:
+[ ] paraphrase
+[ ] coherent sensory configuration
+[ ] higher-level sensory interpretation
+[ ] unsupported semantic leap
+
+Unjustified extrapolation:
+[ ] none or clearly marked
+[ ] minor
+[ ] substantial
+
+Comments:
+
+---
+

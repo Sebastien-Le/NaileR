@@ -1,0 +1,124 @@
+# CATDES descriptive-value benchmark prompts
+
+Condition labels are shown here only in this unblinded archive.
+
+===== R1_READING =====
+R has already performed the statistical analysis. Read each statement below as a factual comparison between this group and the full sample. MORE FREQUENT and LESS FREQUENT describe relative modality prevalence; HIGHER and LOWER describe the group mean relative to the full-sample mean for the same variable. An undisplayed modality or variable is not thereby absent, average, rejected, or unimportant.
+===== END R1_READING =====
+
+===== R2_READING =====
+R has already performed the statistical analysis. Read each statement below as a factual comparison between this group and the full sample. MORE FREQUENT and LESS FREQUENT describe relative modality prevalence; HIGHER and LOWER describe the group mean relative to the full-sample mean for the same variable. When percentages are shown, the group percentage describes the modality within this group and the full-sample percentage describes the same modality in the full sample; these are descriptive values, not p-values or measures of statistical strength. When means are shown, compare the group mean only with the full-sample mean for that same variable; do not compare mean values across variables as if they shared one scale. An undisplayed modality or variable is not thereby absent, average, rejected, or unimportant.
+===== END R2_READING =====
+
+===== R1_EVIDENCE =====
+- The response/modality "I don't feel able not to take the plane.never plane is restrictive" for variable/proposition "never plane capable restrictive" is LESS FREQUENT in this group than in the full sample.
+- The response/modality "I feel able not to take the plane.never plane is not restrictive" for variable/proposition "never plane capable restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "I feel able not to take the plane.never plane is restrictive" for variable/proposition "never plane capable restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "I don't feel able not to take the plane.never plane is not restrictive" for variable/proposition "never plane capable restrictive" is LESS FREQUENT in this group than in the full sample.
+- The response/modality "never plane is not restrictive" for variable/proposition "never plane restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "never plane is restrictive" for variable/proposition "never plane restrictive" is LESS FREQUENT in this group than in the full sample.
+- The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer.linen is restrictive" for variable/proposition "linen capable restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "I feel able to buy only locally sourced food products.local products is restrictive" for variable/proposition "local products capable restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "I feel able to let my washing air dry rather than use a tumble dryer" for variable/proposition "linen capable" is LESS FREQUENT in this group than in the full sample.
+- The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer" for variable/proposition "linen capable" is MORE FREQUENT in this group than in the full sample.
+- The mean of "From 0 to 5 never plane is restrictive" is LOWER in this group than in the full sample.
+- The mean of "From 0 to 5 turn off is restrictive" is HIGHER in this group than in the full sample.
+===== END R1_EVIDENCE =====
+
+===== R2_EVIDENCE =====
+- The response/modality "I don't feel able not to take the plane.never plane is restrictive" for variable/proposition "never plane capable restrictive" is LESS FREQUENT in this group than in the full sample (group=0.00%; full sample=43.11%).
+- The response/modality "I feel able not to take the plane.never plane is not restrictive" for variable/proposition "never plane capable restrictive" is MORE FREQUENT in this group than in the full sample (group=76.54%; full sample=37.13%).
+- The response/modality "I feel able not to take the plane.never plane is restrictive" for variable/proposition "never plane capable restrictive" is MORE FREQUENT in this group than in the full sample (group=23.46%; full sample=11.38%).
+- The response/modality "I don't feel able not to take the plane.never plane is not restrictive" for variable/proposition "never plane capable restrictive" is LESS FREQUENT in this group than in the full sample (group=0.00%; full sample=8.38%).
+- The response/modality "never plane is not restrictive" for variable/proposition "never plane restrictive" is MORE FREQUENT in this group than in the full sample (group=76.54%; full sample=45.51%).
+- The response/modality "never plane is restrictive" for variable/proposition "never plane restrictive" is LESS FREQUENT in this group than in the full sample (group=23.46%; full sample=54.49%).
+- The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer.linen is restrictive" for variable/proposition "linen capable restrictive" is MORE FREQUENT in this group than in the full sample (group=12.35%; full sample=7.19%).
+- The response/modality "I feel able to buy only locally sourced food products.local products is restrictive" for variable/proposition "local products capable restrictive" is MORE FREQUENT in this group than in the full sample (group=25.93%; full sample=19.16%).
+- The response/modality "I feel able to let my washing air dry rather than use a tumble dryer" for variable/proposition "linen capable" is LESS FREQUENT in this group than in the full sample (group=87.65%; full sample=92.22%).
+- The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer" for variable/proposition "linen capable" is MORE FREQUENT in this group than in the full sample (group=12.35%; full sample=7.78%).
+- The mean of "From 0 to 5 never plane is restrictive" is LOWER in this group than in the full sample (group mean=1.68; full-sample mean=2.68).
+- The mean of "From 0 to 5 turn off is restrictive" is HIGHER in this group than in the full sample (group mean=1.93; full-sample mean=1.65).
+===== END R2_EVIDENCE =====
+
+===== R1 PROMPT =====
+# Introduction
+
+This study examines respondents' perceived ability to adopt or avoid everyday environmental practices. The target is the observed response to whether respondents feel able not to take the plane. The evidence below describes this category relative to the full sample.
+
+---
+
+## How to Read the Statistical Evidence
+
+R has already performed the statistical analysis. Read each statement below as a factual comparison between this group and the full sample. MORE FREQUENT and LESS FREQUENT describe relative modality prevalence; HIGHER and LOWER describe the group mean relative to the full-sample mean for the same variable. An undisplayed modality or variable is not thereby absent, average, rejected, or unimportant.
+
+# Overall Analytical Request
+
+Describe what characterizes this observed category and what distinguishes it in the context of the study. Use the displayed qualitative-frequency and quantitative-mean evidence to give a coherent characterization, rather than paraphrasing each line separately.
+
+## Interpretation Rules
+
+Combine convergent displayed facts into a higher-level interpretation when the connection is reasonable and traceable. Do not invent a new empirical characteristic or present a synthesis as a direct statistical fact. Descriptive percentages and means describe contrasts; they are not measures of statistical strength. Do not treat the largest percentage contrast as the strongest statistical marker, the largest mean as the most important variable, or mean levels from different variables as directly comparable measures of importance. A broader contextual extension is allowed only when it is clearly identified as a hypothesis.
+
+# Local Task
+
+Interpret ONLY the observed category shown below. Preserve its observed category name and do not rename it. Do not compare it with unseen categories.
+
+# Data
+
+## Category "I feel able not to take the plane"
+
+- The response/modality "I don't feel able not to take the plane.never plane is restrictive" for variable/proposition "never plane capable restrictive" is LESS FREQUENT in this group than in the full sample.
+- The response/modality "I feel able not to take the plane.never plane is not restrictive" for variable/proposition "never plane capable restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "I feel able not to take the plane.never plane is restrictive" for variable/proposition "never plane capable restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "I don't feel able not to take the plane.never plane is not restrictive" for variable/proposition "never plane capable restrictive" is LESS FREQUENT in this group than in the full sample.
+- The response/modality "never plane is not restrictive" for variable/proposition "never plane restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "never plane is restrictive" for variable/proposition "never plane restrictive" is LESS FREQUENT in this group than in the full sample.
+- The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer.linen is restrictive" for variable/proposition "linen capable restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "I feel able to buy only locally sourced food products.local products is restrictive" for variable/proposition "local products capable restrictive" is MORE FREQUENT in this group than in the full sample.
+- The response/modality "I feel able to let my washing air dry rather than use a tumble dryer" for variable/proposition "linen capable" is LESS FREQUENT in this group than in the full sample.
+- The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer" for variable/proposition "linen capable" is MORE FREQUENT in this group than in the full sample.
+- The mean of "From 0 to 5 never plane is restrictive" is LOWER in this group than in the full sample.
+- The mean of "From 0 to 5 turn off is restrictive" is HIGHER in this group than in the full sample.
+===== END R1 PROMPT =====
+
+===== R2 PROMPT =====
+# Introduction
+
+This study examines respondents' perceived ability to adopt or avoid everyday environmental practices. The target is the observed response to whether respondents feel able not to take the plane. The evidence below describes this category relative to the full sample.
+
+---
+
+## How to Read the Statistical Evidence
+
+R has already performed the statistical analysis. Read each statement below as a factual comparison between this group and the full sample. MORE FREQUENT and LESS FREQUENT describe relative modality prevalence; HIGHER and LOWER describe the group mean relative to the full-sample mean for the same variable. When percentages are shown, the group percentage describes the modality within this group and the full-sample percentage describes the same modality in the full sample; these are descriptive values, not p-values or measures of statistical strength. When means are shown, compare the group mean only with the full-sample mean for that same variable; do not compare mean values across variables as if they shared one scale. An undisplayed modality or variable is not thereby absent, average, rejected, or unimportant.
+
+# Overall Analytical Request
+
+Describe what characterizes this observed category and what distinguishes it in the context of the study. Use the displayed qualitative-frequency and quantitative-mean evidence to give a coherent characterization, rather than paraphrasing each line separately.
+
+## Interpretation Rules
+
+Combine convergent displayed facts into a higher-level interpretation when the connection is reasonable and traceable. Do not invent a new empirical characteristic or present a synthesis as a direct statistical fact. Descriptive percentages and means describe contrasts; they are not measures of statistical strength. Do not treat the largest percentage contrast as the strongest statistical marker, the largest mean as the most important variable, or mean levels from different variables as directly comparable measures of importance. A broader contextual extension is allowed only when it is clearly identified as a hypothesis.
+
+# Local Task
+
+Interpret ONLY the observed category shown below. Preserve its observed category name and do not rename it. Do not compare it with unseen categories.
+
+# Data
+
+## Category "I feel able not to take the plane"
+
+- The response/modality "I don't feel able not to take the plane.never plane is restrictive" for variable/proposition "never plane capable restrictive" is LESS FREQUENT in this group than in the full sample (group=0.00%; full sample=43.11%).
+- The response/modality "I feel able not to take the plane.never plane is not restrictive" for variable/proposition "never plane capable restrictive" is MORE FREQUENT in this group than in the full sample (group=76.54%; full sample=37.13%).
+- The response/modality "I feel able not to take the plane.never plane is restrictive" for variable/proposition "never plane capable restrictive" is MORE FREQUENT in this group than in the full sample (group=23.46%; full sample=11.38%).
+- The response/modality "I don't feel able not to take the plane.never plane is not restrictive" for variable/proposition "never plane capable restrictive" is LESS FREQUENT in this group than in the full sample (group=0.00%; full sample=8.38%).
+- The response/modality "never plane is not restrictive" for variable/proposition "never plane restrictive" is MORE FREQUENT in this group than in the full sample (group=76.54%; full sample=45.51%).
+- The response/modality "never plane is restrictive" for variable/proposition "never plane restrictive" is LESS FREQUENT in this group than in the full sample (group=23.46%; full sample=54.49%).
+- The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer.linen is restrictive" for variable/proposition "linen capable restrictive" is MORE FREQUENT in this group than in the full sample (group=12.35%; full sample=7.19%).
+- The response/modality "I feel able to buy only locally sourced food products.local products is restrictive" for variable/proposition "local products capable restrictive" is MORE FREQUENT in this group than in the full sample (group=25.93%; full sample=19.16%).
+- The response/modality "I feel able to let my washing air dry rather than use a tumble dryer" for variable/proposition "linen capable" is LESS FREQUENT in this group than in the full sample (group=87.65%; full sample=92.22%).
+- The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer" for variable/proposition "linen capable" is MORE FREQUENT in this group than in the full sample (group=12.35%; full sample=7.78%).
+- The mean of "From 0 to 5 never plane is restrictive" is LOWER in this group than in the full sample (group mean=1.68; full-sample mean=2.68).
+- The mean of "From 0 to 5 turn off is restrictive" is HIGHER in this group than in the full sample (group mean=1.93; full-sample mean=1.65).
+===== END R2 PROMPT =====
+
