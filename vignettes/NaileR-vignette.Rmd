@@ -1,131 +1,461 @@
 ---
-title: "An introduction to the NaileR package"
+title: "Evidence-first interpretation with NaileR"
 author: "Sébastien Lê"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{NaileR-vignette}
+  %\VignetteIndexEntry{Evidence-first interpretation with NaileR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
 
-# Introduction
+# Evidence first, interpretation second
 
-`{NaileR}` is a small R package designed initially for interpreting continuous or categorical latent
-variables: typically, dimensions from an exploratory multivariate method, or a class
-variable from an unsupervised clustering algorithm. As who can do more can do less, `{NaileR}` can also
-interpret explicit measures regarding to the other variables of the data set.
-The rationale behind `{NaileR}` is to link `{FactoMineR}` on the one hand and `{ollamar}` on the
-other hand: `{FactoMineR}` integrates dimension reduction methods, such as *PCA*, *CA*,
-*MCA*, *MFA*, *hierarchical clustering*; `{ollamar}` enables R to query an open-source large
-language model (LLM) installed locally thanks to ollama (<https://ollama.com>).
-To do so, `{NaileR}` recodes relevant numerical indicators from `{FactoMineR}` into
-qualitative indicators that are then used to generate prompts directly usable by the
-LLM. This recoding is carried out through the prism of the statistical individuals.
+`NaileR` connects statistical analyses in R with optional interpretation by a
+large language model (LLM). Its central rule is:
 
-# How to describe and interpret a categorical variable automatically?
-
-## When the categorical variable is explicit
-
-In the following section we present an example of what `{NaileR}` can do in the case of an explicit and therefore measured categorical variable. The dataset we will use is the famous Fisher's Iris dataset. Let's say we are interested in the variable *species* and we want to know how this categorical variable can be described by the other variables in the dataset. As mentioned above, `{NaileR}` is partly based on `{FactoMineR}` functions, and in particular on two very important functions of that package, namely *catdes()* and *condes()*. The first function, *catdes()*, is designed to automatically describe a categorical variable, while the second is designed to describe a continuous variable.
-
-The `{NaileR}` package has two similar functions, both of which are extended using LLM: *nail_catdes()* and *nail_condes()*. For example, the parameters of the *nail_catdes()* function are partly the same as those of the *catdes()* function. You must specify the name of the dataset and the number of the column associated with the categorical/qualitative variable to be interpreted.
-
-To get interesting results from `{NaileR}`, it is essential to fill in two parameters: the *introduction* and the *request*. These two parameters are important because they allow us to build a prompt that is operational and adapted to the data set and the variables of interest.
-
-```{r eval=FALSE}
-library(NaileR)
-data(iris)
-
-intro_iris <- "A study measured various parts of iris flowers
-from 3 different species: setosa, versicolor and virginica.
-I will give you the results from this study.
-You will have to identify what sets these flowers apart."
-intro_iris <- gsub('\n', ' ', intro_iris) |>
-  stringr::str_squish()
-
-req_iris <- "Please explain what makes each species distinct.
-Also, tell me which species has the biggest flowers,
-and which species has the smallest. Is there any biological reason for this?"
-req_iris <- gsub('\n', ' ', req_iris) |>
-  stringr::str_squish()
-req_iris <- gsub('\n', ' ', req_iris) |>
-  stringr::str_squish()
-
-res_iris <- nail_catdes(iris,
-                        num.var = 5,
-                        model = "llama3.1",
-                        introduction = intro_iris,
-                        request = req_iris,
-                        generate = TRUE)
+```text
+statistical or textual evidence produced in R
+                    ↓
+          selected factual evidence
+                    ↓
+              LLM interpretation
 ```
 
+R calculates or registers the canonical evidence. NaileR then selects and
+renders a method-specific view of that evidence for a prompt. The LLM may
+synthesize and contextualize the displayed facts, but its response is not a
+new statistical result. Important interpretations therefore remain subject to
+human review, especially when they concern causality, motivations, minority
+positions, or constructed latent groups.
 
-```{r setup}
-res_iris <- readRDS(system.file("extdata", "res_iris.rds", package = "NaileR"))
-formatted_text <- strwrap(res_iris$response, width = 80)
-print(formatted_text)
-```
+The examples below use the historical NaileR and FactoMineR datasets. They are
+preview examples and do not require a running LLM server.
 
-## When the categorical variable is latent
-
-
-```{r}
+```{r packages}
 library(NaileR)
 library(FactoMineR)
-data(waste)
-waste <- waste[-14]    # no variability on this question
-
-set.seed(1)
-res_mca_waste <- MCA(waste, quali.sup = c(1,2,50:76),
-                     ncp = 35, level.ventil = 0.05, graph = FALSE)
-plot.MCA(res_mca_waste, choix = "ind",
-         invisible = c("var", "quali.sup"), label = "none")
-res_hcpc_waste <- HCPC(res_mca_waste, nb.clust = 3, graph = FALSE)
+library(SensoMineR)
 ```
 
-```{r}
-don_clust_waste <- res_hcpc_waste$data.clust
-res_mca_waste <- MCA(don_clust_waste, quali.sup = c(1,2,50:77),
-                     ncp = 35, level.ventil = 0.05, graph = FALSE)
-plot.MCA(res_mca_waste, choix = "ind",
-         invisible = c("var", "quali.sup"), label = "none", habillage = 77)
+# Inspect before generating
+
+Every rebuilt workflow exposes the same inspection grammar:
+
+```r
+result <- nail_xxx(..., generate = FALSE)
+
+nail_evidence(result, select = ...)
+nail_prompt(result, select = ..., print = FALSE)
+
+# Available only after generate = TRUE:
+nail_response(result, select = ..., print = FALSE)
 ```
 
-```{r eval=FALSE}
-intro_waste <- 'These data were collected
-after a survey on food waste,
-with participants describing their habits.'
-intro_waste <- gsub('\n', ' ', intro_waste) |>
-  stringr::str_squish()
+`nail_evidence()` exposes the canonical evidence retained by the analysis;
+`nail_prompt()` exposes the exact rendered prompt; and `nail_response()`
+exposes the raw LLM response. Changing `introduction` or `request` changes the
+analytical framing of the prompt, not the canonical statistical evidence.
 
-req_waste <- 'Please summarize the characteristics of each group.
-Then, give each group a new name, based on your conclusions.
-Finally, give each group a grade between 0 and 10,
-based on how wasteful they are with food:
-0 being "not at all", 10 being "absolutely".'
-req_waste <- gsub('\n', ' ', req_waste) |>
-  stringr::str_squish()
+For example, the following QDA preview uses a study context and a substantive
+request without contacting an LLM.
 
-res_waste <- nail_catdes(don_clust_waste,
-                         num.var = ncol(don_clust_waste),
-                         introduction = intro_waste,
-                         request = req_waste,
-                         model = "llama3.1",
-                         drop.negative = TRUE,
-                         generate = TRUE)
+```{r qda-preview}
+data(chocolates, package = "SensoMineR")
+
+qda_preview <- nail_qda(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  introduction = paste(
+    "Six chocolates were evaluated by a trained sensory panel.",
+    "The objective is to understand their sensory profiles."
+  ),
+  request = paste(
+    "Interpret each product as a coherent sensory configuration.",
+    "Synthesize convergent attributes while keeping the interpretation",
+    "traceable to the displayed evidence and avoiding causal claims."
+  ),
+  isolate.groups = TRUE,
+  sample.pct = 1,
+  generate = FALSE
+)
+
+qda_product <- names(nail_evidence(qda_preview)$products)[[1L]]
+qda_product_evidence <- nail_evidence(qda_preview, select = qda_product)
+qda_product_prompt <- nail_prompt(qda_preview, select = qda_product, print = FALSE)
+
+qda_product_evidence$metrics
+cat(substr(qda_product_prompt, 1, 900), "\n")
 ```
 
-```{r}
-res_waste <- readRDS(system.file("extdata", "res_waste.rds", package = "NaileR"))
-formatted_text <- strwrap(res_waste$response, width = 80)
-print(formatted_text)
+The evidence remains inspectable even when no response exists. To generate a
+response, add `provider`, `model`, and `generate = TRUE` in a controlled
+environment:
+
+```{r qda-generation, eval = FALSE}
+qda_generated <- nail_qda(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  isolate.groups = TRUE,
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = TRUE
+)
+
+nail_response(qda_generated, select = "choc1", print = FALSE)
 ```
 
+# Why combine statistics and an LLM?
+
+Statistical procedures are well suited to calculating contrasts, profiles,
+associations, frequencies, coordinates, or textual registries. They do not by
+themselves provide every domain-specific label or substantive synthesis an
+analyst may need. An LLM can help formulate such a synthesis, provided that
+the displayed evidence, the user request, and the interpretive status remain
+visible.
+
+The `introduction` gives study context. It is not statistical evidence. The
+`request` states the analytical question. It should say what to interpret and
+what distinctions matter. Guardrails in the method-specific reading guide
+explain how to read the evidence; they do not turn contextual information into
+measurements.
+
+```{r context-request-invariance}
+qda_default <- nail_qda(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  isolate.groups = TRUE,
+  generate = FALSE
+)
+qda_custom <- nail_qda(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  isolate.groups = TRUE,
+  introduction = "A sensory study of chocolate products.",
+  request = "Describe the dominant sensory configuration of each product.",
+  generate = FALSE
+)
+
+identical(nail_evidence(qda_default), nail_evidence(qda_custom))
+```
+
+# Main statistical workflows
+
+## Continuous targets: `nail_condes()`
+
+`nail_condes()` characterizes a continuous target from categorical and
+quantitative variables. In `standard` mode the target is an observed variable
+whose name is preserved. In `latent` mode the target may be a constructed
+score, component, or dimension; the prompt asks the LLM to reconstruct and
+name its substantive meaning from the evidence.
+
+### Observed target
+
+```{r condes-standard}
+data(decathlon, package = "FactoMineR")
+
+condes_standard <- nail_condes(
+  dataset = decathlon,
+  num.var = 12,
+  interpretation_mode = "standard",
+  introduction = "Decathlon performance is described by the observed score.",
+  request = "Identify the coherent performance profile associated with the target.",
+  generate = FALSE
+)
+
+nail_evidence(condes_standard)
+cat(substr(nail_prompt(condes_standard, print = FALSE), 1, 900), "\n")
+```
+
+### Constructed dimension
+
+```{r condes-latent}
+decathlon_active <- decathlon[, 1:10, drop = FALSE]
+pca_decathlon <- PCA(decathlon_active, graph = FALSE)
+decathlon_dim1 <- data.frame(
+  Dim1 = pca_decathlon$ind$coord[, 1],
+  decathlon_active,
+  check.names = FALSE
+)
+
+condes_latent <- nail_condes(
+  dataset = decathlon_dim1,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  request = "Propose a substantive name for this constructed continuum.",
+  generate = FALSE
+)
+
+nail_evidence(condes_latent)
+cat(substr(nail_prompt(condes_latent, print = FALSE), 1, 900), "\n")
+```
+
+## Categorical groups: `nail_catdes_prep()` and `nail_catdes()`
+
+`nail_catdes_prep()` is the mechanical preparation layer. `nail_catdes()`
+uses its canonical profiles to build a prompt. For an observed categorical
+variable, `standard` mode preserves the category names. For constructed
+clusters, `latent` mode treats labels as identifiers and asks for an
+interpretive name based on the profile.
+
+### Observed categories with `iris`
+
+```{r catdes-standard}
+data(iris)
+
+catdes_standard <- nail_catdes(
+  dataset = iris,
+  num.var = 5,
+  interpretation_mode = "standard",
+  isolate.groups = TRUE,
+  request = "Describe what characterizes each observed species from the displayed evidence.",
+  generate = FALSE
+)
+
+catdes_profiles <- nail_catdes_prep(
+  x = attr(catdes_standard, "statistical_profiles", exact = TRUE)
+)
+catdes_group <- names(nail_evidence(catdes_standard)$groups)[[1L]]
+catdes_profiles$metadata$schema
+nail_evidence(catdes_standard, select = catdes_group)
+cat(nail_prompt(catdes_standard, select = catdes_group, print = FALSE), "\n")
+```
+
+### Constructed groups with `atomic_habit_clust`
+
+```{r catdes-latent}
+data(atomic_habit_clust, package = "NaileR")
+atomic_habit_profiles <- atomic_habit_clust[, c(1:20, 51), drop = FALSE]
+
+catdes_latent <- nail_catdes(
+  dataset = atomic_habit_profiles,
+  num.var = ncol(atomic_habit_profiles),
+  interpretation_mode = "latent",
+  isolate.groups = TRUE,
+  request = "Interpret each constructed group from its coherent displayed profile and propose a descriptive name.",
+  generate = FALSE
+)
+
+latent_group <- names(nail_evidence(catdes_latent)$groups)[[1L]]
+nail_evidence(catdes_latent, select = latent_group)
+cat(substr(nail_prompt(catdes_latent, select = latent_group, print = FALSE), 1, 1000), "\n")
+```
+
+## Contingency profiles: `nail_descfreq()`
+
+`nail_descfreq()` describes rows of a frequency/contingency table. Relative
+frequencies are evidence about a profile; they are not causal explanations or
+absolute importance scores. The complete frequency evidence remains separate
+from the subset selected for the prompt.
+
+```{r descfreq}
+data(beard_cont, package = "NaileR")
+
+descfreq_preview <- nail_descfreq(
+  dataset = beard_cont,
+  interpretation_mode = "description",
+  isolate.groups = TRUE,
+  sample.pct = 1,
+  request = "Characterize each row from the convergent displayed frequency pattern.",
+  generate = FALSE
+)
+
+descfreq_row <- names(nail_evidence(descfreq_preview)$rows)[[1L]]
+nail_evidence(descfreq_preview, select = descfreq_row)
+cat(substr(nail_prompt(descfreq_preview, select = descfreq_row, print = FALSE), 1, 1000), "\n")
+```
+
+## Grouped open-ended text: `nail_textual_prep()` and `nail_textual()`
+
+`nail_textual()` registers every non-empty text with a stable `TXT######`
+identifier. Sampling affects only the texts shown to the LLM; it does not
+change the canonical textual registry. `nail_textual_prep()` is the historical
+structured preparation workflow and remains available.
+
+```{r textual}
+data(fabric, package = "NaileR")
+fabric_A <- droplevels(fabric[fabric$Fabric == "A", , drop = FALSE])
+
+textual_preview <- nail_textual(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  isolate.groups = TRUE,
+  sample.pct = 0.35,
+  seed = 123,
+  text_role = "responses",
+  request = paste(
+    "Identify recurring frames while preserving internal diversity.",
+    "Distinguish what respondents literally expressed from any higher-level",
+    "contextual interpretation."
+  ),
+  generate = FALSE
+)
+
+textual_group <- names(nail_evidence(textual_preview)$groups)[[1L]]
+textual_evidence <- nail_evidence(textual_preview, select = textual_group)
+textual_evidence$metrics
+cat(substr(nail_prompt(textual_preview, select = textual_group, print = FALSE), 1, 1100), "\n")
+
+textual_prep_preview <- nail_textual_prep(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  sample.pct = 1,
+  generate = FALSE
+)
+```
+
+With `generate = TRUE`, inspect the raw response and parsed profile. Do not
+present a generated thematic synthesis as a literal statement by respondents.
+
+```{r textual-generation, eval = FALSE}
+textual_generated <- nail_textual(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  isolate.groups = TRUE,
+  sample.pct = 0.35,
+  seed = 123,
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = TRUE
+)
+
+nail_response(textual_generated, select = textual_group, print = FALSE)
+```
+
+## Sensory product space: `nail_qda_space()`
+
+`nail_qda_space()` builds a PCA space from QDA adjusted means and characterizes
+its dimensions with latent CONDES evidence. It is therefore a downstream
+workflow: the QDA evidence remains the statistical foundation.
+
+```{r qda-space}
+qda_space_preview <- nail_qda_space(
+  qda_preview,
+  ncp = 2,
+  expertise_mode = "sensory",
+  generate = FALSE
+)
+
+qda_axis <- names(nail_evidence(qda_space_preview)$axes)[[1L]]
+nail_evidence(qda_space_preview, select = qda_axis)
+cat(substr(nail_prompt(qda_space_preview, select = qda_axis, print = FALSE), 1, 1100), "\n")
+```
+
+If model-assisted QDA product interpretations are reused in a generated
+space interpretation, NaileR emits one non-blocking warning. The axis result
+should then be confronted with the original QDA and PCA/CONDES evidence. The
+warning is not emitted for a preview, statistical-only evidence, or expert-only
+product summaries.
+
+# Composing CATDES and TEXTUAL
+
+`nail_catdes_textual()` combines an existing CATDES result with an existing
+TEXTUAL result. The intended direction is:
+
+```text
+global CATDES interpretation
+        ↓
+verbatims illustrate, deepen, qualify, or question the portrait
+        ↓
+enriched global group interpretation
+```
+
+Individual closed-question configurations are optional contextual resources,
+not a mandatory second analysis. The CATDES statistical evidence remains the
+check on the global portrait, and the text registry preserves the provenance
+of quotations.
+
+The historical Atomic Habits example uses the existing group variable and
+verbatim column. It requires generated upstream profiles, so it is shown but
+not executed while building this vignette.
+
+```{r catdes-textual-generation, eval = FALSE}
+data(atomic_habit_clust, package = "NaileR")
+
+atomic_catdes_data <- atomic_habit_clust[, c(1:20, 51), drop = FALSE]
+atomic_textual_data <- data.frame(
+  group = atomic_habit_clust[[51]],
+  text = atomic_habit_clust[[31]],
+  stringsAsFactors = FALSE
+)
+
+atomic_catdes <- nail_catdes(
+  dataset = atomic_catdes_data,
+  num.var = ncol(atomic_catdes_data),
+  interpretation_mode = "latent",
+  isolate.groups = TRUE,
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = TRUE
+)
+atomic_textual <- nail_textual(
+  dataset = atomic_textual_data,
+  num.var = 1,
+  num.text = 2,
+  isolate.groups = TRUE,
+  sample.pct = 0.40,
+  seed = 123,
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = TRUE
+)
+
+atomic_enriched <- nail_catdes_textual(
+  catdes = atomic_catdes,
+  textual = atomic_textual,
+  isolate.groups = TRUE,
+  provider = "ollama",
+  model = "mistral-small3.2",
+  generate = TRUE
+)
+
+nail_evidence(atomic_enriched, select = "1")
+nail_prompt(atomic_enriched, select = "1", print = FALSE)
+nail_response(atomic_enriched, select = "1", print = FALSE)
+```
+
+When a generated CATDES interpretation is reused, the composition warning
+signals a risk of propagating an unsupported upstream claim. This is a reason
+for review, not evidence that the composition is automatically invalid.
+
+# Practical checklist
+
+Before relying on an interpretation:
+
+1. Run the analysis with `generate = FALSE`.
+2. Inspect the canonical evidence with `nail_evidence()`.
+3. Inspect the exact prompt with `nail_prompt()`.
+4. Check that the introduction supplies context rather than hidden evidence.
+5. Check that the request asks a scientifically meaningful question.
+6. If generating, preserve and inspect the raw response with `nail_response()`.
+7. Separate measured facts, statistical synthesis, substantive interpretation,
+   and broader hypotheses.
+8. For composed workflows, return to the upstream evidence when a warning is
+   emitted or when a generated interpretation appears unusually certain.
+
+The package is designed to make this review possible. It does not remove the
+need for domain expertise or human control of the final interpretation.
+
+# Historical compatibility and scope
+
+The current evidence-first workflows coexist with historical exports such as
+`nail_sort()` and the LLM distance/similarity functions. Those functions are
+outside the active stabilization scope of this vignette and are not silently
+removed or refactored here. Compatibility paths such as
+`nail_textual_contextualized()` remain available for existing users; new
+analyses should prefer the evidence-first functions documented above.

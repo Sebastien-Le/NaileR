@@ -39,6 +39,20 @@ devtools::install_github("Sebastien-Le/NaileR")
 library(NaileR)
 ```
 
+The command above installs the repository's default branch. To test the
+current evidence-first development branch used for stabilization, specify it
+explicitly:
+
+```r
+devtools::install_github(
+  "Sebastien-Le/NaileR",
+  ref = "dev-statistical-prompt-framework"
+)
+```
+
+This branch is a development version and should not be confused with a
+published CRAN release.
+
 ## A common user interface
 
 The main evidence-first analyses share the same inspection grammar:
