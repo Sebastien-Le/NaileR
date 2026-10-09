@@ -43,19 +43,17 @@ nail_qda_spaceprep(
 
 \item{expertise_mode}{Either \code{"sensory"}, \code{"positioning"}, or \code{"hybrid"}.}
 
-\item{generate}{If FALSE, returns prompts only. If TRUE, returns prompts,
-raw responses, and parsed structured summaries.}
+\item{generate}{If \code{FALSE}, returns one prompt per product and makes no LLM
+call. If \code{TRUE}, returns prompts, raw responses, and parsed structured
+summaries for the historical workflow.}
 
 \item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
 }
 \value{
-If \code{generate = FALSE}, a named list of prompts.
-If \code{generate = TRUE}, a named list where each element contains:
-\itemize{
-\item prompt
-\item response
-\item parsed
-}
+If \code{generate = FALSE}, a named list of prompts. If \code{generate = TRUE},
+a named list where each element contains \code{prompt}, \code{response}, and
+\code{parsed}. This is a compatibility preparation result; the rebuilt workflow
+instead passes a \code{\link[=nail_qda]{nail_qda()}} result directly to \code{\link[=nail_qda_space]{nail_qda_space()}}.
 }
 \description{
 \code{nail_qda_spaceprep()} is retained for backward compatibility with the
@@ -69,4 +67,18 @@ resulting QDA object to \code{\link[=nail_qda_space]{nail_qda_space()}}.
 
 The historical function still reuses \code{nail_qda()} in isolated mode with a
 dedicated prompt to create structured product summaries for older code.
+}
+\examples{
+data(chocolates, package = "SensoMineR")
+spaceprep_prompts <- nail_qda_spaceprep(
+  sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  generate = FALSE
+)
+names(spaceprep_prompts)[[1L]]
+
+}
+\seealso{
+\code{\link[=nail_qda]{nail_qda()}}, \code{\link[=nail_qda_space]{nail_qda_space()}}, \code{\link[=nail_qda_interpretation]{nail_qda_interpretation()}}
 }

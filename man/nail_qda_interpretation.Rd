@@ -48,6 +48,9 @@ when \code{print = FALSE}.
 If at least one interpretation field is supplied, the modified QDA object is
 returned. The edited product receives \code{status = "available"} and
 \code{source = "expert"}.
+The statistical \code{product_profiles} and the original response/evidence IDs
+remain unchanged. This function is an expert-editing accessor, not a new
+statistical analysis and not an LLM call.
 }
 \description{
 \code{nail_qda_interpretation()} provides a simple expert-in-the-loop interface
@@ -91,4 +94,8 @@ qda <- nail_qda_interpretation(
 )
 }
 
+}
+\seealso{
+\code{\link[=nail_qda]{nail_qda()}}, \code{\link[=nail_qda_space]{nail_qda_space()}}, \code{\link[=nail_evidence]{nail_evidence()}},
+\code{\link[=nail_prompt]{nail_prompt()}}, \code{\link[=nail_response]{nail_response()}}
 }

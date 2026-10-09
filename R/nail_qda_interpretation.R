@@ -40,6 +40,12 @@
 #' If at least one interpretation field is supplied, the modified QDA object is
 #' returned. The edited product receives `status = "available"` and
 #' `source = "expert"`.
+#' The statistical `product_profiles` and the original response/evidence IDs
+#' remain unchanged. This function is an expert-editing accessor, not a new
+#' statistical analysis and not an LLM call.
+#'
+#' @seealso [nail_qda()], [nail_qda_space()], [nail_evidence()],
+#'   [nail_prompt()], [nail_response()]
 #'
 #' @examples
 #' \dontrun{

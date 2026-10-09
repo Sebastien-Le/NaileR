@@ -194,15 +194,27 @@ parse_qda_spaceprep_response <- function(text) {
 #' @param drop.negative Whether to hide negative v.tests.
 #' @param product_knowledge Either `"known"` or `"unknown"`.
 #' @param expertise_mode Either `"sensory"`, `"positioning"`, or `"hybrid"`.
-#' @param generate If FALSE, returns prompts only. If TRUE, returns prompts,
-#' raw responses, and parsed structured summaries.
+#' @param generate If `FALSE`, returns one prompt per product and makes no LLM
+#'   call. If `TRUE`, returns prompts, raw responses, and parsed structured
+#'   summaries for the historical workflow.
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
 #'
-#' @return If `generate = FALSE`, a named list of prompts.
-#' If `generate = TRUE`, a named list where each element contains:
-#' - prompt
-#' - response
-#' - parsed
+#' @return If `generate = FALSE`, a named list of prompts. If `generate = TRUE`,
+#'   a named list where each element contains `prompt`, `response`, and
+#'   `parsed`. This is a compatibility preparation result; the rebuilt workflow
+#'   instead passes a [nail_qda()] result directly to [nail_qda_space()].
+#'
+#' @seealso [nail_qda()], [nail_qda_space()], [nail_qda_interpretation()]
+#'
+#' @examples
+#' data(chocolates, package = "SensoMineR")
+#' spaceprep_prompts <- nail_qda_spaceprep(
+#'   sensochoc,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   generate = FALSE
+#' )
+#' names(spaceprep_prompts)[[1L]]
 #'
 #' @export
 nail_qda_spaceprep <- function(dataset, formul, firstvar,

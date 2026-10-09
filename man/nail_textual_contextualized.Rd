@@ -53,13 +53,17 @@ nail_textual_contextualized(
 
 \item{sample.pct.profile}{Proportion of retained descriptors kept for group profile prep.}
 
-\item{profile_mode}{\code{"balanced"}, \code{"categorical"}, or \code{"quantitative"}.}
+\item{profile_mode}{\code{"balanced"} (default), \code{"categorical"}, or
+\code{"quantitative"}; used only by the historical preparation route.}
 
-\item{prompt_style}{\code{"compact"} or \code{"detailed"}.}
+\item{prompt_style}{\code{"compact"} (default) or \code{"detailed"}; used by the
+historical route and ignored by the canonical delegation.}
 
-\item{interpretation_mode}{\code{"groupwise"} or \code{"comparative"}.}
+\item{interpretation_mode}{\code{"groupwise"} (default) or \code{"comparative"};
+used by the historical route.}
 
-\item{include_verbatims}{Logical; whether to include illustrative verbatims in the final prompt.}
+\item{include_verbatims}{Logical; whether to include illustrative verbatims
+in the final prompt on the historical route.}
 
 \item{n_central_verbatims}{Number of central verbatims per group for fallback selection.}
 
@@ -73,9 +77,12 @@ nail_textual_contextualized(
 
 \item{conclusion}{Optional conclusion block.}
 
-\item{isolate.groups}{Logical; if TRUE, one prompt per group.}
+\item{isolate.groups}{Logical; if \code{TRUE}, one prompt per group. On the
+canonical route, local interpretation remains group-wise even when the
+combined outer return shape is requested.}
 
-\item{model}{LLM model name for the selected provider.}
+\item{model}{LLM model name for the selected provider. The default is
+\code{"llama3"}.}
 
 \item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
@@ -96,8 +103,11 @@ canonical route. It must be supplied together with \code{catdes}.}
 \item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
 }
 \value{
-If \code{generate = FALSE}, a prompt string or a named list of prompts.
-If \code{generate = TRUE}, a data frame or a named list of data frames.
+If \code{generate = FALSE}, a prompt string or a named list of prompts;
+if \code{generate = TRUE}, a data frame or a named list of data frames. The
+exact outer shape depends on the selected route and \code{isolate.groups}.
+Historical-route summaries are attached as attributes, while the
+canonical route exposes the delegated \code{\link[=nail_catdes_textual]{nail_catdes_textual()}} attributes.
 
 On the historical route, the result carries \code{group_profile_summary},
 \code{textual_group_summary}, \code{representative_verbatims}, and
@@ -134,4 +144,9 @@ generation is enabled. The canonical route is selected when either
 \code{catdes} or \code{textual} is supplied; both must then be supplied, and
 historical source objects or historical tuning arguments must not be mixed
 with them.
+}
+\seealso{
+\code{\link[=nail_catdes_textual]{nail_catdes_textual()}}, \code{\link[=nail_group_profile_prep]{nail_group_profile_prep()}},
+\code{\link[=nail_textual_prep]{nail_textual_prep()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

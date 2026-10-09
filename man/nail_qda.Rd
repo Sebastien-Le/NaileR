@@ -37,15 +37,18 @@ attribute. The first right-hand-side term is treated as the product factor.}
 
 \item{lastvar}{Index of the last sensory attribute.}
 
-\item{introduction}{Optional introduction included in the LLM prompt.}
+\item{introduction}{Optional study context included in the LLM prompt. It
+helps explain the substantive setting but is not statistical evidence.}
 
-\item{request}{Optional user request included in the LLM prompt.}
+\item{request}{Optional analytical question included in the LLM prompt.}
 
-\item{conclusion}{Optional output-instruction block.}
+\item{conclusion}{Optional final output-instruction block.}
 
-\item{model}{Model name for the selected provider.}
+\item{model}{Model name for the selected provider. The default is
+\code{"llama3"}.}
 
-\item{provider}{LLM backend. Currently \code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM backend. Currently \code{"ollama"} or \code{"gemini"}; when the
+argument is omitted, \code{match.arg()} selects \code{"ollama"}.}
 
 \item{isolate.groups}{If \code{FALSE}, one joint portfolio prompt is built. If
 \code{TRUE}, one independent prompt is built per product/stimulus.}
@@ -60,41 +63,71 @@ LLM evidence. Selection is deterministic and does not alter
 \code{product_profiles}.}
 
 \item{sample.method}{Marker-selection strategy when \code{sample.pct < 1}.
-\code{"stratified"} (default) uses an anchor + exploration strategy: the
+\code{"stratified"} (the default selected by \code{match.arg()}) uses an anchor + exploration strategy: the
 strongest retained markers form the statistical backbone and the remaining
 slots sample lower-ranked retained evidence. When the anchor contains only
 one direction, the strongest opposite-direction marker is prioritized when
 available. \code{"top"} keeps only the statistically strongest eligible markers.}
 
-\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
+\item{prompt_style}{Either \code{"detailed"} (the default selected by
+\code{match.arg()}) or \code{"compact"}. The detailed style includes the full QDA
+reading and interpretation safeguards, including relative direction,
+unsupported-descriptor, and causal-claim guidance. The compact style keeps
+the core reading and synthesis rules while shortening the interpretation
+instructions. It is an abbreviated prompt style, but its exact token
+savings depend on the evidence and surrounding user text.}
 
-\item{product_knowledge}{Either \code{"known"} for meaningful product names or
-\code{"unknown"} for identifier-like stimulus labels.}
+\item{product_knowledge}{Either \code{"known"} (the default selected by
+\code{match.arg()}) for meaningful product names or \code{"unknown"} for
+identifier-like stimulus labels. With \code{"known"}, the prompt refers to
+products and instructs the LLM to preserve their labels as identifiers.
+With \code{"unknown"}, it refers to stimuli and treats labels as anonymous
+identifiers, allowing a descriptive sensory name only when supported by a
+coherent pattern. These instructions guide the interpretation but do not
+guarantee that a model will avoid hallucinations.}
 
 \item{generate}{If \code{FALSE}, build prompt(s) without calling an LLM. If
 \code{TRUE}, call the selected backend.}
 
 \item{default_blocks}{QDA-specific default semantic blocks to include in
 the prompt. Allowed values are \code{"reading"}, \code{"interpretation"}, and
-\code{"local_task"}. The evidence and reusable metadata blocks are always
-included. The default keeps all three blocks.}
+\code{"local_task"}. The default is all three blocks. The evidence and reusable
+metadata blocks are always included and are not controlled by this
+argument; unknown or duplicated block names produce an error.}
 
 \item{...}{Additional provider-specific generation arguments.}
 }
 \value{
-For backward compatibility, the outer return type remains:
-a prompt string or named list of prompts when \code{generate = FALSE}, and a
-backend data frame or named list of backend data frames when
-\code{generate = TRUE}.
-
-The following analytical artifacts are attached:
+The main return value contains prompts or backend results. Its
+structure depends on \code{generate} and \code{isolate.groups}:
 \itemize{
-\item \code{product_profiles}: canonical R evidence, including adjusted means for
-every sensory attribute and retained \code{decat()} markers.
+\item with \code{generate = FALSE} and \code{isolate.groups = FALSE}, a named list with
+one element called \code{portfolio}, containing the exact joint prompt;
+\item with \code{generate = FALSE} and \code{isolate.groups = TRUE}, a named list with
+one exact prompt per product or stimulus;
+\item with \code{generate = TRUE} and \code{isolate.groups = FALSE}, the data frame
+returned by the selected backend for the joint call, with the exact
+prompt also retained in the backend result;
+\item with \code{generate = TRUE} and \code{isolate.groups = TRUE}, a named list of
+backend data frames, one for each product or stimulus.
+}
+
+In addition to the outer return value described above, the same object
+carries analytical attributes. They can be inspected with \code{attr()} or the
+public accessors: use \code{\link[=nail_evidence]{nail_evidence()}} for the statistical evidence and
+\code{\link[=nail_prompt]{nail_prompt()}} for the exact stored prompt. \code{\link[=nail_response]{nail_response()}} retrieves
+the raw LLM response after generation; it reports that no response is
+available when \code{generate = FALSE}.
+
+The attached analytical attributes are:
+\itemize{
+\item \code{product_profiles}: canonical R-derived statistical evidence, including
+adjusted means for every sensory attribute and retained \code{decat()} markers
+with their available p-values and \code{v.test} statistics.
 \item \code{product_interpretations}: reusable PASS1 LLM interpretations for each
 product/stimulus, linked to the evidence IDs actually shown to the LLM.
-When generation has not run, status is \code{not_generated}; malformed
-reusable blocks are marked \code{parse_failed} rather than reconstructed.
+When generation has not run, status is \code{"not_generated"}; malformed
+reusable blocks are marked \code{"parse_failed"} rather than reconstructed.
 \item \code{interpretation_evidence}: deterministic subset selected for the LLM.
 \item \code{semantic_facing_evidence}: explicit factual sensory statements.
 \item \code{qda_prompt_blocks}: QDA-specific ordered prompt blocks used to render
@@ -107,17 +140,65 @@ each exact prompt.
 
 \code{profile_summary} is retained temporarily as a deprecated compatibility
 view for older workflows. It is not canonical QDA evidence and is not
-used by the rebuilt \code{\link[=nail_qda_space]{nail_qda_space()}} implementation.
+used by the rebuilt \code{\link[=nail_qda_space]{nail_qda_space()}} implementation. The \code{llm_io}
+attribute always records the exact prompt(s); its response slot is
+\code{NULL} when no LLM generation has occurred.
 }
 \description{
-\code{nail_qda()} first computes a canonical R-derived sensory profile for every
-product or stimulus using \code{\link[SensoMineR:decat]{SensoMineR::decat()}}. The statistical evidence is
-kept separate from the subset shown to the LLM. The LLM then interprets
-explicit sensory facts derived from the selected evidence.
+\code{nail_qda()} computes statistical sensory profiles using
+\code{\link[SensoMineR:decat]{SensoMineR::decat()}}, including model-adjusted means and statistically
+characteristic sensory attributes for each product or stimulus. Retained
+marker tables include p-values and \code{v.test} statistics when those fields are
+returned by \code{decat()}; \code{proba} controls the significance threshold used to
+retain markers.
 }
 \details{
-The canonical \code{product_profiles} object is invariant to \code{generate},
-\code{isolate.groups}, \code{sample.pct}, \code{sample.method}, \code{drop.negative},
-\code{prompt_style}, \code{product_knowledge}, and \code{default_blocks}. These arguments
-only affect the interpretation layer.
+The full R-derived statistical profile is kept separate from the subset
+shown to the LLM. The \code{product_profiles} object is the canonical statistical
+source: it contains adjusted means for every requested sensory attribute and
+the retained \code{decat()} markers. \code{interpretation_evidence} is a deterministic
+subset of those markers selected for the prompt, while
+\code{semantic_facing_evidence} expresses the selected facts in explicit language
+for the LLM. The model interprets those facts; it does not compute the QDA
+statistics.
+
+\code{product_profiles} is invariant to \code{generate}, \code{isolate.groups},
+\code{sample.pct}, \code{sample.method}, \code{drop.negative}, \code{prompt_style},
+\code{product_knowledge}, and \code{default_blocks}. These arguments affect the
+prompt or the interpretation layer, not the statistical calculation.
+
+The prompt combines the optional study context (\code{introduction}), the
+analytical question (\code{request}), QDA reading and interpretation rules, the
+selected sensory evidence, and the final output requirements
+(\code{conclusion}). \code{sample.pct}, \code{sample.method}, and \code{drop.negative} control
+which retained markers are shown to the LLM; they do not rewrite the full
+statistical profile.
+}
+\examples{
+data(chocolates, package = "SensoMineR")
+
+qda_preview <- nail_qda(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  isolate.groups = TRUE,
+  sample.pct = 1,
+  generate = FALSE
+)
+
+qda_product <- names(nail_evidence(qda_preview)$products)[[1L]]
+nail_evidence(qda_preview, select = qda_product)
+cat(
+  substr(
+    nail_prompt(qda_preview, select = qda_product, print = FALSE),
+    1,
+    600
+  ),
+  "\n"
+)
+}
+\seealso{
+\code{\link[SensoMineR:decat]{SensoMineR::decat()}}, \code{\link[=nail_qda_interpretation]{nail_qda_interpretation()}},
+\code{\link[=nail_qda_space]{nail_qda_space()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

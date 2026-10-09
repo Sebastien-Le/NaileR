@@ -23,19 +23,23 @@ nail_group_profile_prep(
 )
 }
 \arguments{
-\item{x}{Optional raw \code{catdes} result.}
+\item{x}{Optional raw \code{catdes} result. When supplied, no CATDES calculation
+is repeated.}
 
-\item{dataset}{Optional data frame. Used if \code{x} is NULL.}
+\item{dataset}{Optional data frame. Used if \code{x} is \code{NULL}.}
 
-\item{num.var}{Index of grouping variable for \code{FactoMineR::catdes()}.}
+\item{num.var}{Index of grouping variable for \code{FactoMineR::catdes()} when
+\code{dataset} is used.}
 
-\item{proba}{Retention threshold forwarded to \code{catdes}.}
+\item{proba}{Retention threshold forwarded to \code{catdes} on the raw-data path.}
 
-\item{sample.pct}{Proportion of retained descriptors kept in the prompt.}
+\item{sample.pct}{Proportion of retained descriptors kept in each prompt;
+it changes prompt content, not the mechanical summary.}
 
-\item{profile_mode}{\code{"balanced"}, \code{"categorical"}, or \code{"quantitative"}.}
+\item{profile_mode}{\code{"balanced"} (default), \code{"categorical"}, or
+\code{"quantitative"}; this controls which marker families are emphasized.}
 
-\item{prompt_style}{\code{"compact"} or \code{"detailed"}.}
+\item{prompt_style}{\code{"compact"} (default) or \code{"detailed"}.}
 
 \item{introduction}{Optional introduction.}
 
@@ -49,25 +53,39 @@ nail_group_profile_prep(
 
 \item{row.w}{Optional row weights forwarded to \code{catdes}.}
 
-\item{generate}{Logical; if FALSE returns prompts only.}
+\item{generate}{Logical; if \code{FALSE} returns prompts only and never contacts
+a provider. If \code{TRUE}, each prompt is sent independently and parsed into
+a structured result.}
 
 \item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
 }
 \value{
-If \code{generate = FALSE}, a named list of prompts.
-If \code{generate = TRUE}, a named list where each element contains:
-\itemize{
-\item \code{prompt}
-\item \code{response}
-\item \code{parsed}
-}
-
-Attributes:
-\itemize{
-\item \code{group_profile_summary_mechanical}
-\item \code{catdes_result}
-}
+If \code{generate = FALSE}, a named character list of prompts with
+\code{group_profile_summary_mechanical} and \code{catdes_result} attributes. If
+\code{generate = TRUE}, a named list where each element contains \code{prompt},
+\code{response}, and \code{parsed}; the same mechanical summary and source CATDES
+result are attached as attributes. This historical preparation helper
+does not provide the canonical \code{llm_io} contract; use \code{\link[=nail_catdes]{nail_catdes()}} for
+the current route.
 }
 \description{
-Prepare group-wise structured statistical summaries for later contextualization
+\code{nail_group_profile_prep()} extracts group-level qualitative and quantitative
+markers from a CATDES result, builds one reusable prompt per group, and
+optionally asks an LLM to format a short structured summary. It does not
+combine textual responses with CATDES evidence and does not replace the
+statistical profile.
+}
+\examples{
+data(iris)
+iris_catdes <- FactoMineR::catdes(iris, num.var = 5, proba = 0.05)
+group_prompts <- nail_group_profile_prep(
+  x = iris_catdes,
+  generate = FALSE
+)
+names(group_prompts)
+
+}
+\seealso{
+\code{\link[=nail_catdes_prep]{nail_catdes_prep()}}, \code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}},
+\code{\link[=nail_catdes]{nail_catdes()}}, \code{\link[=nail_prompt]{nail_prompt()}}, \code{\link[=nail_response]{nail_response()}}
 }

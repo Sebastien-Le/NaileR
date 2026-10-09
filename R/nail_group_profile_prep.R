@@ -533,31 +533,53 @@ get_prompt_group_profile_prep <- function(catdes_result,
 
 #' Prepare group-wise structured statistical summaries for later contextualization
 #'
-#' @param x Optional raw `catdes` result.
-#' @param dataset Optional data frame. Used if `x` is NULL.
-#' @param num.var Index of grouping variable for `FactoMineR::catdes()`.
-#' @param proba Retention threshold forwarded to `catdes`.
-#' @param sample.pct Proportion of retained descriptors kept in the prompt.
-#' @param profile_mode `"balanced"`, `"categorical"`, or `"quantitative"`.
-#' @param prompt_style `"compact"` or `"detailed"`.
+#' `nail_group_profile_prep()` extracts group-level qualitative and quantitative
+#' markers from a CATDES result, builds one reusable prompt per group, and
+#' optionally asks an LLM to format a short structured summary. It does not
+#' combine textual responses with CATDES evidence and does not replace the
+#' statistical profile.
+#'
+#' @param x Optional raw `catdes` result. When supplied, no CATDES calculation
+#'   is repeated.
+#' @param dataset Optional data frame. Used if `x` is `NULL`.
+#' @param num.var Index of grouping variable for `FactoMineR::catdes()` when
+#'   `dataset` is used.
+#' @param proba Retention threshold forwarded to `catdes` on the raw-data path.
+#' @param sample.pct Proportion of retained descriptors kept in each prompt;
+#'   it changes prompt content, not the mechanical summary.
+#' @param profile_mode `"balanced"` (default), `"categorical"`, or
+#'   `"quantitative"`; this controls which marker families are emphasized.
+#' @param prompt_style `"compact"` (default) or `"detailed"`.
 #' @param introduction Optional introduction.
 #' @param request Optional request block.
 #' @param conclusion Optional conclusion/output block.
 #' @param model LLM model name for the selected provider.
 #' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
 #' @param row.w Optional row weights forwarded to `catdes`.
-#' @param generate Logical; if FALSE returns prompts only.
+#' @param generate Logical; if `FALSE` returns prompts only and never contacts
+#'   a provider. If `TRUE`, each prompt is sent independently and parsed into
+#'   a structured result.
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
 #'
-#' @return If `generate = FALSE`, a named list of prompts.
-#' If `generate = TRUE`, a named list where each element contains:
-#' - `prompt`
-#' - `response`
-#' - `parsed`
+#' @return If `generate = FALSE`, a named character list of prompts with
+#'   `group_profile_summary_mechanical` and `catdes_result` attributes. If
+#'   `generate = TRUE`, a named list where each element contains `prompt`,
+#'   `response`, and `parsed`; the same mechanical summary and source CATDES
+#'   result are attached as attributes. This historical preparation helper
+#'   does not provide the canonical `llm_io` contract; use [nail_catdes()] for
+#'   the current route.
 #'
-#' Attributes:
-#' - `group_profile_summary_mechanical`
-#' - `catdes_result`
+#' @seealso [nail_catdes_prep()], [nail_textual_contextualized()],
+#'   [nail_catdes()], [nail_prompt()], [nail_response()]
+#'
+#' @examples
+#' data(iris)
+#' iris_catdes <- FactoMineR::catdes(iris, num.var = 5, proba = 0.05)
+#' group_prompts <- nail_group_profile_prep(
+#'   x = iris_catdes,
+#'   generate = FALSE
+#' )
+#' names(group_prompts)
 #'
 #' @export
 nail_group_profile_prep <- function(x = NULL,

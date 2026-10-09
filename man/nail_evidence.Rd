@@ -22,6 +22,8 @@ With \code{select = NULL}, the complete canonical evidence object. With
 \code{select} supplied, the selected group, product, row, or dimension evidence.
 For textual evidence, a selected group also contains a \code{texts} data frame
 with the exact registered texts belonging to that group.
+The returned evidence is a view of the stored artifact; this accessor does
+not recompute statistics or alter the analysis result.
 }
 \description{
 \code{nail_evidence()} provides a stable user-facing accessor to the canonical

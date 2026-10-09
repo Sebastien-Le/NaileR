@@ -1980,12 +1980,14 @@ validate_catdes_inputs <- function(dataset = NULL,
 
 #' Interpret a categorical variable
 #'
-#' Interpret the statistical characteristics of an observed categorical
-#' variable or of statistically constructed groups. Statistical markers are
-#' selected mechanically and translated by R into plain-language factual
-#' statements. The LLM interpretation scope is controlled by
-#' `isolate.groups`: one joint comparative prompt by default, or one local
-#' prompt per group when isolation is requested.
+#' Compute and interpret the statistical characteristics of an observed
+#' categorical variable or of statistically constructed groups. CATDES
+#' markers are computed or reused in R, selected mechanically, and translated
+#' into plain-language factual statements before the LLM is called. The LLM
+#' supplies the substantive interpretation; it does not recompute CATDES.
+#' The interpretation scope is controlled by `isolate.groups`: one joint
+#' comparative prompt by default, or one local prompt per group when isolation
+#' is requested.
 #'
 #' @param dataset Historical raw-data input. A data frame containing the
 #'   grouping variable and at least one descriptor. Positional calls such as
@@ -1999,8 +2001,10 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   generated when `NULL`.
 #' @param request Interpretation request. A default is generated from
 #'   `interpretation_mode`, `prompt_style`, and `isolate.groups` when `NULL`.
-#' @param model Model name used by the selected provider.
-#' @param provider LLM backend, either `"ollama"` or `"gemini"`.
+#' @param model Model name used by the selected provider. The default is
+#'   `"llama3"`.
+#' @param provider LLM backend, either `"ollama"` or `"gemini"`; the default
+#'   selected by `match.arg()` is `"ollama"`.
 #' @param isolate.groups Logical. If `FALSE`, all categories/groups and their
 #'   selected semantic-facing evidence are presented jointly in one prompt and
 #'   one LLM call is made when `generate = TRUE`. If `TRUE`, each
@@ -2018,10 +2022,12 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   `catdes()` result must be prepared. A precomputed `statistical_profiles`
 #'   object is not re-filtered.
 #' @param row.w Optional row weights used only with the raw `dataset` path.
-#' @param interpretation_mode Either `"standard"` for explicit observed
+#' @param interpretation_mode Either `"standard"` (default) for explicit observed
 #'   categories whose names and meanings must be respected, or `"latent"` for
 #'   constructed groups whose common meaning may be inferred and named.
-#' @param prompt_style Either `"detailed"` or `"compact"`.
+#' @param prompt_style Either `"detailed"` (default) or `"compact"`; this
+#'   changes the amount of reading and interpretation guidance, not the CATDES
+#'   evidence.
 #' @param generate Logical. If `FALSE`, return the prompt(s) without contacting
 #'   a backend. If `TRUE`, generate the historical backend return form.
 #' @param ... Provider-specific generation arguments passed to the selected
@@ -2060,8 +2066,26 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   `isolate.groups = FALSE`, or the exact named local prompts when
 #'   `isolate.groups = TRUE`. When `generate = TRUE`, a single backend data
 #'   frame when `isolate.groups = FALSE`, or the named local backend results
-#'   when `isolate.groups = TRUE`. Mechanical and semantic-stage artifacts are
-#'   attached as attributes in all cases.
+#'   when `isolate.groups = TRUE`. A joint result may also retain local prompts
+#'   for audit; those prompts are not additional LLM interactions. Mechanical
+#'   and semantic-stage artifacts are attached as attributes, not as `$` fields:
+#'
+#'   * `statistical_profiles`: complete canonical CATDES evidence;
+#'   * `interpretation_evidence`: selected evidence with stable identifiers;
+#'   * `semantic_facing_evidence`: factual statements shown to the LLM;
+#'   * `local_prompts` and `catdes_prompt_blocks`: local prompt audit objects;
+#'   * `semantic_profiles`: parsed or status-bearing interpretation profiles;
+#'   * `catdes_result`: the original FactoMineR result, when available;
+#'   * `catdes_settings`: execution and interpretation settings;
+#'   * `llm_io`: the exact active prompt(s) and raw response(s).
+#'
+#'   A preview has prompts but no responses. Use [nail_evidence()] for evidence,
+#'   [nail_prompt()] for the active prompt(s), and [nail_response()] after
+#'   generation.
+#'
+#' @seealso [nail_catdes_prep()], [nail_catdes_ground()],
+#'   [nail_catdes_textual()], [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
 #' @importFrom dplyr mutate filter arrange desc pull select slice_sample group_by n ungroup
 #' @importFrom glue glue

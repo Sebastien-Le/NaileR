@@ -1639,15 +1639,33 @@ get_prompt_qda <- function(semantic_facing_evidence,
 
 #' Interpret QDA data using evidence-first sensory profiles
 #'
-#' `nail_qda()` first computes a canonical R-derived sensory profile for every
-#' product or stimulus using [SensoMineR::decat()]. The statistical evidence is
-#' kept separate from the subset shown to the LLM. The LLM then interprets
-#' explicit sensory facts derived from the selected evidence.
+#' `nail_qda()` computes statistical sensory profiles using
+#' [SensoMineR::decat()], including model-adjusted means and statistically
+#' characteristic sensory attributes for each product or stimulus. Retained
+#' marker tables include p-values and `v.test` statistics when those fields are
+#' returned by `decat()`; `proba` controls the significance threshold used to
+#' retain markers.
 #'
-#' The canonical `product_profiles` object is invariant to `generate`,
-#' `isolate.groups`, `sample.pct`, `sample.method`, `drop.negative`,
-#' `prompt_style`, `product_knowledge`, and `default_blocks`. These arguments
-#' only affect the interpretation layer.
+#' The full R-derived statistical profile is kept separate from the subset
+#' shown to the LLM. The `product_profiles` object is the canonical statistical
+#' source: it contains adjusted means for every requested sensory attribute and
+#' the retained `decat()` markers. `interpretation_evidence` is a deterministic
+#' subset of those markers selected for the prompt, while
+#' `semantic_facing_evidence` expresses the selected facts in explicit language
+#' for the LLM. The model interprets those facts; it does not compute the QDA
+#' statistics.
+#'
+#' `product_profiles` is invariant to `generate`, `isolate.groups`,
+#' `sample.pct`, `sample.method`, `drop.negative`, `prompt_style`,
+#' `product_knowledge`, and `default_blocks`. These arguments affect the
+#' prompt or the interpretation layer, not the statistical calculation.
+#'
+#' The prompt combines the optional study context (`introduction`), the
+#' analytical question (`request`), QDA reading and interpretation rules, the
+#' selected sensory evidence, and the final output requirements
+#' (`conclusion`). `sample.pct`, `sample.method`, and `drop.negative` control
+#' which retained markers are shown to the LLM; they do not rewrite the full
+#' statistical profile.
 #'
 #' @param dataset A data frame containing the product factor, panelist/design
 #'   variables, and quantitative sensory attributes.
@@ -1655,11 +1673,14 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'   attribute. The first right-hand-side term is treated as the product factor.
 #' @param firstvar Index of the first sensory attribute.
 #' @param lastvar Index of the last sensory attribute.
-#' @param introduction Optional introduction included in the LLM prompt.
-#' @param request Optional user request included in the LLM prompt.
-#' @param conclusion Optional output-instruction block.
-#' @param model Model name for the selected provider.
-#' @param provider LLM backend. Currently `"ollama"` or `"gemini"`.
+#' @param introduction Optional study context included in the LLM prompt. It
+#'   helps explain the substantive setting but is not statistical evidence.
+#' @param request Optional analytical question included in the LLM prompt.
+#' @param conclusion Optional final output-instruction block.
+#' @param model Model name for the selected provider. The default is
+#'   `"llama3"`.
+#' @param provider LLM backend. Currently `"ollama"` or `"gemini"`; when the
+#'   argument is omitted, `match.arg()` selects `"ollama"`.
 #' @param isolate.groups If `FALSE`, one joint portfolio prompt is built. If
 #'   `TRUE`, one independent prompt is built per product/stimulus.
 #' @param drop.negative If `TRUE`, sensory markers below the average profile
@@ -1669,35 +1690,64 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'   LLM evidence. Selection is deterministic and does not alter
 #'   `product_profiles`.
 #' @param sample.method Marker-selection strategy when `sample.pct < 1`.
-#'   `"stratified"` (default) uses an anchor + exploration strategy: the
+#'   `"stratified"` (the default selected by `match.arg()`) uses an anchor + exploration strategy: the
 #'   strongest retained markers form the statistical backbone and the remaining
 #'   slots sample lower-ranked retained evidence. When the anchor contains only
 #'   one direction, the strongest opposite-direction marker is prioritized when
 #'   available. `"top"` keeps only the statistically strongest eligible markers.
-#' @param prompt_style Either `"detailed"` or `"compact"`.
-#' @param product_knowledge Either `"known"` for meaningful product names or
-#'   `"unknown"` for identifier-like stimulus labels.
+#' @param prompt_style Either `"detailed"` (the default selected by
+#'   `match.arg()`) or `"compact"`. The detailed style includes the full QDA
+#'   reading and interpretation safeguards, including relative direction,
+#'   unsupported-descriptor, and causal-claim guidance. The compact style keeps
+#'   the core reading and synthesis rules while shortening the interpretation
+#'   instructions. It is an abbreviated prompt style, but its exact token
+#'   savings depend on the evidence and surrounding user text.
+#' @param product_knowledge Either `"known"` (the default selected by
+#'   `match.arg()`) for meaningful product names or `"unknown"` for
+#'   identifier-like stimulus labels. With `"known"`, the prompt refers to
+#'   products and instructs the LLM to preserve their labels as identifiers.
+#'   With `"unknown"`, it refers to stimuli and treats labels as anonymous
+#'   identifiers, allowing a descriptive sensory name only when supported by a
+#'   coherent pattern. These instructions guide the interpretation but do not
+#'   guarantee that a model will avoid hallucinations.
 #' @param generate If `FALSE`, build prompt(s) without calling an LLM. If
 #'   `TRUE`, call the selected backend.
 #' @param default_blocks QDA-specific default semantic blocks to include in
 #'   the prompt. Allowed values are `"reading"`, `"interpretation"`, and
-#'   `"local_task"`. The evidence and reusable metadata blocks are always
-#'   included. The default keeps all three blocks.
+#'   `"local_task"`. The default is all three blocks. The evidence and reusable
+#'   metadata blocks are always included and are not controlled by this
+#'   argument; unknown or duplicated block names produce an error.
 #' @param ... Additional provider-specific generation arguments.
 #'
-#' @return For backward compatibility, the outer return type remains:
-#'   a prompt string or named list of prompts when `generate = FALSE`, and a
-#'   backend data frame or named list of backend data frames when
-#'   `generate = TRUE`.
+#' @return The main return value contains prompts or backend results. Its
+#'   structure depends on `generate` and `isolate.groups`:
 #'
-#'   The following analytical artifacts are attached:
+#'   * with `generate = FALSE` and `isolate.groups = FALSE`, a named list with
+#'     one element called `portfolio`, containing the exact joint prompt;
+#'   * with `generate = FALSE` and `isolate.groups = TRUE`, a named list with
+#'     one exact prompt per product or stimulus;
+#'   * with `generate = TRUE` and `isolate.groups = FALSE`, the data frame
+#'     returned by the selected backend for the joint call, with the exact
+#'     prompt also retained in the backend result;
+#'   * with `generate = TRUE` and `isolate.groups = TRUE`, a named list of
+#'     backend data frames, one for each product or stimulus.
 #'
-#'   * `product_profiles`: canonical R evidence, including adjusted means for
-#'     every sensory attribute and retained `decat()` markers.
+#'   In addition to the outer return value described above, the same object
+#'   carries analytical attributes. They can be inspected with `attr()` or the
+#'   public accessors: use [nail_evidence()] for the statistical evidence and
+#'   [nail_prompt()] for the exact stored prompt. [nail_response()] retrieves
+#'   the raw LLM response after generation; it reports that no response is
+#'   available when `generate = FALSE`.
+#'
+#'   The attached analytical attributes are:
+#'
+#'   * `product_profiles`: canonical R-derived statistical evidence, including
+#'     adjusted means for every sensory attribute and retained `decat()` markers
+#'     with their available p-values and `v.test` statistics.
 #'   * `product_interpretations`: reusable PASS1 LLM interpretations for each
 #'     product/stimulus, linked to the evidence IDs actually shown to the LLM.
-#'     When generation has not run, status is `not_generated`; malformed
-#'     reusable blocks are marked `parse_failed` rather than reconstructed.
+#'     When generation has not run, status is \code{"not_generated"}; malformed
+#'     reusable blocks are marked \code{"parse_failed"} rather than reconstructed.
 #'   * `interpretation_evidence`: deterministic subset selected for the LLM.
 #'   * `semantic_facing_evidence`: explicit factual sensory statements.
 #'   * `qda_prompt_blocks`: QDA-specific ordered prompt blocks used to render
@@ -1709,9 +1759,37 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'
 #'   `profile_summary` is retained temporarily as a deprecated compatibility
 #'   view for older workflows. It is not canonical QDA evidence and is not
-#'   used by the rebuilt [nail_qda_space()] implementation.
+#'   used by the rebuilt [nail_qda_space()] implementation. The `llm_io`
+#'   attribute always records the exact prompt(s); its response slot is
+#'   `NULL` when no LLM generation has occurred.
+#'
+#' @seealso [SensoMineR::decat()], [nail_qda_interpretation()],
+#'   [nail_qda_space()], [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
 #' @export
+#' @examples
+#' data(chocolates, package = "SensoMineR")
+#'
+#' qda_preview <- nail_qda(
+#'   dataset = sensochoc,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   isolate.groups = TRUE,
+#'   sample.pct = 1,
+#'   generate = FALSE
+#' )
+#'
+#' qda_product <- names(nail_evidence(qda_preview)$products)[[1L]]
+#' nail_evidence(qda_preview, select = qda_product)
+#' cat(
+#'   substr(
+#'     nail_prompt(qda_preview, select = qda_product, print = FALSE),
+#'     1,
+#'     600
+#'   ),
+#'   "\n"
+#' )
 nail_qda <- function(dataset, formul, firstvar,
                      lastvar = length(colnames(dataset)),
                      introduction = NULL,

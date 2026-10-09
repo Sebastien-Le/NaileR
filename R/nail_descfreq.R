@@ -1265,10 +1265,11 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 
 #' Interpret the rows of a contingency table using evidence-first frequency profiles
 #'
-#' `nail_descfreq()` characterizes the rows of a contingency table with
-#' [FactoMineR::descfreq()]. It first stores complete canonical
+#' `nail_descfreq()` computes row-by-column frequency profiles for a contingency
+#' table with \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}. It stores the complete R-derived
 #' `frequency_profiles`, then selects a deterministic subset of retained
-#' statistical markers for semantic interpretation.
+#' statistical markers for semantic interpretation. R performs the frequency
+#' analysis; the LLM interprets the displayed relative patterns.
 #'
 #' The canonical evidence is invariant to `generate`, `isolate.groups`,
 #' `sample.pct`, `drop.negative`, `interpretation_mode`, `rows_are_ordered`,
@@ -1277,11 +1278,14 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'
 #' @param dataset A data frame corresponding to a contingency table. Cells must
 #'   contain non-negative integer-like frequencies.
-#' @param introduction Optional study context included in the LLM prompt.
+#' @param introduction Optional study context included in the LLM prompt. It
+#'   provides context but is not frequency evidence.
 #' @param request Optional analytical request sent to the LLM.
 #' @param conclusion Optional final output-instruction block.
-#' @param model Model name for the selected provider.
-#' @param provider LLM backend, either `"ollama"` or `"gemini"`.
+#' @param model Model name for the selected provider. The default is
+#'   `"llama3"`.
+#' @param provider LLM backend, either `"ollama"` or `"gemini"`; the default
+#'   selected by `match.arg()` is `"ollama"`.
 #' @param isolate.groups Logical. If `TRUE`, build one independent prompt per
 #'   row. If `FALSE`, build one prompt containing all rows.
 #' @param sample.pct Proportion in `[0, 1]` of eligible retained markers shown
@@ -1290,9 +1294,10 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'   excluded only from the prompt-selection layer.
 #' @param by.quali Optional grouping vector with one value per source row.
 #'   Source rows sharing a level are summed before row characterization, as in
-#'   [FactoMineR::descfreq()].
-#' @param proba Significance threshold passed to [FactoMineR::descfreq()].
-#' @param interpretation_mode Either `"description"` or `"comparison"`.
+#'   \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}.
+#' @param proba Significance threshold passed to \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}.
+#' @param interpretation_mode Either `"description"` (describe each row) or
+#'   `"comparison"` (emphasize contrasts among rows).
 #' @param rows_are_ordered Logical contextual flag indicating that row order has
 #'   external substantive meaning. It does not alter statistical evidence.
 #' @param explicit_row_labels Logical contextual flag indicating that row names
@@ -1301,9 +1306,10 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'   LLM. If `TRUE`, call the selected backend.
 #' @param ... Additional provider-specific generation arguments.
 #'
-#' @return For backward compatibility, a prompt string or named list of prompts
-#'   when `generate = FALSE`; a model/prompt/response list or named list of such
-#'   results when `generate = TRUE`.
+#' @return The main return is a prompt or named list of prompts when
+#'   `generate = FALSE`, and a backend result or named list of backend results
+#'   when `generate = TRUE`, according to `isolate.groups`. Analytical objects
+#'   are attached as attributes, not added as `$` fields.
 #'
 #'   Every return carries:
 #'
@@ -1311,10 +1317,13 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'   * `interpretation_evidence`: deterministic subset selected for the prompt;
 #'   * `semantic_facing_evidence`: plain-language factual evidence shown to the
 #'     LLM;
-#'   * `descfreq_result`: the original single [FactoMineR::descfreq()] result;
+#'   * `descfreq_result`: the original single \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}} result;
 #'   * `descfreq_settings`: execution and interpretation settings;
 #'   * `llm_io`: exact prompt(s) and raw LLM response(s) for [nail_prompt()] and
 #'     [nail_response()].
+#'
+#'   Use [nail_evidence()] for the complete or selected frequency evidence. A
+#'   preview contains no LLM response.
 #'
 #' @details
 #' FactoMineR retains row-column cells using its two-sided hypergeometric test.
@@ -1331,6 +1340,9 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #' through [nail_evidence()]. The LLM-facing semantic facts use only explicit
 #' direction and row-versus-global frequency information.
 #'
+#' @seealso \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}, [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
+#'
 #' @examples
 #' tab <- data.frame(
 #'   sweet = c(30, 5, 10),
@@ -1346,7 +1358,13 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #' )
 #'
 #' nail_evidence(preview, select = "A")
-#' nail_prompt(preview, select = "A")
+#' cat(
+#'   substr(
+#'     nail_prompt(preview, select = "A", print = FALSE),
+#'     1, 600
+#'   ),
+#'   "\n"
+#' )
 #'
 #' @export
 nail_descfreq <- function(dataset,

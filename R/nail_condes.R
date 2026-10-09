@@ -1690,10 +1690,12 @@ build_conclusion_condes <- function(
 
 #' Interpret a continuous variable or latent continuum
 #'
-#' `nail_condes()` characterizes one continuous target using
-#' [FactoMineR::condes()]. It first builds a canonical R-derived
+#' `nail_condes()` computes the statistical associations between one numeric
+#' target and quantitative or qualitative descriptors using
+#' [FactoMineR::condes()]. It builds a complete R-derived
 #' `continuous_profile`, then selects a deterministic subset of that evidence
-#' for semantic interpretation by the LLM.
+#' for semantic interpretation by the LLM. R performs the statistical
+#' calculation; the LLM only interprets the displayed factual statements.
 #'
 #' `interpretation_mode = "standard"` interprets an observed continuous
 #' variable whose label is already meaningful. `interpretation_mode = "latent"`
@@ -1709,10 +1711,13 @@ build_conclusion_condes <- function(
 #'   quantitative and/or qualitative explanatory variables.
 #' @param num.var Index of the numeric variable to characterize.
 #' @param introduction Optional contextual introduction added to the prompt.
+#'   It supplies study context but is not statistical evidence.
 #' @param request Optional analytical request sent to the LLM.
 #' @param conclusion Optional final output-instruction block.
-#' @param model Model name for the selected provider.
-#' @param provider LLM backend. Currently `"ollama"` or `"gemini"`.
+#' @param model Model name for the selected provider. The default is
+#'   `"llama3"`.
+#' @param provider LLM backend. Currently `"ollama"` or `"gemini"`; the
+#'   default selected by `match.arg()` is `"ollama"`.
 #' @param quanti.threshold Threshold, in standard-deviation units, used to
 #'   convert quantitative predictors into the three technical states defined
 #'   by `quanti.cat` for end-profile construction.
@@ -1722,18 +1727,22 @@ build_conclusion_condes <- function(
 #' @param sample.pct Proportion of each eligible evidence family included in
 #'   the LLM evidence. This does not alter the canonical `continuous_profile`.
 #' @param sample.method Deterministic evidence-selection strategy when
-#'   `sample.pct < 1`. `"stratified"` (default) preserves a statistical anchor
-#'   and explores lower-ranked retained evidence; `"top"` retains only the
-#'   strongest evidence.
+#'   `sample.pct < 1`. `"stratified"` (the default) preserves a statistical
+#'   anchor and explores lower-ranked retained evidence; `"top"` retains only
+#'   the strongest evidence. Neither option changes `continuous_profile`.
 #' @param weights Optional non-negative row weights passed to
 #'   [FactoMineR::condes()]. When supplied, quantitative predictors are also
 #'   standardized with these weights for end-profile construction.
 #' @param proba Significance threshold passed to [FactoMineR::condes()].
 #' @param generate If `FALSE`, build the prompt without calling an LLM. If
-#'   `TRUE`, call the selected backend.
-#' @param interpretation_mode Either `"standard"` for an observed variable or
-#'   `"latent"` for a synthetic/latent continuum.
-#' @param prompt_style Either `"detailed"` or `"compact"`.
+#'   `TRUE`, call the selected backend once for the target.
+#' @param interpretation_mode Either `"standard"` for an observed variable,
+#'   whose name is preserved, or `"latent"` for a synthetic/latent continuum,
+#'   whose substantive meaning and possible name are reconstructed from its
+#'   statistical profile.
+#' @param prompt_style Either `"detailed"` (default) or `"compact"`; these
+#'   select fuller or shorter reading and interpretation instructions without
+#'   changing the evidence.
 #' @param target_concept Optional contextual concept for latent interpretation.
 #'   It guides but does not constrain the evidence-based naming of the
 #'   continuum.
@@ -1742,11 +1751,13 @@ build_conclusion_condes <- function(
 #'   canonical target identity stored in `continuous_profile`.
 #' @param ... Additional provider-specific generation arguments.
 #'
-#' @return For backward compatibility, a prompt string when
-#'   `generate = FALSE`, or the backend data frame when `generate = TRUE`.
-#'   Analytical artifacts are attached as attributes:
+#' @return The main return value is a character prompt when `generate = FALSE`
+#'   and the backend data frame when `generate = TRUE`. Analytical artifacts
+#'   are attached as attributes rather than inserted as `$` fields:
 #'
-#'   * `continuous_profile`: canonical R-derived evidence.
+#'   * `continuous_profile`: the complete R-derived statistical profile,
+#'     including quantitative associations, qualitative associations, end
+#'     profiles, p-values, and stable evidence IDs.
 #'   * `interpretation_evidence`: deterministic subset shown to the LLM.
 #'   * `semantic_facing_evidence`: explicit factual statements used in the
 #'     prompt.
@@ -1758,40 +1769,48 @@ build_conclusion_condes <- function(
 #'     `condes_result`; no second `condes()` analysis is performed.
 #'   * `condes_settings`: execution settings.
 #'
+#'   Use [nail_evidence()] to inspect the profile, [nail_prompt()] to retrieve
+#'   the exact prompt, and [nail_response()] to retrieve the raw response after
+#'   generation. With `generate = FALSE`, no response is available.
+#'
+#' @seealso [FactoMineR::condes()], [nail_qda_space()], [nail_evidence()],
+#'   [nail_prompt()], [nail_response()]
+#'
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' data(decathlon, package = "FactoMineR")
 #'
-#' # Observed-variable interpretation
-#' x <- nail_condes(
+#' # An observed target keeps its substantive name.
+#' condes_standard <- nail_condes(
 #'   decathlon,
 #'   num.var = 12,
 #'   interpretation_mode = "standard",
 #'   generate = FALSE
 #' )
-#' nail_prompt(x)
+#' nail_evidence(condes_standard)
+#' cat(substr(nail_prompt(condes_standard, print = FALSE), 1, 600), "\n")
 #'
-#' # A synthetic dimension should use latent mode
+#' # A constructed score should be interpreted in latent mode.
 #' pca <- FactoMineR::PCA(
 #'   decathlon[, 1:10],
 #'   scale.unit = TRUE,
 #'   graph = FALSE
 #' )
-#' work <- data.frame(
+#' decathlon_dim1 <- data.frame(
 #'   Dim1 = pca$ind$coord[, 1],
-#'   decathlon[, 1:10]
+#'   decathlon[, 1:10],
+#'   check.names = FALSE
 #' )
-#' dim1 <- nail_condes(
-#'   work,
+#' condes_latent <- nail_condes(
+#'   decathlon_dim1,
 #'   num.var = 1,
 #'   interpretation_mode = "latent",
 #'   target_label = "Dim1",
 #'   generate = FALSE
 #' )
-#' nail_prompt(dim1)
-#' }
+#' nail_evidence(condes_latent)
+#' cat(substr(nail_prompt(condes_latent, print = FALSE), 1, 600), "\n")
 nail_condes <- function(dataset,
                         num.var,
                         introduction = NULL,

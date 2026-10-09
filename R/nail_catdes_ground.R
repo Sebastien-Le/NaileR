@@ -632,6 +632,8 @@
 #' `1 = semantic_pattern`, `2 = interpretation`, `3 = hypothesis`), whereas
 #' grounding describes evidential status relative to the local evidence
 #' (`supported`, `contradicted`, `insufficient`, or `mixed`).
+#' The statistical CATDES evidence and the PASS 1 response are preserved; only
+#' the optional review artifacts are added.
 #'
 #' @param x A result returned by `nail_catdes()` after local semantic profiles
 #'   have been generated. PASS 1 is never modified by this function.
@@ -642,15 +644,22 @@
 #' @param generate Logical. If `FALSE` (default), build and return grounding
 #'   prompts without calling an LLM. If `TRUE`, run one independent grounding
 #'   call per group that has both a generated PASS 1 response and local
-#'   statistical evidence.
+#'   statistical evidence. Ineligible groups receive a non-grounded status and
+#'   no fabricated review response.
 #' @param ... Additional backend options forwarded to NaileR's LLM caller.
 #'
 #' @return An object of class `nail_catdes_ground`. It contains a preserved
-#'   copy of the PASS 1 semantic profiles, the local grounding prompts,
+#'   copy of the PASS 1 semantic profiles, local grounding prompts,
 #'   deterministic short-to-canonical `evidence_reference_maps`, and a
 #'   `grounded_profiles` list. The input `x` is not modified. A `timing`
 #'   component records total wall-clock/CPU time and, when generation is
 #'   enabled, backend and parse/validation timing for each grounded group.
+#'   The result also carries the original evidence and CATDES settings as
+#'   attributes used by the review. Use [nail_prompt()] and [nail_response()]
+#'   to inspect the grounding interaction when generation occurred.
+#'
+#' @seealso [nail_catdes()], [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
 #' @export
 nail_catdes_ground <- function(x,

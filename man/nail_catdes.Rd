@@ -37,9 +37,11 @@ generated when \code{NULL}.}
 \item{request}{Interpretation request. A default is generated from
 \code{interpretation_mode}, \code{prompt_style}, and \code{isolate.groups} when \code{NULL}.}
 
-\item{model}{Model name used by the selected provider.}
+\item{model}{Model name used by the selected provider. The default is
+\code{"llama3"}.}
 
-\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}; the default
+selected by \code{match.arg()} is \code{"ollama"}.}
 
 \item{isolate.groups}{Logical. If \code{FALSE}, all categories/groups and their
 selected semantic-facing evidence are presented jointly in one prompt and
@@ -63,11 +65,13 @@ object is not re-filtered.}
 
 \item{row.w}{Optional row weights used only with the raw \code{dataset} path.}
 
-\item{interpretation_mode}{Either \code{"standard"} for explicit observed
+\item{interpretation_mode}{Either \code{"standard"} (default) for explicit observed
 categories whose names and meanings must be respected, or \code{"latent"} for
 constructed groups whose common meaning may be inferred and named.}
 
-\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
+\item{prompt_style}{Either \code{"detailed"} (default) or \code{"compact"}; this
+changes the amount of reading and interpretation guidance, not the CATDES
+evidence.}
 
 \item{generate}{Logical. If \code{FALSE}, return the prompt(s) without contacting
 a backend. If \code{TRUE}, generate the historical backend return form.}
@@ -85,16 +89,33 @@ When \code{generate = FALSE}, the actual joint prompt when
 \code{isolate.groups = FALSE}, or the exact named local prompts when
 \code{isolate.groups = TRUE}. When \code{generate = TRUE}, a single backend data
 frame when \code{isolate.groups = FALSE}, or the named local backend results
-when \code{isolate.groups = TRUE}. Mechanical and semantic-stage artifacts are
-attached as attributes in all cases.
+when \code{isolate.groups = TRUE}. A joint result may also retain local prompts
+for audit; those prompts are not additional LLM interactions. Mechanical
+and semantic-stage artifacts are attached as attributes, not as \code{$} fields:
+\itemize{
+\item \code{statistical_profiles}: complete canonical CATDES evidence;
+\item \code{interpretation_evidence}: selected evidence with stable identifiers;
+\item \code{semantic_facing_evidence}: factual statements shown to the LLM;
+\item \code{local_prompts} and \code{catdes_prompt_blocks}: local prompt audit objects;
+\item \code{semantic_profiles}: parsed or status-bearing interpretation profiles;
+\item \code{catdes_result}: the original FactoMineR result, when available;
+\item \code{catdes_settings}: execution and interpretation settings;
+\item \code{llm_io}: the exact active prompt(s) and raw response(s).
+}
+
+A preview has prompts but no responses. Use \code{\link[=nail_evidence]{nail_evidence()}} for evidence,
+\code{\link[=nail_prompt]{nail_prompt()}} for the active prompt(s), and \code{\link[=nail_response]{nail_response()}} after
+generation.
 }
 \description{
-Interpret the statistical characteristics of an observed categorical
-variable or of statistically constructed groups. Statistical markers are
-selected mechanically and translated by R into plain-language factual
-statements. The LLM interpretation scope is controlled by
-\code{isolate.groups}: one joint comparative prompt by default, or one local
-prompt per group when isolation is requested.
+Compute and interpret the statistical characteristics of an observed
+categorical variable or of statistically constructed groups. CATDES
+markers are computed or reused in R, selected mechanically, and translated
+into plain-language factual statements before the LLM is called. The LLM
+supplies the substantive interpretation; it does not recompute CATDES.
+The interpretation scope is controlled by \code{isolate.groups}: one joint
+comparative prompt by default, or one local prompt per group when isolation
+is requested.
 }
 \details{
 With raw data, \code{\link[=nail_catdes_prep]{nail_catdes_prep()}} performs the only \code{catdes()} computation
@@ -157,4 +178,9 @@ generated <- nail_catdes(
 )
 cat(generated$response)
 }
+}
+\seealso{
+\code{\link[=nail_catdes_prep]{nail_catdes_prep()}}, \code{\link[=nail_catdes_ground]{nail_catdes_ground()}},
+\code{\link[=nail_catdes_textual]{nail_catdes_textual()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

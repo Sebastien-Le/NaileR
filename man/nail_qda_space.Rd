@@ -36,10 +36,11 @@ the rebuilt evidence-first implementation.}
 \item{llm_product_summaries}{Deprecated compatibility argument. It is ignored;
 reusable product interpretations now come directly from \code{\link[=nail_qda]{nail_qda()}}.}
 
-\item{ncp}{Number of PCA dimensions to compute.}
+\item{ncp}{Number of PCA dimensions to compute. The default is \code{2}.}
 
 \item{scale.unit}{Logical; whether sensory attributes are standardized in
-the PCA. The rebuilt workflow defaults to \code{TRUE}.}
+the PCA. The rebuilt workflow defaults to \code{TRUE}; this changes the PCA
+geometry, not the underlying QDA profiles.}
 
 \item{min_inertia_pct}{Minimum percentage of inertia required for a computed
 dimension to receive a prompt.}
@@ -55,8 +56,9 @@ within each role (reinforcing, additional, conflicting).}
 \item{condes_proba}{Significance threshold used by the internal
 \code{\link[=nail_condes]{nail_condes()}} characterization of each PCA dimension.}
 
-\item{expertise_mode}{Interpretation mode: \code{"sensory"}, \code{"positioning"}, or
-\code{"hybrid"}.}
+\item{expertise_mode}{Interpretation mode: \code{"sensory"} (default),
+\code{"positioning"}, or \code{"hybrid"}. This changes the requested substantive
+reading of the same product-space evidence.}
 
 \item{introduction}{Optional introduction included in every axis prompt.}
 
@@ -64,9 +66,10 @@ within each role (reinforcing, additional, conflicting).}
 
 \item{conclusion}{Optional final output-instruction block.}
 
-\item{model}{Model name for the selected provider.}
+\item{model}{Model name for the selected provider. The default is \code{llama3}.}
 
-\item{provider}{LLM backend: \code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM backend: \code{"ollama"} or \code{"gemini"}; the default selected
+by \code{match.arg()} is \code{"ollama"}.}
 
 \item{generate}{If \code{FALSE}, build prompts without calling the final LLM. If
 \code{TRUE}, call the selected backend once per retained axis.}
@@ -74,30 +77,37 @@ within each role (reinforcing, additional, conflicting).}
 \item{...}{Additional provider-specific arguments for the final LLM calls.}
 }
 \value{
-A named list of exact prompts when \code{generate = FALSE}, or a named
-list of backend results when \code{generate = TRUE}.
+A named list of exact axis prompts when \code{generate = FALSE}, or a
+named list of backend results when \code{generate = TRUE}. If no PCA dimension
+reaches \code{min_inertia_pct}, the result is a short preview with an empty
+retained-axis evidence object. Available analytical objects are attached
+as attributes rather than added as \code{$} fields. Use
+\code{\link[=nail_evidence]{nail_evidence()}} and \code{\link[=nail_prompt]{nail_prompt()}} to inspect them; generated results
+additionally support \code{\link[=nail_response]{nail_response()}}.
 
 Attached analytical artifacts include:
 \itemize{
 \item \code{qda_space_evidence}: canonical product-space evidence containing the
 adjusted means, PCA, eigenvalues, retained axes, latent continuous
 profiles, and product evidence.
+\item \code{qda_space}: compatibility alias of \code{qda_space_evidence}.
 \item \code{axis_condes}: the actual preview objects returned by the internal
 \code{\link[=nail_condes]{nail_condes()}} calls, one per retained axis.
 \item \code{product_profiles}: canonical QDA evidence when available.
 \item \code{product_interpretations}: retained model-assisted or expert-edited
 product interpretations when available.
-\item \code{llm_io}: exact final prompts and raw final LLM responses for
-\code{\link[=nail_prompt]{nail_prompt()}} and \code{\link[=nail_response]{nail_response()}}.
+\item \code{llm_io}: exact final prompts and raw final LLM responses for retained
+axes, for \code{\link[=nail_prompt]{nail_prompt()}} and \code{\link[=nail_response]{nail_response()}}. It is empty or absent
+when no axis reaches \code{min_inertia_pct}.
 }
 }
 \description{
-\code{nail_qda_space()} interprets the main dimensions of the product space built
-from QDA adjusted means. The normal workflow is:
+\code{nail_qda_space()} computes and interprets the main dimensions of the
+sensory product space built from QDA adjusted means.
 }
 \details{
-\code{nail_qda()} -> optional expert revision with
-\code{\link[=nail_qda_interpretation]{nail_qda_interpretation()}} -> \code{nail_qda_space()}.
+The usual workflow links \code{nail_qda()} to an optional expert revision with
+\code{\link[=nail_qda_interpretation]{nail_qda_interpretation()}} and then to \code{nail_qda_space()}.
 
 Internally, a PCA is computed from the canonical adjusted product means.
 Each retained PCA dimension is then characterized by a real call to
@@ -116,4 +126,35 @@ When \code{generate = TRUE} and a model-assisted QDA product interpretation is
 reused in a product-space prompt, the function emits one non-blocking
 warning. The resulting axis interpretation should be confronted with the
 original QDA evidence and the PCA/CONDES statistical evidence.
+}
+\examples{
+data(chocolates, package = "SensoMineR")
+
+qda_preview <- nail_qda(
+  dataset = sensochoc,
+  formul = "~Product+Panelist",
+  firstvar = 5,
+  isolate.groups = TRUE,
+  sample.pct = 1,
+  generate = FALSE
+)
+
+space_preview <- nail_qda_space(
+  qda_preview,
+  ncp = 2,
+  expertise_mode = "sensory",
+  generate = FALSE
+)
+
+qda_axis <- names(nail_evidence(space_preview)$axes)[[1L]]
+nail_evidence(space_preview, select = qda_axis)
+cat(substr(
+  nail_prompt(space_preview, select = qda_axis, print = FALSE),
+  1,
+  600
+), "\n")
+}
+\seealso{
+\code{\link[=nail_qda]{nail_qda()}}, \code{\link[=nail_condes]{nail_condes()}}, \code{\link[=nail_qda_interpretation]{nail_qda_interpretation()}},
+\code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}}, \code{\link[=nail_response]{nail_response()}}
 }

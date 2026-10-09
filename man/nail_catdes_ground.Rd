@@ -19,17 +19,21 @@ the provider recorded by \code{nail_catdes()}; fall back to \code{"ollama"}.}
 \item{generate}{Logical. If \code{FALSE} (default), build and return grounding
 prompts without calling an LLM. If \code{TRUE}, run one independent grounding
 call per group that has both a generated PASS 1 response and local
-statistical evidence.}
+statistical evidence. Ineligible groups receive a non-grounded status and
+no fabricated review response.}
 
 \item{...}{Additional backend options forwarded to NaileR's LLM caller.}
 }
 \value{
 An object of class \code{nail_catdes_ground}. It contains a preserved
-copy of the PASS 1 semantic profiles, the local grounding prompts,
+copy of the PASS 1 semantic profiles, local grounding prompts,
 deterministic short-to-canonical \code{evidence_reference_maps}, and a
 \code{grounded_profiles} list. The input \code{x} is not modified. A \code{timing}
 component records total wall-clock/CPU time and, when generation is
 enabled, backend and parse/validation timing for each grounded group.
+The result also carries the original evidence and CATDES settings as
+attributes used by the review. Use \code{\link[=nail_prompt]{nail_prompt()}} and \code{\link[=nail_response]{nail_response()}}
+to inspect the grounding interaction when generation occurred.
 }
 \description{
 \code{nail_catdes_ground()} is an optional second analytical pass. It does not
@@ -45,4 +49,10 @@ temperature describes distance from direct observation (\code{0 = fact},
 \code{1 = semantic_pattern}, \code{2 = interpretation}, \code{3 = hypothesis}), whereas
 grounding describes evidential status relative to the local evidence
 (\code{supported}, \code{contradicted}, \code{insufficient}, or \code{mixed}).
+The statistical CATDES evidence and the PASS 1 response are preserved; only
+the optional review artifacts are added.
+}
+\seealso{
+\code{\link[=nail_catdes]{nail_catdes()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

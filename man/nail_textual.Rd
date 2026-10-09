@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_textual.R
 \name{nail_textual}
 \alias{nail_textual}
-\title{Interpret grouped open-ended textual responses}
+\title{Compute and interpret grouped open-ended textual responses}
 \usage{
 nail_textual(
   dataset,
@@ -43,8 +43,8 @@ A custom value is preserved for backward compatibility; if its output
 format is incompatible with the canonical parser, \code{textual_profiles}
 may report \code{status = "parse_failed"} while preserving the raw response.}
 
-\item{model}{Model name for the selected provider (\code{"llama3"} by default
-for Ollama).}
+\item{model}{Model name for the selected provider. The default is
+\code{"llama3"}.}
 
 \item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a
 local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
@@ -62,9 +62,12 @@ each group. This affects only \code{interpretation_input}; the complete
 \item{seed}{Optional seed used to sample texts reproducibly without
 altering the user's RNG state.}
 
-\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
+\item{prompt_style}{Either \code{"detailed"} (default) or \code{"compact"}; this
+changes the reading and interpretation instructions without changing the
+registered texts or selected text IDs.}
 
-\item{text_role}{Either \code{"responses"}, \code{"comments"}, or \code{"verbatims"}.}
+\item{text_role}{Either \code{"responses"} (default), \code{"comments"}, or
+\code{"verbatims"}; this changes the terminology used in the prompt.}
 
 \item{generate}{Logical. If \code{FALSE}, return prompt(s) only. If \code{TRUE},
 generate one independent LLM response per group.}
@@ -78,17 +81,32 @@ evidence, and output are always retained.}
 selected LLM backend.}
 }
 \value{
-When \code{generate = FALSE}, a character local-first preview when
-\code{isolate.groups = FALSE}, or the exact named local prompts when
-\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a combined data frame
-when \code{isolate.groups = FALSE}, or the named local backend results when
-\code{isolate.groups = TRUE}. Canonical mechanical and semantic artifacts are
-attached as attributes in all cases.
+When \code{generate = FALSE}, a combined local-first character preview
+when \code{isolate.groups = FALSE}, or the exact named local prompts when
+\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a combined backend data
+frame when \code{isolate.groups = FALSE}, or named local backend results when
+\code{isolate.groups = TRUE}. No global comparative synthesis is performed.
+Mechanical and semantic artifacts are attached as attributes, not as \code{$}
+fields:
+\itemize{
+\item \code{textual_evidence}: the complete registered text evidence;
+\item \code{interpretation_input}: the exact text IDs shown to each group;
+\item \code{textual_prompt_blocks} and \code{local_prompts}: rendered prompt structure;
+\item \code{textual_profiles}: parsed profiles or generation-status records;
+\item \code{textual_settings}: execution and architecture settings;
+\item \code{textual_data_summary}: the historical compatibility view;
+\item \code{llm_io}: exact local prompts and raw local responses.
+}
+
+A preview has no LLM responses. Use \code{\link[=nail_evidence]{nail_evidence()}} and \code{\link[=nail_prompt]{nail_prompt()}}
+to inspect a preview, and \code{\link[=nail_response]{nail_response()}} after generation.
 }
 \description{
-Build complete mechanical textual evidence, select the subset shown to the
-language model, and interpret each group independently before any future
-cross-group synthesis.
+\code{nail_textual()} registers the raw responses with stable text IDs, records
+group-level coverage and volume metrics, selects the texts shown to the
+language model, and interprets each group independently. The textual
+evidence is built mechanically in R; the LLM supplies the structured
+substantive profile and does not alter the registered evidence.
 }
 \details{
 \code{textual_evidence} is produced mechanically from the complete dataset before
@@ -108,4 +126,32 @@ Every successful return carries \code{textual_evidence}, \code{interpretation_in
 \code{textual_prompt_blocks}, \code{local_prompts}, \code{textual_profiles}, \code{textual_settings},
 \code{textual_data_summary} (historical compatibility view), and canonical
 \code{llm_io} attributes.
+}
+\examples{
+data(fabric, package = "NaileR")
+fabric_A <- droplevels(fabric[fabric$Fabric == "A", , drop = FALSE])
+
+textual_preview <- nail_textual(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  isolate.groups = TRUE,
+  sample.pct = 1,
+  seed = 123,
+  text_role = "responses",
+  generate = FALSE
+)
+
+textual_group <- names(nail_evidence(textual_preview)$groups)[[1L]]
+nail_evidence(textual_preview, select = textual_group)
+cat(substr(
+  nail_prompt(textual_preview, select = textual_group, print = FALSE),
+  1,
+  600
+), "\n")
+}
+\seealso{
+\code{\link[=nail_textual_prep]{nail_textual_prep()}}, \code{\link[=nail_catdes_textual]{nail_catdes_textual()}},
+\code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

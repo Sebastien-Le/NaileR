@@ -387,11 +387,13 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 # Main textual function
 # ---------------------------------------------------------------------------
 
-#' Interpret grouped open-ended textual responses
+#' Compute and interpret grouped open-ended textual responses
 #'
-#' Build complete mechanical textual evidence, select the subset shown to the
-#' language model, and interpret each group independently before any future
-#' cross-group synthesis.
+#' `nail_textual()` registers the raw responses with stable text IDs, records
+#' group-level coverage and volume metrics, selects the texts shown to the
+#' language model, and interprets each group independently. The textual
+#' evidence is built mechanically in R; the LLM supplies the structured
+#' substantive profile and does not alter the registered evidence.
 #'
 #' @param dataset A data frame containing at least one grouping variable
 #'   and one textual variable.
@@ -406,8 +408,8 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'   A custom value is preserved for backward compatibility; if its output
 #'   format is incompatible with the canonical parser, `textual_profiles`
 #'   may report `status = "parse_failed"` while preserving the raw response.
-#' @param model Model name for the selected provider (`"llama3"` by default
-#'   for Ollama).
+#' @param model Model name for the selected provider. The default is
+#'   `"llama3"`.
 #' @param provider LLM backend to use for generation. Use `"ollama"` for a
 #'   local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
 #' @param isolate.groups Logical. Interpretation is always local-first, one
@@ -420,8 +422,11 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'   `textual_evidence` object is invariant to this option.
 #' @param seed Optional seed used to sample texts reproducibly without
 #'   altering the user's RNG state.
-#' @param prompt_style Either `"detailed"` or `"compact"`.
-#' @param text_role Either `"responses"`, `"comments"`, or `"verbatims"`.
+#' @param prompt_style Either `"detailed"` (default) or `"compact"`; this
+#'   changes the reading and interpretation instructions without changing the
+#'   registered texts or selected text IDs.
+#' @param text_role Either `"responses"` (default), `"comments"`, or
+#'   `"verbatims"`; this changes the terminology used in the prompt.
 #' @param default_blocks Character vector selecting optional NaileR prompt
 #'   blocks. Allowed values are `"reading"`, `"interpretation"`, and
 #'   `"local_task"`; the default includes all three. Context, question,
@@ -450,14 +455,52 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #' `textual_data_summary` (historical compatibility view), and canonical
 #' `llm_io` attributes.
 #'
-#' @return When `generate = FALSE`, a character local-first preview when
-#'   `isolate.groups = FALSE`, or the exact named local prompts when
-#'   `isolate.groups = TRUE`. When `generate = TRUE`, a combined data frame
-#'   when `isolate.groups = FALSE`, or the named local backend results when
-#'   `isolate.groups = TRUE`. Canonical mechanical and semantic artifacts are
-#'   attached as attributes in all cases.
+#' @return When `generate = FALSE`, a combined local-first character preview
+#'   when `isolate.groups = FALSE`, or the exact named local prompts when
+#'   `isolate.groups = TRUE`. When `generate = TRUE`, a combined backend data
+#'   frame when `isolate.groups = FALSE`, or named local backend results when
+#'   `isolate.groups = TRUE`. No global comparative synthesis is performed.
+#'   Mechanical and semantic artifacts are attached as attributes, not as `$`
+#'   fields:
+#'
+#'   * `textual_evidence`: the complete registered text evidence;
+#'   * `interpretation_input`: the exact text IDs shown to each group;
+#'   * `textual_prompt_blocks` and `local_prompts`: rendered prompt structure;
+#'   * `textual_profiles`: parsed profiles or generation-status records;
+#'   * `textual_settings`: execution and architecture settings;
+#'   * `textual_data_summary`: the historical compatibility view;
+#'   * `llm_io`: exact local prompts and raw local responses.
+#'
+#'   A preview has no LLM responses. Use [nail_evidence()] and [nail_prompt()]
+#'   to inspect a preview, and [nail_response()] after generation.
+#'
+#' @seealso [nail_textual_prep()], [nail_catdes_textual()],
+#'   [nail_textual_contextualized()], [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
 #' @export
+#' @examples
+#' data(fabric, package = "NaileR")
+#' fabric_A <- droplevels(fabric[fabric$Fabric == "A", , drop = FALSE])
+#'
+#' textual_preview <- nail_textual(
+#'   dataset = fabric_A,
+#'   num.var = 4,
+#'   num.text = 3,
+#'   isolate.groups = TRUE,
+#'   sample.pct = 1,
+#'   seed = 123,
+#'   text_role = "responses",
+#'   generate = FALSE
+#' )
+#'
+#' textual_group <- names(nail_evidence(textual_preview)$groups)[[1L]]
+#' nail_evidence(textual_preview, select = textual_group)
+#' cat(substr(
+#'   nail_prompt(textual_preview, select = textual_group, print = FALSE),
+#'   1,
+#'   600
+#' ), "\n")
 nail_textual <- function(dataset, num.var, num.text,
                          introduction = NULL,
                          request = NULL,
@@ -1179,8 +1222,10 @@ parse_textual_prep_response <- function(text, include_verbatims = TRUE) {
 #' This function reuses `nail_textual()` in isolated mode with a dedicated prompt
 #' designed to create short, structured, reusable textual summaries for each group.
 #' In V2, it can also attach representative verbatims selected mechanically.
+#' It is a preparation route for later contextualization rather than the
+#' canonical `nail_textual()` evidence object.
 #'
-#' @param dataset A data frame.
+#' @param dataset A data frame containing a grouping and a textual variable.
 #' @param num.var Index of the grouping variable.
 #' @param num.text Index of the textual variable.
 #' @param model LLM model name for the selected provider.
@@ -1188,23 +1233,37 @@ parse_textual_prep_response <- function(text, include_verbatims = TRUE) {
 #' @param sample.pct Proportion of non-empty texts retained per group.
 #' @param seed Optional seed used to sample texts reproducibly without altering the user's RNG state.
 #' @param language Language used for basic stopword filtering in notable expressions (`"en"`, `"fr"`, or `"none"`).
-#' @param prompt_style Either `"detailed"` or `"compact"`.
-#' @param text_role Either `"responses"`, `"comments"`, or `"verbatims"`.
+#' @param prompt_style Either `"detailed"` (default) or `"compact"`.
+#' @param text_role Either `"responses"` (default), `"comments"`, or
+#'   `"verbatims"`.
 #' @param include_verbatims_in_prompt Logical; whether to ask the LLM for brief verbatim cues.
 #' @param attach_selected_verbatims Logical; whether to attach mechanically selected representative verbatims.
 #' @param n_central_verbatims Number of central verbatims to attach per group.
 #' @param n_tension_verbatims Number of tension verbatims to attach per group.
 #' @param max_verbatim_chars Maximum number of characters per attached verbatim.
-#' @param generate Logical; if FALSE returns prompts only.
+#' @param generate Logical; if `FALSE` returns prompts only. If `TRUE`, calls
+#' the provider once per group and parses the structured response.
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
 #'
-#' @return If `generate = FALSE`, a named list of prompts.
-#' If `generate = TRUE`, a named list with:
-#' - `prompt`
-#' - `response`
-#' - `parsed`
-#' - `selected_verbatims`
-#' - `notable_expressions`
+#' @return If `generate = FALSE`, a named list of prompts. If `generate = TRUE`,
+#' a named list with `prompt`, `response`, `parsed`, `selected_verbatims`, and
+#' `notable_expressions` for each group. The result is not the canonical
+#' `nail_textual()` object and does not expose its full evidence accessor
+#' contract.
+#'
+#' @seealso [nail_textual()], [nail_textual_contextualized()],
+#'   [nail_catdes_textual()]
+#'
+#' @examples
+#' data(fabric, package = "NaileR")
+#' fabric_A <- droplevels(fabric[fabric$Fabric == "A", , drop = FALSE])
+#' prep_prompts <- nail_textual_prep(
+#'   fabric_A,
+#'   num.var = 4,
+#'   num.text = 3,
+#'   generate = FALSE
+#' )
+#' names(prep_prompts)
 #'
 #' @export
 nail_textual_prep <- function(dataset, num.var, num.text,

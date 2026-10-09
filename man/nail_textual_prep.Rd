@@ -25,7 +25,7 @@ nail_textual_prep(
 )
 }
 \arguments{
-\item{dataset}{A data frame.}
+\item{dataset}{A data frame containing a grouping and a textual variable.}
 
 \item{num.var}{Index of the grouping variable.}
 
@@ -41,9 +41,10 @@ nail_textual_prep(
 
 \item{language}{Language used for basic stopword filtering in notable expressions (\code{"en"}, \code{"fr"}, or \code{"none"}).}
 
-\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
+\item{prompt_style}{Either \code{"detailed"} (default) or \code{"compact"}.}
 
-\item{text_role}{Either \code{"responses"}, \code{"comments"}, or \code{"verbatims"}.}
+\item{text_role}{Either \code{"responses"} (default), \code{"comments"}, or
+\code{"verbatims"}.}
 
 \item{include_verbatims_in_prompt}{Logical; whether to ask the LLM for brief verbatim cues.}
 
@@ -55,23 +56,38 @@ nail_textual_prep(
 
 \item{max_verbatim_chars}{Maximum number of characters per attached verbatim.}
 
-\item{generate}{Logical; if FALSE returns prompts only.}
+\item{generate}{Logical; if \code{FALSE} returns prompts only. If \code{TRUE}, calls
+the provider once per group and parses the structured response.}
 
 \item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
 }
 \value{
-If \code{generate = FALSE}, a named list of prompts.
-If \code{generate = TRUE}, a named list with:
-\itemize{
-\item \code{prompt}
-\item \code{response}
-\item \code{parsed}
-\item \code{selected_verbatims}
-\item \code{notable_expressions}
-}
+If \code{generate = FALSE}, a named list of prompts. If \code{generate = TRUE},
+a named list with \code{prompt}, \code{response}, \code{parsed}, \code{selected_verbatims}, and
+\code{notable_expressions} for each group. The result is not the canonical
+\code{nail_textual()} object and does not expose its full evidence accessor
+contract.
 }
 \description{
 This function reuses \code{nail_textual()} in isolated mode with a dedicated prompt
 designed to create short, structured, reusable textual summaries for each group.
 In V2, it can also attach representative verbatims selected mechanically.
+It is a preparation route for later contextualization rather than the
+canonical \code{nail_textual()} evidence object.
+}
+\examples{
+data(fabric, package = "NaileR")
+fabric_A <- droplevels(fabric[fabric$Fabric == "A", , drop = FALSE])
+prep_prompts <- nail_textual_prep(
+  fabric_A,
+  num.var = 4,
+  num.text = 3,
+  generate = FALSE
+)
+names(prep_prompts)
+
+}
+\seealso{
+\code{\link[=nail_textual]{nail_textual()}}, \code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}},
+\code{\link[=nail_catdes_textual]{nail_catdes_textual()}}
 }

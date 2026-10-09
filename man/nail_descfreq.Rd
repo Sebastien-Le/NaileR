@@ -27,15 +27,18 @@ nail_descfreq(
 \item{dataset}{A data frame corresponding to a contingency table. Cells must
 contain non-negative integer-like frequencies.}
 
-\item{introduction}{Optional study context included in the LLM prompt.}
+\item{introduction}{Optional study context included in the LLM prompt. It
+provides context but is not frequency evidence.}
 
 \item{request}{Optional analytical request sent to the LLM.}
 
 \item{conclusion}{Optional final output-instruction block.}
 
-\item{model}{Model name for the selected provider.}
+\item{model}{Model name for the selected provider. The default is
+\code{"llama3"}.}
 
-\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}; the default
+selected by \code{match.arg()} is \code{"ollama"}.}
 
 \item{isolate.groups}{Logical. If \code{TRUE}, build one independent prompt per
 row. If \code{FALSE}, build one prompt containing all rows.}
@@ -48,11 +51,12 @@ excluded only from the prompt-selection layer.}
 
 \item{by.quali}{Optional grouping vector with one value per source row.
 Source rows sharing a level are summed before row characterization, as in
-\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}.}
+\code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}.}
 
-\item{proba}{Significance threshold passed to \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}.}
+\item{proba}{Significance threshold passed to \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}.}
 
-\item{interpretation_mode}{Either \code{"description"} or \code{"comparison"}.}
+\item{interpretation_mode}{Either \code{"description"} (describe each row) or
+\code{"comparison"} (emphasize contrasts among rows).}
 
 \item{rows_are_ordered}{Logical contextual flag indicating that row order has
 external substantive meaning. It does not alter statistical evidence.}
@@ -66,9 +70,10 @@ LLM. If \code{TRUE}, call the selected backend.}
 \item{...}{Additional provider-specific generation arguments.}
 }
 \value{
-For backward compatibility, a prompt string or named list of prompts
-when \code{generate = FALSE}; a model/prompt/response list or named list of such
-results when \code{generate = TRUE}.
+The main return is a prompt or named list of prompts when
+\code{generate = FALSE}, and a backend result or named list of backend results
+when \code{generate = TRUE}, according to \code{isolate.groups}. Analytical objects
+are attached as attributes, not added as \code{$} fields.
 
 Every return carries:
 \itemize{
@@ -76,17 +81,21 @@ Every return carries:
 \item \code{interpretation_evidence}: deterministic subset selected for the prompt;
 \item \code{semantic_facing_evidence}: plain-language factual evidence shown to the
 LLM;
-\item \code{descfreq_result}: the original single \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}} result;
+\item \code{descfreq_result}: the original single \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}} result;
 \item \code{descfreq_settings}: execution and interpretation settings;
 \item \code{llm_io}: exact prompt(s) and raw LLM response(s) for \code{\link[=nail_prompt]{nail_prompt()}} and
 \code{\link[=nail_response]{nail_response()}}.
 }
+
+Use \code{\link[=nail_evidence]{nail_evidence()}} for the complete or selected frequency evidence. A
+preview contains no LLM response.
 }
 \description{
-\code{nail_descfreq()} characterizes the rows of a contingency table with
-\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}. It first stores complete canonical
+\code{nail_descfreq()} computes row-by-column frequency profiles for a contingency
+table with \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}. It stores the complete R-derived
 \code{frequency_profiles}, then selects a deterministic subset of retained
-statistical markers for semantic interpretation.
+statistical markers for semantic interpretation. R performs the frequency
+analysis; the LLM interprets the displayed relative patterns.
 }
 \details{
 The canonical evidence is invariant to \code{generate}, \code{isolate.groups},
@@ -123,6 +132,16 @@ preview <- nail_descfreq(
 )
 
 nail_evidence(preview, select = "A")
-nail_prompt(preview, select = "A")
+cat(
+  substr(
+    nail_prompt(preview, select = "A", print = FALSE),
+    1, 600
+  ),
+  "\n"
+)
 
+}
+\seealso{
+\code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

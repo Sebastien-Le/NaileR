@@ -734,18 +734,25 @@ get_prompt_textual_contextualized <- function(group_profile_summary,
 #' @param proba Significance threshold forwarded to `nail_group_profile_prep()`.
 #' @param sample.pct.text Proportion of texts retained per group for textual prep.
 #' @param sample.pct.profile Proportion of retained descriptors kept for group profile prep.
-#' @param profile_mode `"balanced"`, `"categorical"`, or `"quantitative"`.
-#' @param prompt_style `"compact"` or `"detailed"`.
-#' @param interpretation_mode `"groupwise"` or `"comparative"`.
-#' @param include_verbatims Logical; whether to include illustrative verbatims in the final prompt.
+#' @param profile_mode `"balanced"` (default), `"categorical"`, or
+#'   `"quantitative"`; used only by the historical preparation route.
+#' @param prompt_style `"compact"` (default) or `"detailed"`; used by the
+#'   historical route and ignored by the canonical delegation.
+#' @param interpretation_mode `"groupwise"` (default) or `"comparative"`;
+#'   used by the historical route.
+#' @param include_verbatims Logical; whether to include illustrative verbatims
+#'   in the final prompt on the historical route.
 #' @param n_central_verbatims Number of central verbatims per group for fallback selection.
 #' @param n_tension_verbatims Number of tension verbatims per group for fallback selection.
 #' @param max_verbatim_chars Maximum number of characters per fallback verbatim.
 #' @param introduction Optional introduction.
 #' @param request Optional request block.
 #' @param conclusion Optional conclusion block.
-#' @param isolate.groups Logical; if TRUE, one prompt per group.
-#' @param model LLM model name for the selected provider.
+#' @param isolate.groups Logical; if `TRUE`, one prompt per group. On the
+#'   canonical route, local interpretation remains group-wise even when the
+#'   combined outer return shape is requested.
+#' @param model LLM model name for the selected provider. The default is
+#'   `"llama3"`.
 #' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
 #' @param row.w Optional row weights forwarded to `nail_group_profile_prep()`.
 #' @param generate Logical; if `FALSE`, return prompt(s) only. On the
@@ -759,8 +766,11 @@ get_prompt_textual_contextualized <- function(group_profile_summary,
 #'   canonical route. It must be supplied together with `catdes`.
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
 #'
-#' @return If `generate = FALSE`, a prompt string or a named list of prompts.
-#' If `generate = TRUE`, a data frame or a named list of data frames.
+#' @return If `generate = FALSE`, a prompt string or a named list of prompts;
+#'   if `generate = TRUE`, a data frame or a named list of data frames. The
+#'   exact outer shape depends on the selected route and `isolate.groups`.
+#'   Historical-route summaries are attached as attributes, while the
+#'   canonical route exposes the delegated [nail_catdes_textual()] attributes.
 #'
 #' On the historical route, the result carries `group_profile_summary`,
 #' `textual_group_summary`, `representative_verbatims`, and
@@ -781,6 +791,10 @@ get_prompt_textual_contextualized <- function(group_profile_summary,
 #' shapes. The canonical route does not guarantee the historical summary
 #' attributes, and the historical route does not guarantee
 #' `contextualized_evidence` or `compatibility_route`.
+#'
+#' @seealso [nail_catdes_textual()], [nail_group_profile_prep()],
+#'   [nail_textual_prep()], [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
 #' @export
 nail_textual_contextualized <- function(group_profile_prep = NULL,

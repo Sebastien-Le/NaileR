@@ -32,15 +32,18 @@ quantitative and/or qualitative explanatory variables.}
 
 \item{num.var}{Index of the numeric variable to characterize.}
 
-\item{introduction}{Optional contextual introduction added to the prompt.}
+\item{introduction}{Optional contextual introduction added to the prompt.
+It supplies study context but is not statistical evidence.}
 
 \item{request}{Optional analytical request sent to the LLM.}
 
 \item{conclusion}{Optional final output-instruction block.}
 
-\item{model}{Model name for the selected provider.}
+\item{model}{Model name for the selected provider. The default is
+\code{"llama3"}.}
 
-\item{provider}{LLM backend. Currently \code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM backend. Currently \code{"ollama"} or \code{"gemini"}; the
+default selected by \code{match.arg()} is \code{"ollama"}.}
 
 \item{quanti.threshold}{Threshold, in standard-deviation units, used to
 convert quantitative predictors into the three technical states defined
@@ -54,9 +57,9 @@ order. These labels describe predictor values, not the target variable.}
 the LLM evidence. This does not alter the canonical \code{continuous_profile}.}
 
 \item{sample.method}{Deterministic evidence-selection strategy when
-\code{sample.pct < 1}. \code{"stratified"} (default) preserves a statistical anchor
-and explores lower-ranked retained evidence; \code{"top"} retains only the
-strongest evidence.}
+\code{sample.pct < 1}. \code{"stratified"} (the default) preserves a statistical
+anchor and explores lower-ranked retained evidence; \code{"top"} retains only
+the strongest evidence. Neither option changes \code{continuous_profile}.}
 
 \item{weights}{Optional non-negative row weights passed to
 \code{\link[FactoMineR:condes]{FactoMineR::condes()}}. When supplied, quantitative predictors are also
@@ -65,12 +68,16 @@ standardized with these weights for end-profile construction.}
 \item{proba}{Significance threshold passed to \code{\link[FactoMineR:condes]{FactoMineR::condes()}}.}
 
 \item{generate}{If \code{FALSE}, build the prompt without calling an LLM. If
-\code{TRUE}, call the selected backend.}
+\code{TRUE}, call the selected backend once for the target.}
 
-\item{interpretation_mode}{Either \code{"standard"} for an observed variable or
-\code{"latent"} for a synthetic/latent continuum.}
+\item{interpretation_mode}{Either \code{"standard"} for an observed variable,
+whose name is preserved, or \code{"latent"} for a synthetic/latent continuum,
+whose substantive meaning and possible name are reconstructed from its
+statistical profile.}
 
-\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
+\item{prompt_style}{Either \code{"detailed"} (default) or \code{"compact"}; these
+select fuller or shorter reading and interpretation instructions without
+changing the evidence.}
 
 \item{target_concept}{Optional contextual concept for latent interpretation.
 It guides but does not constrain the evidence-based naming of the
@@ -83,11 +90,13 @@ canonical target identity stored in \code{continuous_profile}.}
 \item{...}{Additional provider-specific generation arguments.}
 }
 \value{
-For backward compatibility, a prompt string when
-\code{generate = FALSE}, or the backend data frame when \code{generate = TRUE}.
-Analytical artifacts are attached as attributes:
+The main return value is a character prompt when \code{generate = FALSE}
+and the backend data frame when \code{generate = TRUE}. Analytical artifacts
+are attached as attributes rather than inserted as \code{$} fields:
 \itemize{
-\item \code{continuous_profile}: canonical R-derived evidence.
+\item \code{continuous_profile}: the complete R-derived statistical profile,
+including quantitative associations, qualitative associations, end
+profiles, p-values, and stable evidence IDs.
 \item \code{interpretation_evidence}: deterministic subset shown to the LLM.
 \item \code{semantic_facing_evidence}: explicit factual statements used in the
 prompt.
@@ -99,12 +108,18 @@ statistical source of truth.
 \code{condes_result}; no second \code{condes()} analysis is performed.
 \item \code{condes_settings}: execution settings.
 }
+
+Use \code{\link[=nail_evidence]{nail_evidence()}} to inspect the profile, \code{\link[=nail_prompt]{nail_prompt()}} to retrieve
+the exact prompt, and \code{\link[=nail_response]{nail_response()}} to retrieve the raw response after
+generation. With \code{generate = FALSE}, no response is available.
 }
 \description{
-\code{nail_condes()} characterizes one continuous target using
-\code{\link[FactoMineR:condes]{FactoMineR::condes()}}. It first builds a canonical R-derived
+\code{nail_condes()} computes the statistical associations between one numeric
+target and quantitative or qualitative descriptors using
+\code{\link[FactoMineR:condes]{FactoMineR::condes()}}. It builds a complete R-derived
 \code{continuous_profile}, then selects a deterministic subset of that evidence
-for semantic interpretation by the LLM.
+for semantic interpretation by the LLM. R performs the statistical
+calculation; the LLM only interprets the displayed factual statements.
 }
 \details{
 \code{interpretation_mode = "standard"} interprets an observed continuous
@@ -118,35 +133,40 @@ The canonical \code{continuous_profile} is invariant to \code{generate},
 \code{conclusion}. These arguments affect only the interpretation layer.
 }
 \examples{
-\dontrun{
 data(decathlon, package = "FactoMineR")
 
-# Observed-variable interpretation
-x <- nail_condes(
+# An observed target keeps its substantive name.
+condes_standard <- nail_condes(
   decathlon,
   num.var = 12,
   interpretation_mode = "standard",
   generate = FALSE
 )
-nail_prompt(x)
+nail_evidence(condes_standard)
+cat(substr(nail_prompt(condes_standard, print = FALSE), 1, 600), "\n")
 
-# A synthetic dimension should use latent mode
+# A constructed score should be interpreted in latent mode.
 pca <- FactoMineR::PCA(
   decathlon[, 1:10],
   scale.unit = TRUE,
   graph = FALSE
 )
-work <- data.frame(
+decathlon_dim1 <- data.frame(
   Dim1 = pca$ind$coord[, 1],
-  decathlon[, 1:10]
+  decathlon[, 1:10],
+  check.names = FALSE
 )
-dim1 <- nail_condes(
-  work,
+condes_latent <- nail_condes(
+  decathlon_dim1,
   num.var = 1,
   interpretation_mode = "latent",
   target_label = "Dim1",
   generate = FALSE
 )
-nail_prompt(dim1)
+nail_evidence(condes_latent)
+cat(substr(nail_prompt(condes_latent, print = FALSE), 1, 600), "\n")
 }
+\seealso{
+\code{\link[FactoMineR:condes]{FactoMineR::condes()}}, \code{\link[=nail_qda_space]{nail_qda_space()}}, \code{\link[=nail_evidence]{nail_evidence()}},
+\code{\link[=nail_prompt]{nail_prompt()}}, \code{\link[=nail_response]{nail_response()}}
 }
