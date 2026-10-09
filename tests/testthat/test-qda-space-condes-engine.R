@@ -537,12 +537,19 @@ test_that("qda_space final generation calls LLM only at the axis stage", {
     .package = "NaileR"
   )
 
-  space <- nail_qda_space(
-    qda,
-    ncp = 1,
-    min_inertia_pct = 0,
-    generate = TRUE,
-    model = "mock-model"
+  warnings <- character()
+  space <- withCallingHandlers(
+    nail_qda_space(
+      qda,
+      ncp = 1,
+      min_inertia_pct = 0,
+      generate = TRUE,
+      model = "mock-model"
+    ),
+    warning = function(condition) {
+      warnings <<- c(warnings, conditionMessage(condition))
+      invokeRestart("muffleWarning")
+    }
   )
 
   # nail_condes() is always generate = FALSE internally,
@@ -550,6 +557,12 @@ test_that("qda_space final generation calls LLM only at the axis stage", {
   expect_identical(
     call_count,
     1L
+  )
+  expect_length(warnings, 1L)
+  expect_match(
+    warnings[[1L]],
+    "original QDA and PCA/CONDES statistical evidence",
+    fixed = TRUE
   )
 
   expect_identical(
@@ -559,6 +572,95 @@ test_that("qda_space final generation calls LLM only at the axis stage", {
       print = FALSE
     ),
     "Final sensory interpretation of Dim1."
+  )
+})
+
+
+test_that("qda_space does not warn for expert-only interpretations", {
+  qda <- make_qda_space_condes_test_object()
+  interpretations <- attr(
+    qda,
+    "product_interpretations",
+    exact = TRUE
+  )
+  interpretations$products <- lapply(
+    interpretations$products,
+    function(item) {
+      item$source <- "expert"
+      item
+    }
+  )
+  attr(qda, "product_interpretations") <- interpretations
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(
+        provider,
+        model,
+        prompt,
+        output,
+        llm_api_options) {
+      data.frame(
+        model = model,
+        response = "Final sensory interpretation of Dim1.",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  expect_no_warning(
+    nail_qda_space(
+      qda,
+      ncp = 1,
+      min_inertia_pct = 0,
+      generate = TRUE,
+      model = "mock-model"
+    )
+  )
+})
+
+
+test_that("qda_space does not warn without reusable interpretations", {
+  qda <- make_qda_space_condes_test_object()
+  interpretations <- attr(
+    qda,
+    "product_interpretations",
+    exact = TRUE
+  )
+  interpretations$products <- lapply(
+    interpretations$products,
+    function(item) {
+      item$status <- "not_generated"
+      item$core_profile <- NA_character_
+      item
+    }
+  )
+  attr(qda, "product_interpretations") <- interpretations
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(
+        provider,
+        model,
+        prompt,
+        output,
+        llm_api_options) {
+      data.frame(
+        model = model,
+        response = "Final sensory interpretation of Dim1.",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  expect_no_warning(
+    nail_qda_space(
+      qda,
+      ncp = 1,
+      min_inertia_pct = 0,
+      generate = TRUE,
+      model = "mock-model"
+    )
   )
 })
 

@@ -111,4 +111,9 @@ provide the pole exemplars.
 Product-level interpretation combines PCA geometry, canonical QDA markers,
 and the retained \code{product_interpretations} from \code{\link[=nail_qda]{nail_qda()}}. Expert-edited
 interpretations are therefore used automatically when present.
+
+When \code{generate = TRUE} and a model-assisted QDA product interpretation is
+reused in a product-space prompt, the function emits one non-blocking
+warning. The resulting axis interpretation should be confronted with the
+original QDA evidence and the PCA/CONDES statistical evidence.
 }

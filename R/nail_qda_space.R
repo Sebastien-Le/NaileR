@@ -703,6 +703,49 @@ validate_qda_space_inputs <- function(ncp,
 }
 
 
+.qda_space_has_reused_llm_interpretation <- function(
+    qda_space_evidence) {
+  if (is.null(qda_space_evidence) ||
+      !is.list(qda_space_evidence$axes) ||
+      length(qda_space_evidence$axes) == 0L) {
+    return(FALSE)
+  }
+
+  any(vapply(
+    qda_space_evidence$axes,
+    function(axis) {
+      products <- c(
+        axis$products$negative,
+        axis$products$positive
+      )
+
+      if (length(products) == 0L) {
+        return(FALSE)
+      }
+
+      any(vapply(
+        products,
+        function(item) {
+          interpretation <- item$interpretation
+
+          !is.null(interpretation) &&
+            identical(interpretation$status, "available") &&
+            identical(interpretation$source, "llm_pass1") &&
+            !is.null(interpretation$core_profile) &&
+            length(interpretation$core_profile) > 0L &&
+            !is.na(interpretation$core_profile[[1L]]) &&
+            nzchar(trimws(as.character(
+              interpretation$core_profile[[1L]]
+            )))
+        },
+        logical(1)
+      ))
+    },
+    logical(1)
+  ))
+}
+
+
 .qda_space_product_profile <- function(product_profiles,
                                        product_name) {
   if (is.null(product_profiles) ||
@@ -1666,6 +1709,11 @@ build_conclusion_qda_space <- function(
 #' and the retained `product_interpretations` from [nail_qda()]. Expert-edited
 #' interpretations are therefore used automatically when present.
 #'
+#' When `generate = TRUE` and a model-assisted QDA product interpretation is
+#' reused in a product-space prompt, the function emits one non-blocking
+#' warning. The resulting axis interpretation should be confronted with the
+#' original QDA evidence and the PCA/CONDES statistical evidence.
+#'
 #' @param x Preferably an object returned by [nail_qda()]. A raw `decat` result
 #'   containing `adjmean` is accepted for compatibility, but reusable product
 #'   interpretations and canonical QDA marker evidence are then unavailable.
@@ -1888,6 +1936,11 @@ nail_qda_space <- function(
   qda_space_evidence <- built$evidence
   axis_condes <- built$axis_condes
 
+  reused_llm_interpretation <-
+    .qda_space_has_reused_llm_interpretation(
+      qda_space_evidence
+    )
+
   if (is.null(introduction)) {
     introduction <- paste(
       "The evidence below describes one retained dimension of a sensory product space built from adjusted product profiles.",
@@ -1956,6 +2009,18 @@ nail_qda_space <- function(
         responses = NULL,
         settings = settings
       )
+    )
+  }
+
+  if (isTRUE(reused_llm_interpretation)) {
+    warning(
+      paste(
+        "A model-assisted QDA product interpretation is being reused in",
+        "this product-space interpretation; confront the result with the",
+        "original QDA and PCA/CONDES statistical evidence to detect possible",
+        "propagation of overinterpretation."
+      ),
+      call. = FALSE
     )
   }
 
