@@ -137,8 +137,10 @@ prompt <- nail_catdes(
 )
 cat(substr(prompt, 1, 700))
 
-# Reuse the mechanical preparation without recomputing catdes().
-profiles <- nail_catdes_prep(dataset = iris, num.var = 5)
+# Reuse the canonical profile attached to the preview without recomputing catdes().
+profiles <- nail_catdes_prep(
+  x = attr(prompt, "statistical_profiles", exact = TRUE)
+)
 prompt_from_profiles <- nail_catdes(
   x = profiles,
   interpretation_mode = "standard",
