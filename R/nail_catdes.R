@@ -1903,6 +1903,57 @@ validate_catdes_inputs <- function(dataset = NULL,
   )
 }
 
+.catdes_backend_response_text <- function(x) {
+  if (is.data.frame(x) &&
+      "response" %in% names(x) &&
+      nrow(x) > 0L) {
+    return(paste(as.character(x$response), collapse = "\n"))
+  }
+
+  if (is.list(x) && !is.null(x$response)) {
+    return(paste(as.character(x$response), collapse = "\n"))
+  }
+
+  if (is.character(x)) {
+    return(paste(x, collapse = "\n"))
+  }
+
+  NULL
+}
+
+.catdes_llm_responses <- function(local_results,
+                                  interpretation_evidence) {
+  if (is.null(local_results) ||
+      length(local_results) == 0L) {
+    return(NULL)
+  }
+
+  ready_names <- names(interpretation_evidence$groups)[
+    vapply(
+      interpretation_evidence$groups,
+      function(group) identical(group$status, "ready"),
+      logical(1)
+    )
+  ]
+
+  if (length(ready_names) == 0L) {
+    return(NULL)
+  }
+
+  out <- lapply(
+    local_results[ready_names],
+    .catdes_backend_response_text
+  )
+  keep <- !vapply(out, is.null, logical(1))
+  out <- out[keep]
+
+  if (length(out) == 0L) {
+    return(NULL)
+  }
+
+  out
+}
+
 .attach_nail_catdes_artifacts <- function(result,
                                           normalized,
                                           interpretation_evidence,
@@ -1910,7 +1961,8 @@ validate_catdes_inputs <- function(dataset = NULL,
                                           local_prompts,
                                           prompt_blocks,
                                           semantic_profiles,
-                                          catdes_settings) {
+                                          catdes_settings,
+                                          llm_io) {
   attr(result, "statistical_profiles") <- normalized$statistical_profiles
   attr(result, "interpretation_evidence") <- interpretation_evidence
   attr(result, "semantic_facing_evidence") <- semantic_facing_evidence
@@ -1921,6 +1973,7 @@ validate_catdes_inputs <- function(dataset = NULL,
     attr(result, "catdes_result") <- normalized$catdes_result
   }
   attr(result, "catdes_settings") <- catdes_settings
+  attr(result, "llm_io") <- llm_io
   result
 }
 
@@ -2206,6 +2259,27 @@ nail_catdes <- function(dataset = NULL,
     architecture = generation_architecture
   )
 
+  active_prompts <- if (isTRUE(isolate.groups)) {
+    local_prompts
+  } else {
+    stats::setNames(list(actual_prompt), "portfolio")
+  }
+
+  llm_io <- .new_nail_llm_io(
+    stage = "interpretation",
+    prompts = active_prompts,
+    responses = NULL,
+    metadata = list(
+      analysis = "nail_catdes",
+      scope = generation_architecture,
+      architecture = generation_architecture,
+      provider = provider,
+      model = model,
+      interpretation_mode = interpretation_mode,
+      local_prompts_for_audit_only = !isTRUE(isolate.groups)
+    )
+  )
+
   if (!isTRUE(generate)) {
     result <- if (isTRUE(isolate.groups)) {
       local_prompts
@@ -2221,7 +2295,8 @@ nail_catdes <- function(dataset = NULL,
       local_prompts,
       prompt_blocks,
       semantic_profiles,
-      catdes_settings
+      catdes_settings,
+      llm_io
     ))
   }
 
@@ -2270,6 +2345,23 @@ nail_catdes <- function(dataset = NULL,
       generated = TRUE,
       architecture = "local"
     )
+    llm_io <- .new_nail_llm_io(
+      stage = "interpretation",
+      prompts = local_prompts,
+      responses = .catdes_llm_responses(
+        local_results,
+        interpretation_evidence
+      ),
+      metadata = list(
+        analysis = "nail_catdes",
+        scope = "local",
+        architecture = "local",
+        provider = provider,
+        model = model,
+        interpretation_mode = interpretation_mode,
+        local_prompts_for_audit_only = FALSE
+      )
+    )
     result <- local_results
   } else {
     result <- if (n_selected == 0L) {
@@ -2292,6 +2384,29 @@ nail_catdes <- function(dataset = NULL,
       generated = TRUE,
       architecture = "joint"
     )
+    joint_response <- if (n_selected > 0L) {
+      .catdes_backend_response_text(result)
+    } else {
+      NULL
+    }
+    llm_io <- .new_nail_llm_io(
+      stage = "interpretation",
+      prompts = stats::setNames(list(actual_prompt), "portfolio"),
+      responses = if (is.null(joint_response)) {
+        NULL
+      } else {
+        stats::setNames(list(joint_response), "portfolio")
+      },
+      metadata = list(
+        analysis = "nail_catdes",
+        scope = "joint",
+        architecture = "joint",
+        provider = provider,
+        model = model,
+        interpretation_mode = interpretation_mode,
+        local_prompts_for_audit_only = TRUE
+      )
+    )
   }
 
   .attach_nail_catdes_artifacts(
@@ -2302,6 +2417,7 @@ nail_catdes <- function(dataset = NULL,
     local_prompts,
     prompt_blocks,
     semantic_profiles,
-    catdes_settings
+    catdes_settings,
+    llm_io
   )
 }

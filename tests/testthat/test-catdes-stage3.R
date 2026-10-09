@@ -238,7 +238,10 @@ test_that("non-isolated mode returns the actual joint prompt and exposes local a
   expect_match(result, 'Category "A"', fixed = TRUE)
   expect_match(result, 'Category "B"', fixed = TRUE)
   expect_false(grepl("Local-first semantic interpretation plan", result, fixed = TRUE))
-  expect_identical(nail_prompt(result, print = FALSE), result)
+  expect_identical(
+    nail_prompt(result, print = FALSE),
+    as.character(result)
+  )
   expect_identical(
     names(attr(result, "catdes_prompt_blocks", exact = TRUE)),
     "portfolio"
@@ -289,6 +292,24 @@ test_that("joint generation stores one response without fabricating local profil
   expect_null(semantic_profiles$groups$A$response)
   expect_null(semantic_profiles$groups$B$response)
   expect_identical(semantic_profiles$metadata$n_generated, 0L)
+
+  io <- attr(result, "llm_io", exact = TRUE)
+  expect_s3_class(io, "nail_llm_io")
+  expect_identical(
+    names(io$prompts),
+    "portfolio"
+  )
+  expect_identical(
+    io$prompts$portfolio,
+    nail_prompt(result, print = FALSE)
+  )
+  expect_identical(
+    io$responses$portfolio,
+    nail_response(result, print = FALSE)
+  )
+  expect_false(
+    any(names(attr(result, "local_prompts", exact = TRUE)) %in% names(io$prompts))
+  )
 })
 
 test_that("isolate.groups selects local generation architecture", {
@@ -314,6 +335,30 @@ test_that("isolate.groups selects local generation architecture", {
   expect_identical(calls, 2L)
   expect_identical(attr(result, "catdes_settings")$generation_architecture, "local")
   expect_false(attr(result, "catdes_settings")$global_synthesis_performed)
+
+  io <- attr(result, "llm_io", exact = TRUE)
+  expect_s3_class(io, "nail_llm_io")
+  expect_identical(
+    io$prompts,
+    attr(result, "local_prompts", exact = TRUE)
+  )
+  expect_identical(
+    io$responses,
+    stats::setNames(
+      lapply(result, function(group_result) {
+        as.character(group_result$response[[1L]])
+      }),
+      names(result)
+    )
+  )
+  expect_identical(
+    nail_prompt(result, print = FALSE),
+    io$prompts
+  )
+  expect_identical(
+    nail_response(result, print = FALSE),
+    io$responses
+  )
 })
 
 test_that("standard and latent local tasks preserve target status", {

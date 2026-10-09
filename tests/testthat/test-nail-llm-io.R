@@ -278,6 +278,184 @@ test_that("joint CATDES accessors do not inspect a missing llm_io column", {
   expect_identical(response, x$response[[1L]])
 })
 
+test_that("CATDES preview llm_io stores only the active prompt scope", {
+  local <- nail_catdes(
+    dataset = iris,
+    num.var = 5,
+    interpretation_mode = "standard",
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  local_io <- attr(local, "llm_io", exact = TRUE)
+
+  expect_s3_class(local_io, "nail_llm_io")
+  expect_identical(
+    local_io$prompts,
+    attr(local, "local_prompts", exact = TRUE)
+  )
+  expect_null(local_io$responses)
+  expect_identical(
+    nail_prompt(local, print = FALSE),
+    local_io$prompts
+  )
+  expect_error(
+    nail_response(local, print = FALSE),
+    "No LLM response is available"
+  )
+
+  joint <- nail_catdes(
+    dataset = iris,
+    num.var = 5,
+    interpretation_mode = "standard",
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+  joint_io <- attr(joint, "llm_io", exact = TRUE)
+
+  expect_identical(names(joint_io$prompts), "portfolio")
+  expect_identical(
+    joint_io$prompts$portfolio,
+    nail_prompt(joint, print = FALSE)
+  )
+  expect_null(joint_io$responses)
+  expect_false(
+    any(names(attr(joint, "local_prompts", exact = TRUE)) %in% names(joint_io$prompts))
+  )
+  expect_identical(
+    nail_evidence(joint),
+    attr(joint, "statistical_profiles", exact = TRUE)
+  )
+})
+
+test_that("CATDES canonical llm_io preserves local and joint backend IO", {
+  local_calls <- 0L
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider, model, prompt, output, llm_api_options) {
+      local_calls <<- local_calls + 1L
+      data.frame(
+        model = model,
+        created_at = as.POSIXct("2026-01-01", tz = "UTC"),
+        response = paste("response for", sub(".*Category \\\"([^\\\"]+)\\\".*", "\\1", prompt)),
+        done = TRUE,
+        prompt = prompt,
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  local <- nail_catdes(
+    dataset = iris,
+    num.var = 5,
+    isolate.groups = TRUE,
+    generate = TRUE
+  )
+  local_io <- attr(local, "llm_io", exact = TRUE)
+
+  expect_identical(
+    local_calls,
+    attr(local, "catdes_settings", exact = TRUE)$llm_calls
+  )
+  expect_identical(
+    names(local_io$prompts),
+    names(attr(local, "local_prompts", exact = TRUE))
+  )
+  expect_identical(
+    nail_prompt(local, print = FALSE),
+    local_io$prompts
+  )
+  expect_identical(
+    nail_response(local, print = FALSE),
+    local_io$responses
+  )
+
+  joint <- nail_catdes(
+    dataset = iris,
+    num.var = 5,
+    isolate.groups = FALSE,
+    generate = TRUE
+  )
+  joint_io <- attr(joint, "llm_io", exact = TRUE)
+
+  expect_identical(
+    local_calls,
+    attr(local, "catdes_settings", exact = TRUE)$llm_calls +
+      attr(joint, "catdes_settings", exact = TRUE)$llm_calls
+  )
+  expect_identical(names(joint_io$prompts), "portfolio")
+  expect_identical(
+    joint_io$prompts$portfolio,
+    nail_prompt(joint, print = FALSE)
+  )
+  expect_identical(
+    joint_io$responses$portfolio,
+    nail_response(joint, print = FALSE)
+  )
+  expect_false(
+    any(names(attr(joint, "local_prompts", exact = TRUE)) %in% names(joint_io$prompts))
+  )
+})
+
+test_that("CATDES without usable evidence stores no canonical response", {
+  preview <- nail_catdes(
+    dataset = iris,
+    num.var = 5,
+    quali.sample = 0,
+    quanti.sample = 0,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  preview_io <- attr(preview, "llm_io", exact = TRUE)
+
+  expect_null(preview_io$responses)
+  expect_identical(
+    nail_prompt(preview, print = FALSE),
+    preview_io$prompts
+  )
+  expect_error(
+    nail_response(preview, print = FALSE),
+    "No LLM response is available"
+  )
+
+  generated_calls <- 0L
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider, model, prompt, output, llm_api_options) {
+      generated_calls <<- generated_calls + 1L
+      data.frame(
+        model = model,
+        created_at = as.POSIXct("2026-01-01", tz = "UTC"),
+        response = "should not be called",
+        done = TRUE,
+        prompt = prompt,
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  generated <- nail_catdes(
+    dataset = iris,
+    num.var = 5,
+    quali.sample = 0,
+    quanti.sample = 0,
+    isolate.groups = FALSE,
+    generate = TRUE
+  )
+  generated_io <- attr(generated, "llm_io", exact = TRUE)
+
+  expect_identical(generated_calls, 0L)
+  expect_null(generated_io$responses)
+  expect_identical(
+    generated_io$prompts$portfolio,
+    nail_prompt(generated, print = FALSE)
+  )
+  expect_match(
+    nail_response(generated, print = FALSE),
+    "No selected statistical evidence found",
+    fixed = TRUE
+  )
+})
+
 test_that("public LLM IO helpers are exported", {
   expect_true("nail_prompt" %in% getNamespaceExports("NaileR"))
   expect_true("nail_response" %in% getNamespaceExports("NaileR"))
