@@ -5,9 +5,9 @@
 ## 1. Source of truth and branch
 
 - Repository: `https://github.com/Sebastien-Le/NaileR`.
-- Development branch at review: `dev-statistical-prompt-framework`, parent HEAD `5390ec1` (2026-10-09). This documentation commit establishes the present project-state record; `master` has not yet integrated this development work.
+- Development branch: `dev-statistical-prompt-framework`. The original state record was prepared from commit `5390ec1` (2026-10-09); **this is a historical reference, not the current HEAD**. Subsequent validated milestones include `7fd4303` (CATDES + TEXTUAL warning) and `4593546` (QDA-space warning). Always consult Git for the current HEAD. `master` has not yet integrated this development work.
 - Declared package version at review: `2.1.0` (`DESCRIPTION`). The historical `CRAN-SUBMISSION` file refers to `1.2.3` and is not proof of a current submission.
-- Recent operational validations (including CATDES + TEXTUAL individual grounding) were executed locally but remain **untracked**. Do not mistake them for published GitHub artifacts or include them in this documentation commit.
+- Operational validation scripts, exact prompts, responses and reports under `dev/operational_validation/` were executed and retained **locally and untracked** as reported by the analyst. They are not published GitHub artifacts and must not be added to a documentation-only commit.
 
 ## 2. Fundamental architectural principle — STABILIZED
 
@@ -62,7 +62,7 @@ The local experiments and blind-review material are exploratory, not a formal LL
 
 **Risk:** An LLM interpretation reused by another LLM can acquire the appearance of an established fact, although only the underlying canonical CATDES results have statistical evidential authority.
 
-**Decision:** Record as **known methodological warning — unresolved; remediation deferred**. Stop the E/E2 prompt-variant loop. Do not impose individual-configuration analysis, change the API, or modify package code merely to address this warning now. When reviewing composed interpretations, distinguish mechanical facts from upstream and downstream hypotheses; return to this issue before claiming release-level semantic validation of CATDES + TEXTUAL.
+**Decision and implementation:** The methodological risk remains **unresolved; deeper remediation deferred**. Commit `7fd4303` adds one non-blocking R warning when `nail_catdes_textual(generate = TRUE)` reuses a generated CATDES interpretation. This detects and signals the risk; it does not validate or correct the inherited claims. Stop the E/E2 prompt-variant loop. Do not impose individual-configuration analysis or change the API merely to address this issue now. When reviewing composed interpretations, distinguish mechanical facts from upstream and downstream hypotheses; revisit before claiming release-level semantic validation of CATDES + TEXTUAL.
 
 **Provenance:** Controlled A–D, B–E and E–E2 experimental artifacts currently exist **locally and untracked** under `dev/operational_validation/`; they are not yet GitHub-published benchmarks.
 
@@ -71,22 +71,36 @@ The local experiments and blind-review material are exploratory, not a formal LL
 | Domain | Functions / scope | State | Next action |
 |---|---|---|---|
 | Sensory profiles | `nail_qda()`, reusable product interpretations, `nail_qda_interpretation()` | Evidence-first rebuild substantially complete | Consolidate realistic interpretation checks; avoid unvalidated prompt proliferation |
-| Sensory product space | `nail_qda_space()` | Canonical PCA / latent CONDES / product evidence path implemented | Audit semantic quality of axis and pole descriptions; keep QDA compatibility route documented |
+| Sensory product space | `nail_qda_space()` | **Operationally validated on `sensochoc`**; PCA / latent CONDES / product evidence; one non-blocking LLM-reuse warning published in `4593546` | Preserve Dim2 interpretive limitation; retain expert review and compatibility documentation |
 | Continuous targets | `nail_condes()` | Evidence-first rebuild with observed/latent modes | Limited additional applied checks |
 | Group characterization | `nail_catdes_prep()`, `nail_catdes()` | Evidence-first rebuild, observed/latent and local/joint scope, canonical LLM I/O | Freeze evidence and prompt contracts once validated; safeguard 'latent profile' wording |
-| Contingency profiles | `nail_descfreq()` | Evidence-first rebuild implemented | Focused prompt/interpretation audit and applied examples |
+| Contingency profiles | `nail_descfreq()` | **Operationally validated on two local contingency tables**; prompt modularity/invariance verified | Validate interpretive quality on additional real tables when available; no immediate correction |
 | Grouped texts | `nail_textual_prep()`, `nail_textual()` | Canonical text registry, selection, parsing and traceability implemented | Investigate parser robustness, sampling and representative/tension texts |
-| Composition | `nail_catdes_textual()` | Technically operational; global-portrait objective stabilized; interpretive-propagation WARNING open | Pause prompt calibration; preserve warning and revisit before release-level semantic validation |
+| Composition | `nail_catdes_textual()` | Operational local workflow and global-portrait objective stabilized; runtime warning in `7fd4303`; interpretive-propagation issue remains open | Pause prompt calibration; revisit before release-level semantic validation |
 | Epistemic review | `nail_catdes_ground()` | Optional assertion-level review implemented | Evaluate false reassurance/false alarms empirically |
 | Sorting | `nail_sort()` | Historical JSON-based workflow with validation | Add targeted malformed-output, retry and API-behavior tests |
 | LLM similarity/distance | `sim_llm()`, `dist_mat_llm()`, `dist_ref_llm()` | Historical utilities | Audit score parsing, variability, missing output, tests |
 | Compatibility | `nail_textual_contextualized()`, `nail_group_profile_prep()`, `nail_qda_spaceprep()` | Retained compatibility paths | Document modern replacement; preserve unless removal is deliberately planned |
 
+### DESCFREQ — operational validation (2026-10-09)
+
+Local Codex report (not a published benchmark): `FactoMineR::descfreq()` worked on two contingency tables, including a case with ambiguous/rare attributes. Six `generate = FALSE` previews covered isolated descriptions, global descriptions and comparisons. Four Ollama `mistral-small3.2` generation attempts were reported: three nonempty responses; one ambiguous case had no selected evidence and therefore no generated response, as expected. `sample.pct`, `drop.negative`, local/global scope and comparison did not change canonical `frequency_profiles`; `drop.negative = TRUE` changed only prompt evidence. `nail_evidence()`, `nail_prompt()`, `nail_response()` and stored LLM I/O were consistent.
+
+A separate modularity check succeeded: changing `introduction`, `request` or `conclusion` changed only its intended prompt block; a reading-guide flag changed the internally built guide; evidence selection changed the prompt evidence but not canonical statistics. The guide has no public free-form `reading` parameter. Descriptive naming was mostly coherent with the dominant patterns, but substantive abstractions still require human inspection. **Status: operational on tested cases; no blocking correction. Not a claim of broad semantic validation.**
+
+### QDA-space — operational validation and interpretive limits (2026-10-09)
+
+Local Codex report using `SensoMineR::sensochoc`: six products, 13 sensory attributes, PCA of QDA adjusted means and `nail_condes(interpretation_mode = "latent")` axis characterization. With `min_inertia_pct = 0` in the operational script, Dim1 (88.79% inertia) and Dim2 (7.58%) were interpreted. Six real Ollama `mistral-small3.2` QDA product interpretations were available and parsed; two real QDA-space axis responses were generated. QDA profiles remained invariant, and evidence/prompt/response accessors and LLM I/O were coherent. Expert-edited summaries and statistical-only fallback paths were also exercised.
+
+Qualitative review: **Dim1** captured a coherent cacao/bitter/astringent versus milky/sweet/melting opposition, although some language exceeded measured sensory facts. **Dim2** was much less substantiated: no CONDES sensory attribute was retained at the tested threshold, some pole exemplars had weak representation (notably `choc3`), and the LLM nevertheless proposed an overly coherent opposition. The low-inertia Dim2 would not have been retained with the function's default `min_inertia_pct = 10`; the operational script deliberately set it to zero. This is a **known scientific interpretation limitation**, not an observed blocking R defect.
+
+Commit `4593546` adds a single non-blocking warning for `generate = TRUE` **only if** an `available` `llm_pass1` product `core_profile` is actually reused among displayed pole products. No specific warning is emitted for expert-only or statistical-only prompts or for previews. It changes neither PCA/QDA/CONDES evidence nor prompt composition. Codex reported 34 passing focused tests and 1,154 passing package tests, with no failures/warnings; these results were **reported from the local R session**, not independently re-executed here. **Status: operational on the tested case; warning published; scientific limitation retained for future review.**
+
 ## 6. Remaining cross-cutting work, priority order
 
-1. **CATDES + TEXTUAL:** objective stabilized and exploratory A–D, B–E, E–E2 comparisons reviewed. **Known methodological warning** about propagation of upstream overinterpretation recorded in §4; further prompt tuning and code changes are **deferred**. Do not require individual configurations.
-2. **Scientific validation:** maintain diverse operational cases; evaluate factual fidelity, interpretive value, causality overreach, provenance, diversity, and limitations. Do not treat parser success as semantic quality.
-3. **Targeted maintenance:** finish QDA-space / DESCFREQ interpretation review and assess optional CATDES grounding; test `nail_sort()` and distance utilities.
+1. **Composed interpretations:** CATDES + TEXTUAL and QDA-space are operational on tested cases with published non-blocking reuse warnings; propagation/semantic overreach remains a **known unresolved scientific risk**. Do not relaunch prompt tuning merely to chase this risk or require individual configurations.
+2. **Scientific validation:** collect diverse realistic cases; evaluate factual fidelity, interpretive value, causality overreach, provenance, diversity and limitations. DESCFREQ needs additional real contingency tables; QDA-space needs scrutiny of weakly characterized axes. Do not mistake parser/test success for semantic reliability.
+3. **Targeted maintenance:** audit `nail_sort()` and LLM distance utilities; assess the real utility of optional CATDES grounding and complete selected QDA/CONDES applied checks.
 4. **Documentation:** update the historical primary vignette to evidence-first usage; retain examples and demonstrate `introduction`/`request` importance, observed vs latent modes, user inspection/accessors.
 5. **CI and packaging:** add practical automated `testthat`/`R CMD check` workflow; perform local package check and reverse-dependency/consumer review (including PolisheR) before version publication.
 6. **Compatibility and release:** document legacy aliases, migration notes, `NEWS.md`, version choice, and branch integration; avoid merging uncommitted experimental artifacts blindly.
@@ -102,4 +116,4 @@ The local experiments and blind-review material are exploratory, not a formal LL
 
 ## 8. Immediate next work
 
-Move past CATDES + TEXTUAL prompt variants with the above warning explicitly open. Prioritize a **focused, realistic operational review of `nail_descfreq()`**, starting from the current implementation, documentation, and tests before proposing any code change. Record observed interpretation issues separately from mechanical or API defects. Then continue the remaining targeted maintenance and scientific validation work in §6.
+**DESCFREQ and QDA-space operational reviews are complete for the tested cases** (§5), with no blocking corrections identified; CATDES + TEXTUAL and QDA-space have committed warnings for reuse of upstream LLM interpretations. Preserve the local, untracked validation artifacts and their exact prompts/responses. Next prioritize a focused code-and-operational audit of `nail_sort()` and the LLM similarity/distance utilities (or another targeted outstanding item in §6). Keep the known semantic limitations visible, but do not restart broad prompt calibration without a distinct scientific question.
