@@ -29,8 +29,10 @@ statistical or textual evidence produced in R
               LLM interpretation
 ```
 
-R calculates or registers the canonical evidence. NaileR then selects and
-renders a method-specific view of that evidence for a prompt. The LLM may
+Depending on the method, R calculates or collects the results used for
+interpretation: for example adjusted means, p-values, statistical tables, or
+original text responses. NaileR then selects and renders a method-specific
+view of that evidence for a prompt. The LLM may
 synthesize and contextualize the displayed facts, but its response is not a
 new statistical result. Important interpretations therefore remain subject to
 human review, especially when they concern causality, motivations, minority
@@ -59,13 +61,16 @@ nail_prompt(result, select = ..., print = FALSE)
 nail_response(result, select = ..., print = FALSE)
 ```
 
-`nail_evidence()` exposes the canonical evidence retained by the analysis;
-`nail_prompt()` exposes the exact rendered prompt; and `nail_response()`
-exposes the raw LLM response. Changing `introduction` or `request` changes the
-analytical framing of the prompt, not the canonical statistical evidence.
+`nail_evidence()` lets you inspect the statistical results or original text
+used for interpretation before the LLM generates a response. `nail_prompt()`
+exposes the exact rendered prompt; and `nail_response()` exposes the raw LLM
+response. Changing `introduction` or `request` changes how the question is
+framed for the LLM, without altering the underlying statistical results.
 
-For example, the following QDA preview uses a study context and a substantive
-request without contacting an LLM.
+Quantitative Descriptive Analysis (QDA) is a sensory profiling method used to
+describe products through evaluated sensory attributes. The following QDA
+preview uses a study context and a simple analytical request without
+contacting an LLM.
 
 ```{r qda-preview}
 data(chocolates, package = "SensoMineR")
@@ -78,11 +83,7 @@ qda_preview <- nail_qda(
     "Six chocolates were evaluated by a trained sensory panel.",
     "The objective is to understand their sensory profiles."
   ),
-  request = paste(
-    "Interpret each product as a coherent sensory configuration.",
-    "Synthesize convergent attributes while keeping the interpretation",
-    "traceable to the displayed evidence and avoiding causal claims."
-  ),
+  request = "Describe the overall sensory profile of each chocolate by grouping related attributes together.",
   isolate.groups = TRUE,
   sample.pct = 1,
   generate = FALSE
@@ -119,9 +120,10 @@ nail_response(qda_generated, select = "choc1", print = FALSE)
 Statistical procedures are well suited to calculating contrasts, profiles,
 associations, frequencies, coordinates, or textual registries. They do not by
 themselves provide every domain-specific label or substantive synthesis an
-analyst may need. An LLM can help formulate such a synthesis, provided that
-the displayed evidence, the user request, and the interpretive status remain
-visible.
+analyst may need. R provides the statistical results, while the LLM helps
+explain their meaning in plain language and in the context of the study.
+This remains grounded in the displayed evidence, the user request, and the
+interpretive status.
 
 The `introduction` gives study context. It is not statistical evidence. The
 `request` states the analytical question. It should say what to interpret and
@@ -143,7 +145,7 @@ qda_custom <- nail_qda(
   firstvar = 5,
   isolate.groups = TRUE,
   introduction = "A sensory study of chocolate products.",
-  request = "Describe the dominant sensory configuration of each product.",
+  request = "Describe the overall sensory profile of each chocolate by grouping related attributes together.",
   generate = FALSE
 )
 
@@ -156,9 +158,12 @@ identical(nail_evidence(qda_default), nail_evidence(qda_custom))
 
 `nail_condes()` characterizes a continuous target from categorical and
 quantitative variables. In `standard` mode the target is an observed variable
-whose name is preserved. In `latent` mode the target may be a constructed
-score, component, or dimension; the prompt asks the LLM to reconstruct and
-name its substantive meaning from the evidence.
+whose meaning is already known and whose name is preserved, such as an
+observed performance score. In `latent` mode the target may be a constructed
+score, component, or dimension whose numerical label is not immediately
+meaningful; for example, a PCA axis such as `Dim.1` may need to be interpreted
+from the variables that characterize it. The prompt asks the LLM to
+reconstruct and name that substantive meaning from the evidence.
 
 ### Observed target
 
@@ -205,10 +210,11 @@ cat(substr(nail_prompt(condes_latent, print = FALSE), 1, 900), "\n")
 ## Categorical groups: `nail_catdes_prep()` and `nail_catdes()`
 
 `nail_catdes_prep()` is the mechanical preparation layer. `nail_catdes()`
-uses its canonical profiles to build a prompt. For an observed categorical
-variable, `standard` mode preserves the category names. For constructed
-clusters, `latent` mode treats labels as identifiers and asks for an
-interpretive name based on the profile.
+uses its canonical profiles to build a prompt. In `standard` mode, the
+categories are observed and their names are preserved, for example species or
+a predefined consumer segment. In `latent` mode, labels identify constructed
+groups whose meaning is not immediately clear; the prompt asks for an
+interpretive name based on each group's profile.
 
 ### Observed categories with `iris`
 
@@ -429,16 +435,19 @@ nail_prompt(atomic_enriched, select = "1", print = FALSE)
 nail_response(atomic_enriched, select = "1", print = FALSE)
 ```
 
-When a generated CATDES interpretation is reused, the composition warning
-signals a risk of propagating an unsupported upstream claim. This is a reason
-for review, not evidence that the composition is automatically invalid.
+If you ask the LLM to interpret text based on an already generated cluster
+summary, NaileR shows a warning: an error in the first step could carry over
+into the second. The generated summary is not primary statistical or textual
+evidence, so the enriched result should be checked against the original CATDES
+evidence and text registry. This is a reason for review, not evidence that the
+composition is automatically invalid.
 
 # Practical checklist
 
 Before relying on an interpretation:
 
 1. Run the analysis with `generate = FALSE`.
-2. Inspect the canonical evidence with `nail_evidence()`.
+2. Inspect the underlying evidence (or statistical results) with `nail_evidence()`.
 3. Inspect the exact prompt with `nail_prompt()`.
 4. Check that the introduction supplies context rather than hidden evidence.
 5. Check that the request asks a scientifically meaningful question.
