@@ -4,6 +4,7 @@
 ^doc$
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
+^PROJECT_STATE\.md$
 ^Meta$
 ^dev$
 ^R_old$
