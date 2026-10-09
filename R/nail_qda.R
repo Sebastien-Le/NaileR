@@ -933,7 +933,7 @@ validate_qda_default_blocks <- function(default_blocks) {
   paste0(
     'Attribute "', .qda_display_label(row$attribute), '" is ',
     direction_word,
-    " than the average sensory profile for this item ",
+    " than for the average product ",
     "(adjusted mean=", .qda_format_number(row$adjusted_mean),
     "; v.test=", .qda_format_number(row$v_test),
     "; p.value=", .qda_format_p(row$p_value),
@@ -1081,11 +1081,33 @@ validate_qda_default_blocks <- function(default_blocks) {
       "current significance threshold (p <= ", proba, ")."
     ),
     paste0(
-      "HIGHER and LOWER describe the relative sensory profile of each ",
-      unit, " compared with the average profile across the evaluated set."
+      "For each sensory attribute, the evaluated ", unit,
+      " is characterized relative to the average product, defined by the ",
+      "average product profile for that attribute across the evaluated set."
     ),
-    "The adjusted mean is the model-adjusted score for the sensory attribute.",
-    "The v.test gives the direction and strength of the retained deviation; smaller p.values indicate stronger statistical evidence."
+    "The average product is a statistical reference profile, not an actual evaluated product.",
+    "Understanding the statistical information:",
+    paste0(
+      "- HIGHER indicates that the adjusted score of the evaluated ", unit,
+      " is significantly higher than that of the average product for the named attribute."
+    ),
+    paste0(
+      "- LOWER indicates that the adjusted score is significantly lower than that of the ",
+      "average product for the named attribute."
+    ),
+    paste0(
+      "- The adjusted mean is the model-adjusted sensory score for the evaluated ",
+      unit, " and attribute. It is not the deviation from the average product."
+    ),
+    "- The v.test is a signed standardized test statistic. It provides information about the statistical deviation, not sensory intensity or practical importance.",
+    "- The p.value quantifies statistical evidence against the corresponding null hypothesis. It does not measure sensory intensity or substantive importance.",
+    paste0(
+      "Each comparison concerns one sensory attribute. Do not compare adjusted means across different attributes as though they were measurements of the same sensory characteristic."
+    ),
+    "Role of the study context:",
+    "The introduction provides the scientific and experimental context for interpreting the results.",
+    "It may inform the substantive meaning of the sensory characteristics but does not provide additional statistical evidence.",
+    "The statistical results establish how the product differs from the average product; the study context helps interpret what those differences mean."
   )
 
   selection <- c(
@@ -1106,27 +1128,37 @@ validate_qda_default_blocks <- function(default_blocks) {
       "All eligible retained markers are shown, so the sampling method has no effect."
     },
     if (isTRUE(drop.negative)) {
-      "Markers LOWER than the average profile are intentionally excluded from the LLM evidence."
+      "Markers LOWER than the average product are intentionally excluded from the LLM evidence."
     } else {
       "Both HIGHER and LOWER retained markers are eligible for the LLM evidence."
     },
-    "Do not treat an undisplayed attribute as evidence that the attribute is average: it may be absent because it was not statistically retained or because of the prompt-selection settings."
+    "An undisplayed attribute must not automatically be interpreted as absent, average, unimportant, or non-discriminating: it may be absent because it was not statistically retained or because of the prompt-selection settings.",
+    "When the sensory scoring scale is not specified, use relative interpretations rather than unsupported absolute intensity categories.",
+    if (isTRUE(drop.negative)) {
+      "Only retained HIGHER attributes contribute to the sensory characterization under the current negative-marker policy."
+    } else {
+      "Both HIGHER and LOWER retained attributes contribute to the sensory characterization of a product."
+    }
   )
 
   epistemic <- c(
-    "Interpret the retained attributes as a sensory profile: first identify the coherent pattern formed by the bundle, then use individual facts to justify that interpretation.",
-    "Do not invent a new empirical sensory attribute that is not supported by the displayed evidence.",
-    "A higher-level sensory concept is allowed when it is a reasonable synthesis of several displayed attributes; present it as an interpretation, not as a directly measured attribute.",
-    "Do not turn associations into causal explanations.",
-    "If you move beyond direct sensory description, make clear that you are offering an interpretation or hypothesis.",
-    "Preserve the direction of every displayed fact: HIGHER means more of the named attribute and LOWER means less of the named attribute.",
+    "Build an overall sensory interpretation from the retained attributes together instead of merely listing them.",
+    "Identify meaningful relationships among their sensory meanings and propose an overall description supported by the displayed results.",
+    "Where relevant, distinguish or connect sensory dimensions such as taste, aroma, and texture.",
+    "A higher-level sensory concept is allowed when it is a reasonable synthesis of several displayed attributes; present this broader sensory characterization as an interpretation, not as a directly measured attribute or an additional measured attribute.",
+    "Do not force a single unifying concept when the evidence is limited or heterogeneous.",
+    "Preserve the direction of every displayed fact: HIGHER means more of the named attribute and LOWER means less of the named attribute relative to the average product.",
     "Do not turn a LOWER attribute into a positive presence of that attribute or infer an opposite attribute that was not measured.",
-    "Do not change the technical meaning of an attribute or introduce unsupported sensory descriptors.",
-    "Do not present a synthesis as a directly measured sensory fact, and do not introduce unsupported hedonic, evaluative, marketing, positioning, or causal claims."
+    "Do not invent sensory notes or unsupported sensory descriptors, change the technical meaning of an attribute, or present a synthesis as a directly measured sensory fact.",
+    "Do not equate statistical significance with sensory intensity, sensory importance, or practical importance.",
+    "Adapt the specificity of the synthesis to the quantity and coherence of the available information.",
+    "Do not claim a multivariate statistical association that was not analyzed.",
+    "Do not infer unsupported hedonic, evaluative, marketing, positioning, or causal claims, including unsupported liking, preference, quality, composition, manufacturing, or market-positioning claims, from the displayed evidence.",
+    "If you move beyond direct sensory description, make clear that you are offering an interpretation or hypothesis."
   )
 
   relative_interpretation <- c(
-    "Interpret every HIGHER/LOWER result relative to the average product profile.",
+    "Interpret every HIGHER/LOWER result relative to the average product.",
     "Prefer:",
     "- \"more marked by [attribute]\" for HIGHER;",
     "- \"less marked by [attribute]\" for LOWER.",
@@ -1316,8 +1348,9 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
   if (!isTRUE(isolate_groups)) {
     return(
       paste(
-        "Interpret the complete set of products or stimuli shown below as",
-        "coherent sensory profiles and compare their supported patterns.",
+        "This prompt addresses the complete evaluated set of products or stimuli shown below.",
+        "Interpret the complete set as coherent sensory profiles and compare their supported patterns.",
+        "Do not treat this as a single-product prompt.",
         sep = "\n"
       )
     )
@@ -1339,7 +1372,14 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
   }
 
   paste(
-    paste0("Interpret only ", unit, " \"", product_name, "\"."),
+    paste0(
+      "This prompt addresses only ", unit, " \"", product_name,
+      "\" as part of the overall analytical request."
+    ),
+    paste0(
+      "Describe its sensory profile relative to the average product using the evidence provided.",
+      " Do not describe other products whose evidence is not shown."
+    ),
     identifier_rule,
     sep = "\n"
   )
@@ -1361,7 +1401,8 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
 }
 
 
-.render_qda_prompt_blocks <- function(blocks) {
+.render_qda_prompt_blocks <- function(blocks,
+                                      isolate_groups = FALSE) {
   section_values <- list(
     c("# Introduction", blocks$context),
     if (!is.null(blocks$reading)) {
@@ -1372,7 +1413,10 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
       c("## Interpretation Rules", blocks$interpretation)
     },
     if (!is.null(blocks$local_task)) {
-      c("# Local Task", blocks$local_task)
+      c(
+        if (isTRUE(isolate_groups)) "# Local Task" else "# Global Task",
+        blocks$local_task
+      )
     },
     c("# Data", blocks$evidence),
     c("## Reusable NaileR Metadata", blocks$reusable),
@@ -1486,7 +1530,11 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
     )
   }
 
-  prompts <- lapply(blocks, .render_qda_prompt_blocks)
+  prompts <- lapply(
+    blocks,
+    .render_qda_prompt_blocks,
+    isolate_groups = isolate_groups
+  )
 
   list(
     blocks = blocks,

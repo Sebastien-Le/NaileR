@@ -249,6 +249,188 @@ test_that("QDA semantic-facing evidence contains explicit directional facts", {
   expect_true(grepl("adjusted mean=", all_text, fixed = TRUE))
   expect_true(grepl("v.test=", all_text, fixed = TRUE))
   expect_true(grepl("p.value=", all_text, fixed = TRUE))
+  expect_true(grepl("than for the average product", all_text, fixed = TRUE))
+  expect_false(
+    grepl("average sensory profile for this item", all_text, fixed = TRUE)
+  )
+})
+
+
+test_that("QDA reading defines the average product and statistical meanings", {
+  x <- do.call(
+    nail_qda,
+    c(
+      qda_semantic_args(),
+      list(
+        isolate.groups = TRUE,
+        generate = FALSE
+      )
+    )
+  )
+
+  reading <- attr(x, "qda_prompt_blocks", exact = TRUE)$A$reading
+
+  expect_match(
+    reading,
+    "average product, defined by the average product profile for that attribute",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "The average product is a statistical reference profile, not an actual evaluated product.",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "HIGHER indicates that the adjusted score of the evaluated product is significantly higher",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "LOWER indicates that the adjusted score is significantly lower than that of the average product",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "The adjusted mean is the model-adjusted sensory score",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "It is not the deviation from the average product.",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "The v.test is a signed standardized test statistic",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "It does not measure sensory intensity or substantive importance.",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "The p.value quantifies statistical evidence against the corresponding null hypothesis.",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "It does not measure sensory intensity or substantive importance.",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "An undisplayed attribute must not automatically be interpreted as absent, average, unimportant, or non-discriminating",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "The introduction provides the scientific and experimental context",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "does not provide additional statistical evidence",
+    fixed = TRUE
+  )
+  expect_false(grepl("average sensory profile for this item", reading, fixed = TRUE))
+  expect_false(grepl("panel average", reading, fixed = TRUE))
+})
+
+
+test_that("QDA local and global prompts preserve scope and user request", {
+  args <- qda_semantic_args()
+  custom_request <- "Describe the products jointly and compare their sensory patterns."
+
+  local <- do.call(
+    nail_qda,
+    c(
+      args,
+      list(
+        request = custom_request,
+        isolate.groups = TRUE,
+        generate = FALSE
+      )
+    )
+  )
+  global <- do.call(
+    nail_qda,
+    c(
+      args,
+      list(
+        request = custom_request,
+        isolate.groups = FALSE,
+        generate = FALSE
+      )
+    )
+  )
+
+  local_prompt <- nail_prompt(local, select = "A", print = FALSE)
+  global_prompt <- nail_prompt(global, print = FALSE)
+
+  expect_match(local_prompt, custom_request, fixed = TRUE)
+  expect_match(
+    local_prompt,
+    "This prompt addresses only product \"A\" as part of the overall analytical request.",
+    fixed = TRUE
+  )
+  expect_match(
+    local_prompt,
+    "Describe its sensory profile relative to the average product using the evidence provided.",
+    fixed = TRUE
+  )
+  expect_match(
+    local_prompt,
+    "Do not describe other products whose evidence is not shown.",
+    fixed = TRUE
+  )
+  expect_match(global_prompt, custom_request, fixed = TRUE)
+  expect_match(
+    global_prompt,
+    "This prompt addresses the complete evaluated set of products or stimuli shown below.",
+    fixed = TRUE
+  )
+  expect_match(
+    global_prompt,
+    "Do not treat this as a single-product prompt.",
+    fixed = TRUE
+  )
+  expect_false(grepl("This prompt addresses only product", global_prompt, fixed = TRUE))
+  expect_true(grepl("# Global Task", global_prompt, fixed = TRUE))
+  expect_false(grepl("# Local Task", global_prompt, fixed = TRUE))
+})
+
+
+test_that("QDA reading reports dynamic partial selection and negative policy", {
+  x <- do.call(
+    nail_qda,
+    c(
+      qda_semantic_args(),
+      list(
+        isolate.groups = TRUE,
+        sample.pct = 0.5,
+        sample.method = "top",
+        drop.negative = TRUE,
+        generate = FALSE
+      )
+    )
+  )
+
+  reading <- attr(x, "qda_prompt_blocks", exact = TRUE)$A$reading
+  expect_match(reading, "50% of the eligible retained markers", fixed = TRUE)
+  expect_match(reading, "statistically strongest eligible markers", fixed = TRUE)
+  expect_match(
+    reading,
+    "Markers LOWER than the average product are intentionally excluded",
+    fixed = TRUE
+  )
+  expect_match(
+    reading,
+    "An undisplayed attribute must not automatically be interpreted",
+    fixed = TRUE
+  )
 })
 
 
@@ -417,7 +599,7 @@ test_that("QDA interpretation and reusable blocks have distinct responsibilities
   )
   expect_match(
     interpretation,
-    "Interpret every HIGHER/LOWER result relative to the average product profile.",
+    "Interpret every HIGHER/LOWER result relative to the average product.",
     fixed = TRUE
   )
   expect_match(
@@ -436,7 +618,7 @@ test_that("QDA interpretation and reusable blocks have distinct responsibilities
     fixed = TRUE
   )
 
-  b2_rule <- "Interpret every HIGHER/LOWER result relative to the average product profile."
+  b2_rule <- "Interpret every HIGHER/LOWER result relative to the average product."
   expect_false(grepl(b2_rule, blocks$reading, fixed = TRUE))
   expect_false(grepl(b2_rule, blocks$evidence, fixed = TRUE))
   expect_false(grepl(b2_rule, reusable, fixed = TRUE))
