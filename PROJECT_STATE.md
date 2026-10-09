@@ -78,8 +78,8 @@ The local experiments and blind-review material are exploratory, not a formal LL
 | Grouped texts | `nail_textual_prep()`, `nail_textual()` | Canonical text registry, selection, parsing and traceability implemented | Investigate parser robustness, sampling and representative/tension texts |
 | Composition | `nail_catdes_textual()` | Operational local workflow and global-portrait objective stabilized; runtime warning in `7fd4303`; interpretive-propagation issue remains open | Pause prompt calibration; revisit before release-level semantic validation |
 | Epistemic review | `nail_catdes_ground()` | Optional assertion-level review implemented | Evaluate false reassurance/false alarms empirically |
-| Sorting | `nail_sort()` | Historical JSON-based workflow with validation | Add targeted malformed-output, retry and API-behavior tests |
-| LLM similarity/distance | `sim_llm()`, `dist_mat_llm()`, `dist_ref_llm()` | Historical utilities | Audit score parsing, variability, missing output, tests |
+| Sorting | `nail_sort()` | Historical export; **excluded from active development scope** | No new audit/refactor; evaluate deprecation/removal separately after dependency and compatibility review |
+| LLM similarity/distance | `sim_llm()`, `dist_mat_llm()`, `dist_ref_llm()` | Historical exports; **excluded from active development scope** | No new audit/refactor; evaluate deprecation/removal separately after dependency and compatibility review |
 | Compatibility | `nail_textual_contextualized()`, `nail_group_profile_prep()`, `nail_qda_spaceprep()` | Retained compatibility paths | Document modern replacement; preserve unless removal is deliberately planned |
 
 ### DESCFREQ — operational validation (2026-10-09)
@@ -100,7 +100,7 @@ Commit `4593546` adds a single non-blocking warning for `generate = TRUE` **only
 
 1. **Composed interpretations:** CATDES + TEXTUAL and QDA-space are operational on tested cases with published non-blocking reuse warnings; propagation/semantic overreach remains a **known unresolved scientific risk**. Do not relaunch prompt tuning merely to chase this risk or require individual configurations.
 2. **Scientific validation:** collect diverse realistic cases; evaluate factual fidelity, interpretive value, causality overreach, provenance, diversity and limitations. DESCFREQ needs additional real contingency tables; QDA-space needs scrutiny of weakly characterized axes. Do not mistake parser/test success for semantic reliability.
-3. **Targeted maintenance:** audit `nail_sort()` and LLM distance utilities; assess the real utility of optional CATDES grounding and complete selected QDA/CONDES applied checks.
+3. **Scoped maintenance:** freeze new feature work; reserve code edits for demonstrated release-blocking issues in retained workflows. Defer CATDES grounding evaluation and additional QDA/CONDES studies to a later scientific-validation phase. Do not spend the one-day stabilization budget auditing historical SORT/distance exports.
 4. **Documentation:** update the historical primary vignette to evidence-first usage; retain examples and demonstrate `introduction`/`request` importance, observed vs latent modes, user inspection/accessors.
 5. **CI and packaging:** add practical automated `testthat`/`R CMD check` workflow; perform local package check and reverse-dependency/consumer review (including PolisheR) before version publication.
 6. **Compatibility and release:** document legacy aliases, migration notes, `NEWS.md`, version choice, and branch integration; avoid merging uncommitted experimental artifacts blindly.
@@ -114,6 +114,17 @@ Commit `4593546` adds a single non-blocking warning for `generate = TRUE` **only
 - Keep the statistical facts, original individual responses, and LLM interpretations distinguishable.
 - Do not treat local untracked artifacts as present in GitHub; audit before committing or ignoring them.
 
-## 8. Immediate next work
+## 8. Immediate next work — ONE-DAY STABILIZATION SPRINT (decision 2026-10-09)
 
-**DESCFREQ and QDA-space operational reviews are complete for the tested cases** (§5), with no blocking corrections identified; CATDES + TEXTUAL and QDA-space have committed warnings for reuse of upstream LLM interpretations. Preserve the local, untracked validation artifacts and their exact prompts/responses. Next prioritize a focused code-and-operational audit of `nail_sort()` and the LLM similarity/distance utilities (or another targeted outstanding item in §6). Keep the known semantic limitations visible, but do not restart broad prompt calibration without a distinct scientific question.
+**Objective:** prepare a credible, installable, documented **internal release candidate** from the retained evidence-first workflows within approximately one full workday. This is **not** a commitment to CRAN submission or release-level semantic validation in one day.
+
+**Core scope:** CONDES, CATDES (including preparation), DESCFREQ, QDA and QDA-space, TEXTUAL (including preparation), CATDES + TEXTUAL, and inspection through `nail_evidence()`, `nail_prompt()`, `nail_response()`. `nail_catdes_ground()` remains optional/experimental. Historical SORT (`nail_sort()`) and LLM distance/similarity exports (`sim_llm()`, `dist_mat_llm()`, `dist_ref_llm()`) are **out of active development scope**, but not yet removed from the public API: first check compatibility and dependents. Keep historical aliases unchanged unless a blocking defect is established.
+
+**Time budget:** 45 min scope/freeze; 75 min short TEXTUAL applied smoke with missing/short texts, sampling, accessors and at most a few real calls; 90 min essential vignette/examples; 120 min `devtools::test()`, package build and `devtools::check()`/R CMD check; 45 min export/dependency and Git review; 105 min contingency reserve. Reallocate based on blockers, and stop polishing prompts.
+
+**Release gates:** (i) clean, reproducible R installation/build; (ii) required workflows either demonstrated operational or carry an honest documented limitation; (iii) no newly introduced blocking test/check failures; (iv) usable README/vignette with direct evidence/prompt/response examples, user `introduction`/`request`, modes, known interpretive risks; (v) explicit list of unresolved non-blockers; (vi) focused Git commits with local operational artifacts preserved and untracked unless intentionally selected. Do not change canonical evidence contracts during the sprint.
+
+**Order:** first TEXTUAL smoke, then document and run packaging/check, then prioritize only release blockers. No refactoring of SORT/distance, no blanket removal of exports, no new semantic prompt experiments. Commit/push package code only after review; later decide branch integration, version and CRAN readiness separately.
+
+**Known limitations:** CATDES + TEXTUAL and QDA-space may propagate upstream LLM interpretation errors; published runtime warnings signal but do not solve them. QDA-space weakly characterized axes can yield unjustifiably coherent prose. DESCFREQ and other outputs require human interpretive review. Local operational materials under `dev/operational_validation/` are not GitHub-published.
+
