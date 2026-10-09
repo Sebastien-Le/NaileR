@@ -39,9 +39,9 @@
 
 **Implication for prompts.** Give the LLM the task of examining the *global CATDES interpretation* in the light of discourse, not mechanically matching isolated CATDES variables to snippets. Treat individual closed responses as optional support for interpretation and validation, not an obligatory output section.
 
-**Status.** Methodological purpose is stabilized. The final public API/prompt implementation is **not** yet approved; the A–D comparison is evidence for the next decision, not an API proposal.
+**Status.** Methodological purpose is stabilized. The final public API/prompt implementation is **not** yet approved. The A–D, B–E, and E–E2 experiments are exploratory; further prompt tuning is paused while the warning below remains open.
 
-## 4. What the latest experimental PASS established — preliminary
+## 4. Operational experiments and deferred warning
 
 A local reproducible experiment created 90 synthetic respondents in three groups and linked the closed-question responses and verbatims. The reported checks found 87 nonmissing texts, exact respondent/text matching, deliberate-mismatch rejection, and no mutation of CATDES/TEXTUAL canonical evidence. The study data were specifically simulated; this is not validation on a real survey.
 
@@ -56,6 +56,16 @@ Reported invariance controls were `TRUE`. One local `mistral-small3.2` response 
 
 The local experiments and blind-review material are exploratory, not a formal LLM benchmark.
 
+### WARNING — Downstream propagation of LLM interpretive overreach (deferred, 2026-10-09)
+
+**Observed:** In the G2 CATDES → CATDES + TEXTUAL composition, the existing upstream CATDES interpretation already included unsupported amplifications of the mechanical CATDES facts (e.g., a 90% frequency for the `supermarket` response was expressed as shopping *exclusively* at supermarkets; claims about choosing convenience *over product quality* were not measured). Downstream compositions frequently repeated such assertions. In the controlled E vs E2 comparison (three G2 generations per condition, frozen evidence and verbatims), all six responses repeated the unsupported exclusivity claim even though E2 explicitly instructed the model to treat the CATDES interpretation as revisable. E2 had 14/14 reported prompt-invariance checks and 3/3 parse-available outputs. This is evidence of a **risk of error propagation**, not a controlled demonstration of its causal mechanism or a proof that TEXTUAL caused the error.
+
+**Risk:** An LLM interpretation reused by another LLM can acquire the appearance of an established fact, although only the underlying canonical CATDES results have statistical evidential authority.
+
+**Decision:** Record as **known methodological warning — unresolved; remediation deferred**. Stop the E/E2 prompt-variant loop. Do not impose individual-configuration analysis, change the API, or modify package code merely to address this warning now. When reviewing composed interpretations, distinguish mechanical facts from upstream and downstream hypotheses; return to this issue before claiming release-level semantic validation of CATDES + TEXTUAL.
+
+**Provenance:** Controlled A–D, B–E and E–E2 experimental artifacts currently exist **locally and untracked** under `dev/operational_validation/`; they are not yet GitHub-published benchmarks.
+
 ## 5. Method inventory
 
 | Domain | Functions / scope | State | Next action |
@@ -66,7 +76,7 @@ The local experiments and blind-review material are exploratory, not a formal LL
 | Group characterization | `nail_catdes_prep()`, `nail_catdes()` | Evidence-first rebuild, observed/latent and local/joint scope, canonical LLM I/O | Freeze evidence and prompt contracts once validated; safeguard 'latent profile' wording |
 | Contingency profiles | `nail_descfreq()` | Evidence-first rebuild implemented | Focused prompt/interpretation audit and applied examples |
 | Grouped texts | `nail_textual_prep()`, `nail_textual()` | Canonical text registry, selection, parsing and traceability implemented | Investigate parser robustness, sampling and representative/tension texts |
-| Composition | `nail_catdes_textual()` | Technically operational; global-portrait and optional individual-grounding comparison completed externally | Review A–D findings before any prompt change; do not make individual configurations mandatory |
+| Composition | `nail_catdes_textual()` | Technically operational; global-portrait objective stabilized; interpretive-propagation WARNING open | Pause prompt calibration; preserve warning and revisit before release-level semantic validation |
 | Epistemic review | `nail_catdes_ground()` | Optional assertion-level review implemented | Evaluate false reassurance/false alarms empirically |
 | Sorting | `nail_sort()` | Historical JSON-based workflow with validation | Add targeted malformed-output, retry and API-behavior tests |
 | LLM similarity/distance | `sim_llm()`, `dist_mat_llm()`, `dist_ref_llm()` | Historical utilities | Audit score parsing, variability, missing output, tests |
@@ -74,7 +84,7 @@ The local experiments and blind-review material are exploratory, not a formal LL
 
 ## 6. Remaining cross-cutting work, priority order
 
-1. **CATDES + TEXTUAL:** review the completed A–D G2 comparison against the **global-portrait** objective. Decide whether the current prompt is adequate or needs one nonmechanical prompt calibration; do not force individual-configuration analyses or propose a new API yet.
+1. **CATDES + TEXTUAL:** objective stabilized and exploratory A–D, B–E, E–E2 comparisons reviewed. **Known methodological warning** about propagation of upstream overinterpretation recorded in §4; further prompt tuning and code changes are **deferred**. Do not require individual configurations.
 2. **Scientific validation:** maintain diverse operational cases; evaluate factual fidelity, interpretive value, causality overreach, provenance, diversity, and limitations. Do not treat parser success as semantic quality.
 3. **Targeted maintenance:** finish QDA-space / DESCFREQ interpretation review and assess optional CATDES grounding; test `nail_sort()` and distance utilities.
 4. **Documentation:** update the historical primary vignette to evidence-first usage; retain examples and demonstrate `introduction`/`request` importance, observed vs latent modes, user inspection/accessors.
@@ -90,6 +100,6 @@ The local experiments and blind-review material are exploratory, not a formal LL
 - Keep the statistical facts, original individual responses, and LLM interpretations distinguishable.
 - Do not treat local untracked artifacts as present in GitHub; audit before committing or ignoring them.
 
-## 8. Immediate next decision
+## 8. Immediate next work
 
-The A–D G2 comparison is complete. Review its findings **against the stabilized CATDES + TEXTUAL purpose**. Decide whether the existing global-portrait prompt is adequate or whether it needs a more explicit, *nonmechanical* instruction to use verbatims for illustration and qualification. **Do not make individual configurations the mandatory structure of the output.** Only then propose, if justified, a targeted prompt change and tests to the composition contract.
+Move past CATDES + TEXTUAL prompt variants with the above warning explicitly open. Prioritize a **focused, realistic operational review of `nail_descfreq()`**, starting from the current implementation, documentation, and tests before proposing any code change. Record observed interpretation issues separately from mechanical or API defects. Then continue the remaining targeted maintenance and scientific validation work in §6.
