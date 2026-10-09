@@ -80,4 +80,9 @@ synthesis and never substitutes for the statistical facts.
 The textual side comes from the parsed \code{textual_profiles}. Representative and
 tension text IDs are resolved back to exact texts through \code{textual_evidence}
 so that the final enrichment remains inspectable and grounded.
+
+When \code{generate = TRUE} and a generated CATDES interpretation is reused in
+the contextualized prompt, the function emits one non-blocking warning about
+possible propagation of overinterpretation. The enriched portrait should be
+confronted with the original CATDES statistical evidence.
 }

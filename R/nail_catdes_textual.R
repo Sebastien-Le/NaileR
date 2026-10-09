@@ -199,6 +199,30 @@
 }
 
 
+.catdes_has_reused_llm_interpretation <- function(catdes) {
+  semantic_profiles <- attr(catdes, "semantic_profiles", exact = TRUE)
+
+  if (is.null(semantic_profiles) ||
+      !is.list(semantic_profiles$groups) ||
+      length(semantic_profiles$groups) == 0L) {
+    return(FALSE)
+  }
+
+  any(vapply(
+    semantic_profiles$groups,
+    function(group) {
+      response <- group$response
+      identical(group$status, "generated") &&
+        !is.null(response) &&
+        length(response) > 0L &&
+        !is.na(response[[1L]]) &&
+        nzchar(trimws(as.character(response[[1L]])))
+    },
+    logical(1)
+  ))
+}
+
+
 .resolve_textual_ids_catdes_textual <- function(textual_evidence, ids) {
   registry <- textual_evidence$text_registry
 
@@ -1014,6 +1038,11 @@
 #' tension text IDs are resolved back to exact texts through `textual_evidence`
 #' so that the final enrichment remains inspectable and grounded.
 #'
+#' When `generate = TRUE` and a generated CATDES interpretation is reused in
+#' the contextualized prompt, the function emits one non-blocking warning about
+#' possible propagation of overinterpretation. The enriched portrait should be
+#' confronted with the original CATDES statistical evidence.
+#'
 #' @return When `generate = FALSE`, a named list of local prompts when
 #'   `isolate.groups = TRUE`, otherwise a combined local-first preview. When
 #'   `generate = TRUE`, a named list of local backend results when
@@ -1045,6 +1074,9 @@ nail_catdes_textual <- function(catdes,
     catdes = catdes,
     textual = textual
   )
+
+  reused_catdes_interpretation <-
+    .catdes_has_reused_llm_interpretation(catdes)
 
   if (is.null(introduction)) {
     introduction <- .catdes_textual_default_introduction()
@@ -1118,6 +1150,18 @@ nail_catdes_textual <- function(catdes,
       settings = settings,
       llm_io = llm_io
     ))
+  }
+
+  if (isTRUE(reused_catdes_interpretation)) {
+    warning(
+      paste(
+        "A generated CATDES interpretation is being reused in this",
+        "textual enrichment; confront the enriched portrait with the",
+        "original CATDES statistical evidence to detect possible propagation",
+        "of overinterpretation."
+      ),
+      call. = FALSE
+    )
   }
 
   llm_api_options <- list(...)
