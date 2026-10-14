@@ -1,6 +1,6 @@
 # CONDES modular prompt — bilingual scientific review
 
-**Status:** INDIVIDUAL BLOCKS APPROVED (2026-10-14) — assembled prompt pending scientific review and operational implementation.
+**Status:** BILINGUAL OPERATIONAL BLOCKS AND ASSEMBLY SIMPLIFICATIONS APPROVED (2026-10-14) — not yet implemented or evaluated with LLMs.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [CONDES_REFERENCE_PROMPT.md](CONDES_REFERENCE_PROMPT.md) (approved).
 **Earlier compact proposal:** [CONDES_COMPACT_PROMPT.md](CONDES_COMPACT_PROMPT.md) (draft, not approved).
@@ -107,19 +107,15 @@ Lorsque les résultats le permettent, proposez un nom court et significatif qui 
 
 Ne cherchez pas à imposer un nom ou une interprétation unique lorsque les associations sont trop hétérogènes ou insuffisamment informatives.
 
-## 4. `task` — APPROVED (bilingual wording, 2026-10-14)
+## 4. `task` — APPROVED, streamlined after assembly review (2026-10-14)
 
 ### English — approved operational text
 
 Interpret the quantitative target "[target_identifier]" using the displayed statistical evidence and the user's analytical request.
 
-Focus on the characteristics associated with its lower and higher values. Do not describe associations or variables for which no evidence has been provided.
-
 ### Français — traduction de contrôle validée
 
 Interprétez la variable quantitative cible « [target_identifier] » à partir des résultats statistiques présentés et de la question analytique de l'utilisateur.
-
-Concentrez-vous sur les caractéristiques associées à ses valeurs faibles et élevées. Ne décrivez pas d'associations ou de variables pour lesquelles aucun résultat n'est fourni.
 
 ### Decision
 
@@ -134,13 +130,13 @@ Concentrez-vous sur les caractéristiques associées à ses valeurs faibles et �
 
 Write a clear, substantive interpretation of the quantitative target. Present the main characteristics associated with its lower and higher values, and explain the overall contrast they suggest.
 
-Support your interpretation with the most relevant statistical findings, while acknowledging important limitations. Favor a meaningful synthesis over a variable-by-variable description or repetitive numerical reporting.
+Support your interpretation with the most relevant statistical findings, while acknowledging important limitations. Favor a meaningful synthesis over repetitive numerical reporting.
 
 ### Français — traduction de contrôle validée
 
 Rédigez une interprétation claire et substantielle de la variable quantitative cible. Présentez les principales caractéristiques associées à ses valeurs faibles et élevées, et expliquez le contraste général qu'elles suggèrent.
 
-Appuyez votre interprétation sur les résultats statistiques les plus pertinents, tout en reconnaissant les limites importantes. Privilégiez une synthèse porteuse de sens plutôt qu'une description variable par variable ou une répétition systématique des résultats numériques.
+Appuyez votre interprétation sur les résultats statistiques les plus pertinents, tout en reconnaissant les limites importantes. Privilégiez une synthèse porteuse de sens plutôt qu'une répétition systématique des résultats numériques.
 
 ### Decision
 
@@ -149,6 +145,15 @@ Appuyez votre interprétation sur les résultats statistiques les plus pertinent
 - Any indispensable output/parser requirements belong in a separate technical contract, to be examined before implementation.
 
 
+
+## Assembly review — APPROVED (2026-10-14)
+
+After reviewing the complete standard-mode assembly and the latent-mode alternative, the analyst approved two concise changes:
+
+- `task` now consists only of the target identifier, the displayed evidence and the user's analytical request. Statements on target poles and unshown evidence remain covered by `reading`, `interpretation` and identity-specific blocks.
+- `output` retains the substantive summary and numerical-repetition safeguard, without repeating the ban on variable-by-variable description already covered by `interpretation`.
+
+Keep `reading`, `interpretation`, `standard` and `latent` unchanged. No package-code modifications are authorized by this documentary approval. The eventual runtime assemblage and the evidence representation require separate verification.
 
 ## Change policy
 
