@@ -143,9 +143,26 @@ Interprétez chaque groupe présenté à partir de ses propres caractéristiques
 Préservez l'identité de chaque groupe et distinguez les contrastes descriptifs des différences statistiquement démontrées entre groupes pris deux à deux.
 
 
-## 5. `output` — NOT YET REVIEWED
+## 5. `output` — APPROVED (2026-10-14)
 
-No operational wording approved.
+**English — approved operational text**
+
+Write a clear, substantive interpretation of each group. Present its central profile, the main statistical characteristics supporting it, and any important nuances or exceptions.
+
+Emphasize what distinguishes the group relative to the full sample. In global analyses, also provide a synthesis across groups.
+
+Favor meaningful interpretation over repetitive numerical reporting, while keeping the conclusions grounded in the evidence.
+
+**Français — traduction de contrôle validée**
+
+Rédigez une interprétation claire et substantielle de chaque groupe. Présentez son profil général, les principales caractéristiques statistiques qui le soutiennent, ainsi que les nuances ou exceptions importantes.
+
+Mettez en évidence ce qui distingue le groupe par rapport à l'ensemble de l'échantillon. Dans le cas d'une analyse globale, proposez également une synthèse transversale des groupes.
+
+Privilégiez une interprétation porteuse de sens plutôt qu'une répétition systématique des résultats numériques, tout en fondant les conclusions sur les résultats statistiques.
+
+**Approved design choice:** the analyst may customize this instruction block, just like `reading` and `interpretation`. No mandatory Quarto Markdown instruction is included in the editable default. Any non-negotiable machine-readable output requirement must be enforced by a separate technical contract, subject to later code verification.
+
 
 ## Change policy
 
