@@ -118,55 +118,39 @@ Ne cherchez pas à attribuer artificiellement un nom lorsque le profil est trop 
 
 **English — approved operational text**
 
-Interpret the selected group using all its displayed qualitative and quantitative characteristics. Identify its distinctive features and develop a meaningful multidimensional synthesis.
-
-Focus on this group only. Do not describe or reconstruct groups whose statistical profiles have not been provided.
+Interpret only the selected group using its displayed statistical evidence. Do not describe groups whose profiles have not been provided.
 
 **Français — traduction de contrôle validée**
 
-Interprétez le groupe sélectionné à partir de l'ensemble de ses caractéristiques qualitatives et quantitatives présentées. Identifiez ce qui le distingue et construisez une synthèse multidimensionnelle pertinente.
-
-Concentrez-vous uniquement sur ce groupe. Ne décrivez pas et ne cherchez pas à reconstituer les groupes dont les profils statistiques ne sont pas fournis.
+Interprétez uniquement le groupe sélectionné à partir des résultats statistiques présentés. Ne décrivez pas les groupes dont les profils ne sont pas fournis.
 
 ### `global_task` — APPROVED (2026-10-14)
 
 **English — approved operational text**
 
-Interpret each displayed group from its own statistical characteristics. Then develop an overall synthesis highlighting meaningful similarities, differences, and broader configurations across groups.
-
-Preserve each group's identity and distinguish descriptive contrasts from statistically demonstrated pairwise differences.
+Interpret each displayed group, then provide an overall synthesis of meaningful similarities, contrasts, and configurations across groups. Do not present descriptive contrasts as statistically demonstrated pairwise differences.
 
 **Français — traduction de contrôle validée**
 
-Interprétez chaque groupe présenté à partir de ses propres caractéristiques statistiques. Proposez ensuite une synthèse d'ensemble mettant en évidence les ressemblances, les différences et les configurations générales qui émergent de la comparaison des groupes.
-
-Préservez l'identité de chaque groupe et distinguez les contrastes descriptifs des différences statistiquement démontrées entre groupes pris deux à deux.
+Interprétez chaque groupe présenté, puis proposez une synthèse d'ensemble des principales ressemblances, différences et configurations entre les groupes. Ne présentez pas les contrastes descriptifs comme des différences statistiquement démontrées entre groupes pris deux à deux.
 
 
 ## 5. `output` — APPROVED (2026-10-14)
 
 **English — approved operational text**
 
-Write a clear, substantive interpretation of each group. Present its central profile, the main statistical characteristics supporting it, and any important nuances or exceptions.
-
-Emphasize what distinguishes the group relative to the full sample. In global analyses, also provide a synthesis across groups.
-
-Favor meaningful interpretation over repetitive numerical reporting, while keeping the conclusions grounded in the evidence.
+Write a clear, substantive interpretation highlighting the central profile, its main supporting statistical characteristics, and important nuances or exceptions. Favor meaningful synthesis over repetitive numerical reporting.
 
 **Français — traduction de contrôle validée**
 
-Rédigez une interprétation claire et substantielle de chaque groupe. Présentez son profil général, les principales caractéristiques statistiques qui le soutiennent, ainsi que les nuances ou exceptions importantes.
-
-Mettez en évidence ce qui distingue le groupe par rapport à l'ensemble de l'échantillon. Dans le cas d'une analyse globale, proposez également une synthèse transversale des groupes.
-
-Privilégiez une interprétation porteuse de sens plutôt qu'une répétition systématique des résultats numériques, tout en fondant les conclusions sur les résultats statistiques.
+Rédigez une interprétation claire et substantielle mettant en évidence le profil général, les principales caractéristiques statistiques qui le soutiennent, ainsi que les nuances ou exceptions importantes. Privilégiez une synthèse porteuse de sens plutôt qu'une répétition des résultats numériques.
 
 **Approved design choice:** the analyst may customize this instruction block, just like `reading` and `interpretation`. No mandatory Quarto Markdown instruction is included in the editable default. Any non-negotiable machine-readable output requirement must be enforced by a separate technical contract, subject to later code verification.
 
 
-## Assembly review — decisions accepted, exact replacement wording pending (2026-10-14)
+## Assembly review — concise wording approved (2026-10-14)
 
-The analyst agreed with the critical review of the illustrative assembled CATDES prompt. These **architectural editing decisions are approved**, but the revised bilingual operational texts below have **not yet been individually approved** and must not replace the earlier validated block formulations silently.
+The analyst agreed with the critical review of the illustrative assembled CATDES prompt. These architectural editing decisions and the revised bilingual `local_task`, `global_task` and `output` formulations were explicitly approved. The blocks above contain the current approved wording.
 
 - Keep `reading`, `interpretation`, and `standard`/`latent` scientific substance unchanged.
 - Reduce repetitive requests for multidimensional synthesis across `interpretation`, `local_task`, `global_task`, and `output`; leave the main substantive synthesis mandate in `interpretation`.
@@ -174,7 +158,7 @@ The analyst agreed with the critical review of the illustrative assembled CATDES
 - Verify in actual R prompt assembly that the grouping variable name AND its category modality are transmitted, especially for `standard` mode. This technical check has not been performed.
 - Let the analyst choose response language through their request/context, rather than impose a language in mandatory scientific blocks.
 - No change to R code, evidence selection, parser, or existing approved reference is authorized by this agreement.
-- Next: review exact revised EN/FR operational wording, obtain explicit approval, then replace earlier local/global/output text and mark the assembled prompt ready for operational testing.
+- Next: verify actual prompt assembly, user-editable blocks, and transmitted grouping variable/modality in R before operational testing.
 
 ## Change policy
 
