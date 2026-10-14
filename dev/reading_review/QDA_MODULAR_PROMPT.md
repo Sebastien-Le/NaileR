@@ -1,6 +1,6 @@
 # QDA modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading` candidate, with omission of selection/missing-attribute warnings explicitly approved (2026-10-14). The complete `reading` text has NOT yet been approved as a whole.
+**Status:** IN PROGRESS — `interpretation` fully APPROVED (2026-10-14); `reading` remains a candidate with its selection/missing-attribute paragraph removed by explicit approval. Identity, task, and output blocks pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Technical source:** `R/nail_qda.R` (`SensoMineR::decat()`, canonical `product_profiles`, interpretation evidence and semantic-facing markers).
 **Scope:** scientific/operational prompt wording only. No R runtime changes, test modifications, evidence-selection changes or API changes.
@@ -37,7 +37,36 @@ La moyenne ajustée (*adjusted mean*) est le score sensoriel du produit pour cet
 
 Préservez la signification de chaque attribut sensoriel. Utilisez le contexte de l'étude pour comprendre les caractéristiques sensorielles, sans le considérer comme une preuve statistique supplémentaire. Ne déduisez pas de ces résultats des conclusions concernant l'appréciation hédonique, les préférences, la qualité, les causes liées à la fabrication ou des différences statistiquement démontrées entre paires de produits.
 
-## 2. `interpretation` — PENDING
+## 2. `interpretation` — APPROVED (bilingual wording, 2026-10-14)
+
+### English — approved operational text
+
+Interpret each product or stimulus by considering its displayed sensory attributes jointly, rather than describing them one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive interpretation of the overall sensory profile.
+
+Use knowledge of sensory perception and the study context to connect conceptually related characteristics across the relevant perceptual dimensions. When several attributes converge, develop a higher-level interpretation that captures their combined meaning.
+
+Preserve the relative direction and meaning of each attribute. Distinguish higher-level interpretations from directly measured characteristics, and do not present conceptual connections as statistically demonstrated relationships.
+
+Preserve meaningful contrasts, nuances, and ambiguities. When the evidence is heterogeneous or insufficient to support a unified characterization, do not force a single global interpretation.
+
+### Français — traduction de contrôle validée
+
+Interprétez chaque produit ou stimulus en considérant conjointement ses attributs sensoriels présentés, plutôt qu'en les décrivant un à un. Identifiez les configurations significatives et distinctives, et construisez une interprétation substantielle du profil sensoriel d'ensemble.
+
+Mobilisez les connaissances sur la perception sensorielle et le contexte de l'étude pour rapprocher des caractéristiques conceptuellement liées, en tenant compte des dimensions perceptives pertinentes. Lorsque plusieurs attributs convergent, construisez une interprétation de niveau supérieur qui rende compte de leur signification conjointe.
+
+Préservez le sens relatif et la signification de chaque attribut. Distinguez les interprétations de niveau supérieur des caractéristiques directement mesurées et ne présentez pas les rapprochements conceptuels comme des relations statistiquement démontrées.
+
+Préservez les contrastes, les nuances et les ambiguïtés significatives. Lorsque les résultats sont hétérogènes ou insuffisants pour soutenir une caractérisation unifiée, ne cherchez pas à imposer une interprétation générale unique.
+
+### Decision
+
+- Scientific wording explicitly approved in French and English, replacing a food-centric earlier draft.
+- The semantic synthesis must remain applicable to non-food sensory evaluation (e.g. visual, tactile, acoustic, olfactory or other perceptual dimensions) without hard-coding any such examples into the operational text.
+- Conceptual sensory synthesis is legitimate, but is not itself an additional measured descriptor or a demonstrated statistical association.
+- `reading` remains a candidate pending separate full validation. No R code changes.
+
+
 
 ## 3. Product/stimulus identity — PENDING
 
