@@ -1,6 +1,6 @@
 # QDA modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — bilingual `interpretation`, `known` / `unknown` identities, local and joint `task` blocks APPROVED (2026-10-14); `reading` remains a candidate with its selection/missing-attribute paragraph removed by explicit approval. `output` and complete `reading` awaiting validation.
+**Status:** Bilingual `interpretation`, `known` / `unknown` identities, local/joint `task`, and `output` APPROVED (2026-10-14). Full `reading` wording and completed assemblies remain to be approved. No R code changes or operational validation.
 **Branch:** `dev-statistical-prompt-framework`.
 **Technical source:** `R/nail_qda.R` (`SensoMineR::decat()`, canonical `product_profiles`, interpretation evidence and semantic-facing markers).
 **Scope:** scientific/operational prompt wording only. No R runtime changes, test modifications, evidence-selection changes or API changes.
@@ -165,7 +165,32 @@ Fondez les comparaisons sur les profils sensoriels présentés, interprétés re
 - No new QDA `interpretation_mode` argument is authorized and no R code is modified in this pass.
 
 
-## 5. `output` — PENDING
+## 5. `output` — APPROVED (bilingual wording, 2026-10-14)
+
+### English — approved operational text
+
+Write a clear, well-structured and substantive interpretation of the evaluated sensory profiles.
+
+Support the main conclusions with the most relevant sensory attributes, preserving their HIGHER/LOWER directions. Include adjusted means or other statistical values when they help clarify and substantiate the interpretation.
+
+Avoid mechanically reproducing the statistical results or unnecessary numerical repetition.
+
+### Français — traduction de contrôle validée
+
+Rédigez une interprétation claire, structurée et substantielle des profils sensoriels évalués.
+
+Appuyez les principales conclusions sur les attributs sensoriels les plus pertinents, en respectant leur direction HIGHER/LOWER. Mentionnez les moyennes ajustées ou d'autres valeurs statistiques lorsqu'elles permettent d'éclairer et d'étayer l'interprétation.
+
+Évitez de reproduire mécaniquement les résultats statistiques ou de multiplier les répétitions numériques inutiles.
+
+### Decision
+
+- Editorial restitution block expressly approved in English and French on 2026-10-14.
+- Interpretation synthesis is owned by `interpretation`, identity/naming by `known` or `unknown`, and scope/comparison by the selected `task`.
+- No hard-coded Quarto/Markdown formatting requirement in the customizable editorial text; technical parsing and output contracts remain separately applicable at implementation.
+- No R source code was changed.
+
+
 
 ## Implementation boundary
 
