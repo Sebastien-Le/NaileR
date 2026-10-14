@@ -62,7 +62,49 @@ Utilisez le contexte de l'étude pour construire une synthèse substantielle fon
 
 
 
-## 3. Row identity — PENDING
+## 3. Row identity — APPROVED (2026-10-14)
+
+### `standard` — APPROVED
+
+**English — approved operational text**
+
+Each row represents an observed entity or category whose identity is already defined. Preserve its original name and any label provided by the analyst.
+
+Interpret its frequency profile to characterize what distinguishes this entity or category, without replacing its known identity with an invented one.
+
+**Français — traduction de contrôle validée**
+
+Chaque ligne représente une entité ou une catégorie observée dont l'identité est déjà définie. Conservez son nom d'origine ainsi que tout intitulé fourni par l'analyste.
+
+Interprétez son profil de fréquences pour caractériser ce qui distingue cette entité ou cette catégorie, sans remplacer son identité connue par une identité inventée.
+
+### `latent` — APPROVED
+
+**English — approved operational text**
+
+Each row represents a constructed group whose identifier does not define its substantive meaning.
+
+Interpret its frequency profile to identify what makes the group distinctive. When supported by the evidence, propose a concise, meaningful name. Keep the original identifier alongside the proposed name.
+
+Do not force a name when the profile is too heterogeneous or insufficiently informative.
+
+**Français — traduction de contrôle validée**
+
+Chaque ligne représente un groupe construit dont l'identifiant ne définit pas la signification substantielle.
+
+Interprétez son profil de fréquences pour identifier ce qui distingue le groupe. Lorsque les résultats le permettent, proposez un nom court et significatif. Conservez l'identifiant d'origine à côté du nom proposé.
+
+Ne cherchez pas à attribuer artificiellement un nom lorsque le profil est trop hétérogène ou insuffisamment informatif.
+
+### Architectural decision
+
+- Use explicit `standard` and `latent` identity-specific prompt blocks, not LLM inference from row labels.
+- `standard` applies to observed row entities or categories, such as sensory products described by words; `latent` applies to constructed groups, such as clusters.
+- These identity modes are conceptually independent of `isolate.groups` (local vs joint scope) and the existing `interpretation_mode = "description" / "comparison"` (joint task).
+- `row_identity_mode` is only a **possible future API name**, not a currently implemented function argument. Assess interaction with existing `explicit_row_labels` at implementation design.
+- This is a prompt-documentation approval; do not modify package code.
+
+
 
 ## 4. Task scope (local / joint description / joint comparison) — PENDING
 
