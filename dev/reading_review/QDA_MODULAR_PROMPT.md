@@ -1,6 +1,6 @@
 # QDA modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — bilingual `interpretation` and both `product_knowledge` identity blocks APPROVED (2026-10-14); `reading` remains a candidate with its selection/missing-attribute paragraph removed by explicit approval. Task and output blocks pending.
+**Status:** IN PROGRESS — bilingual `interpretation`, `known` / `unknown` identity and local `task` APPROVED (2026-10-14); `reading` remains a candidate with its selection/missing-attribute paragraph removed by explicit approval. Joint task and output blocks pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Technical source:** `R/nail_qda.R` (`SensoMineR::decat()`, canonical `product_profiles`, interpretation evidence and semantic-facing markers).
 **Scope:** scientific/operational prompt wording only. No R runtime changes, test modifications, evidence-selection changes or API changes.
@@ -116,7 +116,30 @@ Ne cherchez pas à deviner l'identité réelle du stimulus ni à lui attribuer a
 - Preserve actual product identifiers and analyst labels; a descriptive name, when supported, may only supplement the original identifier.
 - These are approved editorial blocks only: no R code modifications or tests in this pass.
 
-## 4. Local/joint tasks — PENDING
+## 4. Local/joint tasks
+
+### Local task — APPROVED (bilingual wording, 2026-10-14)
+
+**English — approved operational text**
+
+Interpret only the product or stimulus "[identifier]" using its displayed statistical evidence and the user's analytical request.
+
+Characterize its distinctive sensory profile relative to the average product. Do not describe or compare other products or stimuli.
+
+**Français — traduction de contrôle validée**
+
+Interprétez uniquement le produit ou stimulus « [identifier] » à partir de ses résultats statistiques et de la question analytique de l'utilisateur.
+
+Caractérisez son profil sensoriel distinctif relativement au produit moyen. Ne décrivez pas et ne comparez pas les autres produits ou stimuli.
+
+**Decision**
+
+- Apply only when `isolate.groups = TRUE`; `[identifier]` is the actual product/stimulus identifier substituted at runtime.
+- The identity mode `known` / `unknown` is independent of task scope.
+- Interpretation rules and relative statistical reference are owned by the common `interpretation` and `reading` blocks.
+- No R code or existing runtime prompt is changed here.
+
+### Joint task — PENDING
 
 ## 5. `output` — PENDING
 
