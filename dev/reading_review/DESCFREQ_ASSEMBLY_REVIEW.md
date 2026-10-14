@@ -29,7 +29,7 @@ The cell count gives the observed frequency for a particular row and column. The
 
 OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.
 
-Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row. The displayed evidence may be a selection rather than the complete profile; do not draw conclusions about unreported columns.
+Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.
 
 Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
 
@@ -101,7 +101,7 @@ The cell count gives the observed frequency for a particular row and column. The
 
 OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.
 
-Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row. The displayed evidence may be a selection rather than the complete profile; do not draw conclusions about unreported columns.
+Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.
 
 Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
 
@@ -173,7 +173,7 @@ The cell count gives the observed frequency for a particular row and column. The
 
 OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.
 
-Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row. The displayed evidence may be a selection rather than the complete profile; do not draw conclusions about unreported columns.
+Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.
 
 Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
 
@@ -249,7 +249,7 @@ The cell count gives the observed frequency for a particular row and column. The
 
 OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.
 
-Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row. The displayed evidence may be a selection rather than the complete profile; do not draw conclusions about unreported columns.
+Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.
 
 Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
 
@@ -323,7 +323,7 @@ The cell count gives the observed frequency for a particular row and column. The
 
 OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.
 
-Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row. The displayed evidence may be a selection rather than the complete profile; do not draw conclusions about unreported columns.
+Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.
 
 Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
 
@@ -397,7 +397,7 @@ The cell count gives the observed frequency for a particular row and column. The
 
 OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.
 
-Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row. The displayed evidence may be a selection rather than the complete profile; do not draw conclusions about unreported columns.
+Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.
 
 Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
 
@@ -467,7 +467,7 @@ Avoid unnecessary numerical repetition.
 
 - Explicit conditional guidance for `rows_are_ordered = TRUE`: gradients and transitions only if substantively and statistically supported by the displayed evidence and the contextual order. The approved comparison task warns that order alone is insufficient.
 - Preserve analyst labels with `explicit_row_labels = TRUE`, especially when `latent` permits an additional descriptive name.
-- Correct dynamic evidence-selection notices for `drop.negative`, `sample.pct`, and `proba`.
+- Preserve correct evidence-selection settings and provenance for `drop.negative`, `sample.pct`, and `proba` **in R and canonical evidence**. Do not introduce generic selection/missing-attribute caveats into the operational LLM `reading`.
 - Keep technical Quarto/output parser contracts separate from user-customizable `output` instructions, as in the approved long methodological reference.
 - Complete `reading` wording in English and French was explicitly approved on 2026-10-14. It remains unchanged from the assembled text; no further scientific wording approval is pending.
 - The six configurations in this file are documentary assemblies, not the prompt currently emitted by the package. No code or existing API is modified.
@@ -483,3 +483,7 @@ The major avoidable repetitions identified in the first review have been removed
 - `reading` describes the global statistical reference; the local and comparison tasks mention that reference to keep the analysis in scope.
 - `interpretation` supplies safeguards about inferring relationships; comparison adds a specific warning against unperformed pairwise significance tests.
 - `standard` and `latent` preserve identities; `output` no longer reiterates that requirement.
+
+## Cross-functional refinement (2026-10-14)
+
+After final initial sign-off, the analyst authorized removing prompt-facing reminders that shown evidence may be partial and cautions that speculate about unseen columns. This refinement is incorporated in all six documentary assemblies above (and in the modular source), without changing the statistical reference, scope safeguards, or interpretation requirements. The six assemblies remain scientifically approved as refined; implementation and runtime tests remain pending.
