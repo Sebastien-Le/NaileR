@@ -1,6 +1,6 @@
 # DESCFREQ modular prompt — bilingual scientific review
 
-**Status:** Terminology decision APPROVED (2026-10-14); complete `reading` below is the consolidated candidate pending final verbatim approval. Other blocks pending.
+**Status:** `interpretation`, `standard`, `latent`, three `task` variants and `output` APPROVED (2026-10-14). `reading` is a consolidated candidate with approved terminology, pending final review of the assembled prompts. No R integration.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [DESCFREQ_REFERENCE_PROMPT.md](DESCFREQ_REFERENCE_PROMPT.md) (approved).
 **Previous compact:** [DESCFREQ_COMPACT_PROMPT.md](DESCFREQ_COMPACT_PROMPT.md) (draft, not approved).
@@ -174,7 +174,35 @@ Ne déduisez pas une progression ou une hiérarchie du seul ordre des lignes.
 **Routing:** `isolate.groups = FALSE`; `interpretation_mode = "comparison"`. Original row order alone does not establish a statistically tested gradient; the separate contextual flag `rows_are_ordered` may justify discussing ordered patterns when also supported by evidence.
 
 
-## 5. `output` — PENDING
+## 5. `output` — APPROVED (bilingual wording, 2026-10-14)
+
+### English — approved operational text
+
+Write a clear, substantive interpretation of the displayed frequency profiles.
+
+Support the main findings with the most relevant columns and their row and global percentages or counts, providing enough statistical evidence to make the interpretation understandable and traceable.
+
+Adapt the response to the analytical task: characterize each row in a description, or highlight the main similarities and contrasts in a comparison.
+
+Preserve the original row identifiers and any labels provided by the analyst. Avoid mechanical column-by-column descriptions and unnecessary numerical repetition.
+
+### Français — traduction de contrôle validée
+
+Rédigez une interprétation claire et substantielle des profils de fréquences présentés.
+
+Appuyez les principaux résultats sur les colonnes les plus pertinentes et leurs pourcentages dans les profils des lignes et dans le profil global, ou leurs effectifs, en fournissant suffisamment d'éléments statistiques pour rendre l'interprétation compréhensible et vérifiable.
+
+Adaptez la réponse à l'objectif analytique : caractérisez chaque ligne dans une description, ou mettez en évidence les principales ressemblances et différences dans une comparaison.
+
+Conservez les identifiants d'origine des lignes ainsi que les intitulés fournis par l'analyste. Évitez les descriptions mécaniques colonne par colonne et les répétitions numériques inutiles.
+
+### Decision
+
+- The analyst explicitly approved this bilingual editorial block.
+- Statistical semantics and joint synthesis rules belong in `reading` and `interpretation`; task scope belongs in `task`.
+- Preserve personalized output instructions, without imposing Quarto Markdown or parser formatting requirements in the editable editorial default. Validate technical output contracts separately.
+
+
 
 ## Change policy
 
