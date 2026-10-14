@@ -149,7 +149,30 @@ Préservez l'identité de chaque ligne. Ne cherchez pas à imposer des comparais
 **Routing:** `isolate.groups = FALSE`; `interpretation_mode = "description"`. Identity mode remains independent.
 
 
-### Joint comparison task — PENDING
+### Joint comparison task — APPROVED (bilingual wording, 2026-10-14)
+
+**English — approved operational text**
+
+Compare the displayed rows using their statistical evidence and the user's analytical request.
+
+Identify meaningful similarities and differences between their frequency profiles, considering how each row differs from the overall table profile.
+
+Develop a substantive interpretation of the main contrasts while preserving each row's identity. Do not claim statistically significant differences between rows unless direct comparisons have been provided.
+
+Do not infer a progression or hierarchy from the order of the rows alone.
+
+**Français — traduction de contrôle validée**
+
+Comparez les lignes présentées à partir de leurs résultats statistiques et de la question analytique de l'utilisateur.
+
+Identifiez les ressemblances et différences significatives sur le plan substantiel entre leurs profils de fréquences, en considérant la manière dont chaque ligne se distingue du profil global du tableau.
+
+Construisez une interprétation substantielle des principaux contrastes tout en préservant l'identité de chaque ligne. N'affirmez pas l'existence de différences statistiquement significatives entre les lignes si des comparaisons directes n'ont pas été fournies.
+
+Ne déduisez pas une progression ou une hiérarchie du seul ordre des lignes.
+
+**Routing:** `isolate.groups = FALSE`; `interpretation_mode = "comparison"`. Original row order alone does not establish a statistically tested gradient; the separate contextual flag `rows_are_ordered` may justify discussing ordered patterns when also supported by evidence.
+
 
 ## 5. `output` — PENDING
 
