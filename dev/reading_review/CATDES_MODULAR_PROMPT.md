@@ -112,9 +112,36 @@ Ne cherchez pas à attribuer artificiellement un nom lorsque le profil est trop 
 
 
 
-## 4. `local_task` / `global_task` — NOT YET REVIEWED
+## 4. Task scope — local / global
 
-No operational wording approved.
+### `local_task` — APPROVED (2026-10-14)
+
+**English — approved operational text**
+
+Interpret the selected group using all its displayed qualitative and quantitative characteristics. Identify its distinctive features and develop a meaningful multidimensional synthesis.
+
+Focus on this group only. Do not describe or reconstruct groups whose statistical profiles have not been provided.
+
+**Français — traduction de contrôle validée**
+
+Interprétez le groupe sélectionné à partir de l'ensemble de ses caractéristiques qualitatives et quantitatives présentées. Identifiez ce qui le distingue et construisez une synthèse multidimensionnelle pertinente.
+
+Concentrez-vous uniquement sur ce groupe. Ne décrivez pas et ne cherchez pas à reconstituer les groupes dont les profils statistiques ne sont pas fournis.
+
+### `global_task` — APPROVED (2026-10-14)
+
+**English — approved operational text**
+
+Interpret each displayed group from its own statistical characteristics. Then develop an overall synthesis highlighting meaningful similarities, differences, and broader configurations across groups.
+
+Preserve each group's identity and distinguish descriptive contrasts from statistically demonstrated pairwise differences.
+
+**Français — traduction de contrôle validée**
+
+Interprétez chaque groupe présenté à partir de ses propres caractéristiques statistiques. Proposez ensuite une synthèse d'ensemble mettant en évidence les ressemblances, les différences et les configurations générales qui émergent de la comparaison des groupes.
+
+Préservez l'identité de chaque groupe et distinguez les contrastes descriptifs des différences statistiquement démontrées entre groupes pris deux à deux.
+
 
 ## 5. `output` — NOT YET REVIEWED
 
