@@ -54,38 +54,21 @@ Fondez votre analyse sur les résultats statistiques présentés. Ne faites pas 
 - The user decides evidence-selection options. The LLM interprets what is displayed; the prompt need not detail internal `sample.pct` or `drop.negative` behavior.
 - Optional analyst-provided variable descriptions may currently be part of the introduction. A separate `variable_context` block is an **unapproved future architectural idea**, not an implemented or validated feature.
 
-## 2. `interpretation` — PARTIALLY APPROVED (core multidimensional synthesis, 2026-10-14)
-
-The following **core formulation only** was explicitly approved. The complete `interpretation` block, including any additional nuance/limits, is not yet finalized.
+## 2. `interpretation` — APPROVED (consolidated bilingual block, 2026-10-14)
 
 ### English — approved operational text
 
-Interpret each group by examining its statistical characteristics jointly, rather than describing variables one by one. Identify meaningful patterns, relationships between characteristics, and distinctive configurations. Build a substantive synthesis that reveals what emerges from their combination, while remaining grounded in the provided evidence.
+Interpret each group by considering its statistical characteristics jointly, rather than describing variables one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive synthesis that reveals what emerges from their combination.
+
+Use the study context to connect characteristics conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships or causal mechanisms. Preserve important nuances and ambiguities, without forcing an artificial coherence.
 
 ### Français — traduction de contrôle validée
 
-Interprétez chaque groupe en examinant conjointement ses caractéristiques statistiques, plutôt qu'en décrivant les variables une à une. Identifiez les régularités, les articulations entre caractéristiques et les configurations qui distinguent le groupe. Construisez une synthèse substantielle qui fasse émerger ce que leur combinaison révèle, tout en restant fondée sur les résultats présentés.
+Interprétez chaque groupe en considérant conjointement ses caractéristiques statistiques, plutôt qu'en décrivant les variables une à une. Identifiez les régularités et les configurations qui distinguent le groupe, et construisez une synthèse substantielle faisant émerger ce que révèle leur combinaison.
 
-### Interpretation guardrail and user customization
+Utilisez le contexte de l'étude pour rapprocher conceptuellement les caractéristiques, en fondant votre interprétation sur les résultats présentés. Ne présentez pas ces rapprochements comme des relations statistiquement démontrées ou des mécanismes causaux. Préservez les nuances et les ambiguïtés importantes, sans chercher à imposer une cohérence artificielle.
 
-- "Relationships between characteristics" / "articulations entre caractéristiques" here means interpretive connections made from the combined group profile, **not** demonstrated pairwise statistical associations between descriptive variables.
-- The default `reading` and `interpretation` texts are intended to be usable as-is and customizable by the analyst. Unit/scale definitions may be added to `reading`; analytical perspectives may be added to `interpretation`. This is a **design requirement discussed with the user**, not a claim that the current API has been audited for customization.
-- NaileR's added value should be multidimensional substantive synthesis rather than variable-by-variable paraphrase. Evaluate that empirically with realistic tests.
-
-
-### Approved interpretive principle — wording consolidation pending (2026-10-14)
-
-The analyst explicitly approved the **scientific principle** underlying this supplementary candidate, and the plan to **merge it with the already approved multidimensional-synthesis passage into a single concise operational instruction**. The text below is recorded for traceability; **this additional English/French wording is not yet an approved final operational block**.
-
-**English — supplementary candidate (not yet approved as final wording):**
-
-Go beyond restating individual findings: propose meaningful, context-aware interpretations of the group's overall profile. You may connect characteristics conceptually, but do not present these connections as statistically demonstrated relationships or causal mechanisms. When several interpretations are plausible, favor the one best supported by the evidence and acknowledge important ambiguities.
-
-**Français — traduction candidate (pas encore approuvée comme texte opérationnel final) :**
-
-Dépassez la simple reformulation des résultats individuels : proposez des interprétations pertinentes, tenant compte du contexte de l'étude, pour donner du sens au profil global du groupe. Vous pouvez rapprocher conceptuellement plusieurs caractéristiques, sans présenter ces rapprochements comme des relations statistiquement démontrées ou des mécanismes causaux. Lorsque plusieurs interprétations sont possibles, privilégiez celle qui est la mieux étayée par les résultats et signalez les ambiguïtés importantes.
-
-**Next action:** Propose one concise bilingual `interpretation` block incorporating both the previously approved multidimensional-synthesis text and this approved principle; obtain explicit user approval before marking the combined wording APPROVED.
+**Scope:** shared by `standard` and `latent`; group-identity rules remain separate. This consolidated wording supersedes the earlier partial drafts. Analyst customization and the need for multidimensional synthesis remain part of the design objectives; actual customization support must be verified in the R API.
 
 ## 3. `standard` / `latent` — NOT YET REVIEWED
 
