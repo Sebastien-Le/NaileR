@@ -73,6 +73,20 @@ Interprétez chaque groupe en examinant conjointement ses caractéristiques stat
 - NaileR's added value should be multidimensional substantive synthesis rather than variable-by-variable paraphrase. Evaluate that empirically with realistic tests.
 
 
+### Approved interpretive principle — wording consolidation pending (2026-10-14)
+
+The analyst explicitly approved the **scientific principle** underlying this supplementary candidate, and the plan to **merge it with the already approved multidimensional-synthesis passage into a single concise operational instruction**. The text below is recorded for traceability; **this additional English/French wording is not yet an approved final operational block**.
+
+**English — supplementary candidate (not yet approved as final wording):**
+
+Go beyond restating individual findings: propose meaningful, context-aware interpretations of the group's overall profile. You may connect characteristics conceptually, but do not present these connections as statistically demonstrated relationships or causal mechanisms. When several interpretations are plausible, favor the one best supported by the evidence and acknowledge important ambiguities.
+
+**Français — traduction candidate (pas encore approuvée comme texte opérationnel final) :**
+
+Dépassez la simple reformulation des résultats individuels : proposez des interprétations pertinentes, tenant compte du contexte de l'étude, pour donner du sens au profil global du groupe. Vous pouvez rapprocher conceptuellement plusieurs caractéristiques, sans présenter ces rapprochements comme des relations statistiquement démontrées ou des mécanismes causaux. Lorsque plusieurs interprétations sont possibles, privilégiez celle qui est la mieux étayée par les résultats et signalez les ambiguïtés importantes.
+
+**Next action:** Propose one concise bilingual `interpretation` block incorporating both the previously approved multidimensional-synthesis text and this approved principle; obtain explicit user approval before marking the combined wording APPROVED.
+
 ## 3. `standard` / `latent` — NOT YET REVIEWED
 
 No operational wording approved.
