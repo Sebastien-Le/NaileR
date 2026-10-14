@@ -106,7 +106,31 @@ Ne cherchez pas à attribuer artificiellement un nom lorsque le profil est trop 
 
 
 
-## 4. Task scope (local / joint description / joint comparison) — PENDING
+## 4. Task scope (local / joint description / joint comparison)
+
+### Local task — APPROVED (2026-10-14)
+
+**English — approved operational text**
+
+Interpret only the row "[row_identifier]" using its displayed statistical evidence and the user's analytical request.
+
+Characterize what distinguishes this row from the overall table profile. Do not describe or compare rows whose evidence is not displayed.
+
+**Français — traduction de contrôle validée**
+
+Interprétez uniquement la ligne « [row_identifier] » à partir de ses résultats statistiques et de la question analytique de l'utilisateur.
+
+Caractérisez ce qui distingue cette ligne du profil global du tableau. Ne décrivez pas et ne comparez pas les lignes dont les résultats ne sont pas présentés.
+
+**Decision**
+
+- Include this task only for the local route `isolate.groups = TRUE`.
+- Keep the task independent of `standard` or `latent` row identity; only evidence for the named row is in scope.
+- `[row_identifier]` is a runtime placeholder for the actual identifier, not literal text in the evidence.
+
+### Joint description task — PENDING
+
+### Joint comparison task — PENDING
 
 ## 5. `output` — PENDING
 
