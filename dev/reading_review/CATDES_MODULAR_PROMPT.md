@@ -17,7 +17,7 @@ MORE FREQUENT indicates statistical overrepresentation; LESS FREQUENT indicates 
 
 Overrepresentation does not necessarily imply a majority within the group. Interpret each direction together with the reported group and full-sample percentages.
 
-Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale. Do not infer the distribution of unreported modalities from a single displayed result.
+Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale.
 
 Each quantitative finding compares a variable's mean within a group with its mean in the full analyzed sample. HIGHER and LOWER indicate that the group mean is statistically higher or lower, respectively.
 
@@ -25,7 +25,7 @@ Read each difference according to what the variable measures, its unit when know
 
 If the variable's meaning, scale, or unit is unclear, do not invent it. Do not compare means of unrelated variables as if they were measured on the same scale.
 
-Base your analysis on the provided statistical evidence. Do not make assumptions about variables or modalities that are not shown.
+Base your analysis on the provided statistical evidence.
 
 ### Français — traduction de contrôle validée
 
@@ -35,7 +35,7 @@ MORE FREQUENT indique une surreprésentation statistique ; LESS FREQUENT indique
 
 Une modalité surreprésentée n'est pas nécessairement majoritaire dans le groupe. Chaque résultat doit être interprété en tenant compte des pourcentages observés dans le groupe et dans l'échantillon complet.
 
-Chaque modalité de réponse doit être interprétée selon sa signification réelle, notamment lorsqu'elle comporte une négation ou, le cas échéant, selon sa position sur une échelle ordonnée. Ne pas déduire la distribution des modalités non présentées à partir d'un seul résultat.
+Chaque modalité de réponse doit être interprétée selon sa signification réelle, notamment lorsqu'elle comporte une négation ou, le cas échéant, selon sa position sur une échelle ordonnée.
 
 Chaque résultat quantitatif compare la moyenne d'une variable dans un groupe à sa moyenne dans l'ensemble de l'échantillon analysé. HIGHER et LOWER indiquent respectivement que la moyenne du groupe est statistiquement supérieure ou inférieure à celle de l'échantillon complet.
 
@@ -43,12 +43,12 @@ Chaque différence doit être comprise en tenant compte de ce que mesure la vari
 
 Si la signification, l'échelle ou l'unité de mesure d'une variable n'est pas claire, il ne faut pas l'inventer. Il ne faut pas non plus comparer les moyennes de variables différentes comme si elles étaient mesurées sur la même échelle.
 
-Fondez votre analyse sur les résultats statistiques présentés. Ne faites pas d'hypothèses sur les variables ou les modalités qui ne sont pas présentées.
+Fondez votre analyse sur les résultats statistiques présentés.
 
 ### Scope and decisions
 
 - `reading` is shared by `standard` and `latent` modes; group identity and substantive profile-building belong to separate blocks.
-- Interpret ordered modalities according to their supplied meanings, without inferring unshown distributions.
+- Interpret ordered modalities according to their supplied meanings. Inference safeguards concern only claims made from displayed evidence, without commentary on undisplayed selections.
 - Interpret quantitative directions in light of measurement meaning, units, and scale orientation, without inventing unknown units.
 - Keep operational instructions concise; do not include irrelevant illustrative examples (e.g., 100-metre race times). Such examples belong to evaluation tests.
 - The user decides evidence-selection options. The LLM interprets what is displayed; the prompt need not detail internal `sample.pct` or `drop.negative` behavior.
@@ -159,6 +159,12 @@ The analyst agreed with the critical review of the illustrative assembled CATDES
 - Let the analyst choose response language through their request/context, rather than impose a language in mandatory scientific blocks.
 - No change to R code, evidence selection, parser, or existing approved reference is authorized by this agreement.
 - Next: verify actual prompt assembly, user-editable blocks, and transmitted grouping variable/modality in R before operational testing.
+
+## Cross-functional evidence-selection wording decision — APPROVED (2026-10-14)
+
+The analyst explicitly approved removing operational instructions that tell the LLM the transmitted evidence may be only a selection, or ask it to speculate about variables, modalities, or attributes not supplied. The model should produce the most meaningful **evidence-grounded synthesis of the information actually supplied**. This decision does **not** permit fabricating unsupported measurements, implying statistical relationships that were not tested, or changing the statistical significance/relative-reference semantics.
+
+Selection parameters and missing-marker diagnostics remain documented and auditable **in R and canonical evidence**, not described as a generic caveat in the LLM's editable `reading`. Local-scope limitations (do not describe unprovided groups) remain relevant because they identify the task target. Historical long methodological references and decision logs are retained as archival sources. The existing R runtime has not been modified in this pass.
 
 ## Change policy
 
