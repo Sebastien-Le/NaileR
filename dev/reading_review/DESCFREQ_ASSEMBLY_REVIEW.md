@@ -1,8 +1,8 @@
-# DESCFREQ — assembly and redundancy audit (draft)
+# DESCFREQ — scientific assembly and redundancy audit
 
-**Status:** ASSEMBLED DRAFT — simplifications A/B/C APPROVED (2026-10-14); complete assembled prompts pending final review and runtime integration.
+**Status:** SCIENTIFICALLY STABILIZED — all bilingual blocks including complete `reading` and simplifications A/B/C explicitly APPROVED (2026-10-14). Six English documentary combinations assembled; R integration and LLM evaluation not yet performed.
 **Date:** 2026-10-14
-**Source:** [DESCFREQ_MODULAR_PROMPT.md](DESCFREQ_MODULAR_PROMPT.md) (approved bilingual blocks except `reading`, which remains a consolidated candidate with approved row/column terminology).
+**Source:** [DESCFREQ_MODULAR_PROMPT.md](DESCFREQ_MODULAR_PROMPT.md) (complete approved bilingual blocks, including `reading`).
 
 All assembled English operational paragraphs below are copied from their source blocks without editing. Introduction, analytical request, and statistical data are runtime placeholders. The source reference [DESCFREQ_REFERENCE_PROMPT.md](DESCFREQ_REFERENCE_PROMPT.md) remains the approved long scientific doctrine.
 
@@ -469,8 +469,12 @@ Avoid unnecessary numerical repetition.
 - Preserve analyst labels with `explicit_row_labels = TRUE`, especially when `latent` permits an additional descriptive name.
 - Correct dynamic evidence-selection notices for `drop.negative`, `sample.pct`, and `proba`.
 - Keep technical Quarto/output parser contracts separate from user-customizable `output` instructions, as in the approved long methodological reference.
-- `reading` remains a consolidated candidate pending explicit final approval of its complete wording; only the row/column terminology and change C have been expressly approved.
+- Complete `reading` wording in English and French was explicitly approved on 2026-10-14. It remains unchanged from the assembled text; no further scientific wording approval is pending.
 - The six configurations in this file are documentary assemblies, not the prompt currently emitted by the package. No code or existing API is modified.
+
+## Final sign-off (2026-10-14)
+
+The final bilingual `reading` was expressly validated after the A/B/C modifications were accepted and applied. Thus the scientific content of all six combinations (`standard` / `latent` × local / joint description / joint comparison) is stabilized. This is a **documentary scientific sign-off** only, not an assertion that the corresponding prompt-assembly code exists or has passed tests. Retain the long methodological reference as an approved reference and preserve the outstanding conditional implementation checks above.
 
 ## Status of repetition audit
 
