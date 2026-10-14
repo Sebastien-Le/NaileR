@@ -1,6 +1,6 @@
 # DESCFREQ — assembly and redundancy audit (draft)
 
-**Status:** DRAFT FOR SCIENTIFIC REVIEW — assemblies not yet approved; no R code integration.
+**Status:** ASSEMBLED DRAFT — simplifications A/B/C APPROVED (2026-10-14); complete assembled prompts pending final review and runtime integration.
 **Date:** 2026-10-14
 **Source:** [DESCFREQ_MODULAR_PROMPT.md](DESCFREQ_MODULAR_PROMPT.md) (approved bilingual blocks except `reading`, which remains a consolidated candidate with approved row/column terminology).
 
@@ -21,7 +21,7 @@ Each combination includes the common `reading`, `interpretation`, one `standard`
 
 ## How to Read the Statistical Evidence
 
-The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Each row is compared with the overall table profile, not with another row.
+The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
 
 For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.
 
@@ -75,11 +75,9 @@ Characterize what distinguishes this row from the overall table profile. Do not 
 
 Write a clear, substantive interpretation of the displayed frequency profiles.
 
-Support the main findings with the most relevant columns and their row and global percentages or counts, providing enough statistical evidence to make the interpretation understandable and traceable.
+Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.
 
-Adapt the response to the analytical task: characterize each row in a description, or highlight the main similarities and contrasts in a comparison.
-
-Preserve the original row identifiers and any labels provided by the analyst. Avoid mechanical column-by-column descriptions and unnecessary numerical repetition.
+Avoid unnecessary numerical repetition.
 ```
 
 ---
@@ -95,7 +93,7 @@ Preserve the original row identifiers and any labels provided by the analyst. Av
 
 ## How to Read the Statistical Evidence
 
-The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Each row is compared with the overall table profile, not with another row.
+The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
 
 For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.
 
@@ -135,9 +133,7 @@ Interpret its frequency profile to characterize what distinguishes this entity o
 
 Interpret each displayed row using its own statistical evidence and the user's analytical request.
 
-Characterize what distinguishes each row from the overall table profile. Develop a substantive interpretation of each frequency profile, considering the displayed columns jointly.
-
-Preserve each row's identity. Do not force comparisons between rows when the analytical task is to describe them.
+Focus on characterizing each row without forcing comparisons between rows.
 
 ---
 
@@ -151,11 +147,9 @@ Preserve each row's identity. Do not force comparisons between rows when the ana
 
 Write a clear, substantive interpretation of the displayed frequency profiles.
 
-Support the main findings with the most relevant columns and their row and global percentages or counts, providing enough statistical evidence to make the interpretation understandable and traceable.
+Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.
 
-Adapt the response to the analytical task: characterize each row in a description, or highlight the main similarities and contrasts in a comparison.
-
-Preserve the original row identifiers and any labels provided by the analyst. Avoid mechanical column-by-column descriptions and unnecessary numerical repetition.
+Avoid unnecessary numerical repetition.
 ```
 
 ---
@@ -171,7 +165,7 @@ Preserve the original row identifiers and any labels provided by the analyst. Av
 
 ## How to Read the Statistical Evidence
 
-The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Each row is compared with the overall table profile, not with another row.
+The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
 
 For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.
 
@@ -229,11 +223,9 @@ Do not infer a progression or hierarchy from the order of the rows alone.
 
 Write a clear, substantive interpretation of the displayed frequency profiles.
 
-Support the main findings with the most relevant columns and their row and global percentages or counts, providing enough statistical evidence to make the interpretation understandable and traceable.
+Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.
 
-Adapt the response to the analytical task: characterize each row in a description, or highlight the main similarities and contrasts in a comparison.
-
-Preserve the original row identifiers and any labels provided by the analyst. Avoid mechanical column-by-column descriptions and unnecessary numerical repetition.
+Avoid unnecessary numerical repetition.
 ```
 
 ---
@@ -249,7 +241,7 @@ Preserve the original row identifiers and any labels provided by the analyst. Av
 
 ## How to Read the Statistical Evidence
 
-The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Each row is compared with the overall table profile, not with another row.
+The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
 
 For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.
 
@@ -305,11 +297,9 @@ Characterize what distinguishes this row from the overall table profile. Do not 
 
 Write a clear, substantive interpretation of the displayed frequency profiles.
 
-Support the main findings with the most relevant columns and their row and global percentages or counts, providing enough statistical evidence to make the interpretation understandable and traceable.
+Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.
 
-Adapt the response to the analytical task: characterize each row in a description, or highlight the main similarities and contrasts in a comparison.
-
-Preserve the original row identifiers and any labels provided by the analyst. Avoid mechanical column-by-column descriptions and unnecessary numerical repetition.
+Avoid unnecessary numerical repetition.
 ```
 
 ---
@@ -325,7 +315,7 @@ Preserve the original row identifiers and any labels provided by the analyst. Av
 
 ## How to Read the Statistical Evidence
 
-The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Each row is compared with the overall table profile, not with another row.
+The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
 
 For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.
 
@@ -367,9 +357,7 @@ Do not force a name when the profile is too heterogeneous or insufficiently info
 
 Interpret each displayed row using its own statistical evidence and the user's analytical request.
 
-Characterize what distinguishes each row from the overall table profile. Develop a substantive interpretation of each frequency profile, considering the displayed columns jointly.
-
-Preserve each row's identity. Do not force comparisons between rows when the analytical task is to describe them.
+Focus on characterizing each row without forcing comparisons between rows.
 
 ---
 
@@ -383,11 +371,9 @@ Preserve each row's identity. Do not force comparisons between rows when the ana
 
 Write a clear, substantive interpretation of the displayed frequency profiles.
 
-Support the main findings with the most relevant columns and their row and global percentages or counts, providing enough statistical evidence to make the interpretation understandable and traceable.
+Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.
 
-Adapt the response to the analytical task: characterize each row in a description, or highlight the main similarities and contrasts in a comparison.
-
-Preserve the original row identifiers and any labels provided by the analyst. Avoid mechanical column-by-column descriptions and unnecessary numerical repetition.
+Avoid unnecessary numerical repetition.
 ```
 
 ---
@@ -403,7 +389,7 @@ Preserve the original row identifiers and any labels provided by the analyst. Av
 
 ## How to Read the Statistical Evidence
 
-The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Each row is compared with the overall table profile, not with another row.
+The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
 
 For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.
 
@@ -463,20 +449,33 @@ Do not infer a progression or hierarchy from the order of the rows alone.
 
 Write a clear, substantive interpretation of the displayed frequency profiles.
 
-Support the main findings with the most relevant columns and their row and global percentages or counts, providing enough statistical evidence to make the interpretation understandable and traceable.
+Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.
 
-Adapt the response to the analytical task: characterize each row in a description, or highlight the main similarities and contrasts in a comparison.
-
-Preserve the original row identifiers and any labels provided by the analyst. Avoid mechanical column-by-column descriptions and unnecessary numerical repetition.
+Avoid unnecessary numerical repetition.
 ```
-## Repetition and architecture audit — proposals NOT approved
+## Assembly review — decisions confirmed (2026-10-14)
 
-- `interpretation` says to synthesize columns jointly; the joint-description task repeats substantive synthesis and combined columns. Consider trimming joint-description to scope, each row's own evidence and the prohibition on forced comparisons.
-- `reading` defines comparisons to the global table profile; local and description tasks repeat this. Keep enough scope guidance without reproducing statistical doctrine. In comparison, reference to the global table profile is a helpful safeguard against false pairwise significance.
-- `output` repeats no column-by-column inventory (`interpretation`), preserve identifiers (identity blocks) and description-vs-comparison objectives (tasks). Consider keeping primarily readability, statistical traceability, and avoidance of numerical repetition.
-- An external row order (`rows_are_ordered = TRUE`) may justify describing an evidence-supported gradient, transition, and exceptions; order alone never proves a gradient. Add a conditional instruction if needed, without contradicting the approved comparison task.
-- `explicit_row_labels = TRUE` must protect user-defined labels. Reconcile this with the optional naming of latent clusters; new names must not silently replace supplied labels.
-- Dynamic evidence-selection disclosures (`drop.negative`, `sample.pct`, `proba`) should correctly identify the scope of shown evidence. A selected positive-only subset must not imply absence of negative deviations.
-- Quarto Markdown is a current technical/output contract in the long reference and R code, but not part of the customizable editorial `output`; do not silently drop the technical contract on implementation.
-- `global profile` is a statistical reference; `single global interpretation` is the expressly approved conceptual expression. Maintain this distinction.
-- None of these simplifications have yet been approved. Preserve approved bilingual blocks until analyst confirmation.
+**Approved and incorporated in the six complete assemblies:**
+
+- **A:** Joint-description task focuses on each row separately; statistical reference and synthesis instructions are not repeated.
+- **B:** Editable `output` emphasizes substantive writing, traceable evidence and no numerical repetition; no repeated instructions about task mode, identity or column-by-column inventory.
+- **C:** `reading` explains the statistical reference as deviations from the global profile rather than tests between rows, and explicitly permits descriptive comparisons.
+
+**Reviewed, unchanged:** `interpretation`, `standard`, `latent`, local task, joint-comparison task. Their bilingual operational paragraphs remain approved as previously recorded in the modular source.
+
+**Outstanding decisions for implementation (not silently introduced into the editable prompt):**
+
+- Explicit conditional guidance for `rows_are_ordered = TRUE`: gradients and transitions only if substantively and statistically supported by the displayed evidence and the contextual order. The approved comparison task warns that order alone is insufficient.
+- Preserve analyst labels with `explicit_row_labels = TRUE`, especially when `latent` permits an additional descriptive name.
+- Correct dynamic evidence-selection notices for `drop.negative`, `sample.pct`, and `proba`.
+- Keep technical Quarto/output parser contracts separate from user-customizable `output` instructions, as in the approved long methodological reference.
+- `reading` remains a consolidated candidate pending explicit final approval of its complete wording; only the row/column terminology and change C have been expressly approved.
+- The six configurations in this file are documentary assemblies, not the prompt currently emitted by the package. No code or existing API is modified.
+
+## Status of repetition audit
+
+The major avoidable repetitions identified in the first review have been removed. Remaining overlaps merit a final read but were preserved to maintain task-specific safeguards:
+
+- `reading` describes the global statistical reference; the local and comparison tasks mention that reference to keep the analysis in scope.
+- `interpretation` supplies safeguards about inferring relationships; comparison adds a specific warning against unperformed pairwise significance tests.
+- `standard` and `latent` preserve identities; `output` no longer reiterates that requirement.
