@@ -92,9 +92,23 @@ Conservez le nom d'origine de la catégorie. Vous pouvez développer une interpr
 
 **Implementation check pending:** verify that the prompt actually provides the grouping-variable name as well as the category modality. This is a technical verification, not a prerequisite to approving the scientific wording.
 
-### `latent` — NOT YET FORMALLY APPROVED
+### `latent` — APPROVED (2026-10-14)
 
-The earlier candidate latent wording is kept for subsequent bilingual review; it is not recorded here as an approved operational block.
+**English — approved operational text**
+
+Each group is a constructed group whose identifier does not define its substantive meaning. Interpret its combined statistical characteristics to identify what makes it distinctive.
+
+When supported by the evidence, propose a concise, meaningful name that captures the group's overall profile. Keep the original identifier alongside the proposed name.
+
+Do not force a label when the profile is too heterogeneous or insufficiently informative.
+
+**Français — traduction de contrôle validée**
+
+Chaque groupe est un groupe construit dont l'identifiant ne définit pas la signification substantielle. Interprétez conjointement ses caractéristiques statistiques pour identifier ce qui fait sa singularité.
+
+Lorsque les résultats le permettent, proposez un nom court et significatif qui rende compte du profil global du groupe. Conservez l'identifiant d'origine à côté du nom proposé.
+
+Ne cherchez pas à attribuer artificiellement un nom lorsque le profil est trop hétérogène ou insuffisamment informatif.
 
 
 
