@@ -1,6 +1,6 @@
 # CONDES modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading` English operational block explicitly APPROVED (2026-10-14); remaining blocks pending.
+**Status:** IN PROGRESS — `reading` and `interpretation` (V2) bilingual operational blocks explicitly APPROVED (2026-10-14); remaining blocks pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [CONDES_REFERENCE_PROMPT.md](CONDES_REFERENCE_PROMPT.md) (approved).
 **Earlier compact proposal:** [CONDES_COMPACT_PROMPT.md](CONDES_COMPACT_PROMPT.md) (draft, not approved).
@@ -48,7 +48,26 @@ Préservez la signification des variables et des modalités, notamment les néga
 - Keep model/evidence implementation details outside the operational text unless needed for sound interpretation.
 - Proceed block by block; do not approve or implement subsequent blocks without explicit user review.
 
-## 2. `interpretation` — PENDING
+## 2. `interpretation` — APPROVED (V2 bilingual wording, 2026-10-14)
+
+### English — approved operational text
+
+Interpret the quantitative target by considering its statistical associations jointly, rather than describing variables one by one. Identify meaningful patterns associated with lower and higher target values, and develop a substantive synthesis of what emerges from their combination.
+
+Use the study context to connect findings conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships between predictors or causal mechanisms. When the results reveal several distinct aspects of the target, describe them without forcing a single overarching interpretation.
+
+### Français — traduction de contrôle validée
+
+Interprétez la variable quantitative cible en considérant conjointement ses associations statistiques, plutôt qu'en décrivant les variables une à une. Identifiez les configurations significatives associées aux valeurs faibles et élevées de la cible, et construisez une synthèse substantielle faisant émerger ce que révèle leur combinaison.
+
+Utilisez le contexte de l'étude pour rapprocher conceptuellement les résultats, en fondant votre interprétation sur les preuves statistiques présentées. Ne présentez pas ces rapprochements comme des relations statistiquement démontrées entre les variables explicatives ou comme des mécanismes causaux. Lorsque les résultats révèlent plusieurs aspects distincts de la variable cible, décrivez-les sans chercher à imposer une interprétation générale unique.
+
+### Decisions
+
+- Approved the streamlined V2 wording in English and French.
+- Avoid the implementation-specific phrase `end-profile evidence` in operational interpretation instructions; use the concept of patterns associated with lower and higher target values instead.
+- Replace the abstract instruction to preserve `exceptions, asymmetries, and ambiguities` with a clearer safeguard against forcing one overarching interpretation when several distinct aspects emerge.
+- Multidimensional synthesis belongs here; statistical semantics belong in `reading`.
 
 ## 3. Target identity (`standard` / `latent`) — PENDING
 
