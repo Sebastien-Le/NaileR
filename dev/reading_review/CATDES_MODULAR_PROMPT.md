@@ -54,9 +54,24 @@ Fondez votre analyse sur les résultats statistiques présentés. Ne faites pas 
 - The user decides evidence-selection options. The LLM interprets what is displayed; the prompt need not detail internal `sample.pct` or `drop.negative` behavior.
 - Optional analyst-provided variable descriptions may currently be part of the introduction. A separate `variable_context` block is an **unapproved future architectural idea**, not an implemented or validated feature.
 
-## 2. `interpretation` — NOT YET REVIEWED
+## 2. `interpretation` — PARTIALLY APPROVED (core multidimensional synthesis, 2026-10-14)
 
-No operational wording approved.
+The following **core formulation only** was explicitly approved. The complete `interpretation` block, including any additional nuance/limits, is not yet finalized.
+
+### English — approved operational text
+
+Interpret each group by examining its statistical characteristics jointly, rather than describing variables one by one. Identify meaningful patterns, relationships between characteristics, and distinctive configurations. Build a substantive synthesis that reveals what emerges from their combination, while remaining grounded in the provided evidence.
+
+### Français — traduction de contrôle validée
+
+Interprétez chaque groupe en examinant conjointement ses caractéristiques statistiques, plutôt qu'en décrivant les variables une à une. Identifiez les régularités, les articulations entre caractéristiques et les configurations qui distinguent le groupe. Construisez une synthèse substantielle qui fasse émerger ce que leur combinaison révèle, tout en restant fondée sur les résultats présentés.
+
+### Interpretation guardrail and user customization
+
+- "Relationships between characteristics" / "articulations entre caractéristiques" here means interpretive connections made from the combined group profile, **not** demonstrated pairwise statistical associations between descriptive variables.
+- The default `reading` and `interpretation` texts are intended to be usable as-is and customizable by the analyst. Unit/scale definitions may be added to `reading`; analytical perspectives may be added to `interpretation`. This is a **design requirement discussed with the user**, not a claim that the current API has been audited for customization.
+- NaileR's added value should be multidimensional substantive synthesis rather than variable-by-variable paraphrase. Evaluate that empirically with realistic tests.
+
 
 ## 3. `standard` / `latent` — NOT YET REVIEWED
 
