@@ -1,6 +1,6 @@
 # CONDES modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading`, `interpretation` (V2), `standard`, and `latent` bilingual operational blocks explicitly APPROVED (2026-10-14); remaining blocks pending.
+**Status:** IN PROGRESS — `reading`, `interpretation` (V2), `standard`, `latent`, and `task` bilingual operational blocks explicitly APPROVED (2026-10-14); `output` pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [CONDES_REFERENCE_PROMPT.md](CONDES_REFERENCE_PROMPT.md) (approved).
 **Earlier compact proposal:** [CONDES_COMPACT_PROMPT.md](CONDES_COMPACT_PROMPT.md) (draft, not approved).
@@ -107,7 +107,26 @@ Lorsque les résultats le permettent, proposez un nom court et significatif qui 
 
 Ne cherchez pas à imposer un nom ou une interprétation unique lorsque les associations sont trop hétérogènes ou insuffisamment informatives.
 
-## 4. Target task — PENDING
+## 4. `task` — APPROVED (bilingual wording, 2026-10-14)
+
+### English — approved operational text
+
+Interpret the quantitative target "[target_identifier]" using the displayed statistical evidence and the user's analytical request.
+
+Focus on the characteristics associated with its lower and higher values. Do not describe associations or variables for which no evidence has been provided.
+
+### Français — traduction de contrôle validée
+
+Interprétez la variable quantitative cible « [target_identifier] » à partir des résultats statistiques présentés et de la question analytique de l'utilisateur.
+
+Concentrez-vous sur les caractéristiques associées à ses valeurs faibles et élevées. Ne décrivez pas d'associations ou de variables pour lesquelles aucun résultat n'est fourni.
+
+### Decision
+
+- CONDES has a single quantitative target, so no CATDES-style local/global task distinction is needed.
+- Keep the task short: target identifier, analyst request, and evidence scope. Multidimensional synthesis instructions belong to `interpretation`.
+- `[target_identifier]` is a runtime placeholder for the actual variable identifier, not literal evidence.
+
 
 ## 5. `output` — PENDING
 
