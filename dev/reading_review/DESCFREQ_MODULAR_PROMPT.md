@@ -1,6 +1,6 @@
 # DESCFREQ modular prompt — bilingual scientific review
 
-**Status:** Bilingual `interpretation`, `standard`, `latent`, three `task` variants and `output` APPROVED (2026-10-14), including assembly simplifications A/B. `reading` is a consolidated candidate with terminology and distinction between global-profile tests and descriptive row comparisons approved (C); remaining wording awaits final assembled review. No R integration.
+**Status:** SCIENTIFICALLY APPROVED AND STABILIZED (2026-10-14) — complete bilingual `reading`, `interpretation`, `standard`, `latent`, local/joint-description/joint-comparison `task`, and `output`, incorporating assembly simplifications A/B/C. Documentary approval only; runtime implementation and LLM operational validation remain separate.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [DESCFREQ_REFERENCE_PROMPT.md](DESCFREQ_REFERENCE_PROMPT.md) (approved).
 **Previous compact:** [DESCFREQ_COMPACT_PROMPT.md](DESCFREQ_COMPACT_PROMPT.md) (draft, not approved).
@@ -9,9 +9,9 @@
 
 Use the statistical language of contingency tables: **row, column, cell count, row profile, global profile**, rather than the more interpretive `attribute`. A column's substantive meaning depends on the study; it is not necessarily an intrinsic attribute of an individual. This decision applies consistently to the operational DESCFREQ `reading` text. Do not change the approved long scientific reference or code in this documentation pass.
 
-## 1. `reading` — CONSOLIDATED CANDIDATE (terminology and comparison distinction approved)
+## 1. `reading` — APPROVED (complete bilingual wording, 2026-10-14)
 
-### English — proposed operational text
+### English — approved operational text
 
 The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
 
@@ -25,7 +25,7 @@ Statistical distinctiveness does not necessarily imply substantive importance. A
 
 Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
 
-### Français — traduction de contrôle proposée
+### Français — traduction de contrôle validée
 
 Les résultats proviennent de `FactoMineR::descfreq()` et décrivent les lignes d'un tableau de contingence à partir de leurs profils de fréquences sur les différentes colonnes. La surreprésentation et la sous-représentation statistiques sont évaluées par rapport au profil global du tableau, et non au moyen de tests directs entre paires de lignes. Les comparaisons descriptives entre profils de lignes restent possibles.
 
@@ -203,6 +203,14 @@ Appuyez les principaux résultats sur les colonnes les plus pertinentes, en four
 - **C — Reading:** Clarify that statistical over/underrepresentation uses deviations from the **overall table profile** rather than direct pairwise tests, while **descriptive** comparisons between rows are legitimate. English and French revised in parallel.
 - These decisions were approved after inspecting the six candidate assemblies, without altering scientific evidence, source reference, runtime code or parser contracts.
 - `rows_are_ordered`, `explicit_row_labels` and dynamic evidence-selection disclosures remain separate conditional implementation concerns; do not treat A/B/C approval as a new API decision.
+
+## Final scientific validation — APPROVED (2026-10-14)
+
+The analyst explicitly approved the **complete English `reading` text and its French control translation**, exactly as shown above, after the row/column terminology decision and simplification C. This concludes the scientific review of the bilingual DESCFREQ operational prompt blocks and their six documentary combinations.
+
+**Approved scope:** shared `reading` and `interpretation`; `standard` / `latent` row identities; local, joint description and joint comparison tasks; editorial `output`; refinements A/B/C. The validated method still distinguishes relative row/global frequency profiles from direct between-row significance tests, and treats counts as not necessarily distinct individuals.
+
+**Implementation boundary:** no change to `R/nail_descfreq.R` or currently executed prompts has been made by these documentation commits. Route flags, ordered-row interpretation (`rows_are_ordered`), explicit labels, selection disclosure (`drop.negative`, `sample.pct`, `proba`), output/parser constraints and empirical LLM checks must be addressed in the later cross-function implementation/validation phase. `row_identity_mode` remains a possible future API design, not an existing argument.
 
 ## Change policy
 
