@@ -21,6 +21,7 @@ nail_catdes(
   prompt_style = c("detailed", "compact"),
   generate = FALSE,
   x = NULL,
+  prompt_overrides = NULL,
   ...
 )
 }
@@ -81,6 +82,13 @@ carrying a \code{statistical_profiles} attribute, a raw \code{\link[FactoMineR:c
 result, or a historical \code{nail_catdes()} result carrying a \code{catdes_result}
 attribute. Do not supply \code{x} together with \code{dataset}.}
 
+\item{prompt_overrides}{Optional named list replacing the approved
+\code{reading}, \code{interpretation}, and/or \code{output} blocks in full. Unspecified
+blocks keep their defaults. Values must be non-empty, non-NA character
+strings; this does not affect statistical evidence. To extend rather
+than replace a default block, first retrieve it with
+\code{\link[=nail_catdes_default_blocks]{nail_catdes_default_blocks()}} and append the desired text yourself.}
+
 \item{...}{Provider-specific generation arguments passed to the selected
 backend.}
 }
@@ -101,6 +109,8 @@ and semantic-stage artifacts are attached as attributes, not as \code{$} fields:
 \item \code{catdes_result}: the original FactoMineR result, when available;
 \item \code{catdes_settings}: execution and interpretation settings;
 \item \code{llm_io}: the exact active prompt(s) and raw response(s).
+\item The default \code{output} block is a free writing instruction; it does not
+impose JSON, Quarto Markdown, or another response schema.
 }
 
 A preview has prompts but no responses. Use \code{\link[=nail_evidence]{nail_evidence()}} for evidence,
@@ -141,6 +151,14 @@ category/group evidence and can compare the displayed profiles. With
 autonomous portrait. In both cases, the statistical and semantic-facing
 evidence are constructed once before prompt projection.
 
+\code{prompt_overrides$interpretation} replaces the complete default
+interpretation block. It can therefore remove default scientific rules;
+NaileR does not silently append them to a custom block. The statistical
+evidence, group identity supplied by the protected task block, and
+interpretation scope remain managed separately. Users who want to preserve
+the default rules while adding guidance can retrieve the defaults with
+\code{\link[=nail_catdes_default_blocks]{nail_catdes_default_blocks()}} and build a combined override explicitly.
+
 Every successful return carries \code{statistical_profiles},
 \code{interpretation_evidence}, \code{semantic_facing_evidence}, \code{local_prompts},
 \code{semantic_profiles}, \code{catdes_result} when available, and \code{catdes_settings} as
@@ -167,6 +185,22 @@ prompt_from_profiles <- nail_catdes(
   interpretation_mode = "standard",
   generate = FALSE
 )
+
+# Retrieve and customize one approved scientific block without changing
+# the statistical evidence.
+blocks <- nail_catdes_default_blocks("standard", isolate.groups = TRUE)
+custom <- nail_catdes(
+  iris,
+  num.var = 5,
+  prompt_overrides = list(
+    reading = paste(
+      blocks$reading,
+      "Interpret sepal and petal measurements in their original units."
+    )
+  ),
+  generate = FALSE
+)
+cat(substr(custom[[1]], 1, 500))
 
 \dontrun{
 generated <- nail_catdes(

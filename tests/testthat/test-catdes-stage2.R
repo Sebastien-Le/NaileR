@@ -267,14 +267,21 @@ test_that("standard and latent modes preserve the historical semantic contract",
     generate = FALSE
   )
 
-  expect_match(standard, "These are observed categories", fixed = TRUE)
-  expect_match(standard, "Preserve their original names", fixed = TRUE)
-  expect_match(standard, "Higher-level synthesis across displayed categories", fixed = TRUE)
-  expect_match(standard, "hypotheses", fixed = TRUE)
-  expect_match(latent, "constructed profiles or latent classes", fixed = TRUE)
-  expect_match(latent, "meaningful names may be proposed", fixed = TRUE)
-  expect_match(latent, "A concise interpretive name may be proposed for each group", fixed = TRUE)
-  expect_false(grepl("do not rename", tolower(latent), fixed = TRUE))
+  expect_match(
+    standard,
+    "observed category defined by a specific variable",
+    fixed = TRUE
+  )
+  expect_match(standard, "Preserve the original category name", fixed = TRUE)
+  expect_match(standard, "invented identity", fixed = TRUE)
+  expect_match(
+    latent,
+    "constructed group whose identifier does not define its substantive meaning",
+    fixed = TRUE
+  )
+  expect_match(latent, "propose a concise, meaningful name", fixed = TRUE)
+  expect_match(latent, "Do not force a label", fixed = TRUE)
+  expect_false(grepl("observed category defined", latent, fixed = TRUE))
 })
 
 test_that("markdown formatting preserves ordinary r and n characters", {

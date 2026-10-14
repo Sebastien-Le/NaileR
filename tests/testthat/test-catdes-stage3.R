@@ -377,13 +377,32 @@ test_that("standard and latent local tasks preserve target status", {
     generate = FALSE
   )
 
-  expect_match(standard$A, "without renaming it", fixed = TRUE)
-  expect_match(standard$A, "category name is contextual information, not statistical evidence", fixed = TRUE)
-  expect_match(standard$A, "higher-level interpretation", fixed = TRUE)
-  expect_match(standard$A, "contextual hypothesis", fixed = TRUE)
-  expect_match(latent$A, "propose one concise interpretive name", fixed = TRUE)
-  expect_match(latent$A, "Its current label is an identifier", fixed = TRUE)
-  expect_false(grepl("do not rename", tolower(latent$A), fixed = TRUE))
+  expect_match(
+    standard$A,
+    "Preserve the original category name",
+    fixed = TRUE
+  )
+  expect_match(
+    standard$A,
+    "invented identity",
+    fixed = TRUE
+  )
+  expect_match(
+    standard$A,
+    "The observed category shown below is the response modality",
+    fixed = TRUE
+  )
+  expect_match(
+    latent$A,
+    "propose a concise, meaningful name",
+    fixed = TRUE
+  )
+  expect_match(
+    latent$A,
+    "Keep the original identifier alongside the proposed name",
+    fixed = TRUE
+  )
+  expect_false(grepl("Preserve the original category name", latent$A, fixed = TRUE))
 })
 
 test_that("semantic-facing projection never mutates canonical statistical profiles", {

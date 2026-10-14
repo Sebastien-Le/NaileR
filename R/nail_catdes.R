@@ -574,7 +574,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       return(paste(
         "Describe what characterizes each group and what distinguishes it from the others.",
         "For each group, identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and say whether some groups are clearer or more ambiguous than others.",
-        "Then propose a meaningful name for each group.",
+        "If a group's profile is sufficiently coherent and informative, propose a meaningful name for it; otherwise, retain its original identifier and explain why no additional name is warranted.",
         sep = "\n"
       ))
     } else {
@@ -582,7 +582,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
         "Describe what characterizes this group based only on the results shown here.",
         "Do not treat the group label as its interpretation.",
         "Identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and say whether the group seems clearly defined or somewhat ambiguous.",
-        "Then infer a meaningful name for this group from the results.",
+        "If this group's profile is sufficiently coherent and informative, propose a meaningful name; otherwise, retain its original identifier and explain why no additional name is warranted.",
         sep = "\n"
       ))
     }
@@ -592,7 +592,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     paste(
       "Based on the results, describe what characterizes each group and what sets it apart from the other groups.",
       "For each group, identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and comment on whether some groups seem more clearly defined or more ambiguous than others.",
-      "Then, based on these characteristics, propose a meaningful name for each group.",
+      "If a group's profile is sufficiently coherent and informative, propose a meaningful name for it; otherwise, retain its original identifier and explain why no additional name is warranted.",
       sep = "\n"
     )
   } else {
@@ -600,7 +600,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
       "Based on the results shown here, describe what characterizes this group and what makes it distinctive.",
       "Do not treat the group label as the interpretation of the group.",
       "Identify its main coherent characteristics and distinguish the central interpretive pattern from more secondary displayed characteristics, and comment on whether the group appears clearly defined or somewhat ambiguous.",
-      "Then, based on these characteristics, propose a meaningful name for this group.",
+      "If this group's profile is sufficiently coherent and informative, propose a meaningful name; otherwise, retain its original identifier and explain why no additional name is warranted.",
       sep = "\n"
     )
   }
@@ -1479,172 +1479,212 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
   out
 }
 
-.reading_nail_catdes <- function(interpretation_mode,
-                                 joint = FALSE) {
-  unit <- .unit_noun(interpretation_mode)
-
-  if (isTRUE(joint)) {
-    return(paste(
-      "R has already performed the statistical analysis.",
-      paste0(
-        "Read each statement below as a factual comparison between the ",
-        unit, " under which it appears and the full sample."
-      ),
-      paste0(
-        "MORE FREQUENT and LESS FREQUENT describe relative modality prevalence in that ",
-        unit, "."
-      ),
-      paste0(
-        "HIGHER and LOWER describe that ", unit,
-        "'s mean relative to the full-sample mean for the same variable."
-      ),
-      paste0(
-        "When percentages are shown, the ", unit,
-        " percentage describes the modality within that ", unit,
-        " and the full-sample percentage describes the same modality in the full sample; these are descriptive values, not p-values or measures of statistical strength."
-      ),
-      paste0(
-        "When means are shown, compare each ", unit,
-        " mean only with the full-sample mean for that same variable; do not compare mean values across variables as if they shared one scale."
-      ),
-      "An undisplayed modality or variable is not thereby absent, average, rejected, or unimportant.",
-      "You may compare the displayed profiles, but do not present a contrast between two categories/groups as a direct pairwise statistical test unless such a test is explicitly shown.",
-      sep = "\n"
-    ))
-  }
-
+.catdes_approved_reading_nail_catdes <- function() {
   paste(
-    "R has already performed the statistical analysis.",
-    paste0(
-      "Read each statement below as a factual comparison between this ",
-      unit, " and the full sample."
-    ),
-    paste0(
-      "MORE FREQUENT and LESS FREQUENT describe relative modality prevalence in this ",
-      unit, "."
-    ),
-    paste0(
-      "HIGHER and LOWER describe the ", unit,
-      " mean relative to the full-sample mean for the same variable."
-    ),
-    paste0(
-      "When percentages are shown, the ", unit,
-      " percentage describes the modality within this ", unit,
-      " and the full-sample percentage describes the same modality in the full sample; these are descriptive values, not p-values or measures of statistical strength."
-    ),
-    paste0(
-      "When means are shown, compare the ", unit,
-      " mean only with the full-sample mean for that same variable; do not compare mean values across variables as if they shared one scale."
-    ),
-    paste0(
-      "An undisplayed modality or variable is not thereby absent, average, rejected, or unimportant."
-    ),
+    "The results come from `FactoMineR::catdes()`. Each qualitative finding compares the frequency of a response modality within a group with its frequency in the full analyzed sample.",
+    "MORE FREQUENT indicates statistical overrepresentation; LESS FREQUENT indicates statistical underrepresentation. The full sample is the reference, not another group.",
+    "Overrepresentation does not necessarily imply a majority within the group. Interpret each direction together with the reported group and full-sample percentages.",
+    "Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale. Do not infer the distribution of unreported modalities from a single displayed result.",
+    "Each quantitative finding compares a variable's mean within a group with its mean in the full analyzed sample. HIGHER and LOWER indicate that the group mean is statistically higher or lower, respectively.",
+    "Read each difference according to what the variable measures, its unit when known, and the meaning of high and low values. Do not assume that higher means better or lower means worse.",
+    "If the variable's meaning, scale, or unit is unclear, do not invent it. Do not compare means of unrelated variables as if they were measured on the same scale.",
+    "Base your analysis on the provided statistical evidence. Do not make assumptions about variables or modalities that are not shown.",
     sep = "\n"
   )
 }
 
-.interpretation_nail_catdes <- function(interpretation_mode,
-                                        target_label,
-                                        joint = FALSE) {
-  if (isTRUE(joint)) {
-    if (identical(interpretation_mode, "standard")) {
-      return(paste(
-        paste0(
-          "These are observed categories of '", target_label, "'."
-        ),
-        "Preserve their original names.",
-        "Do not reinterpret them as latent profiles and do not rename them.",
-        "Category names are contextual information, not statistical evidence.",
-        "Do not invent empirical characteristics.",
-        "Higher-level synthesis across displayed categories is allowed when traceable to the displayed evidence.",
-        "Broader contextual hypotheses are allowed only when explicitly identified as hypotheses.",
-        sep = "\n"
+.catdes_approved_interpretation_nail_catdes <- function(interpretation_mode) {
+  shared <- paste(
+    "Interpret each group by considering its statistical characteristics jointly, rather than describing variables one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive synthesis that reveals what emerges from their combination.",
+    "Use the study context to connect characteristics conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships or causal mechanisms. Preserve important nuances and ambiguities, without forcing an artificial coherence.",
+    sep = "\n"
+  )
+
+  identity <- if (identical(interpretation_mode, "standard")) {
+    paste(
+      "Each group corresponds to an observed category defined by a specific variable and one of its response modalities. All group members share this modality.",
+      "Use the meaning of both the defining variable and its modality to guide the interpretation of the group's statistical characteristics. Explain how the displayed findings characterize this category, combining its known identity with the multidimensional profile emerging from the evidence.",
+      "Preserve the original category name. You may develop a higher-level interpretation, but do not replace the observed category with an invented identity.",
+      sep = "\n"
+    )
+  } else {
+    paste(
+      "Each group is a constructed group whose identifier does not define its substantive meaning. Interpret its combined statistical characteristics to identify what makes it distinctive.",
+      "When supported by the evidence, propose a concise, meaningful name that captures the group's overall profile. Keep the original identifier alongside the proposed name.",
+      "Do not force a label when the profile is too heterogeneous or insufficiently informative.",
+      sep = "\n"
+    )
+  }
+
+  paste(shared, identity, sep = "\n")
+}
+
+.catdes_approved_output_nail_catdes <- function() {
+  "Write a clear, substantive interpretation highlighting the central profile, its main supporting statistical characteristics, and important nuances or exceptions. Favor meaningful synthesis over repetitive numerical reporting."
+}
+
+.validate_catdes_prompt_overrides <- function(prompt_overrides) {
+  if (is.null(prompt_overrides)) {
+    return(NULL)
+  }
+  if (!is.list(prompt_overrides)) {
+    stop("prompt_overrides must be a named list.", call. = FALSE)
+  }
+  block_names <- names(prompt_overrides)
+  if (length(prompt_overrides) == 0L ||
+      is.null(block_names) ||
+      anyNA(block_names) ||
+      any(!nzchar(block_names))) {
+    stop("prompt_overrides must be a named list.", call. = FALSE)
+  }
+  if (anyDuplicated(block_names)) {
+    stop("prompt_overrides must not contain duplicated block names.", call. = FALSE)
+  }
+
+  allowed <- c("reading", "interpretation", "output")
+  unknown <- setdiff(block_names, allowed)
+  if (length(unknown) > 0L) {
+    stop(
+      paste0(
+        "Unknown prompt_overrides block(s): ",
+        paste(unknown, collapse = ", "),
+        ". Allowed blocks are: ",
+        paste(allowed, collapse = ", "),
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  invalid <- vapply(
+    prompt_overrides,
+    function(value) {
+      !is.character(value) ||
+        length(value) != 1L ||
+        is.na(value) ||
+        !nzchar(trimws(value))
+    },
+    logical(1)
+  )
+  if (any(invalid)) {
+    stop(
+      paste0(
+        "Each prompt_overrides block must be one non-empty, non-NA character string; invalid block(s): ",
+        paste(names(prompt_overrides)[invalid], collapse = ", "),
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  prompt_overrides
+}
+
+#' Return the approved default CATDES prompt blocks
+#'
+#' @param interpretation_mode Either "standard" for observed categories or
+#'   "latent" for constructed groups.
+#' @param isolate.groups Logical indicating local (TRUE) or joint (FALSE)
+#'   interpretation scope. The editable blocks are shared across scopes; the
+#'   protected task block is selected by nail_catdes().
+#' @return A named list with reading, interpretation, and output.
+#'   The texts are independent of statistical data and do not expose evidence.
+#' @export
+nail_catdes_default_blocks <- function(
+    interpretation_mode = c("standard", "latent"),
+    isolate.groups = TRUE) {
+  interpretation_mode <- match.arg(interpretation_mode)
+  assert_single_logical(isolate.groups, "isolate.groups")
+
+  list(
+    reading = .catdes_approved_reading_nail_catdes(),
+    interpretation = .catdes_approved_interpretation_nail_catdes(
+      interpretation_mode
+    ),
+    output = .catdes_approved_output_nail_catdes()
+  )
+}
+
+.catdes_prompt_blocks_with_overrides <- function(
+    interpretation_mode,
+    isolate_groups,
+    prompt_overrides) {
+  defaults <- nail_catdes_default_blocks(
+    interpretation_mode = interpretation_mode,
+    isolate.groups = isolate_groups
+  )
+  if (is.null(prompt_overrides) || length(prompt_overrides) == 0L) {
+    return(defaults)
+  }
+  defaults[names(prompt_overrides)] <- prompt_overrides
+  defaults
+}
+
+.catdes_dynamic_identity_nail_catdes <- function(interpretation_mode,
+                                                 target_label,
+                                                 group_name,
+                                                 joint = FALSE) {
+  if (identical(interpretation_mode, "standard")) {
+    if (isTRUE(joint)) {
+      return(paste0(
+        "The displayed observed categories are response modalities of the grouping variable '",
+        target_label,
+        "'. Preserve each category's original name."
       ))
     }
-
-    return(paste(
-      "These are constructed profiles or latent classes whose meaning must be inferred from the results.",
-      "Their current labels are identifiers, not interpretations.",
-      "Their meanings may be inferred from the displayed evidence and concise meaningful names may be proposed.",
-      "Do not invent unlisted statistical characteristics.",
-      "Higher-level synthesis across displayed groups is allowed when traceable to the evidence.",
-      "Broader contextual hypotheses must be identified as hypotheses.",
-      sep = "\n"
+    return(paste0(
+      "The observed category shown below is the response modality '",
+      group_name,
+      "' of the grouping variable '",
+      target_label,
+      "'. Preserve its original name."
     ))
   }
 
-  if (identical(interpretation_mode, "standard")) {
-    return(paste(
-      paste0(
-        "This is an observed category of '", target_label,
-        "'. Preserve its original name."
-      ),
-      "Do not reinterpret this category as a latent profile and do not rename it.",
-      "The category name is contextual information, not statistical evidence.",
-      "Do not invent a new empirical characteristic or present a synthesis as if it were a direct statistical fact.",
-      "A higher-level interpretation is encouraged when it reasonably synthesizes several displayed facts and remains traceable to them.",
-      "A broader contextual hypothesis is allowed only when it is clearly identified as a hypothesis.",
-      sep = "\n"
-    ))
+  if (isTRUE(joint)) {
+    return(
+      "The displayed constructed group identifiers are the labels in the headings. Keep each original identifier alongside any proposed interpretive name."
+    )
   }
 
-  paste(
-    "This is a constructed profile or latent class whose meaning must be inferred from the results.",
-    "Its current label is an identifier, not an interpretation.",
-    "Its meaning may be inferred from the displayed evidence and a concise meaningful name may be proposed.",
-    "Do not invent an unlisted statistical characteristic or present a synthesis as if it were a direct statistical fact.",
-    "A higher-level interpretation is allowed when it reasonably synthesizes several displayed facts and remains traceable to them.",
-    "A broader contextual hypothesis is allowed only when it is clearly identified as a hypothesis.",
-    sep = "\n"
+  paste0(
+    "The constructed group identifier shown below is '",
+    group_name,
+    "'. Keep this original identifier alongside any proposed interpretive name."
   )
 }
 
 .local_task_nail_catdes <- function(interpretation_mode,
-                                    joint = FALSE) {
-  if (isTRUE(joint)) {
-    if (identical(interpretation_mode, "standard")) {
-      return(paste(
-        "Interpret the complete set of observed categories shown below.",
-        "For each category, identify its main coherent pattern.",
-        "Then compare the supported profiles to identify the most important similarities and differences.",
-        "Preserve all observed category names.",
-        "Do not claim pairwise statistical significance that is not explicitly shown."
-      ))
-    }
-
-    return(paste(
-      "Interpret the complete set of constructed groups shown below.",
-      "For each group, identify its main coherent pattern.",
-      "Then compare the supported profiles to identify the main similarities, differences, and broader structure.",
-      "A concise interpretive name may be proposed for each group.",
-      "Do not claim pairwise statistical significance that is not explicitly shown."
-    ))
+                                    joint = FALSE,
+                                    target_label = "the target variable",
+                                    group_name = NULL) {
+  task <- if (isTRUE(joint)) {
+    "Interpret each displayed group, then provide an overall synthesis of meaningful similarities, contrasts, and configurations across groups. Do not present descriptive contrasts as statistically demonstrated pairwise differences."
+  } else {
+    "Interpret only the selected group using its displayed statistical evidence. Do not describe groups whose profiles have not been provided."
   }
 
-  if (identical(interpretation_mode, "standard")) {
-    return(paste(
-      "Interpret ONLY the observed category shown below.",
-      "Combine its qualitative and quantitative facts to identify the strongest convergent semantic pattern.",
-      "Explain what characterizes this category without renaming it.",
-      "Do not compare it with unseen categories."
-    ))
-  }
-
-  paste(
-    "Interpret ONLY the constructed group shown below.",
-    "Combine its facts to identify the strongest convergent semantic pattern.",
-    "Explain what this group seems to represent and propose one concise interpretive name.",
-    "Do not infer characteristics that are not listed below and do not compare it with unseen groups."
+  identity <- .catdes_dynamic_identity_nail_catdes(
+    interpretation_mode = interpretation_mode,
+    target_label = target_label,
+    group_name = group_name,
+    joint = joint
   )
+  paste(task, identity, sep = "\n")
 }
-
 .build_catdes_prompt_blocks_nail_catdes <- function(semantic_facing_evidence,
                                                     introduction,
                                                     request,
                                                     interpretation_mode,
                                                     target_label,
-                                                    isolate_groups = TRUE) {
+                                                    isolate_groups = TRUE,
+                                                    prompt_overrides = NULL) {
   group_names <- names(semantic_facing_evidence$groups)
+  defaults <- .catdes_prompt_blocks_with_overrides(
+    interpretation_mode = interpretation_mode,
+    isolate_groups = isolate_groups,
+    prompt_overrides = prompt_overrides
+  )
 
   if (!isTRUE(isolate_groups)) {
     group_label <- .unit_label(interpretation_mode)
@@ -1658,19 +1698,16 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     return(list(
       portfolio = list(
         context = introduction,
-        reading = .reading_nail_catdes(interpretation_mode, joint = TRUE),
+        reading = defaults$reading,
         question = request,
-        interpretation = .interpretation_nail_catdes(
-          interpretation_mode,
-          target_label,
-          joint = TRUE
-        ),
+        interpretation = defaults$interpretation,
         local_task = .local_task_nail_catdes(
           interpretation_mode,
-          joint = TRUE
+          joint = TRUE,
+          target_label = target_label
         ),
         evidence = paste(evidence, collapse = "\n\n---\n\n"),
-        output = NULL
+        output = defaults$output
       )
     ))
   }
@@ -1679,15 +1716,16 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     group <- semantic_facing_evidence$groups[[group_name]]
     list(
       context = introduction,
-      reading = .reading_nail_catdes(interpretation_mode),
+      reading = defaults$reading,
       question = request,
-      interpretation = .interpretation_nail_catdes(
+      interpretation = defaults$interpretation,
+      local_task = .local_task_nail_catdes(
         interpretation_mode,
-        target_label
+        target_label = target_label,
+        group_name = group_name
       ),
-      local_task = .local_task_nail_catdes(interpretation_mode),
       evidence = group$text,
-      output = NULL
+      output = defaults$output
     )
   }), group_names)
 }
@@ -1714,7 +1752,7 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     blocks$question,
     "## Interpretation Rules",
     blocks$interpretation,
-    "# Local Task",
+    if (is.null(group_name)) "# Global Task" else "# Local Task",
     blocks$local_task,
     "# Data",
     data_block
@@ -1735,14 +1773,16 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
                                                        introduction,
                                                        request,
                                                        interpretation_mode,
-                                                       target_label) {
+                                                       target_label,
+                                                       prompt_overrides = NULL) {
   prompt_blocks <- .build_catdes_prompt_blocks_nail_catdes(
     semantic_facing_evidence = semantic_facing_evidence,
     introduction = introduction,
     request = request,
     interpretation_mode = interpretation_mode,
     target_label = target_label,
-    isolate_groups = TRUE
+    isolate_groups = TRUE,
+    prompt_overrides = prompt_overrides
   )
 
   prompts <- lapply(
@@ -2001,6 +2041,12 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   generated when `NULL`.
 #' @param request Interpretation request. A default is generated from
 #'   `interpretation_mode`, `prompt_style`, and `isolate.groups` when `NULL`.
+#' @param prompt_overrides Optional named list replacing the approved
+#'   `reading`, `interpretation`, and/or `output` blocks in full. Unspecified
+#'   blocks keep their defaults. Values must be non-empty, non-NA character
+#'   strings; this does not affect statistical evidence. To extend rather
+#'   than replace a default block, first retrieve it with
+#'   [nail_catdes_default_blocks()] and append the desired text yourself.
 #' @param model Model name used by the selected provider. The default is
 #'   `"llama3"`.
 #' @param provider LLM backend, either `"ollama"` or `"gemini"`; the default
@@ -2057,6 +2103,14 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' autonomous portrait. In both cases, the statistical and semantic-facing
 #' evidence are constructed once before prompt projection.
 #'
+#' `prompt_overrides$interpretation` replaces the complete default
+#' interpretation block. It can therefore remove default scientific rules;
+#' NaileR does not silently append them to a custom block. The statistical
+#' evidence, group identity supplied by the protected task block, and
+#' interpretation scope remain managed separately. Users who want to preserve
+#' the default rules while adding guidance can retrieve the defaults with
+#' [nail_catdes_default_blocks()] and build a combined override explicitly.
+#'
 #' Every successful return carries `statistical_profiles`,
 #' `interpretation_evidence`, `semantic_facing_evidence`, `local_prompts`,
 #' `semantic_profiles`, `catdes_result` when available, and `catdes_settings` as
@@ -2078,6 +2132,8 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   * `catdes_result`: the original FactoMineR result, when available;
 #'   * `catdes_settings`: execution and interpretation settings;
 #'   * `llm_io`: the exact active prompt(s) and raw response(s).
+#'   * The default `output` block is a free writing instruction; it does not
+#'     impose JSON, Quarto Markdown, or another response schema.
 #'
 #'   A preview has prompts but no responses. Use [nail_evidence()] for evidence,
 #'   [nail_prompt()] for the active prompt(s), and [nail_response()] after
@@ -2117,6 +2173,22 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   generate = FALSE
 #' )
 #'
+#' # Retrieve and customize one approved scientific block without changing
+#' # the statistical evidence.
+#' blocks <- nail_catdes_default_blocks("standard", isolate.groups = TRUE)
+#' custom <- nail_catdes(
+#'   iris,
+#'   num.var = 5,
+#'   prompt_overrides = list(
+#'     reading = paste(
+#'       blocks$reading,
+#'       "Interpret sepal and petal measurements in their original units."
+#'     )
+#'   ),
+#'   generate = FALSE
+#' )
+#' cat(substr(custom[[1]], 1, 500))
+#'
 #' \dontrun{
 #' generated <- nail_catdes(
 #'   iris,
@@ -2143,10 +2215,12 @@ nail_catdes <- function(dataset = NULL,
                         prompt_style = c("detailed", "compact"),
                         generate = FALSE,
                         x = NULL,
+                        prompt_overrides = NULL,
                         ...) {
   interpretation_mode <- match.arg(interpretation_mode)
   prompt_style <- match.arg(prompt_style)
   provider <- match.arg(provider)
+  prompt_overrides <- .validate_catdes_prompt_overrides(prompt_overrides)
 
   validate_catdes_inputs(
     dataset = dataset,
@@ -2204,7 +2278,8 @@ nail_catdes <- function(dataset = NULL,
     introduction = introduction,
     request = request,
     interpretation_mode = interpretation_mode,
-    target_label = normalized$target_label
+    target_label = normalized$target_label,
+    prompt_overrides = prompt_overrides
   )
   local_prompt_blocks <- attr(local_prompts, "catdes_prompt_blocks", exact = TRUE)
 
@@ -2218,7 +2293,8 @@ nail_catdes <- function(dataset = NULL,
       request = request,
       interpretation_mode = interpretation_mode,
       target_label = normalized$target_label,
-      isolate_groups = FALSE
+      isolate_groups = FALSE,
+      prompt_overrides = prompt_overrides
     )
     actual_prompt <- .render_catdes_prompt_blocks_nail_catdes(
       blocks = prompt_blocks$portfolio
