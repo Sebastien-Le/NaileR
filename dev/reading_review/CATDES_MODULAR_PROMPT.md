@@ -48,7 +48,7 @@ Fondez votre analyse sur les résultats statistiques présentés.
 ### Scope and decisions
 
 - `reading` is shared by `standard` and `latent` modes; group identity and substantive profile-building belong to separate blocks.
-- Interpret ordered modalities according to their supplied meanings. Inference safeguards concern only claims made from displayed evidence, without commentary on undisplayed selections.
+- Interpret ordered modalities according to their supplied meanings and avoid unsupported extrapolations from the facts provided.
 - Interpret quantitative directions in light of measurement meaning, units, and scale orientation, without inventing unknown units.
 - Keep operational instructions concise; do not include irrelevant illustrative examples (e.g., 100-metre race times). Such examples belong to evaluation tests.
 - The user decides evidence-selection options. The LLM interprets what is displayed; the prompt need not detail internal `sample.pct` or `drop.negative` behavior.
