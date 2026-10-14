@@ -21,7 +21,7 @@ The cell count gives the observed frequency for a particular row and column. The
 
 OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.
 
-Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row. The displayed evidence may be a selection rather than the complete profile; do not draw conclusions about unreported columns.
+Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.
 
 Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
 
@@ -35,7 +35,7 @@ L'effectif d'une cellule correspond à la fréquence observée pour une ligne et
 
 OVERREPRESENTED signifie que le pourcentage d'une colonne dans le profil de la ligne est statistiquement supérieur à son pourcentage dans le profil global ; UNDERREPRESENTED signifie qu'il est statistiquement inférieur. Une surreprésentation n'implique pas qu'une colonne représente la majorité des effectifs d'une ligne ou qu'elle soit la plus fréquente. Interprétez chaque direction en tenant compte des deux pourcentages et des effectifs disponibles.
 
-Une singularité statistique n'implique pas nécessairement une importance substantielle. Une colonne de faible fréquence globale peut être distinctive sans définir l'ensemble du profil d'une ligne. Les résultats présentés peuvent constituer une sélection plutôt que le profil complet ; ne tirez pas de conclusions sur les colonnes non présentées.
+Une singularité statistique n'implique pas nécessairement une importance substantielle. Une colonne de faible fréquence globale peut être distinctive sans définir l'ensemble du profil d'une ligne.
 
 Interprétez les intitulés des colonnes selon leur signification réelle, notamment les négations et les distinctions entre perceptions, intentions et comportements observés. Ne déduisez pas de relations entre colonnes, de relations au niveau individuel ou de mécanismes causaux à partir de ces profils de fréquences. Utilisez le contexte de l'étude pour comprendre ce que représentent les effectifs, sans le considérer comme une preuve statistique supplémentaire.
 
@@ -211,6 +211,12 @@ The analyst explicitly approved the **complete English `reading` text and its Fr
 **Approved scope:** shared `reading` and `interpretation`; `standard` / `latent` row identities; local, joint description and joint comparison tasks; editorial `output`; refinements A/B/C. The validated method still distinguishes relative row/global frequency profiles from direct between-row significance tests, and treats counts as not necessarily distinct individuals.
 
 **Implementation boundary:** no change to `R/nail_descfreq.R` or currently executed prompts has been made by these documentation commits. Route flags, ordered-row interpretation (`rows_are_ordered`), explicit labels, selection disclosure (`drop.negative`, `sample.pct`, `proba`), output/parser constraints and empirical LLM checks must be addressed in the later cross-function implementation/validation phase. `row_identity_mode` remains a possible future API design, not an existing argument.
+
+## Cross-functional evidence-selection wording decision — APPROVED (2026-10-14)
+
+The analyst explicitly approved removing operational instructions that tell the LLM the transmitted evidence may be only a selection, or ask it to speculate about variables, modalities, or attributes not supplied. The model should produce the most meaningful **evidence-grounded synthesis of the information actually supplied**. This decision does **not** permit fabricating unsupported measurements, implying statistical relationships that were not tested, or changing the statistical significance/relative-reference semantics.
+
+Selection parameters and missing-marker diagnostics remain documented and auditable **in R and canonical evidence**, not described as a generic caveat in the LLM's editable `reading`. Local-scope limitations (do not describe unprovided groups) remain relevant because they identify the task target. Historical long methodological references and decision logs are retained as archival sources. The existing R runtime has not been modified in this pass.
 
 ## Change policy
 
