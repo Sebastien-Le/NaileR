@@ -1,6 +1,6 @@
 # CONDES modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading`, `interpretation` (V2), `standard`, `latent`, and `task` bilingual operational blocks explicitly APPROVED (2026-10-14); `output` pending.
+**Status:** INDIVIDUAL BLOCKS APPROVED (2026-10-14) — assembled prompt pending scientific review and operational implementation.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [CONDES_REFERENCE_PROMPT.md](CONDES_REFERENCE_PROMPT.md) (approved).
 **Earlier compact proposal:** [CONDES_COMPACT_PROMPT.md](CONDES_COMPACT_PROMPT.md) (draft, not approved).
@@ -128,7 +128,27 @@ Concentrez-vous sur les caractéristiques associées à ses valeurs faibles et �
 - `[target_identifier]` is a runtime placeholder for the actual variable identifier, not literal evidence.
 
 
-## 5. `output` — PENDING
+## 5. `output` — APPROVED (bilingual wording, 2026-10-14)
+
+### English — approved operational text
+
+Write a clear, substantive interpretation of the quantitative target. Present the main characteristics associated with its lower and higher values, and explain the overall contrast they suggest.
+
+Support your interpretation with the most relevant statistical findings, while acknowledging important limitations. Favor a meaningful synthesis over a variable-by-variable description or repetitive numerical reporting.
+
+### Français — traduction de contrôle validée
+
+Rédigez une interprétation claire et substantielle de la variable quantitative cible. Présentez les principales caractéristiques associées à ses valeurs faibles et élevées, et expliquez le contraste général qu'elles suggèrent.
+
+Appuyez votre interprétation sur les résultats statistiques les plus pertinents, tout en reconnaissant les limites importantes. Privilégiez une synthèse porteuse de sens plutôt qu'une description variable par variable ou une répétition systématique des résultats numériques.
+
+### Decision
+
+- `output` sets editorial expectations, without repeating the full scientific doctrine in `interpretation`.
+- The analyst may customize this block; do not impose mandatory Quarto Markdown or JSON formatting in the editable operational default.
+- Any indispensable output/parser requirements belong in a separate technical contract, to be examined before implementation.
+
+
 
 ## Change policy
 
