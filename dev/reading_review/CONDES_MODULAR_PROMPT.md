@@ -21,7 +21,7 @@ A positive or negative Estimate indicates that a category is associated with hig
 
 Derived states such as Above-average value and Below-average value come from the original quantitative predictors. They are not independent measurements. Use them to illustrate or qualify the continuous associations, not as separate confirmations.
 
-Statistical significance does not measure association strength or substantive importance. The displayed evidence may be selected rather than exhaustive. Do not infer results for variables or categories that are not shown.
+Statistical significance does not measure association strength or substantive importance.
 
 Preserve the meaning of variables and categories, including negations and reverse-worded labels. Use the study context to understand the measurements, without treating that context as additional statistical evidence. Do not infer causality from these associations.
 
@@ -37,7 +37,7 @@ Un Estimate positif ou négatif indique qu'une modalité est associée respectiv
 
 Les états dérivés, tels que Above-average value et Below-average value, proviennent des variables quantitatives originales. Ils ne constituent pas des mesures indépendantes. Utilisez-les pour illustrer ou nuancer les associations continues, et non comme des confirmations indépendantes.
 
-La significativité statistique ne mesure ni la force d'une association ni son importance substantielle. Les résultats présentés peuvent constituer une sélection plutôt qu'un ensemble exhaustif. Ne déduisez pas de résultats concernant des variables ou des modalités non présentées.
+La significativité statistique ne mesure ni la force d'une association ni son importance substantielle.
 
 Préservez la signification des variables et des modalités, notamment les négations et les formulations inversées. Utilisez le contexte de l'étude pour comprendre les mesures, sans considérer ce contexte comme une preuve statistique supplémentaire. Ne déduisez pas de relations causales de ces associations.
 
@@ -154,6 +154,12 @@ After reviewing the complete standard-mode assembly and the latent-mode alternat
 - `output` retains the substantive summary and numerical-repetition safeguard, without repeating the ban on variable-by-variable description already covered by `interpretation`.
 
 Keep `reading`, `interpretation`, `standard` and `latent` unchanged. No package-code modifications are authorized by this documentary approval. The eventual runtime assemblage and the evidence representation require separate verification.
+
+## Cross-functional evidence-selection wording decision — APPROVED (2026-10-14)
+
+The analyst explicitly approved removing operational instructions that tell the LLM the transmitted evidence may be only a selection, or ask it to speculate about variables, modalities, or attributes not supplied. The model should produce the most meaningful **evidence-grounded synthesis of the information actually supplied**. This decision does **not** permit fabricating unsupported measurements, implying statistical relationships that were not tested, or changing the statistical significance/relative-reference semantics.
+
+Selection parameters and missing-marker diagnostics remain documented and auditable **in R and canonical evidence**, not described as a generic caveat in the LLM's editable `reading`. Local-scope limitations (do not describe unprovided groups) remain relevant because they identify the task target. Historical long methodological references and decision logs are retained as archival sources. The existing R runtime has not been modified in this pass.
 
 ## Change policy
 
