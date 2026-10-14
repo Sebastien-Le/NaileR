@@ -70,9 +70,33 @@ Utilisez le contexte de l'étude pour rapprocher conceptuellement les caractéri
 
 **Scope:** shared by `standard` and `latent`; group-identity rules remain separate. This consolidated wording supersedes the earlier partial drafts. Analyst customization and the need for multidimensional synthesis remain part of the design objectives; actual customization support must be verified in the R API.
 
-## 3. `standard` / `latent` — NOT YET REVIEWED
+## 3. Group identity — standard / latent
 
-No operational wording approved.
+### `standard` — APPROVED (2026-10-14)
+
+**English — approved operational text**
+
+Each group corresponds to an observed category defined by a specific variable and one of its response modalities. All group members share this modality.
+
+Use the meaning of both the defining variable and its modality to guide the interpretation of the group's statistical characteristics. Explain how the displayed findings characterize this category, combining its known identity with the multidimensional profile emerging from the evidence.
+
+Preserve the original category name. You may develop a higher-level interpretation, but do not replace the observed category with an invented identity.
+
+**Français — traduction de contrôle validée**
+
+Chaque groupe correspond à une catégorie observée définie par une variable particulière et l'une de ses modalités de réponse. Tous les individus du groupe partagent cette modalité.
+
+Utilisez la signification de la variable définissant le groupe et celle de sa modalité pour orienter l'interprétation de ses caractéristiques statistiques. Expliquez comment les résultats présentés caractérisent cette catégorie, en articulant son identité connue avec le profil multidimensionnel qui émerge des résultats.
+
+Conservez le nom d'origine de la catégorie. Vous pouvez développer une interprétation de niveau supérieur, mais ne remplacez pas la catégorie observée par une identité inventée.
+
+**Implementation check pending:** verify that the prompt actually provides the grouping-variable name as well as the category modality. This is a technical verification, not a prerequisite to approving the scientific wording.
+
+### `latent` — NOT YET FORMALLY APPROVED
+
+The earlier candidate latent wording is kept for subsequent bilingual review; it is not recorded here as an approved operational block.
+
+
 
 ## 4. `local_task` / `global_task` — NOT YET REVIEWED
 
