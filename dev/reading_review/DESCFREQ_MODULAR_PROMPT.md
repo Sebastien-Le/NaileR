@@ -1,6 +1,6 @@
 # DESCFREQ modular prompt — bilingual scientific review
 
-**Status:** `interpretation`, `standard`, `latent`, three `task` variants and `output` APPROVED (2026-10-14). `reading` is a consolidated candidate with approved terminology, pending final review of the assembled prompts. No R integration.
+**Status:** Bilingual `interpretation`, `standard`, `latent`, three `task` variants and `output` APPROVED (2026-10-14), including assembly simplifications A/B. `reading` is a consolidated candidate with terminology and distinction between global-profile tests and descriptive row comparisons approved (C); remaining wording awaits final assembled review. No R integration.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [DESCFREQ_REFERENCE_PROMPT.md](DESCFREQ_REFERENCE_PROMPT.md) (approved).
 **Previous compact:** [DESCFREQ_COMPACT_PROMPT.md](DESCFREQ_COMPACT_PROMPT.md) (draft, not approved).
@@ -9,11 +9,11 @@
 
 Use the statistical language of contingency tables: **row, column, cell count, row profile, global profile**, rather than the more interpretive `attribute`. A column's substantive meaning depends on the study; it is not necessarily an intrinsic attribute of an individual. This decision applies consistently to the operational DESCFREQ `reading` text. Do not change the approved long scientific reference or code in this documentation pass.
 
-## 1. `reading` — CONSOLIDATED CANDIDATE (terminology approved)
+## 1. `reading` — CONSOLIDATED CANDIDATE (terminology and comparison distinction approved)
 
 ### English — proposed operational text
 
-The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Each row is compared with the overall table profile, not with another row.
+The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
 
 For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.
 
@@ -27,7 +27,7 @@ Interpret column labels according to their actual meaning, including negations a
 
 ### Français — traduction de contrôle proposée
 
-Les résultats proviennent de `FactoMineR::descfreq()` et décrivent les lignes d'un tableau de contingence à partir de leurs profils de fréquences sur les différentes colonnes. Chaque ligne est comparée au profil global du tableau, et non à une autre ligne.
+Les résultats proviennent de `FactoMineR::descfreq()` et décrivent les lignes d'un tableau de contingence à partir de leurs profils de fréquences sur les différentes colonnes. La surreprésentation et la sous-représentation statistiques sont évaluées par rapport au profil global du tableau, et non au moyen de tests directs entre paires de lignes. Les comparaisons descriptives entre profils de lignes restent possibles.
 
 Pour chaque colonne, le pourcentage dans le profil d'une ligne correspond à son effectif dans cette ligne rapporté à l'effectif total de la ligne. Le pourcentage dans le profil global correspond à l'effectif total de cette colonne rapporté à l'effectif total du tableau.
 
@@ -128,23 +128,19 @@ Caractérisez ce qui distingue cette ligne du profil global du tableau. Ne décr
 - Keep the task independent of `standard` or `latent` row identity; only evidence for the named row is in scope.
 - `[row_identifier]` is a runtime placeholder for the actual identifier, not literal text in the evidence.
 
-### Joint description task — APPROVED (2026-10-14)
+### Joint description task — APPROVED, streamlined after assembly review (2026-10-14)
 
 **English — approved operational text**
 
 Interpret each displayed row using its own statistical evidence and the user's analytical request.
 
-Characterize what distinguishes each row from the overall table profile. Develop a substantive interpretation of each frequency profile, considering the displayed columns jointly.
-
-Preserve each row's identity. Do not force comparisons between rows when the analytical task is to describe them.
+Focus on characterizing each row without forcing comparisons between rows.
 
 **Français — traduction de contrôle validée**
 
 Interprétez chaque ligne présentée à partir de ses propres résultats statistiques et de la question analytique de l'utilisateur.
 
-Caractérisez ce qui distingue chaque ligne du profil global du tableau. Construisez une interprétation substantielle de chaque profil de fréquences, en considérant conjointement les colonnes présentées.
-
-Préservez l'identité de chaque ligne. Ne cherchez pas à imposer des comparaisons entre les lignes lorsque l'objectif analytique est de les décrire.
+Concentrez-vous sur la caractérisation de chaque ligne sans imposer de comparaisons entre les lignes.
 
 **Routing:** `isolate.groups = FALSE`; `interpretation_mode = "description"`. Identity mode remains independent.
 
@@ -174,27 +170,23 @@ Ne déduisez pas une progression ou une hiérarchie du seul ordre des lignes.
 **Routing:** `isolate.groups = FALSE`; `interpretation_mode = "comparison"`. Original row order alone does not establish a statistically tested gradient; the separate contextual flag `rows_are_ordered` may justify discussing ordered patterns when also supported by evidence.
 
 
-## 5. `output` — APPROVED (bilingual wording, 2026-10-14)
+## 5. `output` — APPROVED, streamlined after assembly review (2026-10-14)
 
 ### English — approved operational text
 
 Write a clear, substantive interpretation of the displayed frequency profiles.
 
-Support the main findings with the most relevant columns and their row and global percentages or counts, providing enough statistical evidence to make the interpretation understandable and traceable.
+Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.
 
-Adapt the response to the analytical task: characterize each row in a description, or highlight the main similarities and contrasts in a comparison.
-
-Preserve the original row identifiers and any labels provided by the analyst. Avoid mechanical column-by-column descriptions and unnecessary numerical repetition.
+Avoid unnecessary numerical repetition.
 
 ### Français — traduction de contrôle validée
 
 Rédigez une interprétation claire et substantielle des profils de fréquences présentés.
 
-Appuyez les principaux résultats sur les colonnes les plus pertinentes et leurs pourcentages dans les profils des lignes et dans le profil global, ou leurs effectifs, en fournissant suffisamment d'éléments statistiques pour rendre l'interprétation compréhensible et vérifiable.
+Appuyez les principaux résultats sur les colonnes les plus pertinentes, en fournissant suffisamment de pourcentages dans les profils des lignes et dans le profil global, ou d'effectifs, pour rendre l'interprétation vérifiable.
 
-Adaptez la réponse à l'objectif analytique : caractérisez chaque ligne dans une description, ou mettez en évidence les principales ressemblances et différences dans une comparaison.
-
-Conservez les identifiants d'origine des lignes ainsi que les intitulés fournis par l'analyste. Évitez les descriptions mécaniques colonne par colonne et les répétitions numériques inutiles.
+Évitez les répétitions numériques inutiles.
 
 ### Decision
 
@@ -203,6 +195,14 @@ Conservez les identifiants d'origine des lignes ainsi que les intitulés fournis
 - Preserve personalized output instructions, without imposing Quarto Markdown or parser formatting requirements in the editable editorial default. Validate technical output contracts separately.
 
 
+
+## Assembly simplifications A/B/C — APPROVED (2026-10-14)
+
+- **A — Joint description task:** Retain each row's own evidence and the instruction not to force comparisons; remove repeated methodological directions on the global profile and joint synthesis, already covered by `reading` and `interpretation`.
+- **B — Output:** Keep clear substantive writing, traceable statistics and no unnecessary numerical repetition; remove repetitions of task scope, original identifiers and column-by-column prohibition.
+- **C — Reading:** Clarify that statistical over/underrepresentation uses deviations from the **overall table profile** rather than direct pairwise tests, while **descriptive** comparisons between rows are legitimate. English and French revised in parallel.
+- These decisions were approved after inspecting the six candidate assemblies, without altering scientific evidence, source reference, runtime code or parser contracts.
+- `rows_are_ordered`, `explicit_row_labels` and dynamic evidence-selection disclosures remain separate conditional implementation concerns; do not treat A/B/C approval as a new API decision.
 
 ## Change policy
 
