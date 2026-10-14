@@ -128,7 +128,26 @@ Caractérisez ce qui distingue cette ligne du profil global du tableau. Ne décr
 - Keep the task independent of `standard` or `latent` row identity; only evidence for the named row is in scope.
 - `[row_identifier]` is a runtime placeholder for the actual identifier, not literal text in the evidence.
 
-### Joint description task — PENDING
+### Joint description task — APPROVED (2026-10-14)
+
+**English — approved operational text**
+
+Interpret each displayed row using its own statistical evidence and the user's analytical request.
+
+Characterize what distinguishes each row from the overall table profile. Develop a substantive interpretation of each frequency profile, considering the displayed columns jointly.
+
+Preserve each row's identity. Do not force comparisons between rows when the analytical task is to describe them.
+
+**Français — traduction de contrôle validée**
+
+Interprétez chaque ligne présentée à partir de ses propres résultats statistiques et de la question analytique de l'utilisateur.
+
+Caractérisez ce qui distingue chaque ligne du profil global du tableau. Construisez une interprétation substantielle de chaque profil de fréquences, en considérant conjointement les colonnes présentées.
+
+Préservez l'identité de chaque ligne. Ne cherchez pas à imposer des comparaisons entre les lignes lorsque l'objectif analytique est de les décrire.
+
+**Routing:** `isolate.groups = FALSE`; `interpretation_mode = "description"`. Identity mode remains independent.
+
 
 ### Joint comparison task — PENDING
 
