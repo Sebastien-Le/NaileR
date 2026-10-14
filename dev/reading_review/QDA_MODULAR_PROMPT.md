@@ -1,6 +1,6 @@
 # QDA modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `interpretation` fully APPROVED (2026-10-14); `reading` remains a candidate with its selection/missing-attribute paragraph removed by explicit approval. Identity, task, and output blocks pending.
+**Status:** IN PROGRESS — bilingual `interpretation` and both `product_knowledge` identity blocks APPROVED (2026-10-14); `reading` remains a candidate with its selection/missing-attribute paragraph removed by explicit approval. Task and output blocks pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Technical source:** `R/nail_qda.R` (`SensoMineR::decat()`, canonical `product_profiles`, interpretation evidence and semantic-facing markers).
 **Scope:** scientific/operational prompt wording only. No R runtime changes, test modifications, evidence-selection changes or API changes.
@@ -68,9 +68,53 @@ Préservez les contrastes, les nuances et les ambiguïtés significatives. Lorsq
 
 
 
-## 3. Product/stimulus identity — PENDING
+## 3. Product/stimulus identity — APPROVED (2026-10-14)
 
-`product_knowledge = "known"` vs `"unknown"` governs labels, not necessarily observed vs constructed entities. Scientific design still to be reviewed.
+The two identity modes share the general interpretive principles of `standard` and `latent` in the other NaileR workflows, while preserving the scientific distinction between an **anonymized observed stimulus** and a **statistically constructed latent group**.
+
+### `product_knowledge = "known"` — APPROVED
+
+**English — approved operational text**
+
+Each product or stimulus has a known identity or a meaningful label provided by the analyst. Preserve its original identifier and label.
+
+Use this identity as contextual information when interpreting the sensory profile, without letting it substitute for the statistical evidence.
+
+Do not replace the known identity with an invented descriptive name. A concise sensory characterization may complement it when useful.
+
+**Français — traduction de contrôle validée**
+
+Chaque produit ou stimulus possède une identité connue ou un intitulé significatif fourni par l'analyste. Conservez son identifiant et son intitulé d'origine.
+
+Utilisez cette identité comme information contextuelle pour interpréter le profil sensoriel, sans qu'elle se substitue aux résultats statistiques.
+
+Ne remplacez pas l'identité connue par un nom descriptif inventé. Une caractérisation sensorielle concise peut la compléter lorsqu'elle est utile.
+
+### `product_knowledge = "unknown"` — APPROVED
+
+**English — approved operational text**
+
+Each stimulus is identified by a code or label that does not reveal its substantive identity. Preserve this original identifier.
+
+Interpret its sensory profile to characterize what makes it distinctive. When supported by a coherent sensory pattern, propose a concise, meaningful sensory name alongside the identifier.
+
+Do not attempt to guess the stimulus's actual identity or force a descriptive name when the profile does not support one.
+
+**Français — traduction de contrôle validée**
+
+Chaque stimulus est identifié par un code ou un intitulé qui ne révèle pas son identité substantielle. Conservez cet identifiant d'origine.
+
+Interprétez son profil sensoriel pour caractériser ce qui le distingue. Lorsque les résultats présentent une configuration sensorielle cohérente, proposez un nom sensoriel court et significatif, en complément de l'identifiant.
+
+Ne cherchez pas à deviner l'identité réelle du stimulus ni à lui attribuer artificiellement un nom descriptif lorsque son profil ne le justifie pas.
+
+### Architectural decision
+
+- Conceptual correspondence: `known` resembles `standard` (identity already meaningful); `unknown` resembles `latent` (meaning must be constructed from the profile), **without** claiming that unknown QDA stimuli are statistical latent entities.
+- Retain the existing QDA API values `product_knowledge = "known"` / `"unknown"`; do not rename or reinterpret function arguments.
+- Product/stimulus identity is independent of `isolate.groups` (local versus joint task).
+- Preserve actual product identifiers and analyst labels; a descriptive name, when supported, may only supplement the original identifier.
+- These are approved editorial blocks only: no R code modifications or tests in this pass.
 
 ## 4. Local/joint tasks — PENDING
 
