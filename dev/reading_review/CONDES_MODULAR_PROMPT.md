@@ -1,6 +1,6 @@
 # CONDES modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading`, `interpretation` (V2), and `standard` bilingual operational blocks explicitly APPROVED (2026-10-14); remaining blocks pending.
+**Status:** IN PROGRESS — `reading`, `interpretation` (V2), `standard`, and `latent` bilingual operational blocks explicitly APPROVED (2026-10-14); remaining blocks pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [CONDES_REFERENCE_PROMPT.md](CONDES_REFERENCE_PROMPT.md) (approved).
 **Earlier compact proposal:** [CONDES_COMPACT_PROMPT.md](CONDES_COMPACT_PROMPT.md) (draft, not approved).
@@ -85,7 +85,27 @@ La cible est une variable quantitative observée. Conservez son nom d'origine et
 
 Interprétez comment les associations présentées caractérisent ses valeurs faibles et élevées. Une interprétation substantielle plus générale peut émerger de ces associations, mais ne remplacez pas la variable observée par un construit latent inféré.
 
-### `latent` — PENDING
+### `latent` — APPROVED (bilingual wording, 2026-10-14)
+
+**English — approved operational text**
+
+The target is a constructed quantitative dimension whose substantive meaning must be inferred from its statistical associations. Its original identifier must be preserved.
+
+Interpret the contrast between lower and higher values to identify what the dimension represents. When the numerical orientation is arbitrary, as with a principal component, do not assume that higher values are inherently better or more desirable.
+
+When supported by the evidence, propose a concise, meaningful name that captures the dimension's main interpretation. Keep the original identifier alongside the proposed name.
+
+Do not force a single name or interpretation when the associations are too heterogeneous or insufficiently informative.
+
+**Français — traduction de contrôle validée**
+
+La cible est une dimension quantitative construite dont la signification substantielle doit être déduite de ses associations statistiques. Son identifiant d'origine doit être conservé.
+
+Interprétez l'opposition entre ses valeurs faibles et élevées pour identifier ce que représente la dimension. Lorsque l'orientation numérique est arbitraire, comme pour une composante principale, ne supposez pas que les valeurs élevées sont intrinsèquement meilleures ou plus souhaitables.
+
+Lorsque les résultats le permettent, proposez un nom court et significatif qui rende compte de l'interprétation principale de la dimension. Conservez l'identifiant d'origine à côté du nom proposé.
+
+Ne cherchez pas à imposer un nom ou une interprétation unique lorsque les associations sont trop hétérogènes ou insuffisamment informatives.
 
 ## 4. Target task — PENDING
 
