@@ -1,9 +1,9 @@
 # QDA — four prompt assemblies and repetition audit
 
-**Status:** REVIEW DRAFT (2026-10-14). All blocks except the complete `reading` have been approved; deletion of the generic undisplayed-evidence paragraph from `reading` was explicitly approved. No R code or runtime prompt changed.
+**Status:** SCIENTIFICALLY STABILIZED (2026-10-14). All English operational blocks and their French control translations, including complete `reading`, are explicitly approved. Four complete documentary assemblies preserved; R implementation and LLM operational tests remain pending.
 **Source:** [QDA_MODULAR_PROMPT.md](QDA_MODULAR_PROMPT.md), with `R/nail_qda.R` as technical baseline.
 
-The approved English blocks below are reproduced **verbatim**. `reading` is still a candidate. Introduction, analytical request and R-computed data appear as placeholders to demonstrate assembly, not as invented example evidence.
+The approved English operational blocks, including `reading`, are reproduced **verbatim**. Introduction, analytical request and R-computed data appear as placeholders to demonstrate assembly, not as invented example evidence.
 
 `product_knowledge` chooses `known` vs `unknown` independently of `isolate.groups` (`TRUE` → local task; `FALSE` → joint task). The current QDA API does not have a distinct joint `interpretation_mode`; the joint task describes profiles and supported contrasts in one pass.
 
@@ -307,7 +307,7 @@ Support the main conclusions with the most relevant sensory attributes, preservi
 Avoid mechanically reproducing the statistical results or unnecessary numerical repetition.
 ```
 
-## Repetition audit — observations, changes NOT yet approved
+## Repetition audit — retained observations, no new changes approved
 
 1. **HIGHER / LOWER direction:** `reading` defines the directional terms; `interpretation` requires preserving them and `output` repeats this. Keeping the statistical definition in `reading` is necessary. Consider whether repetition in `output` is useful for smaller LLMs or should be removed.
 2. **Relative average product:** the statistical reference is defined in `reading`, restated in `local task` and `joint task`. Some repetition safeguards against fictitious pairwise significance; avoid extra method explanation in `task`.
@@ -316,9 +316,11 @@ Avoid mechanically reproducing the statistical results or unnecessary numerical 
 5. **Known/unknown:** anonymous QDA stimuli are not latent constructs. Identifiers are always preserved; `unknown` permits only an additional evidence-grounded descriptive name.
 6. **Not food-specific:** the operational interpretation text makes no food-only assumption and applies to sensory evaluations beyond taste, aroma or texture.
 7. **Selection policy:** the operational `reading` does not call attention to unprovided attributes or marker-selection parameters. Canonical evidence, prompt-selection metadata, and provenance stay in R.
-8. **Unapproved full reading:** check the precision of `adjusted mean`, `v.test`, `p.value`, relative average and claimed restrictions before full approval of QDA.
+8. **Approved full reading:** the complete English and French `reading` paragraphs were explicitly approved on 2026-10-14 following review of `adjusted mean`, `v.test`, `p.value`, relative average and the limits of the statistical inferences. No subsequent wording change has been introduced.
 9. **Technical requirements:** preserve current R parser/Quarto contracts separately from the editable editorial `output` when integrating.
 
-## Conclusion
+## Final scientific sign-off — 2026-10-14
 
-Four configurations are coherent without a detected hard contradiction. Avoidable duplication is concentrated in directional reminders and relative-reference wording. Do not change previously approved text without explicit authorization. All tests and runtime integration are deferred.
+The analyst explicitly confirmed the full bilingual `reading` after the four assemblies and repetition review. Thus, each of the four combinations (`known`/`unknown` × local/joint) now uses scientifically approved wording. The relatively short repetitions on HIGHER/LOWER directions, average-product reference and unperformed pairwise tests have **not** been edited: their usefulness can be assessed later with real local-model outputs.
+
+Four configurations are coherent without a detected hard contradiction. This constitutes a **scientific/documentary validation**, not evidence that the new modular prompt has been implemented or operationally tested. Preserve the original R code and its canonical evidence, prompts, accessors, output/parsing and selection contracts until the designated integration phase.
