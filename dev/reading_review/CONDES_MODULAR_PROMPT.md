@@ -1,6 +1,6 @@
 # CONDES modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading` and `interpretation` (V2) bilingual operational blocks explicitly APPROVED (2026-10-14); remaining blocks pending.
+**Status:** IN PROGRESS — `reading`, `interpretation` (V2), and `standard` bilingual operational blocks explicitly APPROVED (2026-10-14); remaining blocks pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological source:** [CONDES_REFERENCE_PROMPT.md](CONDES_REFERENCE_PROMPT.md) (approved).
 **Earlier compact proposal:** [CONDES_COMPACT_PROMPT.md](CONDES_COMPACT_PROMPT.md) (draft, not approved).
@@ -69,7 +69,23 @@ Utilisez le contexte de l'étude pour rapprocher conceptuellement les résultats
 - Replace the abstract instruction to preserve `exceptions, asymmetries, and ambiguities` with a clearer safeguard against forcing one overarching interpretation when several distinct aspects emerge.
 - Multidimensional synthesis belongs here; statistical semantics belong in `reading`.
 
-## 3. Target identity (`standard` / `latent`) — PENDING
+## 3. Target identity — `standard` / `latent`
+
+### `standard` — APPROVED (bilingual wording, 2026-10-14)
+
+**English — approved operational text**
+
+The target is an observed quantitative variable. Preserve its original name and measured meaning.
+
+Interpret how the displayed associations characterize its lower and higher values. A broader substantive interpretation may emerge from these associations, but do not replace the observed variable with an inferred latent construct.
+
+**Français — traduction de contrôle validée**
+
+La cible est une variable quantitative observée. Conservez son nom d'origine et sa signification en tant que mesure.
+
+Interprétez comment les associations présentées caractérisent ses valeurs faibles et élevées. Une interprétation substantielle plus générale peut émerger de ces associations, mais ne remplacez pas la variable observée par un construit latent inféré.
+
+### `latent` — PENDING
 
 ## 4. Target task — PENDING
 
