@@ -1,6 +1,6 @@
 # QDA modular prompt — bilingual scientific review
 
-**Status:** Bilingual `interpretation`, `known` / `unknown` identities, local/joint `task`, and `output` APPROVED (2026-10-14). Full `reading` wording and completed assemblies remain to be approved. No R code changes or operational validation.
+**Status:** SCIENTIFICALLY APPROVED AND STABILIZED (2026-10-14). Complete bilingual `reading`, `interpretation`, `known` / `unknown` identity blocks, local/joint `task`, and `output` have all been explicitly approved. Four documentary configurations are assembled. No R code integration or LLM operational validation has occurred.
 **Branch:** `dev-statistical-prompt-framework`.
 **Technical source:** `R/nail_qda.R` (`SensoMineR::decat()`, canonical `product_profiles`, interpretation evidence and semantic-facing markers).
 **Scope:** scientific/operational prompt wording only. No R runtime changes, test modifications, evidence-selection changes or API changes.
@@ -13,11 +13,11 @@ The analyst explicitly agreed to **delete without replacement** the earlier cand
 
 > The displayed evidence may contain only a selection of statistically retained attributes. Do not infer that undisplayed attributes are absent, average, or unimportant. If LOWER attributes have been excluded, the displayed evidence provides only a partial characterization.
 
-This deletion alone is approved; scientific review of the remaining wording follows.
+The deletion was approved separately and subsequently the complete bilingual `reading` text below was explicitly approved on 2026-10-14, unchanged.
 
-## 1. `reading` — CANDIDATE (not yet fully approved)
+## 1. `reading` — APPROVED (complete bilingual wording, 2026-10-14)
 
-### English — proposed operational text
+### English — approved operational text
 
 The results come from `SensoMineR::decat()` and characterize evaluated products or stimuli through their sensory attributes, relative to the average sensory profile of the evaluated set. This average product is a statistical reference, not an actual evaluated product.
 
@@ -27,7 +27,7 @@ The adjusted mean is the model-adjusted sensory score for the product and attrib
 
 Preserve the meaning of each sensory attribute. Use the study context to understand the sensory characteristics, without treating it as additional statistical evidence. Do not infer liking, preference, quality, manufacturing causes, or statistically demonstrated differences between pairs of products from these results.
 
-### Français — traduction de contrôle proposée
+### Français — traduction de contrôle validée
 
 Les résultats proviennent de `SensoMineR::decat()` et caractérisent les produits ou stimuli évalués à partir de leurs attributs sensoriels, relativement au profil sensoriel moyen de l'ensemble des produits évalués. Ce produit moyen constitue une référence statistique, et non un produit réellement évalué.
 
@@ -64,7 +64,7 @@ Préservez les contrastes, les nuances et les ambiguïtés significatives. Lorsq
 - Scientific wording explicitly approved in French and English, replacing a food-centric earlier draft.
 - The semantic synthesis must remain applicable to non-food sensory evaluation (e.g. visual, tactile, acoustic, olfactory or other perceptual dimensions) without hard-coding any such examples into the operational text.
 - Conceptual sensory synthesis is legitimate, but is not itself an additional measured descriptor or a demonstrated statistical association.
-- `reading` remains a candidate pending separate full validation. No R code changes.
+- Complete `reading` wording was explicitly approved in English and French on 2026-10-14, without altering this `interpretation` block. No R code changes.
 
 
 
@@ -191,6 +191,12 @@ Appuyez les principales conclusions sur les attributs sensoriels les plus pertin
 - No R source code was changed.
 
 
+
+## Final scientific sign-off (2026-10-14)
+
+The analyst explicitly confirmed the complete bilingual `reading` block exactly as proposed after the four configuration assemblies and redundancy audit. Together with the previously validated `interpretation`, `known`/`unknown`, local/joint `task`, and `output`, this closes QDA's modular scientific wording review. The small intentional overlaps concerning HIGHER/LOWER directions, the average reference, and warnings against nonexistent pairwise tests remain unchanged pending operational assessment with actual LLMs.
+
+The four assembled examples in [QDA_ASSEMBLY_REVIEW.md](QDA_ASSEMBLY_REVIEW.md) are documentary compositions. The scientific sign-off does not imply tests with real data or integration into R. `product_knowledge`, `isolate.groups`, evidence sampling parameters and existing output/parser contracts are preserved.
 
 ## Implementation boundary
 
