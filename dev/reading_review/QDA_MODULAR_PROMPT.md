@@ -1,6 +1,6 @@
 # QDA modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — bilingual `interpretation`, `known` / `unknown` identity and local `task` APPROVED (2026-10-14); `reading` remains a candidate with its selection/missing-attribute paragraph removed by explicit approval. Joint task and output blocks pending.
+**Status:** IN PROGRESS — bilingual `interpretation`, `known` / `unknown` identities, local and joint `task` blocks APPROVED (2026-10-14); `reading` remains a candidate with its selection/missing-attribute paragraph removed by explicit approval. `output` and complete `reading` awaiting validation.
 **Branch:** `dev-statistical-prompt-framework`.
 **Technical source:** `R/nail_qda.R` (`SensoMineR::decat()`, canonical `product_profiles`, interpretation evidence and semantic-facing markers).
 **Scope:** scientific/operational prompt wording only. No R runtime changes, test modifications, evidence-selection changes or API changes.
@@ -139,7 +139,31 @@ Caractérisez son profil sensoriel distinctif relativement au produit moyen. Ne 
 - Interpretation rules and relative statistical reference are owned by the common `interpretation` and `reading` blocks.
 - No R code or existing runtime prompt is changed here.
 
-### Joint task — PENDING
+### Joint task — APPROVED (bilingual wording, 2026-10-14)
+
+**English — approved operational text**
+
+Interpret the displayed products or stimuli jointly, using their statistical evidence and the user's analytical request.
+
+Characterize each sensory profile, then identify the main similarities, contrasts and, when supported, coherent sensory families across the evaluated set.
+
+Ground comparisons in the displayed sensory profiles, interpreted relative to the average product. Do not present descriptive contrasts as statistically demonstrated pairwise differences between products or stimuli.
+
+**Français — traduction de contrôle validée**
+
+Interprétez conjointement les produits ou stimuli présentés, à partir de leurs résultats statistiques et de la question analytique de l'utilisateur.
+
+Caractérisez chaque profil sensoriel, puis identifiez les principales ressemblances, différences et, lorsque les résultats le permettent, les familles sensorielles cohérentes au sein de l'ensemble évalué.
+
+Fondez les comparaisons sur les profils sensoriels présentés, interprétés relativement au produit moyen. Ne présentez pas les contrastes descriptifs comme des différences statistiquement démontrées entre produits ou stimuli pris deux à deux.
+
+**Decision**
+
+- Apply this task when `isolate.groups = FALSE`; it deliberately combines descriptions of each sensory profile with descriptive cross-profile comparisons.
+- A sensory family or sensory pole is an interpretive synthesis, not a clustering result or evidence of a pairwise statistical test.
+- This route is independent of `product_knowledge`; identifiers and optional naming are handled by `known` / `unknown`.
+- No new QDA `interpretation_mode` argument is authorized and no R code is modified in this pass.
+
 
 ## 5. `output` — PENDING
 
