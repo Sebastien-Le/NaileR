@@ -164,6 +164,18 @@ Privilégiez une interprétation porteuse de sens plutôt qu'une répétition sy
 **Approved design choice:** the analyst may customize this instruction block, just like `reading` and `interpretation`. No mandatory Quarto Markdown instruction is included in the editable default. Any non-negotiable machine-readable output requirement must be enforced by a separate technical contract, subject to later code verification.
 
 
+## Assembly review — decisions accepted, exact replacement wording pending (2026-10-14)
+
+The analyst agreed with the critical review of the illustrative assembled CATDES prompt. These **architectural editing decisions are approved**, but the revised bilingual operational texts below have **not yet been individually approved** and must not replace the earlier validated block formulations silently.
+
+- Keep `reading`, `interpretation`, and `standard`/`latent` scientific substance unchanged.
+- Reduce repetitive requests for multidimensional synthesis across `interpretation`, `local_task`, `global_task`, and `output`; leave the main substantive synthesis mandate in `interpretation`.
+- Restrict local/global scope wording to scope-related needs; keep global-only instructions in `global_task` rather than conditionally repeating them in `output`.
+- Verify in actual R prompt assembly that the grouping variable name AND its category modality are transmitted, especially for `standard` mode. This technical check has not been performed.
+- Let the analyst choose response language through their request/context, rather than impose a language in mandatory scientific blocks.
+- No change to R code, evidence selection, parser, or existing approved reference is authorized by this agreement.
+- Next: review exact revised EN/FR operational wording, obtain explicit approval, then replace earlier local/global/output text and mark the assembled prompt ready for operational testing.
+
 ## Change policy
 
 Append or modify only an explicitly user-approved bilingual block and record its status. Preserve the approved scientific reference unchanged; do not change NaileR R code or the pending compact draft as a consequence of this document alone.
