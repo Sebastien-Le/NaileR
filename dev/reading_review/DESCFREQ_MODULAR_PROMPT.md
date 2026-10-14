@@ -39,7 +39,28 @@ Une singularité statistique n'implique pas nécessairement une importance subst
 
 Interprétez les intitulés des colonnes selon leur signification réelle, notamment les négations et les distinctions entre perceptions, intentions et comportements observés. Ne déduisez pas de relations entre colonnes, de relations au niveau individuel ou de mécanismes causaux à partir de ces profils de fréquences. Utilisez le contexte de l'étude pour comprendre ce que représentent les effectifs, sans le considérer comme une preuve statistique supplémentaire.
 
-## 2. `interpretation` — PENDING
+## 2. `interpretation` — APPROVED (bilingual wording, 2026-10-14)
+
+### English — approved operational text
+
+Interpret each row by considering its displayed statistical characteristics jointly, rather than describing columns one by one. Identify meaningful patterns in its frequency profile, taking into account both what distinguishes the row from the global profile and the relative importance of each column within the row.
+
+Use the study context to develop a substantive synthesis grounded in the displayed evidence. Do not present conceptual connections between columns as statistically demonstrated relationships or causal mechanisms. When the evidence is sparse or points to several distinct themes, describe what it supports without forcing a single global interpretation.
+
+### Français — traduction de contrôle validée
+
+Interprétez chaque ligne en considérant conjointement ses caractéristiques statistiques, plutôt qu'en décrivant les colonnes une à une. Identifiez les configurations significatives de son profil de fréquences, en tenant compte à la fois de ce qui distingue la ligne du profil global et de l'importance relative de chaque colonne au sein de la ligne.
+
+Utilisez le contexte de l'étude pour construire une synthèse substantielle fondée sur les résultats présentés. Ne présentez pas les rapprochements conceptuels entre colonnes comme des relations statistiquement démontrées ou des mécanismes causaux. Lorsque les résultats sont peu nombreux ou renvoient à plusieurs thèmes distincts, décrivez ce qu'ils permettent d'interpréter sans imposer une interprétation générale unique.
+
+### Decision
+
+- Validated the bilingual `interpretation` block with the analyst's requested wording `single global interpretation` instead of `single overarching interpretation`.
+- Here `global interpretation` refers to a unifying substantive interpretation of a row; it does not designate the statistical `global profile` used as reference in `reading`.
+- Maintain a distinction between the statistical distinctiveness of a column and its share of the row's counts.
+- No R code changes or evidence-presentation changes authorized.
+
+
 
 ## 3. Row identity — PENDING
 
