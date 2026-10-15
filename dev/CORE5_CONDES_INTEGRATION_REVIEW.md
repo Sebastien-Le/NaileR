@@ -10,8 +10,8 @@
 
 Changed **only**:
 
-- `R/nail_condes.R`: replace the body of `build_guide_condes()`, `.build_condes_interpretation()` and `build_conclusion_condes()` with the approved CONDES scientific operational wording; keep the standard/latent identity distinction and a short per-target task.
-- `tests/testthat/test-condes-semantic-rebuild.R`: update obsolete literal prompt expectations to match the approved science; add focused assertions for the output wording, intro/request/conclusion overrides and the optional `target_concept`.
+- `R/nail_condes.R`: replace the body of `build_guide_condes()`, `.build_condes_interpretation()` and `build_conclusion_condes()` with the approved CONDES scientific operational wording; keep the standard/latent identity distinction and a short per-target task. The `.build_condes_interpretation()` call now also passes the unchanged original R variable name so a custom `target_label` cannot conceal its source identifier.
+- `tests/testthat/test-condes-semantic-rebuild.R`: update obsolete literal prompt expectations to match the approved science; add focused assertions for the output wording, intro/request/conclusion overrides, optional `target_concept`, and custom display labels.
 
 The six established top-level prompt blocks remain `context`, `reading`, `question`, `interpretation`, `evidence`, `output`. To avoid changing the six-block contract, the approved `identity` and `task` texts are included as separately headed subsections of `interpretation`, not as new top-level blocks.
 
@@ -19,7 +19,7 @@ The approved `reading` omits generic descriptions of R sampling/undisplayed evid
 
 ## 2. What was statically checked
 
-Using the GitHub file snapshots on the base and integration branches, a comparison with the three prompt helper functions excluded showed **all other text in `R/nail_condes.R` byte-identical**. The original `FactoMineR::condes()` call, canonical `continuous_profile` construction, registry, evidence-selection logic, R accessors and LLM call/return paths were not edited. Approved key English paragraphs were present in the new R helper bodies. Test-file modifications are confined to existing prompt wording tests plus two new focused cases.
+Using the GitHub file snapshots on the base and integration branches, an initial comparison with the three prompt helper functions excluded showed **all other text in `R/nail_condes.R` byte-identical**. A subsequent narrowly scoped update passed the existing `target_variable` identifier into the interpretation builder to preserve it alongside a custom presentation label; no statistical-computation logic was edited. The original `FactoMineR::condes()` call, canonical `continuous_profile` construction, registry, evidence-selection logic, R accessors and LLM call/return paths were not edited. Approved key English paragraphs were present in the new R helper bodies. Test-file modifications are confined to existing prompt wording tests plus two new focused cases.
 
 **This is NOT proof of runtime invariance, syntactic correctness or test success:** this environment has no R/Rscript. There was no execution of `devtools::load_all()`, `devtools::test()`, `devtools::check()`, or actual Ollama/Gemini generation. Do not merge the integration branch or mark CONDES complete on the basis of a static comparison.
 
@@ -27,7 +27,7 @@ Using the GitHub file snapshots on the base and integration branches, a comparis
 
 1. **`prompt_style` option:** `"detailed"` and `"compact"` remain legal and still appear in settings, but the approved scientific `reading`, `interpretation` and `output` wording is now **identical** across both: compact no longer shortens these blocks. This is a semantic compatibility change to assess. Do not silently claim the compact output is preserved.
 2. **`target_concept` option:** an explicit, non-default user-provided concept still appears in the latent interpretation as guidance (the original non-forcing caveat is retained). Confirm that an analyst-supplied hypothesis is not presented as a measured property.
-3. **`target_label` versus source variable identifier:** the task uses the presentation label. Inspect scenarios where a custom display label differs from the original dataset column name, particularly when identity rules demand preserving the original identifier.
+3. **`target_label` versus source variable identifier:** the task uses the analyst's presentation label and the identity subsection now explicitly retains the original dataset column identifier when the two labels differ. A focused regression assertion was added; runtime verification remains pending.
 4. **Six-block contract:** adding `### Target Identity` and `### Task` inside the interpretation block retains the structural API but alters its inner formatting. Verify downstream clients do not assume the interpretation block consists only of plain sentences.
 5. **Default `output` behavior:** approved editorial wording replaces the historical summary headings and the Quarto requirement. Caller-supplied `conclusion` remains unchanged. Confirm downstream PolisheR or other clients do not parse the historical heading structure.
 6. **Target-specific parameter narration:** the new reading omits the previously prompt-visible numeric `quanti.threshold` and `proba` explanations. This follows the approved editorial decision not to explain sampling, but the end-state threshold may still be useful analytical context; examine whether existing evidence is sufficiently self-explanatory.
