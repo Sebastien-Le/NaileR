@@ -387,6 +387,23 @@ test_that("condes retains target_concept as optional latent context", {
 })
 
 
+test_that("condes retains source identifier with a custom display label", {
+  x <- nail_condes(
+    make_condes_semantic_data(),
+    num.var = 1,
+    interpretation_mode = "latent",
+    target_label = "Display dimension",
+    generate = FALSE
+  )
+  blocks <- attr(x, "condes_prompt_blocks", exact = TRUE)
+  expect_match(blocks$interpretation, 'Original data-variable identifier: "Score"', fixed = TRUE)
+  expect_match(blocks$interpretation, 'Analyst-provided display label: "Display dimension"', fixed = TRUE)
+  expect_match(blocks$interpretation, 'Interpret the quantitative target "Display dimension"', fixed = TRUE)
+  expect_identical(attr(x, "condes_settings", exact = TRUE)$target_variable, "Score")
+  expect_identical(attr(x, "condes_settings", exact = TRUE)$target_label, "Display dimension")
+})
+
+
 test_that("semantic-facing evidence contains explicit R-derived facts", {
   x <- nail_condes(
     make_condes_semantic_data(),
