@@ -3,6 +3,8 @@
 > **State record prepared — 2026-10-09.** This file records the methodological decisions and development status established from the current repository state. Local operational artifacts remain separate from this memory file unless explicitly committed.
 >
 > **Priority decision 2026-10-15:** Core-five scope freeze governs all new development; see the priority override below and [`dev/FINALIZATION_CORE5.md`](dev/FINALIZATION_CORE5.md).
+>
+> **Progress update 2026-10-15:** `nail_condes()` has been technically validated locally (105 targeted and 1,299 full tests passed; full `R CMD check` reported 0 ERROR, 0 WARNING, 1 environmental time NOTE), with full details in `dev/CORE5_CONDES_INTEGRATION_REVIEW.md`. The next core-five target is `nail_catdes()`. Initial Git source inspection already finds the approved CATDES modular reading/interpretation/output and standard/latent, local/joint assembly implemented in R, but CATDES final operational validation remains open. Interpretive model limitations remain separate from evidence correctness.
 
 ## Priority override — 2026-10-15 (APPROVED)
 
@@ -18,7 +20,7 @@
 
 **Explicitly on hold:** `nail_qda_space()`, `nail_catdes_textual()`, the historical `nail_textual_contextualized()` workflow, independent development of `nail_textual_prep()`, `nail_group_profile_prep()`, `nail_catdes_prep()`, `nail_qda_spaceprep()`, optional interpretation/grounding helpers, and legacy SORT/LLM distance exports. Keep required compatibility and necessary core-five dependencies operational; do not remove exports or refactor intermediate workflows for their own sake. New agent features and global TEXTUAL comparison are deferred.
 
-**Current scientific prompt status:** CONDES, CATDES, DESCFREQ, QDA and classic TEXTUAL bilingual operational blocks approved in `dev/reading_review/` as of 2026-10-15. These are editorial decisions, **not yet integrated in the executed R prompts**, and the updated wording has not yet been operationally validated. Earlier local tests apply to prior runtime versions and cited cases.
+**Scientific prompt status at the scope-freeze decision (historical baseline):** CONDES, CATDES, DESCFREQ, QDA and classic TEXTUAL bilingual operational blocks were approved in `dev/reading_review/` as of 2026-10-15. At the original baseline, they were described as not yet integrated. The progress update above supersedes that assessment for CONDES, and CATDES implementation must be audited against its approved source before claiming finalization. Earlier local tests apply only to the runtime and cases they exercised.
 
 **Authority and precedence:** This scope restriction and [`dev/FINALIZATION_CORE5.md`](dev/FINALIZATION_CORE5.md) **supersede** the broader October 9 "one-day stabilization sprint" scope and the older next-action paragraphs **where they conflict**. Retain the October 9 scientific/operational findings, known risks, and historical evidence as records; do not erase or rewrite them. The freeze lifts only once **all five** are finalized and the analyst decides the next phase. No R source code changed with this decision.
 
