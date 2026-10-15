@@ -5,6 +5,9 @@
 > **Priority decision 2026-10-15:** Core-five scope freeze governs all new development; see the priority override below and [`dev/FINALIZATION_CORE5.md`](dev/FINALIZATION_CORE5.md).
 >
 > **Progress update 2026-10-15:** `nail_condes()` has been technically validated locally (105 targeted and 1,299 full tests passed; full `R CMD check` reported 0 ERROR, 0 WARNING, 1 environmental time NOTE), with full details in `dev/CORE5_CONDES_INTEGRATION_REVIEW.md`. The next core-five target is `nail_catdes()`. Initial Git source inspection already finds the approved CATDES modular reading/interpretation/output and standard/latent, local/joint assembly implemented in R, but CATDES final operational validation remains open. Interpretive model limitations remain separate from evidence correctness.
+>
+> **Further progress 2026-10-15:** `nail_catdes()` is technically finalized following 185 targeted and 1,299 full tests in the pre-fix operational validation, seven real Ollama calls in four routes, a complete R CMD check with 0 ERROR / 0 WARNING / two environmental/build notes, two targeted approved-reading wording corrections, corrected tests and an exclusion of worktree `.git` from the package archive. The analyst subsequently confirmed the post-fix revalidation was satisfactory; detailed post-fix logs were not supplied. See [`dev/CORE5_CATDES_FINALIZATION_REVIEW.md`](dev/CORE5_CATDES_FINALIZATION_REVIEW.md). **The next active scientific-development function is `nail_descfreq()`.**
+
 
 ## Priority override — 2026-10-15 (APPROVED)
 
