@@ -1,6 +1,6 @@
 # TEXTUAL modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading` and `interpretation` APPROVED (complete bilingual wording, 2026-10-15). Local task and output blocks pending.
+**Status:** IN PROGRESS — `reading`, `interpretation`, and `local_task` APPROVED (complete bilingual wording, 2026-10-15). Two route-specific `output` blocks pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological reference:** [TEXTUAL_REFERENCE_PROMPT.md](TEXTUAL_REFERENCE_PROMPT.md) (already approved as scientific V1).
 **Decision log:** [TEXTUAL_PROMPT_DECISIONS.md](TEXTUAL_PROMPT_DECISIONS.md).
@@ -80,9 +80,29 @@ Adaptez la profondeur de l'interprétation à la richesse et à la diversité de
 
 
 
-## 3. Local task — PENDING
+## 3. `local_task` — APPROVED (complete bilingual wording, 2026-10-15)
 
-The current classic TEXTUAL route is local-first: `isolate.groups = FALSE` combines local interpretations, not a global semantic comparison.
+### English — approved operational text
+
+Interpret only the texts associated with group "[identifier]", in light of the user's analytical request.
+
+Construct a substantive textual profile of this group without describing, comparing or inferring the discourse of other groups.
+
+### Français — traduction de contrôle validée
+
+Interprétez uniquement les textes associés au groupe « [identifier] », à la lumière de la question analytique de l'utilisateur.
+
+Construisez un profil textuel substantiel de ce groupe, sans décrire, comparer ou inférer le discours des autres groupes.
+
+### Decision and scope
+
+- This exact English/French wording was explicitly approved on 2026-10-15.
+- The classic TEXTUAL workflow is local-first. `isolate.groups = FALSE` collects separate local prompts/results but does not authorize a global inter-group comparison or synthesis.
+- `[identifier]` denotes the original group label substituted by R. The study introduction and user request remain preserved separately.
+- A group without a non-empty text has no defensible textual profile; this remains a separate technical situation to handle within the existing output contract.
+- No R runtime, parser or other output contract is modified.
+
+
 
 ## 4. Output — PENDING
 
