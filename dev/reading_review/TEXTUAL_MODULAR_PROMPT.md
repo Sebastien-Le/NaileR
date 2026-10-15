@@ -1,6 +1,6 @@
 # TEXTUAL modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading`, `interpretation`, and `local_task` APPROVED (complete bilingual wording, 2026-10-15). Two route-specific `output` blocks pending.
+**Status:** IN PROGRESS — `reading`, `interpretation`, `local_task` and the `nail_textual()` `output` APPROVED (complete bilingual wording, 2026-10-15). The distinct `nail_textual_prep()` `output` remains pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological reference:** [TEXTUAL_REFERENCE_PROMPT.md](TEXTUAL_REFERENCE_PROMPT.md) (already approved as scientific V1).
 **Decision log:** [TEXTUAL_PROMPT_DECISIONS.md](TEXTUAL_PROMPT_DECISIONS.md).
@@ -104,9 +104,79 @@ Construisez un profil textuel substantiel de ce groupe, sans décrire, comparer 
 
 
 
-## 4. Output — PENDING
+## 4. Output
 
-Preserve the structured `textual_profiles` contract of `nail_textual()` and the distinct preparatory reusable-summary contract of `nail_textual_prep()`. The exact output formatting must remain compatible with existing parsers.
+### 4.1 `nail_textual()` — APPROVED (bilingual operational wording, 2026-10-15)
+
+**English — approved operational text**
+
+Produce a concise, substantive and evidence-grounded qualitative profile of the group.
+
+Use exactly the following fields and preserve their names and order:
+
+Core textual profile:
+One concise statement capturing the main configuration of meaning emerging from the discourse.
+
+Dominant themes:
+One to five concise themes, separated by semicolons.
+
+Within-group coherence:
+Choose exactly one: `strong` / `moderate` / `mixed` / `weak`, based on the qualitative organization of the discourse, not numerical recurrence alone.
+
+Internal diversity:
+One concise statement identifying meaningful variations, reservations, tensions or minority perspectives.
+
+Representative text IDs:
+One to three supplied text identifiers supporting the central interpretation, separated by semicolons.
+
+Tension text IDs:
+Zero to three supplied text identifiers illustrating tensions or contrasting perspectives, separated by semicolons, or `none`.
+
+Do not add other fields or introductory text. Use only supplied text identifiers. Representative texts illustrate an interpretation; they do not establish the prevalence of a theme.
+
+**Français — traduction de contrôle validée**
+
+Produisez un profil qualitatif du groupe, concis, substantiel et fondé sur les observations textuelles.
+
+Utilisez exactement les champs suivants, en conservant leurs noms et leur ordre :
+
+Core textual profile :
+
+Une formulation concise résumant la principale configuration de sens qui émerge du discours.
+
+Dominant themes :
+
+Un à cinq thèmes concis, séparés par des points-virgules.
+
+Within-group coherence :
+
+Choisissez exactement une valeur parmi `strong` / `moderate` / `mixed` / `weak`, selon l'organisation qualitative du discours, et non sur la seule récurrence numérique.
+
+Internal diversity :
+
+Une formulation concise décrivant les variations significatives, les réserves, les tensions ou les perspectives minoritaires.
+
+Representative text IDs :
+
+Un à trois identifiants de textes fournis, étayant l'interprétation centrale et séparés par des points-virgules.
+
+Tension text IDs :
+
+Zéro à trois identifiants de textes fournis illustrant les tensions ou les perspectives contrastées, séparés par des points-virgules, ou `none`.
+
+N'ajoutez aucun autre champ ni texte introductif. Utilisez uniquement les identifiants fournis. Les textes représentatifs illustrent une interprétation ; ils ne permettent pas d'établir la prévalence d'un thème.
+
+**Scientific and technical decisions**
+
+- English wording and French control translation above were explicitly approved by the analyst on 2026-10-15.
+- Keep exactly the six field labels recognized by `.parse_textual_profile_response()`; this approval is editorial only, not a parser modification.
+- Coherence is a qualitative assessment; technical values `strong`, `moderate`, `mixed`, `weak` remain unchanged. Insufficient evidence is conceptually distinct from `weak`, but `not assessable` is **not** introduced as a fifth value without separate parser/contract approval.
+- Output text-ID values must belong to the supplied textual evidence; representative observations are illustrative, not prevalence measurements.
+- The no-text or sparse-text case remains a separate implementation/test concern; the approval does not authorize invented profiles or fabricated IDs.
+
+### 4.2 `nail_textual_prep()` — PENDING
+
+Preserve the distinct short preparatory, reusable `nail_textual_prep()` output fields, including the conditional verbatim cue fields when requested. Review this separately before approval.
 
 ## Implementation boundary
 
