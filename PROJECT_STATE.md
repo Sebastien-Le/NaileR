@@ -1,6 +1,28 @@
 # NaileR — PROJECT_STATE
 
 > **State record prepared — 2026-10-09.** This file records the methodological decisions and development status established from the current repository state. Local operational artifacts remain separate from this memory file unless explicitly committed.
+>
+> **Priority decision 2026-10-15:** Core-five scope freeze governs all new development; see the priority override below and [`dev/FINALIZATION_CORE5.md`](dev/FINALIZATION_CORE5.md).
+
+## Priority override — 2026-10-15 (APPROVED)
+
+**Binding development decision:** Finish the following **five fundamental scientific functions before undertaking any other analytical-function development**:
+
+1. `nail_condes()`
+2. `nail_catdes()`
+3. `nail_descfreq()`
+4. `nail_qda()`
+5. `nail_textual()`
+
+**Definition of done:** approved scientific prompts must be actually integrated into R, checked with `generate = FALSE` and realistic `generate = TRUE` interpretations, and shown to preserve canonical evidence, current API/parsers, traceability, tests/checks, and reproducible applied examples. Scientific prompt approval **alone** does not finish a function. Finalize one function and document its outcome before moving to the next.
+
+**Explicitly on hold:** `nail_qda_space()`, `nail_catdes_textual()`, the historical `nail_textual_contextualized()` workflow, independent development of `nail_textual_prep()`, `nail_group_profile_prep()`, `nail_catdes_prep()`, `nail_qda_spaceprep()`, optional interpretation/grounding helpers, and legacy SORT/LLM distance exports. Keep required compatibility and necessary core-five dependencies operational; do not remove exports or refactor intermediate workflows for their own sake. New agent features and global TEXTUAL comparison are deferred.
+
+**Current scientific prompt status:** CONDES, CATDES, DESCFREQ, QDA and classic TEXTUAL bilingual operational blocks approved in `dev/reading_review/` as of 2026-10-15. These are editorial decisions, **not yet integrated in the executed R prompts**, and the updated wording has not yet been operationally validated. Earlier local tests apply to prior runtime versions and cited cases.
+
+**Authority and precedence:** This scope restriction and [`dev/FINALIZATION_CORE5.md`](dev/FINALIZATION_CORE5.md) **supersede** the broader October 9 "one-day stabilization sprint" scope and the older next-action paragraphs **where they conflict**. Retain the October 9 scientific/operational findings, known risks, and historical evidence as records; do not erase or rewrite them. The freeze lifts only once **all five** are finalized and the analyst decides the next phase. No R source code changed with this decision.
+
+---
 
 ## 1. Source of truth and branch
 
