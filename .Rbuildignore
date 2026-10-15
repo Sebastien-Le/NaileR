@@ -10,3 +10,6 @@
 ^R_old$
 ^R_old_old$
 ^NaileR_stabilization_.*$
+^NaileR_CATDES_TEXTUAL_validation_3_groupes\.R$
+^Rplots\.pdf$
+^test_modularite_prompt_descfreq\.R$
