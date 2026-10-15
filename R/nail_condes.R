@@ -1252,63 +1252,23 @@ build_guide_condes <- function(mode = c("standard", "latent"),
                                sample.pct = 1,
                                sample.method = c("stratified", "top"),
                                quanti.threshold = 1) {
+  # Keep the historical helper signature, but separate scientific reading
+  # from evidence-selection and statistical-computation parameters.
   mode <- match.arg(mode)
   prompt_style <- match.arg(prompt_style)
   sample.method <- match.arg(sample.method)
 
-  sampling_line <- if (sample.pct >= 1) {
-    "All retained evidence is shown to the LLM."
-  } else if (identical(sample.method, "top")) {
-    paste0(
-      round(100 * sample.pct, 1),
-      "% of each eligible evidence family is shown,",
-      " using the strongest retained items."
-    )
-  } else {
-    paste0(
-      round(100 * sample.pct, 1),
-      "% of each eligible evidence family is shown,",
-      " using deterministic anchor + exploration selection."
-    )
-  }
-
-  common <- c(
-    paste0(
-      "The R-derived facts below come from `FactoMineR::condes()`",
-      " under the current retention threshold (p <= ",
-      proba,
-      ")."
-    ),
-    "Continuous-variable associations are the main direct evidence for the direction of the continuum.",
-    "Global qualitative-variable associations provide complementary evidence.",
-    paste0(
-      "End profiles illustrate the two ends of the continuum.",
-      " Quantitative predictors are represented by above-average, below-average, or intermediate-value states",
-      " using a threshold of ",
-      quanti.threshold,
-      " standard-deviation unit(s); original qualitative categories are preserved."
-    ),
-    sampling_line
+  paste(
+    "The results come from `FactoMineR::condes()` and describe the associations of one quantitative target with other variables. R has performed the statistical calculations; interpret the displayed evidence without inventing additional findings.",
+    "For quantitative predictors, a POSITIVE correlation means that higher predictor values tend to accompany higher target values; a NEGATIVE correlation means that higher predictor values tend to accompany lower target values. The absolute correlation indicates the strength of the linear association. Interpret directions according to the meaning and orientation of each variable's scale. Higher values do not necessarily mean better outcomes.",
+    "For qualitative predictors, R² describes the overall association between the variable and the target. It has no direction and does not identify the contribution of any particular category.",
+    "A positive or negative Estimate indicates that a category is associated with higher or lower target values, respectively, relative to the reference of the fitted one-factor model (sum-to-zero coding). Estimate is expressed in the target's units. It is not necessarily a difference from the overall sample mean or an effect adjusted for other predictors.",
+    "Derived states such as Above-average value and Below-average value come from the original quantitative predictors. They are not independent measurements. Use them to illustrate or qualify the continuous associations, not as separate confirmations.",
+    "Statistical significance does not measure association strength or substantive importance.",
+    "Preserve the meaning of variables and categories, including negations and reverse-worded labels. Use the study context to understand the measurements, without treating that context as additional statistical evidence. Do not infer causality from these associations.",
+    sep = "\n\n"
   )
-
-  if (prompt_style == "detailed") {
-    common <- c(
-      common,
-      "A positive correlation means that higher values of the predictor tend to accompany higher values of the target; a negative correlation means the opposite.",
-      "For continuous predictors, the absolute correlation reflects the magnitude of the linear association, while its sign gives the direction.",
-      "For end profiles, Estimate is a signed effect relative to the fitted coding/model: a negative value orients toward the lower end and a positive value toward the higher end; it is not an importance measure or an independent confirmation.",
-      "Among the displayed retained results, smaller p.values indicate stronger statistical evidence against the corresponding null association under the fitted analysis. They do not measure substantive importance or association magnitude."
-    )
-  } else {
-    common <- c(
-      common,
-      "p.values indicate statistical support, whereas the absolute correlation indicates linear-association magnitude and its sign indicates direction; neither is by itself interpretive importance."
-    )
-  }
-
-  paste(common, collapse = "\n")
 }
-
 
 build_request_condes <- function(
     mode = c("standard", "latent"),
@@ -1344,108 +1304,57 @@ build_request_condes <- function(
   mode <- match.arg(mode)
   prompt_style <- match.arg(prompt_style)
 
-  if (mode == "standard") {
-    common <- c(
-      "Ground your interpretation in the statistical evidence below. Use the study context provided in the introduction to help give substantive meaning to the pattern, but do not treat contextual information as statistical evidence.",
-      "Do not infer causality from these associations.",
-      "Do not equate statistical evidence strength or association magnitude with interpretive importance. Identify the central pattern from the coherence of the displayed evidence as a whole.",
-      "Interpret the pattern formed by several coherent variables rather than merely paraphrasing each line."
+  # The approved scientific interpretation applies to both modes.
+  core <- paste(
+    "Interpret the quantitative target by considering its statistical associations jointly, rather than describing variables one by one. Identify meaningful patterns associated with lower and higher target values, and develop a substantive synthesis of what emerges from their combination.",
+    "Use the study context to connect findings conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships between predictors or causal mechanisms. When the results reveal several distinct aspects of the target, describe them without forcing a single overarching interpretation.",
+    sep = "\n\n"
+  )
+
+  identity <- if (identical(mode, "standard")) {
+    paste(
+      "The target is an observed quantitative variable. Preserve its original name and measured meaning.",
+      "Interpret how the displayed associations characterize its lower and higher values. A broader substantive interpretation may emerge from these associations, but do not replace the observed variable with an inferred latent construct.",
+      sep = "\n\n"
     )
-
-    if (prompt_style == "compact") {
-      return(
-        paste(
-          c(
-          common,
-          "Identify the main associations and describe what characterizes its lower and higher ends.",
-          "Synthesize what the evidence adds to the understanding of the variable without renaming it.",
-          "Keeping the observed target name does not prevent a broader substantive interpretation when it reasonably synthesizes several displayed associations; distinguish that interpretation from a direct statistical association.",
-          paste0(
-            'The target label "', target_label,
-            '" is meaningful and refers to an observed continuous variable.'
-          ),
-          "Preserve this meaning and do not rename the target.",
-          "Do not invent causal explanations."
-          ),
-          collapse = "\n"
-        )
-      )
-    }
-
-    return(
-      paste(
-        c(
-          common,
-          paste0(
-            'The target label "', target_label,
-            '" is meaningful and refers to an observed continuous variable.'
-          ),
-          "Preserve this meaning and do not rename the target.",
-          "1. Identify the main coherent variable-level associations, considering statistical support and association magnitude as distinct properties.",
-          "2. Translate their directions into substantive meaning.",
-          "3. Describe what characterizes the lower end of the target.",
-          "4. Describe what characterizes the higher end of the target.",
-          "5. Use the end-profile evidence to illustrate or qualify the variable-level pattern.",
-          "6. Explain what these associations add to the understanding of the target as a whole.",
-          "7. Keeping the observed target name does not prevent a broader substantive interpretation when it reasonably synthesizes several displayed associations; distinguish that interpretation from a direct statistical association.",
-          "Do not rename the target, do not force coherence, and do not invent causal explanations.",
-          "Interpret the pattern formed by several coherent variables rather than merely paraphrasing each line."
-        ),
-        collapse = "\n"
-      )
-    )
-  }
-
-  concept_rule <- if (identical(
-    target_concept,
-    "the target concept"
-  )) {
-    "Prefer the simplest unifying name supported by the coherent configuration of the evidence, not by any single statistic."
   } else {
-    paste0(
-      'Use "', target_concept,
-      '" only as contextual guidance; do not force that label if the evidence supports a more precise or different continuum.'
+    paste(
+      "The target is a constructed quantitative dimension whose substantive meaning must be inferred from its statistical associations. Its original identifier must be preserved.",
+      "Interpret the contrast between lower and higher values to identify what the dimension represents. When the numerical orientation is arbitrary, as with a principal component, do not assume that higher values are inherently better or more desirable.",
+      "When supported by the evidence, propose a concise, meaningful name that captures the dimension's main interpretation. Keep the original identifier alongside the proposed name.",
+      "Do not force a single name or interpretation when the associations are too heterogeneous or insufficiently informative.",
+      sep = "\n\n"
     )
   }
 
-  if (prompt_style == "compact") {
-    return(
-      paste(
-        "Ground the reconstruction in the statistical evidence below and do not infer causality.",
-        "Do not equate statistical evidence strength or association magnitude with interpretive importance.",
-        "Identify the main variable-level associations, describe the two ends, and infer the common meaning that best explains their opposition.",
-        'State explicitly: "What separates the higher end from the lower end of the continuum is..."',
-        "Then propose one concise name for the continuum.",
-        concept_rule,
-        "Treat the two ends as opposite manifestations of one continuum and reconstruct its substantive meaning from the evidence.",
-        sep = "\n"
-      )
+  # Preserve the pre-existing public target_concept semantics when supplied:
+  # it is interpretive context, not a statistical fact or mandatory name.
+  if (identical(mode, "latent") &&
+      !identical(target_concept, "the target concept")) {
+    identity <- paste(
+      identity,
+      paste0(
+        'Use "', target_concept,
+        '" only as contextual guidance; do not force that label if the evidence supports a more precise or different continuum.'
+      ),
+      sep = "\n\n"
     )
   }
+
+  task <- paste0(
+    'Interpret the quantitative target "', target_label,
+    '" using the displayed statistical evidence and the user\'s analytical request.'
+  )
 
   paste(
-    "Ground the reconstruction in the statistical evidence below and do not infer causality.",
-    "Do not equate statistical evidence strength or association magnitude with interpretive importance.",
-    paste0(
-      'The target label "', target_label,
-      '" may be a technical label for a synthetic or latent continuous score.'
-    ),
-    "Treat its two ends as opposite manifestations of one continuum and reconstruct its substantive meaning from the evidence.",
-    "1. Identify the main coherent variable-level associations, considering statistical support and association magnitude as distinct properties.",
-    "2. Translate their directions into substantive meaning.",
-    "3. Describe the lower end of the continuum.",
-    "4. Describe the higher end of the continuum.",
-    "5. Use the end-profile evidence to illustrate, refine, or qualify those two ends.",
-    "6. Infer the common underlying meaning that best explains both ends as opposite manifestations of one continuum.",
-    '7. Write one sentence beginning with: "What separates the higher end from the lower end of the continuum is..."',
-    "8. Propose one concise name for the continuum and justify it from the coherent configuration of the evidence, not from any single statistic.",
-    "9. Mention mixed, ambiguous, or only weakly supported patterns when necessary.",
-    concept_rule,
-    "Do not simply restate the evidence line by line and do not invent causal explanations.",
-    sep = "\n"
+    core,
+    "### Target Identity",
+    identity,
+    "### Task",
+    task,
+    sep = "\n\n"
   )
 }
-
 
 .build_condes_prompt_blocks <- function(context,
                                          reading,
@@ -1548,41 +1457,12 @@ build_conclusion_condes <- function(
     target_label = "the target variable") {
   mode <- match.arg(mode)
 
-  if (mode == "standard") {
-    return(
-      paste(
-        "# Final Summary Task",
-        "End with:",
-        paste0(
-          '1. **Meaning of "', target_label,
-          '"** - a concise synthesis of what the evidence shows.'
-        ),
-        "2. **Lower end** - the main characteristics associated with lower values.",
-        "3. **Higher end** - the main characteristics associated with higher values.",
-        "4. **Overall interpretation** - the main coherent pattern, including any important nuance or mixed evidence.",
-        "",
-        "# Output format",
-        "Your output must be **formatted using valid Quarto Markdown**.",
-        sep = "\n"
-      )
-    )
-  }
-
   paste(
-    "# Final Summary Task",
-    "End with:",
-    "1. **Main continuum** - one concise statement of the opposition represented by the score.",
-    "2. **Lower end** - the main characteristics of one end.",
-    "3. **Higher end** - the main characteristics of the other end.",
-    '4. **What separates the ends** - one sentence beginning with "What separates the higher end from the lower end of the continuum is...".',
-    "5. **Proposed latent dimension** - one concise name and its evidence-based justification.",
-    "",
-    "# Output format",
-    "Your output must be **formatted using valid Quarto Markdown**.",
-    sep = "\n"
+    "Write a clear, substantive interpretation of the quantitative target. Present the main characteristics associated with its lower and higher values, and explain the overall contrast they suggest.",
+    "Support your interpretation with the most relevant statistical findings, while acknowledging important limitations. Favor a meaningful synthesis over repetitive numerical reporting.",
+    sep = "\n\n"
   )
 }
-
 
 # ===========================================================================
 # LLM IO and artifact attachment
