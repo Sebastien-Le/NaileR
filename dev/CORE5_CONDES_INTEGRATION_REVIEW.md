@@ -1,7 +1,7 @@
 # CORE 5 / CONDES — runtime prompt integration, first implementation review
 
 **Date:** 2026-10-15
-**Status:** STAGED ON ISOLATED DEVELOPMENT BRANCH — NOT OPERATIONALLY VALIDATED / NOT FINALIZED.
+**Status:** TECHNICALLY VALIDATED LOCALLY (2026-10-15) — READY FOR INTEGRATION. LLM interpretation quality remains model-dependent.
 **Integration branch:** `dev-core5-condes-integration-20261015`.
 **Source branch / intended merge target:** `dev-statistical-prompt-framework`.
 **Approved scientific source:** [CONDES_MODULAR_PROMPT.md](reading_review/CONDES_MODULAR_PROMPT.md).
@@ -82,3 +82,23 @@ Before merging into `dev-statistical-prompt-framework`, retain local test logs a
 ### Provenance note
 
 The historical `PROJECT_STATE.md` records earlier CONDES and cross-method tests on the older runtime. They do **not** certify the newly integrated scientific blocks staged on this branch.
+
+
+## 6. Completed local technical validation — 2026-10-15
+
+**Source of verification:** Local execution and results reported by the analyst and Codex on the integration branch. The earlier sections document the original pre-execution review; they are preserved as historical checkpoints, not the current validation status.
+
+- `devtools::load_all()`: successful.
+- `devtools::test_active_file("tests/testthat/test-condes-semantic-rebuild.R")`: 105 PASS, 0 FAIL, 0 WARN.
+- `devtools::test()`: 1,299 PASS, 0 FAIL, 0 WARN.
+- `R CMD build`, `R CMD INSTALL` and smoke test from a temporary library: successful.
+- Full `devtools::check()` from RStudio: **0 errors, 0 warnings, 1 NOTE** (`checking for future file timestamps ... unable to verify current time`, environmental). Vignettes and rebuilding outputs succeeded.
+- Canonical `continuous_profile`, `nail_evidence()` and statistical profiles compared equal across tested standard/latent, presentation style and evidence-selection settings.
+- `generate = FALSE` preview and real `generate = TRUE` Ollama (`mistral-small3.2`) runs exercised. `nail_prompt()`, `nail_response()`, `nail_evidence()`, source variable identity and custom `target_label` verified.
+- Follow-up fix committed: a source-safe `R\u005cu00B2` escape renders as `R²` in prompts, without a non-ASCII source-code warning. `.Rbuildignore` excludes three local validation artifacts without removing them.
+
+**Accepted/recorded behavior:** `prompt_style = "compact"` and `"detailed"` currently render the same approved scientific guidance; the default final output no longer mandates Quarto formatting. These are known editorial/compatibility changes, not hidden assurances of historical textual equivalence.
+
+**Separately recorded interpretive experiment:** On the first PCA component of `FactoMineR::decathlon`, 15 local model generations compared current prompt A, added verification B and R-derived directional assistance C: 4/5, 4/5 and 5/5 directionally coherent responses respectively. This small single-case exploratory study does **not** establish general superiority of C or a technical defect in the package. No new CATDES/QDA or other scope was authorized by that study. Full local prompts, generations and review remain in untracked `dev/operational_validation/condes_abc/`.
+
+**Technical closeout decision:** CONDES is technically finalized for the current five-function stabilization effort. No further CONDES prompt optimization is a prerequisite for starting CATDES. The package's R-statistical truth and model-generated interpretation are separate responsibilities; substantive LLM outputs require analyst review.
