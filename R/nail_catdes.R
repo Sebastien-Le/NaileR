@@ -1484,11 +1484,11 @@ build_request_catdes <- function(interpretation_mode = c("standard", "latent"),
     "The results come from `FactoMineR::catdes()`. Each qualitative finding compares the frequency of a response modality within a group with its frequency in the full analyzed sample.",
     "MORE FREQUENT indicates statistical overrepresentation; LESS FREQUENT indicates statistical underrepresentation. The full sample is the reference, not another group.",
     "Overrepresentation does not necessarily imply a majority within the group. Interpret each direction together with the reported group and full-sample percentages.",
-    "Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale. Do not infer the distribution of unreported modalities from a single displayed result.",
+    "Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale.",
     "Each quantitative finding compares a variable's mean within a group with its mean in the full analyzed sample. HIGHER and LOWER indicate that the group mean is statistically higher or lower, respectively.",
     "Read each difference according to what the variable measures, its unit when known, and the meaning of high and low values. Do not assume that higher means better or lower means worse.",
     "If the variable's meaning, scale, or unit is unclear, do not invent it. Do not compare means of unrelated variables as if they were measured on the same scale.",
-    "Base your analysis on the provided statistical evidence. Do not make assumptions about variables or modalities that are not shown.",
+    "Base your analysis on the provided statistical evidence.",
     sep = "\n"
   )
 }
