@@ -80,6 +80,20 @@ For each function:
 
 This board does **not** override precise older operational-test records or imply that prior runs have been repeated. Update status only from completed, reproducible evidence.
 
+## 5A. Progress update — 2026-10-15 (after local validation)
+
+The section 5 board above is a **historical baseline at the scope-freeze decision**, not the current state. The function-by-function technical finalization status is now:
+
+| Function | Current state | Source |
+| --- | --- | --- |
+| `nail_condes()` | TECHNICALLY FINALIZED | `dev/CORE5_CONDES_INTEGRATION_REVIEW.md` |
+| `nail_catdes()` | TECHNICALLY FINALIZED (post-fix checks user-confirmed) | `dev/CORE5_CATDES_FINALIZATION_REVIEW.md` |
+| `nail_descfreq()` | NEXT: scientific runtime integration and end-to-end validation | `dev/CORE5_DESCFREQ_INTEGRATION_REVIEW.md` on its integration branch |
+| `nail_qda()` | OPEN | Approved scientific prompt in `dev/reading_review/` |
+| `nail_textual()` | OPEN | Approved classic scientific prompt in `dev/reading_review/` |
+
+The order of finalization and evidence-first separation remain unchanged. A locally observed model interpretive error is not the same as a failure in R statistical truth, selection, or software behavior. Current exact local R test output is retained in the corresponding review records or marked as analyst-reported when not attached.
+
 ## 6. Exit condition
 
 The freeze lifts **only after all five functions are explicitly finalized** and the analyst agrees on the next phase. Then consider the two composed analyses `nail_qda_space()` and `nail_catdes_textual()`, and only later deprecations/cleanup of intermediate functions. Until then, no extra feature roadmap.
