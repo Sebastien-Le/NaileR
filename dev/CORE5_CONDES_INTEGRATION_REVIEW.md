@@ -95,7 +95,7 @@ The historical `PROJECT_STATE.md` records earlier CONDES and cross-method tests 
 - Full `devtools::check()` from RStudio: **0 errors, 0 warnings, 1 NOTE** (`checking for future file timestamps ... unable to verify current time`, environmental). Vignettes and rebuilding outputs succeeded.
 - Canonical `continuous_profile`, `nail_evidence()` and statistical profiles compared equal across tested standard/latent, presentation style and evidence-selection settings.
 - `generate = FALSE` preview and real `generate = TRUE` Ollama (`mistral-small3.2`) runs exercised. `nail_prompt()`, `nail_response()`, `nail_evidence()`, source variable identity and custom `target_label` verified.
-- Follow-up fix committed: a source-safe `R\u005cu00B2` escape renders as `R²` in prompts, without a non-ASCII source-code warning. `.Rbuildignore` excludes three local validation artifacts without removing them.
+- Follow-up fix committed: a source-safe `R\u00B2` escape renders as `R²` in prompts, without a non-ASCII source-code warning. `.Rbuildignore` excludes three local validation artifacts without removing them.
 
 **Accepted/recorded behavior:** `prompt_style = "compact"` and `"detailed"` currently render the same approved scientific guidance; the default final output no longer mandates Quarto formatting. These are known editorial/compatibility changes, not hidden assurances of historical textual equivalence.
 
