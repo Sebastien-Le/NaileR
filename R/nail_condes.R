@@ -1300,7 +1300,8 @@ build_request_condes <- function(
     mode = c("standard", "latent"),
     target_concept = "the target concept",
     target_label = "the target variable",
-    prompt_style = c("detailed", "compact")) {
+    prompt_style = c("detailed", "compact"),
+    source_target = target_label) {
   mode <- match.arg(mode)
   prompt_style <- match.arg(prompt_style)
 
@@ -1336,6 +1337,20 @@ build_request_condes <- function(
       paste0(
         'Use "', target_concept,
         '" only as contextual guidance; do not force that label if the evidence supports a more precise or different continuum.'
+      ),
+      sep = "\n\n"
+    )
+  }
+
+  # A caller can provide a display label distinct from the actual R variable.
+  # Preserve both identities without changing canonical target metadata.
+  if (!identical(source_target, target_label)) {
+    identity <- paste(
+      identity,
+      paste0(
+        'Original data-variable identifier: "', source_target,
+        '". Analyst-provided display label: "', target_label,
+        '". Preserve the original identifier alongside the display label.'
       ),
       sep = "\n\n"
     )
@@ -1861,7 +1876,8 @@ nail_condes <- function(dataset,
     mode = interpretation_mode,
     target_concept = target_concept,
     target_label = target_label,
-    prompt_style = prompt_style
+    prompt_style = prompt_style,
+    source_target = target_variable
   )
 
   prompt_blocks <- .build_condes_prompt_blocks(
