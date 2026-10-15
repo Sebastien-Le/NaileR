@@ -181,7 +181,7 @@ test_that("continuous_profile is invariant to interpretation options", {
 })
 
 
-test_that("standard and latent prompts use different semantic tasks", {
+test_that("standard and latent prompts use approved identity and task", {
   dat <- make_condes_semantic_data()
 
   standard <- nail_condes(
@@ -199,141 +199,51 @@ test_that("standard and latent prompts use different semantic tasks", {
     generate = FALSE
   )
 
-  p_standard <- nail_prompt(
-    standard,
-    print = FALSE
-  )
-  p_latent <- nail_prompt(
-    latent,
-    print = FALSE
-  )
+  p_standard <- nail_prompt(standard, print = FALSE)
+  p_latent <- nail_prompt(latent, print = FALSE)
 
-  expect_false(
-    identical(
-      p_standard,
-      p_latent
-    )
-  )
+  expect_false(identical(p_standard, p_latent))
+  expect_match(p_standard, "The target is an observed quantitative variable", fixed = TRUE)
+  expect_match(p_standard, "Preserve its original name and measured meaning", fixed = TRUE)
+  expect_match(p_standard, "do not replace the observed variable with an inferred latent construct", fixed = TRUE)
+  expect_match(p_standard, "A broader substantive interpretation may emerge", fixed = TRUE)
+  expect_match(p_standard, "Do not infer causality from these associations", fixed = TRUE)
 
-  expect_match(
-    p_standard,
-    "do not rename",
-    ignore.case = TRUE
-  )
+  expect_match(p_latent, "The target is a constructed quantitative dimension", fixed = TRUE)
+  expect_match(p_latent, "When the numerical orientation is arbitrary", fixed = TRUE)
+  expect_match(p_latent, "propose a concise, meaningful name", fixed = TRUE)
+  expect_match(p_latent, "Keep the original identifier alongside the proposed name", fixed = TRUE)
+  expect_match(p_latent, 'Interpret the quantitative target "Dim1"', fixed = TRUE)
 
-  expect_match(
-    p_standard,
-    "broader substantive interpretation",
-    fixed = TRUE
-  )
-
-  expect_match(
-    p_standard,
-    "Keeping the observed target name does not prevent",
-    fixed = TRUE
-  )
-
-  expect_match(
-    p_standard,
-    "do not treat contextual information as statistical evidence",
-    fixed = TRUE
-  )
-
-  expect_match(
-    p_latent,
-    "What separates the higher end from the lower end",
-    fixed = TRUE
-  )
-
-  expect_match(
-    p_latent,
-    "propose one concise name",
-    ignore.case = TRUE
-  )
-
-  expect_false(
-    grepl(
-      "Do not rename the target",
-      p_latent,
-      fixed = TRUE
-    )
-  )
-
-  expect_false(
-    grepl(
-      "more favorable|less favorable",
-      p_standard,
-      ignore.case = TRUE
-    )
-  )
+  expect_false(grepl("more favorable|less favorable", p_standard, ignore.case = TRUE))
 })
 
 
-test_that("condes reading distinguishes support magnitude and interpretive centrality", {
-  detailed <- NaileR:::build_guide_condes(
-    mode = "standard",
-    prompt_style = "detailed"
-  )
+test_that("condes reading retains the approved statistical distinctions", {
+  detailed <- NaileR:::build_guide_condes(mode = "standard", prompt_style = "detailed")
+  compact <- NaileR:::build_guide_condes(mode = "standard", prompt_style = "compact")
 
-  compact <- NaileR:::build_guide_condes(
-    mode = "standard",
-    prompt_style = "compact"
-  )
+  expect_match(detailed, "FactoMineR::condes()", fixed = TRUE)
+  expect_match(detailed, "POSITIVE correlation", fixed = TRUE)
+  expect_match(detailed, "absolute correlation indicates the strength of the linear association", fixed = TRUE)
+  expect_match(detailed, "For qualitative predictors, R²", fixed = TRUE)
+  expect_match(detailed, "sum-to-zero coding", fixed = TRUE)
+  expect_match(detailed, "Estimate is expressed in the target's units", fixed = TRUE)
+  expect_match(detailed, "not necessarily a difference from the overall sample mean", fixed = TRUE)
+  expect_match(detailed, "They are not independent measurements", fixed = TRUE)
+  expect_match(detailed, "Statistical significance does not measure association strength", fixed = TRUE)
+  expect_match(detailed, "Do not infer causality from these associations", fixed = TRUE)
 
-  expect_match(
-    detailed,
-    "smaller p.values indicate stronger statistical evidence",
-    fixed = TRUE
-  )
-  expect_match(
-    detailed,
-    "absolute correlation reflects the magnitude of the linear association",
-    fixed = TRUE
-  )
-  expect_false(
-    grepl(
-      "Interpret the pattern formed by several coherent variables",
-      detailed,
-      fixed = TRUE
-    )
-  )
-  expect_match(
-    detailed,
-    "Estimate is a signed effect relative to the fitted coding/model",
-    fixed = TRUE
-  )
-  expect_match(
-    compact,
-    "p.values indicate statistical support",
-    fixed = TRUE
-  )
-  expect_match(
-    compact,
-    "absolute correlation indicates linear-association magnitude",
-    fixed = TRUE
-  )
+  # The new scientific guardrails are identical under both legacy style values.
+  expect_identical(detailed, compact)
+  expect_false(grepl("retained evidence is shown|eligible evidence family", detailed, ignore.case = TRUE))
 
   interpretation <- NaileR:::.build_condes_interpretation(
-    mode = "standard",
-    target_label = "Score",
-    prompt_style = "detailed"
+    mode = "standard", target_label = "Score", prompt_style = "detailed"
   )
-
-  expect_match(
-    interpretation,
-    "Do not equate statistical evidence strength or association magnitude with interpretive importance",
-    fixed = TRUE
-  )
-  expect_match(
-    interpretation,
-    "do not treat contextual information as statistical evidence",
-    fixed = TRUE
-  )
-  expect_match(
-    interpretation,
-    "Interpret the pattern formed by several coherent variables",
-    fixed = TRUE
-  )
+  expect_match(interpretation, "considering its statistical associations jointly", fixed = TRUE)
+  expect_match(interpretation, "Do not present these connections as statistically demonstrated relationships", fixed = TRUE)
+  expect_match(interpretation, 'Interpret the quantitative target "Score"', fixed = TRUE)
 })
 
 
@@ -369,10 +279,12 @@ test_that("condes prompt blocks expose six separated responsibilities", {
   expect_identical(blocks$output, "CUSTOM_OUTPUT")
   expect_match(blocks$reading, "FactoMineR::condes", fixed = TRUE)
   expect_match(
-    blocks$interpretation,
-    "Do not infer causality",
+    blocks$reading,
+    "Do not infer causality from these associations",
     fixed = TRUE
   )
+  expect_match(blocks$interpretation, "### Target Identity", fixed = TRUE)
+  expect_match(blocks$interpretation, "### Task", fixed = TRUE)
   expect_match(
     blocks$evidence,
     "correlation=",
@@ -427,14 +339,51 @@ test_that("condes prompt blocks preserve statistical evidence across modes", {
   )
   expect_match(
     standard_blocks$interpretation,
-    "do not rename the target",
-    ignore.case = TRUE
+    "Preserve its original name and measured meaning",
+    fixed = TRUE
   )
   expect_match(
     latent_blocks$interpretation,
-    "propose one concise name",
-    ignore.case = TRUE
+    "Keep the original identifier alongside the proposed name",
+    fixed = TRUE
   )
+})
+
+
+test_that("condes approved output stays editorial and user-overridable", {
+  dat <- make_condes_semantic_data()
+  x <- nail_condes(dat, num.var = 1, generate = FALSE)
+  blocks <- attr(x, "condes_prompt_blocks", exact = TRUE)
+
+  expect_match(blocks$output, "Write a clear, substantive interpretation", fixed = TRUE)
+  expect_match(blocks$output, "repetitive numerical reporting", fixed = TRUE)
+  expect_false(grepl("Quarto Markdown|# Final Summary Task", blocks$output, fixed = FALSE))
+
+  custom <- nail_condes(
+    dat, num.var = 1,
+    introduction = "EXACT_CONTEXT",
+    request = "EXACT_REQUEST",
+    conclusion = "EXACT_CONCLUSION",
+    generate = FALSE
+  )
+  b <- attr(custom, "condes_prompt_blocks", exact = TRUE)
+  expect_identical(b$context, "EXACT_CONTEXT")
+  expect_identical(b$question, "EXACT_REQUEST")
+  expect_identical(b$output, "EXACT_CONCLUSION")
+})
+
+test_that("condes retains target_concept as optional latent context", {
+  x <- nail_condes(
+    make_condes_semantic_data(),
+    num.var = 1,
+    interpretation_mode = "latent",
+    target_label = "Dim1",
+    target_concept = "Athletic performance",
+    generate = FALSE
+  )
+  p <- nail_prompt(x, print = FALSE)
+  expect_match(p, 'Use "Athletic performance" only as contextual guidance', fixed = TRUE)
+  expect_match(p, "do not force that label", fixed = TRUE)
 })
 
 
