@@ -1,6 +1,6 @@
 # TEXTUAL modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading`, `interpretation`, `local_task` and the `nail_textual()` `output` APPROVED (complete bilingual wording, 2026-10-15). The distinct `nail_textual_prep()` `output` remains pending.
+**Status:** ALL BILINGUAL SCIENTIFIC BLOCKS APPROVED (2026-10-15): `reading`, `interpretation`, `local_task`, `nail_textual()` `output` and `nail_textual_prep()` `output`. Cross-route assembly review and operational validation remain separate; R code is unchanged.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological reference:** [TEXTUAL_REFERENCE_PROMPT.md](TEXTUAL_REFERENCE_PROMPT.md) (already approved as scientific V1).
 **Decision log:** [TEXTUAL_PROMPT_DECISIONS.md](TEXTUAL_PROMPT_DECISIONS.md).
@@ -174,9 +174,101 @@ N'ajoutez aucun autre champ ni texte introductif. Utilisez uniquement les identi
 - Output text-ID values must belong to the supplied textual evidence; representative observations are illustrative, not prevalence measurements.
 - The no-text or sparse-text case remains a separate implementation/test concern; the approval does not authorize invented profiles or fabricated IDs.
 
-### 4.2 `nail_textual_prep()` — PENDING
+### 4.2 `nail_textual_prep()` — APPROVED (bilingual operational wording, 2026-10-15)
 
-Preserve the distinct short preparatory, reusable `nail_textual_prep()` output fields, including the conditional verbatim cue fields when requested. Review this separately before approval.
+**English — approved operational text**
+
+Produce a concise, evidence-grounded textual profile that can be reused in a subsequent contextualized analysis.
+
+Use exactly the following fields, preserving their names and order:
+
+**Core textual profile:**
+
+One short sentence capturing what mainly characterizes the group's discourse.
+
+**Main themes:**
+
+Three to five concise themes, separated by semicolons, when the texts support them. Do not invent themes to reach a specified number.
+
+**Dominant concerns or motives:**
+
+One to three concise expressions describing concerns or reasons supported by the texts. If these cannot be established, write `unclear`. Do not invent hidden motivations.
+
+**Tone or stance:**
+
+One short expression describing the stance conveyed by the texts, such as positive, negative, ambivalent, pragmatic or mixed.
+
+**Intra-group consistency:**
+
+Choose exactly one: `strong` / `moderate` / `mixed` / `weak`, based on the qualitative organization of the discourse.
+
+**Injectable summary:**
+
+One short, self-contained sentence synthesizing the group's textual profile for later interpretation alongside separate statistical evidence. Do not anticipate or invent statistical findings.
+
+When verbatim cues are requested, also include:
+
+**Central verbatim cues:**
+
+One or two brief quotations or clearly identified paraphrases illustrating central themes, separated by semicolons.
+
+**Tension verbatim cues:**
+
+Up to two brief quotations or clearly identified paraphrases illustrating meaningful tensions, separated by semicolons, or `none`.
+
+Do not add other fields or introductory text. Do not invent quotations or present isolated excerpts as evidence of group consensus.
+
+**Français — traduction de contrôle validée**
+
+Produisez un profil textuel concis, fondé sur les observations, pouvant être réutilisé dans une analyse contextualisée ultérieure.
+
+Utilisez exactement les champs suivants, en conservant leurs noms et leur ordre :
+
+**Core textual profile :**
+
+Une phrase courte résumant ce qui caractérise principalement le discours du groupe.
+
+**Main themes :**
+
+Trois à cinq thèmes concis, séparés par des points-virgules, lorsque les textes permettent de les identifier. N'inventez pas de thèmes pour atteindre un nombre imposé.
+
+**Dominant concerns or motives :**
+
+Une à trois expressions concises décrivant des préoccupations ou des raisons étayées par les textes. Si elles ne peuvent pas être établies, indiquez `unclear`. N'inventez pas de motivations cachées.
+
+**Tone or stance :**
+
+Une expression courte décrivant la position exprimée dans les textes, par exemple positive, négative, ambivalente, pragmatique ou mixte.
+
+**Intra-group consistency :**
+
+Choisissez exactement une valeur parmi `strong` / `moderate` / `mixed` / `weak`, selon l'organisation qualitative du discours.
+
+**Injectable summary :**
+
+Une phrase courte et autonome synthétisant le profil textuel du groupe, destinée à une interprétation ultérieure aux côtés de résultats statistiques distincts. N'anticipez pas et n'inventez pas de résultats statistiques.
+
+Lorsque des extraits textuels sont demandés, ajoutez également :
+
+**Central verbatim cues :**
+
+Une ou deux citations courtes ou paraphrases explicitement identifiées, illustrant les thèmes centraux, séparées par des points-virgules.
+
+**Tension verbatim cues :**
+
+Jusqu'à deux citations courtes ou paraphrases explicitement identifiées, illustrant des tensions significatives, séparées par des points-virgules, ou `none`.
+
+N'ajoutez aucun autre champ ni texte introductif. N'inventez pas de citations et ne présentez pas des extraits isolés comme une preuve de consensus dans le groupe.
+
+**Scientific and technical decisions**
+
+- This complete bilingual output wording was explicitly approved by the analyst on 2026-10-15.
+- Keep the six required parser field labels `Core textual profile`, `Main themes`, `Dominant concerns or motives`, `Tone or stance`, `Intra-group consistency`, `Injectable summary`; add `Central verbatim cues` and `Tension verbatim cues` only when `include_verbatims_in_prompt = TRUE`.
+- The distinction between textual expressions, inferred themes, and a short reusable `Injectable summary` remains intact. No statistical finding should be invented or anticipated from the textual material.
+- Generated verbatim cues can be short quotes or labeled paraphrases. They must not be mistaken for the mechanically selected, source-row-linked verbatims attached separately by the `nail_textual_prep()` post-processing workflow.
+- `Intra-group consistency` retains the four existing values; no fifth category is introduced. When data are empty or too sparse, technical representation and validation require separate operational tests.
+- This agreement does not modify the executed R prompts, output parsers or downstream evidence and attachment contracts.
+
 
 ## Implementation boundary
 
