@@ -1,7 +1,7 @@
 # CORE 5 / CATDES — operational finalization review
 
 **Date:** 2026-10-15
-**Status:** OPERATIONALLY VALIDATED BEFORE LAST EDITORIAL/PACKAGING FIXES; **post-fix local R test/check rerun pending**.
+**Status:** TECHNICALLY FINALIZED — post-fix local validation confirmed by analyst on 2026-10-15.
 **Branch:** `dev-core5-catdes-finalization-20261015`.
 **Original experimental source commit:** `1ce4b2526db2c00d600d910ef7de1a376c4456c6`.
 **Approved scientific wording:** [CATDES_MODULAR_PROMPT.md](reading_review/CATDES_MODULAR_PROMPT.md).
@@ -37,22 +37,16 @@ The analyst authorized two corrections after reading the scientific operational 
 
 Static GitHub verification confirmed all eight approved reading paragraphs are included verbatim, both extra sentences are absent, and the build-ignore rule is present. **This does not constitute a rerun of R tests or `R CMD check` on the edited branch.**
 
-## 3. Finalization gate
+## 3. Finalization gate — CLOSED
 
-**Pending, before declaring CATDES fully finalized or merging these commits:**
-
-```r
-pkg <- "/private/tmp/nailer-catdes-finalization-20261015"
-devtools::load_all(pkg, quiet = TRUE)
-devtools::test_active_file("tests/testthat/test-catdes-prompt-blocks.R")
-devtools::test(pkg = pkg)
-devtools::check(pkg = pkg, document = FALSE)
-```
-
-The script's current working directory must be the CATDES worktree when running `test_active_file()`, or the corresponding target file must be opened in RStudio with that package loaded. The separate worktree must first fetch and fast-forward to the new remote branch HEAD; **do not reset/delete untracked validation artifacts**.
-
-Expected target: 0 errors, 0 warnings; the system-clock NOTE is environmental. Inspect the final R CMD build output to confirm the `.git` NOTE is gone. Record exact results, then update `PROJECT_STATE.md` / `dev/FINALIZATION_CORE5.md` and merge by fast-forward into `dev-statistical-prompt-framework`.
+The post-fix rerun was requested on the local worktree and the analyst reported success. This is a user-confirmed execution result; detailed terminal logs are not present in the tracked record. The system-time NOTE observed in the earlier local `R CMD check` is environmental. No outstanding CATDES code fix remains authorized.
 
 ## 4. Scope control
 
 The old `build_guide_catdes()` helper is not part of the modern CATDES prompt route and was not touched. Default request repetitions, alternative latent naming strategies, further model benchmarking and downstream `nail_catdes_textual()` remain deferred. No statistical or API redesign is authorized by this correction.
+
+## 3. Post-fix local validation — analyst sign-off
+
+On 2026-10-15, after the targeted scientific-reading, test-reference, and `.Rbuildignore` corrections were pushed, the analyst reported that all requested revalidation checks were satisfactory and explicitly authorized moving to DESCFREQ. The detailed new `testthat` and `R CMD check` console logs were not provided in this exchange, so earlier exact PASS counts and NOTE details in section 1 refer to **pre-fix** executions, not newly observed counts. The code changes were checked statically against the eight exact approved reading paragraphs on GitHub. No statistical engine, parser, schema, or public CATDES API changed.
+
+**Decision:** CATDES is technically finalized for the five-function stabilization plan, with model output interpretation still requiring analyst judgment. Subsequent DESCFREQ work must not reopen CATDES absent a demonstrated regression.
