@@ -1,6 +1,6 @@
 # TEXTUAL modular prompt — bilingual scientific review
 
-**Status:** IN PROGRESS — `reading` APPROVED (full bilingual wording, 2026-10-15). `interpretation`, local task and output blocks pending.
+**Status:** IN PROGRESS — `reading` and `interpretation` APPROVED (complete bilingual wording, 2026-10-15). Local task and output blocks pending.
 **Branch:** `dev-statistical-prompt-framework`.
 **Methodological reference:** [TEXTUAL_REFERENCE_PROMPT.md](TEXTUAL_REFERENCE_PROMPT.md) (already approved as scientific V1).
 **Decision log:** [TEXTUAL_PROMPT_DECISIONS.md](TEXTUAL_PROMPT_DECISIONS.md).
@@ -43,7 +43,42 @@ Utilisez le contexte de l'étude pour comprendre les réponses et la question an
 - Per the cross-functional evidence scope decision ([PROMPT_EVIDENCE_SCOPE_DECISION.md](PROMPT_EVIDENCE_SCOPE_DECISION.md)), do not add generic prompt-visible caveats about unsupplied sampled texts. Canonical evidence, sampling metadata and source-row links remain recorded in R.
 - This `reading` is shared conceptually by classic `nail_textual()` and the `nail_textual_prep()` preparation pathway. Their `output` contracts remain different.
 
-## 2. `interpretation` — PENDING
+## 2. `interpretation` — APPROVED (complete bilingual wording, 2026-10-15)
+
+### English — approved operational text
+
+Identify the main themes expressed in the texts, grouping statements according to their meaning rather than shared vocabulary. Explain their substantive significance in relation to the analytical question.
+
+Interpret the group's discourse by considering these themes jointly, rather than presenting them as a simple list. When supported by the texts, develop a higher-level interpretation that captures the broader concerns, perspectives or frames of meaning emerging from their combination.
+
+Examine internal diversity, including differences in emphasis, reservations, ambivalence, contradictions and meaningful minority perspectives. A shared interpretive frame may accommodate different positions, while several distinct or conflicting frames may coexist within the same group.
+
+Assess whether the discourse exhibits a recognizable common frame. Treat coherence as a qualitative interpretation, not a statistical measure. Do not impose unity when the texts support multiple perspectives or when the evidence is insufficient.
+
+Adapt the depth of interpretation to the richness and diversity of the texts. Avoid elaborate group-level characterizations from sparse evidence. Do not infer hidden motives, personality traits, social identities or causal mechanisms that the texts do not support.
+
+### Français — traduction de contrôle validée
+
+Identifiez les principaux thèmes exprimés dans les textes, en regroupant les propos selon leur signification plutôt que selon leur vocabulaire commun. Expliquez leur portée substantielle au regard de la question analytique.
+
+Interprétez le discours du groupe en considérant conjointement ces thèmes, plutôt qu'en les présentant sous la forme d'une simple liste. Lorsque les textes le permettent, construisez une interprétation de niveau supérieur qui rende compte des préoccupations, des perspectives ou des cadres de sens plus généraux émergeant de leur combinaison.
+
+Examinez la diversité interne, notamment les différences d'accentuation, les réserves, les ambivalences, les contradictions et les points de vue minoritaires significatifs. Un cadre interprétatif partagé peut accueillir des positions différentes, tandis que plusieurs cadres distincts ou contradictoires peuvent coexister au sein d'un même groupe.
+
+Évaluez si le discours présente un cadre de sens commun identifiable. Considérez la cohérence comme une appréciation qualitative, et non comme une mesure statistique. N'imposez pas une unité lorsque les textes révèlent plusieurs perspectives ou lorsque les éléments disponibles sont insuffisants.
+
+Adaptez la profondeur de l'interprétation à la richesse et à la diversité des textes. Évitez de construire des caractérisations élaborées du groupe à partir d'un matériau trop limité. Ne déduisez pas de motivations cachées, de traits de personnalité, d'identités sociales ou de mécanismes causaux que les textes ne permettent pas d'étayer.
+
+### Decision and scope
+
+- The analyst explicitly approved this operational English wording and its French control translation on 2026-10-15 without changes.
+- Themes should arise from meaning, not mere lexical similarity; interpretation should relate the thematic configuration to the analyst's question.
+- Allow higher-level grounded interpretations, while protecting meaningful disagreement, ambivalence, minority positions and multiple frames.
+- Within-group coherence is qualitative, not statistical. The current allowed coherence values belong to the separate output/parser contract.
+- Avoid ungrounded personal, social or causal inferences and overinterpretation of sparse material.
+- No R implementation or output contract is changed.
+
+
 
 ## 3. Local task — PENDING
 
