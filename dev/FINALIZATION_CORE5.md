@@ -108,6 +108,24 @@ The original table in §5 is the historical scope-freeze baseline; the update in
 
 Last analyst-reported DESCFREQ checks: 91 focused + 1,352 complete test assertions passed with zero failures and warnings; six scientific identity/task configurations exercised; prior actual Ollama generations examined. Evidence and API invariance checked. `devtools::check(document = FALSE)` was **not completed**, failing before build because `processx` could not load (`Operation not permitted`). This is **not** a clean-package-check claim; rerun from unrestricted RStudio before release. Known overinterpretation risks in raw LLM answers remain under documented human-review safeguards, not silent acceptance as R statistics. The analyst authorized technical progression to QDA on 2026-10-16.
 
+## 5C. Progress update — 2026-10-16 (QDA accepted)
+
+The section 5 baseline and sections 5A/5B are historical snapshots, not current implementation states. The analyst has explicitly accepted `nail_qda()` as the fourth scoped technical completion. Current board:
+
+| Function | Current status | Main review |
+| --- | --- | --- |
+| `nail_condes()` | TECHNICALLY FINALIZED | `dev/CORE5_CONDES_INTEGRATION_REVIEW.md` |
+| `nail_catdes()` | TECHNICALLY FINALIZED | `dev/CORE5_CATDES_FINALIZATION_REVIEW.md` |
+| `nail_descfreq()` | TECHNICALLY FINALIZED | `dev/CORE5_DESCFREQ_FINALIZATION_REVIEW.md` |
+| `nail_qda()` | **TECHNICALLY FINALIZED — analyst accepted**; full R CMD check blocked by `processx` | `dev/CORE5_QDA_FINALIZATION_REVIEW.md`, code commit `60ecb18f989999a51180021b480aca7f41597fdf` |
+| `nail_textual()` | **NEXT / OPEN** | `dev/reading_review/TEXTUAL_MODULAR_PROMPT.md` and `TEXTUAL_ASSEMBLY_REVIEW.md` (assembly review still needs operational handling) |
+
+The local Codex-reported QDA verification is 145 focused assertions, 32 reusable-parser assertions, 1,351 whole-suite assertions (all passing with zero failures or warnings), plus real Ollama `mistral-small3.2` coverage of `known/unknown × local/global`, two product interpretations parsed per condition. The sole confirmed environment-limited package gate is `devtools::check(document = FALSE)`: `processx` returned `Operation not permitted` before building. This does **not** establish a clean full package check; repeat before release.
+
+The analyst accepted the risk of occasional “absence”/“lack” wording for a LOWER attribute **only insofar as it is read as a contextual, relative sensory shorthand**. Statistical LOWER establishes lower adjusted scoring than the evaluated-set reference, **never measured absolute absence**. The structured `product_interpretations` parser validates fields and identifiers, not scientific truth; any reuse in QDA-space analysis must remain open to expert correction. Scientific prompt text remains frozen after acceptance.
+
+All remaining feature work beyond classic `nail_textual()` stays frozen under the existing CORE 5 plan.
+
 ## 6. Exit condition
 
 The freeze lifts **only after all five functions are explicitly finalized** and the analyst agrees on the next phase. Then consider the two composed analyses `nail_qda_space()` and `nail_catdes_textual()`, and only later deprecations/cleanup of intermediate functions. Until then, no extra feature roadmap.
