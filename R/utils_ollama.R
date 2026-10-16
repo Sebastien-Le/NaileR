@@ -98,7 +98,52 @@ filter_gemini_options <- function(extra_args) {
     }
   }
 
+  ollama_record <- list(
+    call_id = .nail_usage_next_id(),
+    provider = "ollama",
+    model_requested = model,
+    model_version = if (is.data.frame(res) && "model" %in% names(res)) as.character(res$model[[1L]]) else NA_character_,
+    input_tokens = if (is.data.frame(res) && "prompt_eval_count" %in% names(res)) as.numeric(res$prompt_eval_count[[1L]]) else NA_real_,
+    output_tokens = if (is.data.frame(res) && "eval_count" %in% names(res)) as.numeric(res$eval_count[[1L]]) else NA_real_,
+    thinking_tokens = NA_real_,
+    cached_input_tokens = NA_real_,
+    total_tokens_reported = if (is.data.frame(res) && "prompt_eval_count" %in% names(res) && "eval_count" %in% names(res)) as.numeric(res$prompt_eval_count[[1L]] + res$eval_count[[1L]]) else NA_real_,
+    duration_seconds = if (is.data.frame(res) && "total_duration" %in% names(res)) as.numeric(res$total_duration[[1L]]) / 1e9 else NA_real_,
+    load_duration_seconds = if (is.data.frame(res) && "load_duration" %in% names(res)) as.numeric(res$load_duration[[1L]]) / 1e9 else NA_real_,
+    prompt_eval_duration_seconds = if (is.data.frame(res) && "prompt_eval_duration" %in% names(res)) as.numeric(res$prompt_eval_duration[[1L]]) / 1e9 else NA_real_,
+    eval_duration_seconds = if (is.data.frame(res) && "eval_duration" %in% names(res)) as.numeric(res$eval_duration[[1L]]) / 1e9 else NA_real_,
+    http_attempts = 1L,
+    finish_reason = if (is.data.frame(res) && "done_reason" %in% names(res)) as.character(res$done_reason[[1L]]) else NA_character_,
+    http_status = NA_integer_,
+    generation_status = .ollama_generation_status(res)
+  )
+  res <- .nail_usage_attach(res, ollama_record)
+
   res
+}
+
+
+.ollama_generation_status <- function(result) {
+  has_reason <- is.data.frame(result) &&
+    "done_reason" %in% names(result) &&
+    length(result$done_reason) > 0L &&
+    !is.na(result$done_reason[[1L]]) &&
+    nzchar(as.character(result$done_reason[[1L]]))
+  if (has_reason) {
+    reason <- tolower(as.character(result$done_reason[[1L]]))
+    if (identical(reason, "length")) return("interrupted")
+    if (identical(reason, "stop")) return("completed")
+    return("other_finished")
+  }
+
+  has_done <- is.data.frame(result) &&
+    "done" %in% names(result) &&
+    length(result$done) > 0L &&
+    !is.na(result$done[[1L]])
+  if (has_done && isTRUE(as.logical(result$done[[1L]]))) {
+    return("completed")
+  }
+  "unknown"
 }
 
 #' Base wrapper around Google Gemini
@@ -141,11 +186,13 @@ filter_gemini_options <- function(extra_args) {
     stop("Gemini API call returned an empty response.", call. = FALSE)
   }
 
+  usage <- attr(response, "nail_usage", exact = TRUE)
+
   if (output == "text") {
     return(response)
   }
 
-  data.frame(
+  out <- data.frame(
     model = model,
     provider = "gemini",
     created_at = Sys.time(),
@@ -153,6 +200,7 @@ filter_gemini_options <- function(extra_args) {
     done = TRUE,
     stringsAsFactors = FALSE
   )
+  .nail_usage_attach(out, usage)
 }
 
 #' Base provider-dispatching LLM wrapper

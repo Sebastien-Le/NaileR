@@ -1792,7 +1792,8 @@ build_conclusion_qda_space <- function(
     prompts,
     responses,
     settings,
-    axis_generation = NULL) {
+    axis_generation = NULL,
+    usage = .nail_usage_empty()) {
   attr(x, "qda_space_evidence") <-
     qda_space_evidence
 
@@ -1821,6 +1822,7 @@ build_conclusion_qda_space <- function(
       scope = "pca_dimension",
       provider = settings$provider,
       model = settings$model,
+      usage = usage,
       expertise_mode =
         settings$expertise_mode,
       axis_characterization =
@@ -2260,7 +2262,8 @@ nail_qda_space <- function(
         prompts = prompts,
         responses = NULL,
         settings = settings,
-        axis_generation = preview_generation
+        axis_generation = preview_generation,
+        usage = .nail_usage_empty()
       )
     )
   }
@@ -2348,6 +2351,17 @@ nail_qda_space <- function(
     prompts = prompts,
     responses = raw_responses,
     settings = settings,
-    axis_generation = axis_generation
+    axis_generation = axis_generation,
+    usage = .nail_usage_from_results(
+      results = result[vapply(result, function(x) {
+        !is.null(attr(x, "nail_usage", exact = TRUE)) ||
+          (is.list(x) && !is.null(x$usage))
+      }, logical(1))],
+      prompts = prompts,
+      provider = provider,
+      model = model,
+      analysis = "nail_qda_space",
+      scope = "pca_dimension"
+    )
   )
 }

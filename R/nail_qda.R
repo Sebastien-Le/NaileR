@@ -1453,7 +1453,8 @@ get_prompt_qda <- function(semantic_facing_evidence,
                                   decat_result,
                                   profile_summary,
                                   qda_settings,
-                                  scope) {
+                                  scope,
+                                  usage = .nail_usage_empty()) {
   prompt_list <- if (is.character(prompts) && length(prompts) == 1L) {
     list(portfolio = prompts)
   } else {
@@ -1473,6 +1474,20 @@ get_prompt_qda <- function(semantic_facing_evidence,
     product_profiles = product_profiles,
     scope = scope
   )
+
+  if (is.data.frame(usage) && nrow(usage) > 0L) {
+    product_status <- .nail_usage_parse_status(product_interpretations$products)
+    if (identical(scope, "portfolio")) {
+      usage$parse_status <- if (all(product_status == "success", na.rm = TRUE) &&
+                                length(product_status) > 0L) {
+        "success"
+      } else {
+        "failed"
+      }
+    } else {
+      usage$parse_status <- unname(product_status[usage$scope_id])
+    }
+  }
 
   attr(x, "product_profiles") <- product_profiles
   attr(x, "product_interpretations") <- product_interpretations
@@ -1495,6 +1510,7 @@ get_prompt_qda <- function(semantic_facing_evidence,
       scope = scope,
       provider = qda_settings$provider,
       model = qda_settings$model,
+      usage = usage,
       product_knowledge = qda_settings$product_knowledge
     )
   )
@@ -1843,7 +1859,8 @@ nail_qda <- function(dataset, formul, firstvar,
         decat_result = res_cd,
         profile_summary = profile_summary,
         qda_settings = qda_settings,
-        scope = scope
+        scope = scope,
+        usage = .nail_usage_empty()
       )
     )
   }
@@ -1880,7 +1897,15 @@ nail_qda <- function(dataset, formul, firstvar,
         decat_result = res_cd,
         profile_summary = profile_summary,
         qda_settings = qda_settings,
-        scope = scope
+        scope = scope,
+        usage = .nail_usage_from_results(
+          results = list(portfolio = result),
+          prompts = list(portfolio = prompts$portfolio),
+          provider = provider,
+          model = model,
+          analysis = "nail_qda",
+          scope = scope
+        )
       )
     )
   }
@@ -1905,6 +1930,14 @@ nail_qda <- function(dataset, formul, firstvar,
     decat_result = res_cd,
     profile_summary = profile_summary,
     qda_settings = qda_settings,
-    scope = scope
+    scope = scope,
+    usage = .nail_usage_from_results(
+      results = result,
+      prompts = prompts,
+      provider = provider,
+      model = model,
+      analysis = "nail_qda",
+      scope = scope
+    )
   )
 }

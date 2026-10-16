@@ -630,7 +630,8 @@ nail_textual <- function(dataset, num.var, num.text,
     metadata = list(
       analysis = "nail_textual",
       scope = "group",
-      architecture = "local_first"
+      architecture = "local_first",
+      usage = .nail_usage_empty()
     )
   )
 
@@ -706,7 +707,16 @@ nail_textual <- function(dataset, num.var, num.text,
     metadata = list(
       analysis = "nail_textual",
       scope = "group",
-      architecture = "local_first"
+      architecture = "local_first",
+      usage = .nail_usage_from_results(
+        results = local_results,
+        prompts = local_prompts,
+        provider = provider,
+        model = model,
+        analysis = "nail_textual",
+        scope = "group",
+        parse_status = .nail_usage_parse_status(textual_profiles$groups)
+      )
     )
   )
 

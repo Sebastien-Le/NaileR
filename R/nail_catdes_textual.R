@@ -1247,7 +1247,8 @@ nail_catdes_textual <- function(catdes,
     metadata = list(
       analysis = "nail_catdes_textual",
       scope = "group",
-      architecture = "catdes_anchor_textual_enrichment"
+      architecture = "catdes_anchor_textual_enrichment",
+      usage = .nail_usage_empty()
     )
   )
 
@@ -1313,7 +1314,17 @@ nail_catdes_textual <- function(catdes,
     metadata = list(
       analysis = "nail_catdes_textual",
       scope = "group",
-      architecture = "catdes_anchor_textual_enrichment"
+      architecture = "catdes_anchor_textual_enrichment",
+      usage = .nail_usage_from_results(
+        results = local_results,
+        prompts = local_prompts,
+        provider = provider,
+        model = model,
+        analysis = "nail_catdes_textual",
+        stage = "contextualization",
+        scope = "group",
+        parse_status = .nail_usage_parse_status(contextualized_profiles$groups)
+      )
     )
   )
 

@@ -35,6 +35,11 @@
 #'
 #' @return Character scalar with the first candidate's text. If no text is
 #' returned, an informative error is thrown (finish reason or safety block).
+#'   Successful responses carry internal usage metadata. Their
+#'   `generation_status` is `completed` for `STOP`, `interrupted` for
+#'   `MAX_TOKENS`, `safety_blocked` for `SAFETY`, `recitation_blocked` for
+#'   `RECITATION`, `other_finished` for another explicit finish reason, and
+#'   `unknown` when the finish reason is absent.
 #'
 #' @examples
 #' \dontrun{
@@ -70,6 +75,7 @@ gemini_generate <- function(
     backoff_base = 0.8,            # <- new
     backoff_cap  = 8               # <- new
 ) {
+  started_at <- Sys.time()
   # ---- Guardrails ------------------------------------------------------------
   if (!nzchar(api_key)) {
     stop("Set GEMINI_API_KEY env var first, e.g. Sys.setenv(GEMINI_API_KEY = 'YOUR_KEY')")
@@ -138,27 +144,18 @@ gemini_generate <- function(
 
     # Success: parse and return
     if (ok) {
-      cand <- tryCatch(j$candidates, error = function(e) NULL)
-      if (is.null(cand) || length(cand) < 1) {
-        # Look for finish reason / safety
-        fr  <- tryCatch(j$candidates[[1]]$finishReason, error = function(e) NULL)
-        sft <- tryCatch(j$promptFeedback$safetyRatings, error = function(e) NULL)
-        if (!is.null(fr))  stop(sprintf("No content returned. finishReason: %s", as.character(fr)))
-        if (!is.null(sft)) stop("No content returned. Likely blocked by safety settings.")
-        stop("No content returned. Empty candidates.")
-      }
-
-      c1    <- cand[[1]]
-      parts <- tryCatch(c1$content$parts, error = function(e) NULL)
-      fr    <- tryCatch(c1$finishReason,   error = function(e) NULL)
-
-      if (is.null(parts) || !length(parts)) {
-        stop(sprintf("Candidate has no parts. finishReason: %s", as.character(fr)))
-      }
-
-      texts <- vapply(parts, function(p) as.character(if (is.null(p$text)) "" else p$text), character(1))
-      out   <- paste(texts[nzchar(texts)], collapse = "")
-      if (!nzchar(out)) stop(sprintf("Empty text in first candidate. finishReason: %s", as.character(fr)))
+      parsed <- .gemini_parse_response(
+        response = j,
+        model = model,
+        started_at = started_at,
+        attempt = attempt,
+        temperature = temperature,
+        top_p = top_p,
+        max_output_tokens = max_output_tokens,
+        http_status = 200L
+      )
+      out <- parsed$text
+      attr(out, "nail_usage") <- parsed$usage
       return(out)
     }
 
@@ -189,4 +186,91 @@ gemini_generate <- function(
 
   # Should not reach here
   stop("Unexpected error in gemini_generate().")
+}
+
+
+# Map the provider's finish reason to a diagnostic status without treating an
+# absent reason as successful.
+.gemini_generation_status <- function(finish_reason) {
+  if (is.null(finish_reason) || length(finish_reason) == 0L ||
+      is.na(finish_reason[[1L]]) || !nzchar(as.character(finish_reason[[1L]]))) {
+    return("unknown")
+  }
+
+  switch(
+    toupper(as.character(finish_reason[[1L]])),
+    STOP = "completed",
+    MAX_TOKENS = "interrupted",
+    SAFETY = "safety_blocked",
+    RECITATION = "recitation_blocked",
+    "other_finished"
+  )
+}
+
+
+# Parse an already decoded Gemini response. Keeping this pure response-layer
+# helper separate makes recorded HTTP JSON replayable without network access.
+.gemini_parse_response <- function(response,
+                                   model,
+                                   started_at = Sys.time(),
+                                   attempt = 1L,
+                                   temperature = NULL,
+                                   top_p = NULL,
+                                   max_output_tokens = NULL,
+                                   http_status = 200L) {
+  cand <- tryCatch(response$candidates, error = function(e) NULL)
+  if (is.null(cand) || length(cand) < 1L) {
+    fr <- tryCatch(response$candidates[[1]]$finishReason, error = function(e) NULL)
+    sft <- tryCatch(response$promptFeedback$safetyRatings, error = function(e) NULL)
+    if (!is.null(fr)) stop(sprintf("No content returned. finishReason: %s", as.character(fr)))
+    if (!is.null(sft)) stop("No content returned. Likely blocked by safety settings.")
+    stop("No content returned. Empty candidates.")
+  }
+
+  c1 <- cand[[1L]]
+  parts <- tryCatch(c1$content$parts, error = function(e) NULL)
+  fr <- tryCatch(c1$finishReason, error = function(e) NULL)
+  if (is.null(parts) || !length(parts)) {
+    stop(sprintf(
+      "Candidate has no parts. finishReason: %s",
+      if (is.null(fr)) "unknown" else as.character(fr)
+    ))
+  }
+
+  texts <- vapply(
+    parts,
+    function(p) as.character(if (is.null(p$text)) "" else p$text),
+    character(1)
+  )
+  out <- paste(texts[nzchar(texts)], collapse = "")
+  if (!nzchar(out)) {
+    stop(sprintf(
+      "Empty text in first candidate. finishReason: %s",
+      if (is.null(fr)) "unknown" else as.character(fr)
+    ))
+  }
+
+  usage_metadata <- response$usageMetadata
+  usage <- list(
+    call_id = .nail_usage_next_id(),
+    provider = "gemini",
+    model_requested = model,
+    model_version = if (is.null(response$modelVersion)) NA_character_ else as.character(response$modelVersion),
+    started_at = started_at,
+    input_tokens = if (is.null(usage_metadata$promptTokenCount)) NA_real_ else as.numeric(usage_metadata$promptTokenCount),
+    output_tokens = if (is.null(usage_metadata$candidatesTokenCount)) NA_real_ else as.numeric(usage_metadata$candidatesTokenCount),
+    thinking_tokens = if (is.null(usage_metadata$thoughtsTokenCount)) NA_real_ else as.numeric(usage_metadata$thoughtsTokenCount),
+    cached_input_tokens = if (is.null(usage_metadata$cachedContentTokenCount)) NA_real_ else as.numeric(usage_metadata$cachedContentTokenCount),
+    total_tokens_reported = if (is.null(usage_metadata$totalTokenCount)) NA_real_ else as.numeric(usage_metadata$totalTokenCount),
+    duration_seconds = as.numeric(difftime(Sys.time(), started_at, units = "secs")),
+    http_attempts = attempt,
+    finish_reason = if (is.null(fr)) NA_character_ else as.character(fr),
+    http_status = http_status,
+    generation_status = .gemini_generation_status(fr),
+    temperature = temperature,
+    top_p = top_p,
+    max_output_tokens = max_output_tokens
+  )
+
+  list(text = out, usage = usage)
 }

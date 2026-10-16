@@ -1533,7 +1533,8 @@ build_conclusion_condes <- function(
                                      condes_result,
                                      condes_profile_result,
                                      condes_settings,
-                                     target_label) {
+                                     target_label,
+                                     usage = .nail_usage_empty()) {
   prompt_list <- stats::setNames(
     list(prompt),
     target_label
@@ -1570,6 +1571,7 @@ build_conclusion_condes <- function(
       scope = "continuous_target",
       provider = condes_settings$provider,
       model = condes_settings$model,
+      usage = usage,
       interpretation_mode = condes_settings$interpretation_mode,
       target_label = target_label
     )
@@ -1923,7 +1925,8 @@ nail_condes <- function(dataset,
         condes_result = res_cd,
         condes_profile_result = res_cd,
         condes_settings = condes_settings,
-        target_label = target_label
+        target_label = target_label,
+        usage = .nail_usage_empty()
       )
     )
   }
@@ -1954,6 +1957,14 @@ nail_condes <- function(dataset,
     condes_result = res_cd,
     condes_profile_result = res_cd,
     condes_settings = condes_settings,
-    target_label = target_label
+    target_label = target_label,
+    usage = .nail_usage_from_results(
+      results = stats::setNames(list(res_llm), target_variable),
+      prompts = stats::setNames(list(final_prompt), target_variable),
+      provider = provider,
+      model = model,
+      analysis = "nail_condes",
+      scope = "continuous_target"
+    )
   )
 }

@@ -69,6 +69,11 @@ Default: "https://generativelanguage.googleapis.com/v1beta".}
 \value{
 Character scalar with the first candidate's text. If no text is
 returned, an informative error is thrown (finish reason or safety block).
+Successful responses carry internal usage metadata. Their
+\code{generation_status} is \code{completed} for \code{STOP}, \code{interrupted} for
+\code{MAX_TOKENS}, \code{safety_blocked} for \code{SAFETY}, \code{recitation_blocked} for
+\code{RECITATION}, \code{other_finished} for another explicit finish reason, and
+\code{unknown} when the finish reason is absent.
 }
 \description{
 Minimal wrapper around the Generative Language API

@@ -1454,7 +1454,8 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
                                        descfreq_result,
                                        prompts,
                                        responses,
-                                       settings) {
+                                       settings,
+                                       usage = .nail_usage_empty()) {
   attr(x, "frequency_profiles") <- frequency_profiles
   attr(x, "interpretation_evidence") <- interpretation_evidence
   attr(x, "semantic_facing_evidence") <- semantic_facing_evidence
@@ -1473,7 +1474,8 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
       },
       provider = settings$provider,
       model = settings$model,
-      interpretation_mode = settings$interpretation_mode
+      interpretation_mode = settings$interpretation_mode,
+      usage = usage
     )
   )
   x
@@ -1754,7 +1756,8 @@ nail_descfreq <- function(dataset,
     list(
       prompt = prompt,
       response = response,
-      model = model
+      model = model,
+      usage = attr(raw, "nail_usage", exact = TRUE)
     )
   }
 
@@ -1781,7 +1784,15 @@ nail_descfreq <- function(dataset,
         descfreq_result = descfreq_result,
         prompts = prompt_list,
         responses = responses,
-        settings = settings
+        settings = settings,
+        usage = .nail_usage_from_results(
+          results = list(all_rows = out),
+          prompts = list(all_rows = prompts),
+          provider = provider,
+          model = model,
+          analysis = "nail_descfreq",
+          scope = "table"
+        )
       )
     )
   }
@@ -1826,6 +1837,14 @@ nail_descfreq <- function(dataset,
     descfreq_result = descfreq_result,
     prompts = prompt_list,
     responses = responses,
-    settings = settings
+    settings = settings,
+    usage = .nail_usage_from_results(
+      results = out,
+      prompts = prompts,
+      provider = provider,
+      model = model,
+      analysis = "nail_descfreq",
+      scope = "row"
+    )
   )
 }

@@ -2378,7 +2378,8 @@ nail_catdes <- function(dataset = NULL,
       provider = provider,
       model = model,
       interpretation_mode = interpretation_mode,
-      local_prompts_for_audit_only = !isTRUE(isolate.groups)
+      local_prompts_for_audit_only = !isTRUE(isolate.groups),
+      usage = .nail_usage_empty()
     )
   )
 
@@ -2461,7 +2462,16 @@ nail_catdes <- function(dataset = NULL,
         provider = provider,
         model = model,
         interpretation_mode = interpretation_mode,
-        local_prompts_for_audit_only = FALSE
+        local_prompts_for_audit_only = FALSE,
+        usage = .nail_usage_from_results(
+          results = local_results,
+          prompts = local_prompts,
+          provider = provider,
+          model = model,
+          analysis = "nail_catdes",
+          scope = "group",
+          parse_status = .nail_usage_parse_status(semantic_profiles$groups)
+        )
       )
     )
     result <- local_results
@@ -2506,7 +2516,20 @@ nail_catdes <- function(dataset = NULL,
         provider = provider,
         model = model,
         interpretation_mode = interpretation_mode,
-        local_prompts_for_audit_only = TRUE
+        local_prompts_for_audit_only = TRUE,
+        usage = .nail_usage_from_results(
+          results = list(portfolio = result),
+          prompts = stats::setNames(list(actual_prompt), "portfolio"),
+          provider = provider,
+          model = model,
+          analysis = "nail_catdes",
+          scope = "portfolio",
+          parse_status = if (all(vapply(
+            semantic_profiles$groups,
+            function(group) identical(group$status, "generated"),
+            logical(1)
+          ))) "success" else "failed"
+        )
       )
     )
   }
