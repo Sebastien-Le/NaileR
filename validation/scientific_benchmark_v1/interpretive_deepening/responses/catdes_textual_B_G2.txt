@@ -1,0 +1,14 @@
+Statistical anchor:
+Compared with the full sample, G2 has higher mean monthly spending (159.22 versus 130.52), purchase frequency (4.32 versus 3.50), satisfaction (7.24 versus 6.46), age (47.12 versus 40.26), and household size (3.38 versus 2.75). Flexitarian responses (59.38% versus 40.62%) and online purchasing (46.88% versus 31.25%) are more frequent; conventional-diet responses are less frequent (21.88% versus 44.79%).
+
+Textual enrichment:
+The higher satisfaction mean can be interpreted alongside comments valuing product choice while still comparing prices (TXT000034): positive evaluation does not amount to unqualified approval. The higher average spending can be contextualized by respondents describing attractive variety and quality despite spending more than planned (TXT000035), but these comments do not statistically explain that average. The relative overrepresentation of online purchasing acquires a concrete qualitative dimension through the acknowledged time savings and delivery frustrations (TXT000039). These are direct thematic connections to satisfaction, spending and channel, not evidence that those three variables are associated with one another within G2.
+
+Additional insights:
+Variety, perceived quality, explicit price checks, occasional spending beyond plans and delivery reliability are considerations voiced in this corpus that are not separate retained CATDES markers. They reveal how an offer can be appreciated and questioned in the same account. The comments provide no basis to interpret the group's dietary distribution or its higher average age, household size, or purchase frequency.
+
+Internal diversity:
+Respondents variously emphasize choice and perceived quality, careful expenditure despite satisfaction, and the time savings versus unreliability of ordering online. Several comments limit their judgments to particular purchases (TXT000033; TXT000044; TXT000055). Only six formulations are distinct across 32 observed comments, so an organizing reading does not imply a single common motive or unanimous group sentiment.
+
+Contextualized profile:
+The most informative insight is **positive but conditional purchasing appraisal**. Statistically, G2 records higher satisfaction and spending and relatively more online use; textually, appreciation of variety and convenience coexists with ongoing price evaluation and attention to delivery reliability. The combination makes higher satisfaction intelligible as *compatible with reservations*, not as evidence of uncritical approval. It remains an interpretation of particular textual accounts alongside group-level facts, not a causal mechanism explaining the group's purchasing, dietary or demographic characteristics.
