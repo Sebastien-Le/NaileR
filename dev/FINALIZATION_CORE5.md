@@ -126,6 +126,14 @@ The analyst accepted the risk of occasional “absence”/“lack” wording for
 
 All remaining feature work beyond classic `nail_textual()` stays frozen under the existing CORE 5 plan.
 
+## 5D. Progress update — 2026-10-16 (CORE 5 complete; next composed functions)
+
+**All five primary functions technically finalized and accepted for progression:** `nail_condes()`, `nail_catdes()`, `nail_descfreq()`, `nail_qda()`, and **`nail_textual()`**. Refer to their per-function finalization reviews, especially [`CORE5_TEXTUAL_FINALIZATION_REVIEW.md`](CORE5_TEXTUAL_FINALIZATION_REVIEW.md). TEXTUAL source commit: `5ab8feb29685c81c9916ad71368ac7d2602142d5`. No comprehensive package release certification is implied.
+
+TEXTUAL reported **194 focused PASS** and **1,396 full-suite PASS**, without failure, warning or skipped test; **six** real Ollama profiles parsed in local and combined local-first settings before the final offline-example and `text_role` label correction. `fabric` scenario (true comments with appreciation groups 0/1) and `nail_textual_prep()` mock-compatible outputs were revalidated. Model overconfidence about `strong` within-group coherence from only one text remains a documented accepted interpretation limitation. `devtools::check(document = FALSE)` is **incomplete due to unavailable Pandoc** when rebuilding vignettes. Re-run under a properly configured RStudio/Pandoc environment before release.
+
+**Ordered next scope, authorized by the analyst:** composed `nail_qda_space()` then `nail_catdes_textual()`; after both are reviewed, the separate general architecture audit; afterwards, execute documentation examples and investigate the LLM provider interface (local versus external). No broad framework refactor, migration or unapproved feature expansion yet.
+
 ## 6. Exit condition
 
 The freeze lifts **only after all five functions are explicitly finalized** and the analyst agrees on the next phase. Then consider the two composed analyses `nail_qda_space()` and `nail_catdes_textual()`, and only later deprecations/cleanup of intermediate functions. Until then, no extra feature roadmap.

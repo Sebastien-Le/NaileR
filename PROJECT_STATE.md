@@ -197,3 +197,14 @@ The approved `SensoMineR::decat()` reading/interpretation, known/unknown identit
 **Check limitation:** `devtools::check(document = FALSE)` did **not complete** in the Codex environment: `processx` failed during namespace load with `Operation not permitted`, before package construction. This is **not** a passed R CMD check. Rerun in an unrestricted RStudio environment before release. Local `Rplots.pdf`, `tests/testthat/Rplots.pdf`, and `dev/operational_validation/` were intentionally excluded from the code commit.
 
 **Next active core-five target:** classic `nail_textual()` (fifth of five). All non-core analytical feature work remains deferred.
+
+
+## CORE 5 CLOSED — 2026-10-16: TEXTUAL technically finalized
+
+**Final CORE 5 status: 5/5 technically finalized, not a whole-package publication clearance.** The classic `nail_textual()` scientific reading, interpretation, local task and output instructions have been integrated and reviewed; code commit `5ab8feb29685c81c9916ad71368ac7d2602142d5` changes exactly `R/nail_textual.R`, `R/nail_textual_semantic.R`, `man/nail_textual.Rd`, and `tests/testthat/test-textual-semantic-rebuild.R`. See [`dev/CORE5_TEXTUAL_FINALIZATION_REVIEW.md`](dev/CORE5_TEXTUAL_FINALIZATION_REVIEW.md).
+
+Final local Codex-reported validation: **194 targeted assertions passed**; **1,396 full-suite assertions passed**, all with zero errors/warnings/skips; six earlier real `mistral-small3.2` profiles parsable across local and combined local-first calls. The corrected `fabric` offline scenario uses `num.var = 4L` and `num.text = 3L` for real consumer comments and appreciation groups `0/1`; the `text_role` Data headings vary without changing canonical evidence. `nail_textual_prep()` mock-backed smoke tests preserve its distinct schema with or without generated cues. The real Ollama calls were **not rerun** after the final Data-label correction.
+
+**Scientific qualification:** with only one source text, the model can still assign `Within-group coherence = strong`; neither parsing nor this qualitative label establishes group consensus. Keep source-level `TXT%06d` IDs, evidence/provenance and substantive expert oversight. **Package check outstanding:** `devtools::check(document = FALSE)` was blocked by missing Pandoc during vignette build; no claim of a clean full R CMD check.
+
+**Next approved phase (ordered):** audit/finalize `nail_qda_space()` first, then `nail_catdes_textual()`. After both, conduct a code-grounded *general NaileR architecture audit* (are the seven functions a shared extensible interpretation framework or merely similar implementations?), then test all documentation examples and finally undertake the local-vs-external LLM backend assessment. Do not start broad refactoring or other feature work ahead of this plan.
