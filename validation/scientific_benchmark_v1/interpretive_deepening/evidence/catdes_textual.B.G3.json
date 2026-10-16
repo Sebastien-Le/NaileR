@@ -1,0 +1,136 @@
+{
+  "groups": {
+    "G1": {
+      "group": "G1",
+      "status": "ready",
+      "statistical_anchor": {
+        "status": "ready",
+        "factual_text": "- For variable/proposition \"concern\":\n  - The response/modality \"price\" is MORE FREQUENT in this group than in the full sample (group=43.75%; full sample=23.96%).\n  - The response/modality \"environment\" is LESS FREQUENT in this group than in the full sample (group=9.38%; full sample=27.08%).\n  - The response/modality \"quality\" is LESS FREQUENT in this group than in the full sample (group=15.62%; full sample=29.17%).\n- For variable/proposition \"diet\":\n  - The response/modality \"conventional\" is MORE FREQUENT in this group than in the full sample (group=62.50%; full sample=44.79%).\n- The mean of \"monthly spend\" is LOWER in this group than in the full sample (group mean=103.12; full-sample mean=130.52).\n- The mean of \"age\" is LOWER in this group than in the full sample (group mean=34.41; full-sample mean=40.26).\n- The mean of \"purchase frequency\" is LOWER in this group than in the full sample (group mean=2.85; full-sample mean=3.50).\n- The mean of \"household size\" is LOWER in this group than in the full sample (group mean=2.25; full-sample mean=2.75).",
+        "selected_evidence_ids": ["G1::quali::concern::price", "G1::quali::concern::environment", "G1::quali::diet::conventional", "G1::quali::concern::quality", "G1::quanti::monthly_spend", "G1::quanti::age", "G1::quanti::purchase_frequency", "G1::quanti::household_size"],
+        "n_selected_evidence": 8,
+        "n_displayed_evidence": 8,
+        "existing_semantic_interpretation": null
+      },
+      "textual_enrichment": {
+        "core_textual_profile": "G1 expresses qualified acceptance of everyday food choices: familiar taste, manageable price and practical convenience are appreciated, while restricted choice and uncertainty about ingredients or environmental impact limit an unreserved endorsement.",
+        "dominant_themes": ["familiar taste and affordable purchase", "convenience after work", "desire for clearer environmental information", "doubts about ingredient quality and range of choice"],
+        "within_group_coherence": "moderate",
+        "internal_diversity": "The comments emphasize different practical benefits and reservations rather than a single priority; some qualify their generally balanced assessment as not applying to every purchase. The corpus contains only four distinct formulations despite 32 observations, limiting the depth of independent discourse variation that can be inferred.",
+        "representative_texts": {
+          "text_id": ["TXT000001", "TXT000003", "TXT000004"],
+          "group": ["G1", "G1", "G1"],
+          "source_row": [1, 3, 4],
+          "text": ["The offer feels balanced; I would like clearer information about its environmental impact.", "I like the familiar taste and the price is manageable, although the choice is limited.", "It is convenient after work, but I sometimes question the quality of the ingredients."]
+        },
+        "tension_texts": {
+          "text_id": ["TXT000011", "TXT000016", "TXT000024"],
+          "group": ["G1", "G1", "G1"],
+          "source_row": [11, 16, 24],
+          "text": ["The offer feels balanced; I would like clearer information about its environmental impact. Still, this is not true for every purchase.", "I like the familiar taste and the price is manageable, although the choice is limited.", "It is convenient after work, but I sometimes question the quality of the ingredients."]
+        },
+        "metrics": {
+          "n_group_rows": 32,
+          "n_texts": 32,
+          "response_rate": 1,
+          "n_unique_texts": 4,
+          "n_available_texts": 32,
+          "n_shown_texts": 32,
+          "interpretation_coverage": 1
+        }
+      }
+    },
+    "G2": {
+      "group": "G2",
+      "status": "ready",
+      "statistical_anchor": {
+        "status": "ready",
+        "factual_text": "- For variable/proposition \"diet\":\n  - The response/modality \"conventional\" is LESS FREQUENT in this group than in the full sample (group=21.88%; full sample=44.79%).\n  - The response/modality \"flexitarian\" is MORE FREQUENT in this group than in the full sample (group=59.38%; full sample=40.62%).\n- For variable/proposition \"channel\":\n  - The response/modality \"online\" is MORE FREQUENT in this group than in the full sample (group=46.88%; full sample=31.25%).\n- The mean of \"monthly spend\" is HIGHER in this group than in the full sample (group mean=159.22; full-sample mean=130.52).\n- The mean of \"age\" is HIGHER in this group than in the full sample (group mean=47.12; full-sample mean=40.26).\n- The mean of \"purchase frequency\" is HIGHER in this group than in the full sample (group mean=4.32; full-sample mean=3.50).\n- The mean of \"satisfaction\" is HIGHER in this group than in the full sample (group mean=7.24; full-sample mean=6.46).\n- The mean of \"household size\" is HIGHER in this group than in the full sample (group mean=3.38; full-sample mean=2.75).",
+        "selected_evidence_ids": ["G2::quali::diet::conventional", "G2::quali::diet::flexitarian", "G2::quali::channel::online", "G2::quanti::monthly_spend", "G2::quanti::age", "G2::quanti::purchase_frequency", "G2::quanti::satisfaction", "G2::quanti::household_size"],
+        "n_selected_evidence": 8,
+        "n_displayed_evidence": 8,
+        "existing_semantic_interpretation": null
+      },
+      "textual_enrichment": {
+        "core_textual_profile": "G2 describes a purchasing experience valued for choice, perceived quality and time saving, but assessed conditionally against excess spending, continued price comparison and unreliable delivery.",
+        "dominant_themes": ["appreciated variety and perceived quality", "satisfaction with available choice", "price vigilance and unexpected spending", "online time saving constrained by delivery reliability"],
+        "within_group_coherence": "moderate",
+        "internal_diversity": "Some comments focus on variety and quality despite spending more than planned, others remain price-conscious despite satisfaction, and online convenience is qualified by unreliable delivery; several statements explicitly indicate that their assessment does not apply to every purchase. The 32 observations contain only six distinct formulations.",
+        "representative_texts": {
+          "text_id": ["TXT000035", "TXT000034", "TXT000039"],
+          "group": ["G2", "G2", "G2"],
+          "source_row": [35, 34, 39],
+          "text": ["The variety and quality are convincing, even if shopping this way costs more than planned.", "I feel satisfied with the choice, although I still compare prices before buying.", "Online ordering saves time, but delivery is not always convenient or reliable."]
+        },
+        "tension_texts": {
+          "text_id": ["TXT000033", "TXT000044", "TXT000055"],
+          "group": ["G2", "G2", "G2"],
+          "source_row": [33, 44, 55],
+          "text": ["The variety and quality are convincing, even if shopping this way costs more than planned. Still, this is not true for every purchase.", "I feel satisfied with the choice, although I still compare prices before buying. Still, this is not true for every purchase.", "Online ordering saves time, but delivery is not always convenient or reliable. Still, this is not true for every purchase."]
+        },
+        "metrics": {
+          "n_group_rows": 32,
+          "n_texts": 32,
+          "response_rate": 1,
+          "n_unique_texts": 6,
+          "n_available_texts": 32,
+          "n_shown_texts": 32,
+          "interpretation_coverage": 1
+        }
+      }
+    },
+    "G3": {
+      "group": "G3",
+      "status": "ready",
+      "statistical_anchor": {
+        "status": "ready",
+        "factual_text": "- The mean of \"satisfaction\" is LOWER in this group than in the full sample (group mean=5.88; full-sample mean=6.46).",
+        "selected_evidence_ids": "G3::quanti::satisfaction",
+        "n_selected_evidence": 1,
+        "n_displayed_evidence": 1,
+        "existing_semantic_interpretation": null
+      },
+      "textual_enrichment": {
+        "core_textual_profile": "G3 conveys conditional appreciation of food offers: positive experiences and perceived quality coexist with doubts about whether price is justified, whether environmental claims can be verified and whether local alternatives are accessible.",
+        "dominant_themes": ["pleasant experience versus perceived expense", "appreciation of quality with uncertain environmental claims", "perceived responsibility of local products", "difficulty finding local options"],
+        "within_group_coherence": "moderate",
+        "internal_diversity": "The main reservations concern different constraints—price, verifiability of environmental claims and access to local products—rather than a uniform rejection of the offer. Some respondents explicitly qualify their judgments as varying across purchases. The 32 comments contain only five distinct formulations, limiting claims about the diversity of independent viewpoints.",
+        "representative_texts": {
+          "text_id": ["TXT000065", "TXT000067", "TXT000070"],
+          "group": ["G3", "G3", "G3"],
+          "source_row": [65, 67, 70],
+          "text": ["I appreciate the quality, yet the environmental claim is difficult to verify.", "The experience can be pleasant, although the price sometimes outweighs the benefits.", "Local products feel more responsible, but they are not always easy to find."]
+        },
+        "tension_texts": {
+          "text_id": ["TXT000066", "TXT000077", "TXT000086"],
+          "group": ["G3", "G3", "G3"],
+          "source_row": [66, 77, 86],
+          "text": ["The experience can be pleasant, although the price sometimes outweighs the benefits. Still, this is not true for every purchase.", "I appreciate the quality, yet the environmental claim is difficult to verify. Still, this is not true for every purchase.", "Local products feel more responsible, but they are not always easy to find."]
+        },
+        "metrics": {
+          "n_group_rows": 32,
+          "n_texts": 32,
+          "response_rate": 1,
+          "n_unique_texts": 5,
+          "n_available_texts": 32,
+          "n_shown_texts": 32,
+          "interpretation_coverage": 1
+        }
+      }
+    }
+  },
+  "settings": {
+    "architecture": "catdes_anchor_textual_enrichment",
+    "local_first": true,
+    "global_synthesis_performed": false,
+    "catdes_interpretation_mode": "standard"
+  },
+  "metadata": {
+    "schema": "NaileR::catdes_textual_evidence",
+    "schema_version": "0.1.0",
+    "n_groups": 3,
+    "statistical_source": "semantic_facing_evidence",
+    "textual_source": "textual_profiles",
+    "textual_grounding_source": "textual_evidence",
+    "textual_variable": "comment"
+  }
+}

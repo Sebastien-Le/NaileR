@@ -1,0 +1,7 @@
+"function","condition","scope_id","prompt_file","prompt_sha256"
+"catdes_textual","A","G1","prompts/catdes_textual_A_G1.txt","d8d61e902c707eb0ff22ed07276e9126497e4c1533fda2d2934939364e4bc072"
+"catdes_textual","B","G1","prompts/catdes_textual_B_G1.txt","75b8a3ba22db0fb0a996f49ad83ee43df2587ccd0fb14297cc3e1a9b867baa5a"
+"catdes_textual","A","G2","prompts/catdes_textual_A_G2.txt","bfc552b0d24be3d05a5f2f8bfc1ae538418b50950e869c884135ffb3daf9dad7"
+"catdes_textual","B","G2","prompts/catdes_textual_B_G2.txt","7923e679d07a4927d6ed67caeb16495fec3a78a4b89e0196c7656fc1107cc3db"
+"catdes_textual","A","G3","prompts/catdes_textual_A_G3.txt","4e973961317efe459c9c24ef1487a36b85731a8d0615d0d65f7a1908831909d0"
+"catdes_textual","B","G3","prompts/catdes_textual_B_G3.txt","20ac0027c0b6cd60f84e7d49a72f2fe716c0d468e34d02a889e7abda4087992b"
