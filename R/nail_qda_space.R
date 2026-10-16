@@ -1028,6 +1028,62 @@ validate_qda_space_inputs <- function(ncp,
 }
 
 
+.qda_space_axis_characterization_status <- function(associations) {
+  if (is.data.frame(associations) &&
+      nrow(associations) > 0L) {
+    return("associations_selected")
+  }
+
+  "no_selected_associations"
+}
+
+
+.qda_space_deterministic_axis_restitution <- function(
+    axis_evidence) {
+  paste(
+    paste0(
+      "# ",
+      axis_evidence$dimension,
+      " - axis characterization limited"
+    ),
+    "",
+    paste(
+      "No attribute-axis association was selected under the current",
+      "`condes_proba` setting. This selection-limited status does not prove",
+      "that the axis has no mathematical structure, no differences, or no",
+      "possible substantive interpretation."
+    ),
+    paste(
+      "No LLM generation was performed for this axis. The retained PCA",
+      "coordinates, inertia, contributions, cos2 values, complete CONDES",
+      "profile, and individual QDA markers remain available in",
+      "`nail_evidence()` for cautious inspection."
+    ),
+    paste(
+      "The available selected evidence is insufficient to establish a",
+      "sensory continuum or an assertive dimension name at this setting."
+    ),
+    sep = "\n"
+  )
+}
+
+
+.qda_space_deterministic_axis_result <- function(axis_evidence) {
+  structure(
+    list(
+      axis = axis_evidence$dimension,
+      status = axis_evidence$characterization_status,
+      restitution = axis_evidence$deterministic_restitution,
+      llm_called = FALSE
+    ),
+    class = c(
+      "nail_qda_space_deterministic_axis",
+      "list"
+    )
+  )
+}
+
+
 # ===========================================================================
 # Canonical QDA-space evidence
 # ===========================================================================
@@ -1064,6 +1120,13 @@ validate_qda_space_inputs <- function(ncp,
       top_n_var = top_n_var
     )
 
+    complete_associations <-
+      condes_axis$continuous_profile$quantitative_associations
+    characterization_status <-
+      .qda_space_axis_characterization_status(
+        associations
+      )
+
     products <- .build_qda_space_axis_products(
       space = space,
       axis = axis,
@@ -1084,10 +1147,34 @@ validate_qda_space_inputs <- function(ncp,
         space$eigenvalues$percent[[axis]]
       ),
       sensory_structure = associations,
+      characterization_status = characterization_status,
+      selected_association_count = as.integer(
+        nrow(associations)
+      ),
+      available_association_count = as.integer(
+        if (is.data.frame(complete_associations)) {
+          nrow(complete_associations)
+        } else {
+          0L
+        }
+      ),
+      condes_proba = as.numeric(condes_proba),
       continuous_profile =
         condes_axis$continuous_profile,
       products = products
     )
+
+    axes[[dimension]]$deterministic_restitution <-
+      if (identical(
+        characterization_status,
+        "no_selected_associations"
+      )) {
+        .qda_space_deterministic_axis_restitution(
+          axes[[dimension]]
+        )
+      } else {
+        NULL
+      }
 
     axis_condes[[dimension]] <-
       condes_axis$output
@@ -1166,11 +1253,13 @@ build_guide_qda_space <- function(
     ),
     positioning = paste(
       "Interpretation mode: product positioning.",
-      "A broader product-style interpretation is allowed, but it must remain grounded in the sensory configuration."
+      "A broader product-style interpretation is allowed only as a clearly qualified hypothesis",
+      "grounded in the sensory configuration and supplied context."
     ),
     hybrid = paste(
       "Interpretation mode: hybrid.",
-      "Start from the sensory configuration and only then propose a broader product-style interpretation when justified."
+      "Start from the sensory configuration and only then propose a broader product-style interpretation when justified;",
+      "label it as a hypothesis and keep it grounded in the supplied context."
     )
   )
 
@@ -1191,6 +1280,18 @@ build_guide_qda_space <- function(
     paste(
       "For each product, statistically distinctive",
       "attributes are factual evidence relative to the evaluated set."
+    ),
+    paste(
+      "The attribute-axis associations below are descriptive",
+      "characterizations of the PCA structure, not independent validation tests."
+    ),
+    paste(
+      "Contribution and cos2 have different meanings:",
+      "contribution describes influence on the axis, whereas cos2 describes how well a product is represented on it."
+    ),
+    paste(
+      "When contributions are highly concentrated or a product has a low cos2,",
+      "report that limitation and avoid treating that product as a firmly represented pole exemplar."
     ),
     paste(
       "A product sensory interpretation is a concise summary retained for that product;",
@@ -1215,6 +1316,10 @@ build_guide_qda_space <- function(
     paste(
       "Do not infer liking, quality, consumer preference,",
       "premium character, market success, or causality from sensory evidence alone."
+    ),
+    paste(
+      "Do not add cultural, hedonic, or marketing claims",
+      "that are not supported by the supplied evidence or context."
     ),
     mode_text,
     sep = "\n"
@@ -1280,17 +1385,29 @@ build_request_qda_space <- function(
       "and mention the interpretive discrepancy only if it matters."
     ),
     paste(
-      "7. State what common sensory opposition best explains",
+      "7. Treat attribute-axis associations as descriptive summaries",
+      "of the displayed PCA evidence, not as independent significance tests."
+    ),
+    paste(
+      "8. Distinguish contribution from cos2:",
+      "contribution indicates influence on the axis, while cos2 indicates representation quality."
+    ),
+    paste(
+      "9. If contributions are concentrated or cos2 is low for a product,",
+      "state that limitation and qualify the corresponding pole interpretation."
+    ),
+    paste(
+      "10. State what common sensory opposition best explains",
       "both the attribute structure and the products at the two ends."
     ),
     paste(
-      '8. Write one sentence beginning with:',
+      '11. Write one sentence beginning with:',
       '"What separates the higher/positive end from the lower/negative end of the dimension is...".'
     ),
-    paste0("9. ", final_rule),
+    paste0("12. ", final_rule),
     paste(
       "Do not merely paraphrase each fact and do not invent",
-      "causal, hedonic, or marketing explanations."
+      "causal, hedonic, cultural, or marketing explanations."
     ),
     sep = "\n"
   )
@@ -1376,7 +1493,7 @@ build_conclusion_qda_space <- function(
         " (|r|=",
         .qda_space_num(
           abs(row$correlation),
-          digits = 2L
+          digits = 3L
         ),
         ")."
       )
@@ -1429,6 +1546,33 @@ build_conclusion_qda_space <- function(
       )
     },
     character(1)
+  )
+}
+
+
+.qda_space_axis_characterization_note <- function(associations) {
+  if (is.data.frame(associations) &&
+      nrow(associations) > 0L) {
+    return("")
+  }
+
+  paste(
+    c(
+      "### Axis-characterization limitation",
+      "",
+      paste(
+        "No attribute-axis association was selected under the current",
+        "axis-characterization settings. This is not evidence of no differences",
+        "and does not demonstrate similarity to the overall profile."
+      ),
+      paste(
+        "The individual QDA markers shown below are not evidence that this",
+        "axis has a sensory characterization. Describe the observed geometry",
+        "cautiously and do not present a sensory continuum or dimension name",
+        "as firmly established by the available evidence."
+      )
+    ),
+    collapse = "\n"
   )
 }
 
@@ -1578,6 +1722,9 @@ build_conclusion_qda_space <- function(
     .qda_space_axis_contrast_text(
       axis_evidence$sensory_structure
     ),
+    .qda_space_axis_characterization_note(
+      axis_evidence$sensory_structure
+    ),
     "",
     "### Products representing the lower/negative end",
     "",
@@ -1644,7 +1791,8 @@ build_conclusion_qda_space <- function(
     product_interpretations,
     prompts,
     responses,
-    settings) {
+    settings,
+    axis_generation = NULL) {
   attr(x, "qda_space_evidence") <-
     qda_space_evidence
 
@@ -1676,7 +1824,33 @@ build_conclusion_qda_space <- function(
       expertise_mode =
         settings$expertise_mode,
       axis_characterization =
-        "nail_condes_latent"
+        "nail_condes_latent",
+      axis_status = stats::setNames(
+        vapply(
+          qda_space_evidence$axes,
+          function(axis) {
+            axis$characterization_status
+          },
+          character(1)
+        ),
+        names(qda_space_evidence$axes)
+      ),
+      axis_generation = axis_generation,
+      submitted_axes = names(responses),
+      deterministic_axes = names(
+        qda_space_evidence$axes[
+          vapply(
+            qda_space_evidence$axes,
+            function(axis) {
+              identical(
+                axis$characterization_status,
+                "no_selected_associations"
+              )
+            },
+            logical(1)
+          )
+        ]
+      )
     )
   )
 
@@ -1710,6 +1884,15 @@ build_conclusion_qda_space <- function(
 #' and the retained `product_interpretations` from [nail_qda()]. Expert-edited
 #' interpretations are therefore used automatically when present.
 #'
+#' Each retained axis carries an explicit characterization status. An axis is
+#' marked `"associations_selected"` when at least one displayed attribute--axis
+#' association is selected under `condes_proba`; otherwise it is marked
+#' `"no_selected_associations"`. The latter is a selection-limited status: it
+#' does not assert that the axis has no mathematical structure or cannot ever
+#' be interpreted. In that case the PCA and complete CONDES evidence remain
+#' available, but the default generated workflow returns a deterministic
+#' limitation statement and does not send that axis to the LLM.
+#'
 #' When `generate = TRUE` and a model-assisted QDA product interpretation is
 #' reused in a product-space prompt, the function emits one non-blocking
 #' warning. The resulting axis interpretation should be confronted with the
@@ -1734,7 +1917,10 @@ build_conclusion_qda_space <- function(
 #' @param top_n_profile_markers Maximum number of product QDA markers displayed
 #'   within each role (reinforcing, additional, conflicting).
 #' @param condes_proba Significance threshold used by the internal
-#'   [nail_condes()] characterization of each PCA dimension.
+#'   [nail_condes()] characterization of each PCA dimension. It also determines
+#'   whether an axis receives the `"associations_selected"` status; it is a
+#'   descriptive selection criterion, not an independent validation test of the
+#'   PCA.
 #' @param expertise_mode Interpretation mode: `"sensory"` (default),
 #'   `"positioning"`, or `"hybrid"`. This changes the requested substantive
 #'   reading of the same product-space evidence.
@@ -1745,31 +1931,39 @@ build_conclusion_qda_space <- function(
 #' @param provider LLM backend: `"ollama"` or `"gemini"`; the default selected
 #'   by `match.arg()` is `"ollama"`.
 #' @param generate If `FALSE`, build prompts without calling the final LLM. If
-#'   `TRUE`, call the selected backend once per retained axis.
+#'   `TRUE`, call the selected backend once per retained axis with selected
+#'   associations. An axis with no selected association receives a deterministic
+#'   limitation result and is not submitted to the backend.
 #' @param ... Additional provider-specific arguments for the final LLM calls.
 #'
-#' @return A named list of exact axis prompts when `generate = FALSE`, or a
-#'   named list of backend results when `generate = TRUE`. If no PCA dimension
-#'   reaches `min_inertia_pct`, the result is a short preview with an empty
-#'   retained-axis evidence object. Available analytical objects are attached
-#'   as attributes rather than added as `$` fields. Use
-#'   [nail_evidence()] and [nail_prompt()] to inspect them; generated results
-#'   additionally support [nail_response()].
+#' @return A named list of exact axis prompts when `generate = FALSE`. With
+#'   `generate = TRUE`, the list contains backend results for axes submitted to
+#'   the provider and explicit deterministic axis-result objects for axes with
+#'   no selected association. A deterministic result is never represented as a
+#'   provider response. If no PCA dimension reaches `min_inertia_pct`, the
+#'   result is a short preview with an empty retained-axis evidence object.
+#'   Available analytical objects are attached as attributes rather than added
+#'   as `$` fields. Use [nail_evidence()] and [nail_prompt()] to inspect all
+#'   axes; [nail_response()] returns only actual provider responses and is not
+#'   available for a deterministic axis.
 #'
 #'   Attached analytical artifacts include:
 #'
 #'   * `qda_space_evidence`: canonical product-space evidence containing the
-#'     adjusted means, PCA, eigenvalues, retained axes, latent continuous
-#'     profiles, and product evidence.
+#'     adjusted means, PCA, eigenvalues, retained axes, per-axis
+#'     `characterization_status`, latent continuous profiles, and product
+#'     evidence. Axes with no selected association also contain a
+#'     `deterministic_restitution`.
 #'   * `qda_space`: compatibility alias of `qda_space_evidence`.
 #'   * `axis_condes`: the actual preview objects returned by the internal
 #'     [nail_condes()] calls, one per retained axis.
 #'   * `product_profiles`: canonical QDA evidence when available.
 #'   * `product_interpretations`: retained model-assisted or expert-edited
 #'     product interpretations when available.
-#'   * `llm_io`: exact final prompts and raw final LLM responses for retained
-#'     axes, for [nail_prompt()] and [nail_response()]. It is empty or absent
-#'     when no axis reaches `min_inertia_pct`.
+#'   * `llm_io`: exact constructed prompts and raw provider responses. Its
+#'     metadata records which axes were submitted and which received a
+#'     deterministic restitution; deterministic restitutions are not stored in
+#'     the response slot.
 #'
 #' @seealso [nail_qda()], [nail_condes()], [nail_qda_interpretation()],
 #'   [nail_evidence()], [nail_prompt()], [nail_response()]
@@ -2035,6 +2229,24 @@ nail_qda_space <- function(
   )
 
   if (!generate) {
+    preview_generation <- stats::setNames(
+      vapply(
+        qda_space_evidence$axes,
+        function(axis) {
+          if (identical(
+            axis$characterization_status,
+            "no_selected_associations"
+          )) {
+            "deterministic_preview_only"
+          } else {
+            "llm_preview_only"
+          }
+        },
+        character(1)
+      ),
+      names(qda_space_evidence$axes)
+    )
+
     return(
       .attach_qda_space_artifacts(
         x = prompts,
@@ -2047,12 +2259,25 @@ nail_qda_space <- function(
           inputs$product_interpretations,
         prompts = prompts,
         responses = NULL,
-        settings = settings
+        settings = settings,
+        axis_generation = preview_generation
       )
     )
   }
 
-  if (isTRUE(reused_llm_interpretation)) {
+  can_generate <- vapply(
+    qda_space_evidence$axes,
+    function(axis) {
+      identical(
+        axis$characterization_status,
+        "associations_selected"
+      )
+    },
+    logical(1)
+  )
+
+  if (isTRUE(reused_llm_interpretation) &&
+      any(can_generate)) {
     warning(
       paste(
         "A model-assisted QDA product interpretation is being reused in",
@@ -2080,18 +2305,36 @@ nail_qda_space <- function(
     backend
   }
 
-  result <- lapply(
-    prompts,
-    call_one
+  result <- stats::setNames(
+    vector(
+      mode = "list",
+      length = length(prompts)
+    ),
+    names(prompts)
   )
-  names(result) <- names(prompts)
+  raw_responses <- NULL
+  axis_generation <- stats::setNames(
+    rep("deterministic_no_selected_associations", length(prompts)),
+    names(prompts)
+  )
 
-  raw_responses <- lapply(
-    result,
-    .qda_space_backend_response_text
-  )
-  names(raw_responses) <-
-    names(result)
+  for (axis_name in names(prompts)) {
+    if (isTRUE(can_generate[[axis_name]])) {
+      backend <- call_one(prompts[[axis_name]])
+      result[[axis_name]] <- backend
+      if (is.null(raw_responses)) {
+        raw_responses <- list()
+      }
+      raw_responses[[axis_name]] <-
+        .qda_space_backend_response_text(backend)
+      axis_generation[[axis_name]] <- "llm_generated"
+    } else {
+      result[[axis_name]] <-
+        .qda_space_deterministic_axis_result(
+          qda_space_evidence$axes[[axis_name]]
+        )
+    }
+  }
 
   .attach_qda_space_artifacts(
     x = result,
@@ -2104,6 +2347,7 @@ nail_qda_space <- function(
       inputs$product_interpretations,
     prompts = prompts,
     responses = raw_responses,
-    settings = settings
+    settings = settings,
+    axis_generation = axis_generation
   )
 }

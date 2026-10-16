@@ -216,6 +216,21 @@ make_qda_space_condes_test_object <- function() {
 }
 
 
+make_sensochoc_qda_space_test_object <- function() {
+  data(chocolates, package = "SensoMineR")
+
+  nail_qda(
+    dataset = sensochoc,
+    formul = "~Product+Panelist",
+    firstvar = 5,
+    lastvar = 18,
+    sample.pct = 1,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+}
+
+
 test_that("qda_space really uses nail_condes latent profiles", {
   qda <- make_qda_space_condes_test_object()
 
@@ -369,6 +384,171 @@ test_that("qda_space prompt is analyst-facing, not implementation-facing", {
       fixed = TRUE
     )
   )
+})
+
+
+test_that("qda_space prompts distinguish descriptive evidence and geometry", {
+  qda <- make_qda_space_condes_test_object()
+
+  prompts <- lapply(
+    c("sensory", "positioning", "hybrid"),
+    function(mode) {
+      space <- nail_qda_space(
+        qda,
+        ncp = 1,
+        min_inertia_pct = 0,
+        top_n_var = 6,
+        top_n_products = 3,
+        expertise_mode = mode,
+        generate = FALSE
+      )
+
+      nail_prompt(
+        space,
+        select = "Dim1",
+        print = FALSE
+      )
+    }
+  )
+
+  for (prompt in prompts) {
+    expect_match(
+      prompt,
+      "descriptive characterizations of the PCA structure, not independent validation tests",
+      fixed = TRUE
+    )
+    expect_match(
+      prompt,
+      "contribution describes influence on the axis, whereas cos2 describes how well a product is represented on it",
+      fixed = TRUE
+    )
+    expect_match(
+      prompt,
+      "contribution=",
+      fixed = TRUE
+    )
+    expect_match(
+      prompt,
+      "cos2=",
+      fixed = TRUE
+    )
+    expect_match(
+      prompt,
+      "Do not add cultural, hedonic, or marketing claims",
+      fixed = TRUE
+    )
+    expect_match(
+      prompt,
+      "|r|=0.",
+      fixed = TRUE
+    )
+  }
+})
+
+
+test_that("qda_space marks an axis without selected associations as insufficiently characterized", {
+  qda <- make_qda_space_condes_test_object()
+
+  space <- nail_qda_space(
+    qda,
+    ncp = 1,
+    min_inertia_pct = 0,
+    top_n_var = 6,
+    top_n_products = 3,
+    condes_proba = 1e-10,
+    generate = FALSE
+  )
+
+  evidence <- attr(
+    space,
+    "qda_space_evidence",
+    exact = TRUE
+  )
+  expect_length(evidence$axes, 1L)
+  expect_identical(
+    nrow(evidence$axes$Dim1$sensory_structure),
+    0L
+  )
+
+  prompt <- nail_prompt(
+    space,
+    select = "Dim1",
+    print = FALSE
+  )
+
+  expect_match(
+    prompt,
+    "No attribute-axis association was selected under the current axis-characterization settings.",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "The individual QDA markers shown below are not evidence that this axis has a sensory characterization.",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "do not present a sensory continuum or dimension name as firmly established",
+    fixed = TRUE
+  )
+})
+
+
+test_that("qda_space keeps evidence invariant across expertise modes", {
+  qda <- make_qda_space_condes_test_object()
+
+  reference <- nail_qda_space(
+    qda,
+    ncp = 1,
+    min_inertia_pct = 0,
+    top_n_var = 6,
+    top_n_products = 3,
+    expertise_mode = "sensory",
+    generate = FALSE
+  )
+  reference_evidence <- attr(
+    reference,
+    "qda_space_evidence",
+    exact = TRUE
+  )
+
+  for (mode in c("positioning", "hybrid")) {
+    current <- nail_qda_space(
+      qda,
+      ncp = 1,
+      min_inertia_pct = 0,
+      top_n_var = 6,
+      top_n_products = 3,
+      expertise_mode = mode,
+      generate = FALSE
+    )
+    current_evidence <- attr(
+      current,
+      "qda_space_evidence",
+      exact = TRUE
+    )
+
+    expect_identical(
+      current_evidence$adjusted_means,
+      reference_evidence$adjusted_means
+    )
+    expect_identical(
+      current_evidence$pca_result,
+      reference_evidence$pca_result
+    )
+    expect_identical(
+      current_evidence$axes$Dim1$sensory_structure,
+      reference_evidence$axes$Dim1$sensory_structure
+    )
+    expect_identical(
+      attr(current, "product_profiles", exact = TRUE),
+      attr(reference, "product_profiles", exact = TRUE)
+    )
+    expect_identical(
+      attr(current, "product_interpretations", exact = TRUE),
+      attr(reference, "product_interpretations", exact = TRUE)
+    )
+  }
 })
 
 
@@ -662,6 +842,230 @@ test_that("qda_space does not warn without reusable interpretations", {
       model = "mock-model"
     )
   )
+})
+
+
+test_that("qda_space records characterization status per retained axis", {
+  qda <- make_sensochoc_qda_space_test_object()
+
+  both <- nail_qda_space(
+    qda,
+    ncp = 2,
+    min_inertia_pct = 0,
+    condes_proba = 1,
+    generate = FALSE
+  )
+  both_evidence <- attr(
+    both,
+    "qda_space_evidence",
+    exact = TRUE
+  )
+  expect_length(both_evidence$axes, 2L)
+  expect_true(all(vapply(
+    both_evidence$axes,
+    function(axis) {
+      identical(
+        axis$characterization_status,
+        "associations_selected"
+      )
+    },
+    logical(1)
+  )))
+
+  mixed <- nail_qda_space(
+    qda,
+    ncp = 2,
+    min_inertia_pct = 0,
+    condes_proba = 0.05,
+    generate = FALSE
+  )
+  mixed_evidence <- attr(
+    mixed,
+    "qda_space_evidence",
+    exact = TRUE
+  )
+  mixed_status <- vapply(
+    mixed_evidence$axes,
+    function(axis) axis$characterization_status,
+    character(1)
+  )
+  expect_identical(
+    unname(mixed_status),
+    c(
+      "associations_selected",
+      "no_selected_associations"
+    )
+  )
+  expect_true(
+    nzchar(
+      mixed_evidence$axes$Dim2$deterministic_restitution
+    )
+  )
+  expect_identical(
+    mixed_evidence$axes$Dim2$selected_association_count,
+    0L
+  )
+  expect_true(
+    is.list(
+      mixed_evidence$axes$Dim2$continuous_profile
+    )
+  )
+
+  none <- nail_qda_space(
+    qda,
+    ncp = 2,
+    min_inertia_pct = 0,
+    condes_proba = 1e-10,
+    generate = FALSE
+  )
+  none_evidence <- attr(
+    none,
+    "qda_space_evidence",
+    exact = TRUE
+  )
+  expect_true(all(vapply(
+    none_evidence$axes,
+    function(axis) {
+      identical(
+        axis$characterization_status,
+        "no_selected_associations"
+      )
+    },
+    logical(1)
+  )))
+})
+
+
+test_that("qda_space blocks only insufficiently characterized axes", {
+  qda <- make_sensochoc_qda_space_test_object()
+  calls <- character()
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(
+        provider,
+        model,
+        prompt,
+        output,
+        llm_api_options) {
+      calls <<- c(calls, prompt)
+      data.frame(
+        model = model,
+        response = "Generated interpretation for the characterized axis.",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  mixed <- nail_qda_space(
+    qda,
+    ncp = 2,
+    min_inertia_pct = 0,
+    condes_proba = 0.05,
+    generate = TRUE,
+    model = "mock-model"
+  )
+  io <- attr(mixed, "llm_io", exact = TRUE)
+
+  expect_length(calls, 1L)
+  expect_named(io$prompts, c("Dim1", "Dim2"))
+  expect_named(io$responses, "Dim1")
+  expect_identical(
+    io$metadata$submitted_axes,
+    "Dim1"
+  )
+  expect_identical(
+    io$metadata$deterministic_axes,
+    "Dim2"
+  )
+  expect_s3_class(
+    mixed$Dim2,
+    "nail_qda_space_deterministic_axis"
+  )
+  expect_false(mixed$Dim2$llm_called)
+  expect_identical(
+    nail_response(mixed, select = "Dim1", print = FALSE),
+    "Generated interpretation for the characterized axis."
+  )
+  expect_error(
+    nail_response(mixed, select = "Dim2", print = FALSE),
+    "Unknown `select"
+  )
+  expect_match(
+    mixed$Dim2$restitution,
+    "No LLM generation was performed for this axis",
+    fixed = TRUE
+  )
+})
+
+
+test_that("qda_space performs no LLM calls when no axis is characterized", {
+  qda <- make_qda_space_condes_test_object()
+  calls <- 0L
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(
+        provider,
+        model,
+        prompt,
+        output,
+        llm_api_options) {
+      calls <<- calls + 1L
+      data.frame(
+        model = model,
+        response = "Should not be called.",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  none <- nail_qda_space(
+    qda,
+    ncp = 2,
+    min_inertia_pct = 0,
+    condes_proba = 1e-10,
+    generate = TRUE,
+    model = "mock-model"
+  )
+  io <- attr(none, "llm_io", exact = TRUE)
+
+  expect_identical(calls, 0L)
+  expect_null(io$responses)
+  expect_identical(io$metadata$submitted_axes, NULL)
+  expect_identical(
+    io$metadata$deterministic_axes,
+    c("Dim1", "Dim2")
+  )
+  expect_s3_class(
+    none$Dim1,
+    "nail_qda_space_deterministic_axis"
+  )
+  expect_s3_class(
+    none$Dim2,
+    "nail_qda_space_deterministic_axis"
+  )
+})
+
+
+test_that("qda_space preserves the no-retained-axis contract", {
+  qda <- make_qda_space_condes_test_object()
+
+  out <- nail_qda_space(
+    qda,
+    ncp = 2,
+    min_inertia_pct = 100,
+    generate = TRUE
+  )
+  evidence <- attr(
+    out,
+    "qda_space_evidence",
+    exact = TRUE
+  )
+
+  expect_length(evidence$axes, 0L)
+  expect_identical(evidence$retained_axes, integer(0))
+  expect_false(inherits(out, "nail_qda_space_deterministic_axis"))
 })
 
 

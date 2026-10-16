@@ -54,7 +54,10 @@ from the latent \code{\link[=nail_condes]{nail_condes()}} characterization for e
 within each role (reinforcing, additional, conflicting).}
 
 \item{condes_proba}{Significance threshold used by the internal
-\code{\link[=nail_condes]{nail_condes()}} characterization of each PCA dimension.}
+\code{\link[=nail_condes]{nail_condes()}} characterization of each PCA dimension. It also determines
+whether an axis receives the \code{"associations_selected"} status; it is a
+descriptive selection criterion, not an independent validation test of the
+PCA.}
 
 \item{expertise_mode}{Interpretation mode: \code{"sensory"} (default),
 \code{"positioning"}, or \code{"hybrid"}. This changes the requested substantive
@@ -72,33 +75,41 @@ reading of the same product-space evidence.}
 by \code{match.arg()} is \code{"ollama"}.}
 
 \item{generate}{If \code{FALSE}, build prompts without calling the final LLM. If
-\code{TRUE}, call the selected backend once per retained axis.}
+\code{TRUE}, call the selected backend once per retained axis with selected
+associations. An axis with no selected association receives a deterministic
+limitation result and is not submitted to the backend.}
 
 \item{...}{Additional provider-specific arguments for the final LLM calls.}
 }
 \value{
-A named list of exact axis prompts when \code{generate = FALSE}, or a
-named list of backend results when \code{generate = TRUE}. If no PCA dimension
-reaches \code{min_inertia_pct}, the result is a short preview with an empty
-retained-axis evidence object. Available analytical objects are attached
-as attributes rather than added as \code{$} fields. Use
-\code{\link[=nail_evidence]{nail_evidence()}} and \code{\link[=nail_prompt]{nail_prompt()}} to inspect them; generated results
-additionally support \code{\link[=nail_response]{nail_response()}}.
+A named list of exact axis prompts when \code{generate = FALSE}. With
+\code{generate = TRUE}, the list contains backend results for axes submitted to
+the provider and explicit deterministic axis-result objects for axes with
+no selected association. A deterministic result is never represented as a
+provider response. If no PCA dimension reaches \code{min_inertia_pct}, the
+result is a short preview with an empty retained-axis evidence object.
+Available analytical objects are attached as attributes rather than added
+as \code{$} fields. Use \code{\link[=nail_evidence]{nail_evidence()}} and \code{\link[=nail_prompt]{nail_prompt()}} to inspect all
+axes; \code{\link[=nail_response]{nail_response()}} returns only actual provider responses and is not
+available for a deterministic axis.
 
 Attached analytical artifacts include:
 \itemize{
 \item \code{qda_space_evidence}: canonical product-space evidence containing the
-adjusted means, PCA, eigenvalues, retained axes, latent continuous
-profiles, and product evidence.
+adjusted means, PCA, eigenvalues, retained axes, per-axis
+\code{characterization_status}, latent continuous profiles, and product
+evidence. Axes with no selected association also contain a
+\code{deterministic_restitution}.
 \item \code{qda_space}: compatibility alias of \code{qda_space_evidence}.
 \item \code{axis_condes}: the actual preview objects returned by the internal
 \code{\link[=nail_condes]{nail_condes()}} calls, one per retained axis.
 \item \code{product_profiles}: canonical QDA evidence when available.
 \item \code{product_interpretations}: retained model-assisted or expert-edited
 product interpretations when available.
-\item \code{llm_io}: exact final prompts and raw final LLM responses for retained
-axes, for \code{\link[=nail_prompt]{nail_prompt()}} and \code{\link[=nail_response]{nail_response()}}. It is empty or absent
-when no axis reaches \code{min_inertia_pct}.
+\item \code{llm_io}: exact constructed prompts and raw provider responses. Its
+metadata records which axes were submitted and which received a
+deterministic restitution; deterministic restitutions are not stored in
+the response slot.
 }
 }
 \description{
@@ -121,6 +132,15 @@ provide the pole exemplars.
 Product-level interpretation combines PCA geometry, canonical QDA markers,
 and the retained \code{product_interpretations} from \code{\link[=nail_qda]{nail_qda()}}. Expert-edited
 interpretations are therefore used automatically when present.
+
+Each retained axis carries an explicit characterization status. An axis is
+marked \code{"associations_selected"} when at least one displayed attribute--axis
+association is selected under \code{condes_proba}; otherwise it is marked
+\code{"no_selected_associations"}. The latter is a selection-limited status: it
+does not assert that the axis has no mathematical structure or cannot ever
+be interpreted. In that case the PCA and complete CONDES evidence remain
+available, but the default generated workflow returns a deterministic
+limitation statement and does not send that axis to the LLM.
 
 When \code{generate = TRUE} and a model-assisted QDA product interpretation is
 reused in a product-space prompt, the function emits one non-blocking
