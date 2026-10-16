@@ -499,8 +499,10 @@ nail_textual <- function(dataset, num.var, num.text,
   }
 
   if (is.null(request)) {
-    request <- .textual_default_request(
-      prompt_style = prompt_style
+    request <- .append_nail_default_interpretive_insight(
+      .textual_default_request(
+        prompt_style = prompt_style
+      )
     )
   }
 

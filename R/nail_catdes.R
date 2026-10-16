@@ -1930,10 +1930,12 @@ nail_catdes <- function(dataset = NULL,
   }
 
   if (is.null(request)) {
-    request <- build_request_catdes(
-      interpretation_mode = interpretation_mode,
-      isolate_groups = isolate.groups,
-      prompt_style = prompt_style
+    request <- .append_nail_default_interpretive_insight(
+      build_request_catdes(
+        interpretation_mode = interpretation_mode,
+        isolate_groups = isolate.groups,
+        prompt_style = prompt_style
+      )
     )
   }
 

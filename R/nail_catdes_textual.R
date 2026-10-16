@@ -1051,7 +1051,9 @@ nail_catdes_textual <- function(catdes,
   }
 
   if (is.null(request)) {
-    request <- .catdes_textual_default_request()
+    request <- .append_nail_default_interpretive_insight(
+      .catdes_textual_default_request()
+    )
   }
 
   if (is.null(conclusion)) {

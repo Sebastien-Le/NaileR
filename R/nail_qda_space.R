@@ -1907,9 +1907,11 @@ nail_qda_space <- function(
   )
 
   if (is.null(request)) {
-    request <- build_request_qda_space(
-      expertise_mode =
-        expertise_mode
+    request <- .append_nail_default_interpretive_insight(
+      build_request_qda_space(
+        expertise_mode =
+          expertise_mode
+      )
     )
   }
 

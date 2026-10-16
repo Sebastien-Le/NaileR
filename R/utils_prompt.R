@@ -2,6 +2,23 @@
 # Prompt utilities
 # ---------------------------------------------------------------------------
 
+.nail_interpretive_insight_instruction <- function() {
+  paste(
+    "When the evidence allows it, identify and explain the most informative",
+    "insight that emerges from the configuration of findings rather than from",
+    "any one finding alone, without presenting that insight as an additional",
+    "demonstrated fact."
+  )
+}
+
+.append_nail_default_interpretive_insight <- function(request) {
+  paste(
+    request,
+    .nail_interpretive_insight_instruction(),
+    sep = "\n\n"
+  )
+}
+
 #' Build a standard markdown prompt
 #'
 #' @param introduction Introduction section.
