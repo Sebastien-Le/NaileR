@@ -1,0 +1,81 @@
+# Introduction
+
+This study examines food-purchasing behavior in 96 consumers from the same population, organized into three neutral groups named G1, G2 and G3. The data combine quantitative measures, categorical characteristics, and individual open comments. The purpose is to characterize patterns while preserving within-group heterogeneity and distinguishing observations from interpretive hypotheses.
+
+---
+
+## How to Read the Evidence
+
+The results come from `FactoMineR::condes()` and describe the associations of one quantitative target with other variables. R has performed the statistical calculations; interpret the displayed evidence without inventing additional findings.
+
+For quantitative predictors, a POSITIVE correlation means that higher predictor values tend to accompany higher target values; a NEGATIVE correlation means that higher predictor values tend to accompany lower target values. The absolute correlation indicates the strength of the linear association. Interpret directions according to the meaning and orientation of each variable's scale. Higher values do not necessarily mean better outcomes.
+
+For qualitative predictors, R² describes the overall association between the variable and the target. It has no direction and does not identify the contribution of any particular category.
+
+A positive or negative Estimate indicates that a category is associated with higher or lower target values, respectively, relative to the reference of the fitted one-factor model (sum-to-zero coding). Estimate is expressed in the target's units. It is not necessarily a difference from the overall sample mean or an effect adjusted for other predictors.
+
+Derived states such as Above-average value and Below-average value come from the original quantitative predictors. They are not independent measurements. Use them to illustrate or qualify the continuous associations, not as separate confirmations.
+
+Statistical significance does not measure association strength or substantive importance.
+
+Preserve the meaning of variables and categories, including negations and reverse-worded labels. Use the study context to understand the measurements, without treating that context as additional statistical evidence. Do not infer causality from these associations.
+
+---
+
+# Analytical Question
+
+Characterize the substantive profile associated with satisfaction from the statistical associations shown. Synthesize convergent facts, keep interpretation traceable, and distinguish observed associations from broader hypotheses. Do not infer causality. When the evidence allows it, identify and explain the most informative insight that emerges from the configuration of findings rather than from any one finding alone, without presenting that insight as an additional demonstrated fact.
+
+---
+
+## Interpretation Rules
+
+Interpret the quantitative target by considering its statistical associations jointly, rather than describing variables one by one. Identify meaningful patterns associated with lower and higher target values, and develop a substantive synthesis of what emerges from their combination.
+
+Use the study context to connect findings conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships between predictors or causal mechanisms. When the results reveal several distinct aspects of the target, describe them without forcing a single overarching interpretation.
+
+### Target Identity
+
+The target is an observed quantitative variable. Preserve its original name and measured meaning.
+
+Interpret how the displayed associations characterize its lower and higher values. A broader substantive interpretation may emerge from these associations, but do not replace the observed variable with an inferred latent construct.
+
+### Task
+
+Interpret the quantitative target "satisfaction" using the displayed statistical evidence and the user's analytical request.
+
+---
+
+# Data
+
+## Variable-level evidence
+
+### Continuous variables
+- Variable "purchase_frequency" is POSITIVELY associated with "satisfaction" (correlation=0.36; p.value=<0.001).
+- Variable "age" is POSITIVELY associated with "satisfaction" (correlation=0.35; p.value=<0.001).
+- Variable "household_size" is POSITIVELY associated with "satisfaction" (correlation=0.29; p.value=0.004).
+
+### Qualitative variables
+- Qualitative variable "group" is globally associated with "satisfaction" (R2=0.32; p.value=<0.001).
+- Qualitative variable "diet" is globally associated with "satisfaction" (R2=0.08; p.value=0.023).
+
+## End-profile evidence
+
+### Lower end
+- Category "G3" of variable "group" is associated with the LOWER end of "satisfaction" (Estimate=-0.57; p.value=<0.001).
+- Category "conventional" of variable "diet" is associated with the LOWER end of "satisfaction" (Estimate=-0.33; p.value=0.008).
+- For variable "age", the state "Below-average value" is associated with the LOWER end of "satisfaction" (Estimate=-0.48; p.value=0.013).
+
+### Higher end
+- Category "G2" of variable "group" is associated with the HIGHER end of "satisfaction" (Estimate=0.79; p.value=<0.001).
+- For variable "purchase_frequency", the state "Above-average value" is associated with the HIGHER end of "satisfaction" (Estimate=0.58; p.value=0.003).
+- Category "flexitarian" of variable "diet" is associated with the HIGHER end of "satisfaction" (Estimate=0.29; p.value=0.013).
+- For variable "monthly_spend", the state "Above-average value" is associated with the HIGHER end of "satisfaction" (Estimate=0.37; p.value=0.038).
+
+---
+
+# Final Output Requirements
+
+Write a clear, substantive interpretation of the quantitative target. Present the main characteristics associated with its lower and higher values, and explain the overall contrast they suggest.
+
+Support your interpretation with the most relevant statistical findings, while acknowledging important limitations. Favor a meaningful synthesis over repetitive numerical reporting.

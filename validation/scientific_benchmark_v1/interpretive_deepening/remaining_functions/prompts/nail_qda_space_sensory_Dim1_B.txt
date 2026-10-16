@@ -1,0 +1,102 @@
+# Introduction
+
+Six chocolate products were evaluated by a trained sensory panel using common sensory attributes. The aim is to describe product profiles and the main sensory opposition in the adjusted product means without making causal or hedonic claims.
+
+---
+
+## How to Read the Evidence
+Each dimension represents a major opposition in the sensory product space.
+The sensory attributes below describe the configuration associated with each end of the dimension.
+Products located near the two ends are concrete examples of how these configurations are expressed.
+For each product, statistically distinctive attributes are factual evidence relative to the evaluated set.
+The attribute-axis associations below are descriptive characterizations of the PCA structure, not independent validation tests.
+Contribution and cos2 have different meanings: contribution describes influence on the axis, whereas cos2 describes how well a product is represented on it.
+When contributions are highly concentrated or a product has a low cos2, report that limitation and avoid treating that product as a firmly represented pole exemplar.
+A product sensory interpretation is a concise summary retained for that product; it may be a model-assisted proposal or an expert-edited summary.
+Use that interpretation as contextual sensory knowledge, but prioritize the displayed statistical directions if the two disagree.
+Look for coherent sensory configurations rather than treating every attribute independently.
+Distinguish what defines the overall dimension from what is specific to one product.
+The sign of a PCA dimension is arbitrary: interpret the opposition between the two ends, not the sign itself.
+Do not infer liking, quality, consumer preference, premium character, market success, or causality from sensory evidence alone.
+Do not add cultural, hedonic, or marketing claims that are not supported by the supplied evidence or context.
+Interpretation mode: sensory. Keep the interpretation and dimension name in sensory and perceptual terms.
+
+# Task
+
+Interpret the sensory configuration of the products from the statistical evidence. Group related attributes into a coherent meaning, distinguish product markers from axis associations, and keep every interpretation traceable to the displayed facts. When the evidence allows it, identify and explain the most informative insight that emerges from the configuration of findings rather than from any one finding alone, without presenting that insight as an additional demonstrated fact.
+
+# Data
+
+## Dim1 (88.79% of inertia)
+
+### Sensory contrasts defining the dimension
+
+- CocoaF: HIGHER at the lower/negative end <-> LOWER at the higher/positive end (|r|=0.996).
+- MilkF: LOWER at the lower/negative end <-> HIGHER at the higher/positive end (|r|=0.996).
+- MilkA: LOWER at the lower/negative end <-> HIGHER at the higher/positive end (|r|=0.994).
+- Caramel: LOWER at the lower/negative end <-> HIGHER at the higher/positive end (|r|=0.990).
+- Vanilla: LOWER at the lower/negative end <-> HIGHER at the higher/positive end (|r|=0.978).
+- Bitterness: HIGHER at the lower/negative end <-> LOWER at the higher/positive end (|r|=0.973).
+- CocoaA: HIGHER at the lower/negative end <-> LOWER at the higher/positive end (|r|=0.973).
+- Granular: HIGHER at the lower/negative end <-> LOWER at the higher/positive end (|r|=0.960).
+- Sweetness: LOWER at the lower/negative end <-> HIGHER at the higher/positive end (|r|=0.953).
+- Astringency: HIGHER at the lower/negative end <-> LOWER at the higher/positive end (|r|=0.942).
+- Acidity: HIGHER at the lower/negative end <-> LOWER at the higher/positive end (|r|=0.900).
+- Melting: LOWER at the lower/negative end <-> HIGHER at the higher/positive end (|r|=0.893).
+
+### Products representing the lower/negative end
+
+#### Product 'choc1'
+
+Position on the dimension: coordinate=-3.76; contribution=18.93%; cos2=0.83.
+
+**Product sensory summary:** not available; rely on the statistical product profile below.
+
+**Statistically distinctive attributes reinforcing this pole**
+
+- Bitterness: HIGHER than the average product profile [QDAP001E001].
+- MilkF: LOWER than the average product profile [QDAP001E002].
+- CocoaF: HIGHER than the average product profile [QDAP001E003].
+- Sweetness: LOWER than the average product profile [QDAP001E004].
+- Astringency: HIGHER than the average product profile [QDAP001E005].
+
+#### Product 'choc2'
+
+Position on the dimension: coordinate=-1.37; contribution=2.51%; cos2=0.67.
+
+**Product sensory summary:** not available; rely on the statistical product profile below.
+
+**Statistically distinctive attributes reinforcing this pole**
+
+- MilkF: LOWER than the average product profile [QDAP002E002].
+- CocoaF: HIGHER than the average product profile [QDAP002E003].
+- Melting: LOWER than the average product profile [QDAP002E004].
+- Caramel: LOWER than the average product profile [QDAP002E005].
+- Sweetness: LOWER than the average product profile [QDAP002E006].
+
+**Additional statistically distinctive product attributes**
+
+- Crunchy: HIGHER than the average product profile [QDAP002E001].
+
+### Products representing the higher/positive end
+
+#### Product 'choc3'
+
+Position on the dimension: coordinate=7.48; contribution=75.01%; cos2=0.99.
+
+**Product sensory summary:** not available; rely on the statistical product profile below.
+
+**Statistically distinctive attributes reinforcing this pole**
+
+- MilkF: HIGHER than the average product profile [QDAP003E001].
+- CocoaF: LOWER than the average product profile [QDAP003E002].
+- Bitterness: LOWER than the average product profile [QDAP003E004].
+- Caramel: HIGHER than the average product profile [QDAP003E005].
+- Sweetness: HIGHER than the average product profile [QDAP003E006].
+
+**Additional statistically distinctive product attributes**
+
+- Crunchy: LOWER than the average product profile [QDAP003E003].
+- Sticky: HIGHER than the average product profile [QDAP003E014].
+
+Provide a concise descriptive interpretation while preserving product identifiers and distinguishing evidence from interpretation.
