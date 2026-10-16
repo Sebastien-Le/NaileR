@@ -1,0 +1,272 @@
+{
+  "contingency_table": [
+    [18, 7, 7],
+    [12, 15, 5],
+    [12, 8, 12]
+  ],
+  "rows": {
+    "G1": {
+      "row": "G1",
+      "row_total": 32,
+      "row_share_percent": 33.3333,
+      "column_profile": {
+        "attribute": ["supermarket", "online", "local_market"],
+        "frequency": [18, 7, 7],
+        "row_percentage": [56.25, 21.875, 21.875],
+        "global_frequency": [42, 30, 24],
+        "global_percentage": [43.75, 31.25, 25],
+        "difference_percentage_points": [12.5, -9.375, -3.125]
+      },
+      "retained_markers": {
+        "evidence_id": [],
+        "row": [],
+        "attribute": [],
+        "direction": [],
+        "row_percentage": [],
+        "global_percentage": [],
+        "difference_percentage_points": [],
+        "row_frequency": [],
+        "global_frequency": [],
+        "p_value": [],
+        "v_test": [],
+        "abs_v_test": [],
+        "source_order": [],
+        "rank": [],
+        "source": []
+      },
+      "overrepresented": {
+        "evidence_id": [],
+        "row": [],
+        "attribute": [],
+        "direction": [],
+        "row_percentage": [],
+        "global_percentage": [],
+        "difference_percentage_points": [],
+        "row_frequency": [],
+        "global_frequency": [],
+        "p_value": [],
+        "v_test": [],
+        "abs_v_test": [],
+        "source_order": [],
+        "rank": [],
+        "source": []
+      },
+      "underrepresented": {
+        "evidence_id": [],
+        "row": [],
+        "attribute": [],
+        "direction": [],
+        "row_percentage": [],
+        "global_percentage": [],
+        "difference_percentage_points": [],
+        "row_frequency": [],
+        "global_frequency": [],
+        "p_value": [],
+        "v_test": [],
+        "abs_v_test": [],
+        "source_order": [],
+        "rank": [],
+        "source": []
+      },
+      "metrics": {
+        "n_attributes_total": 3,
+        "n_markers_retained": 0,
+        "n_overrepresented": 0,
+        "n_underrepresented": 0,
+        "min_p_value": "NA",
+        "max_abs_v_test": "NA"
+      }
+    },
+    "G2": {
+      "row": "G2",
+      "row_total": 32,
+      "row_share_percent": 33.3333,
+      "column_profile": {
+        "attribute": ["supermarket", "online", "local_market"],
+        "frequency": [12, 15, 5],
+        "row_percentage": [37.5, 46.875, 15.625],
+        "global_frequency": [42, 30, 24],
+        "global_percentage": [43.75, 31.25, 25],
+        "difference_percentage_points": [-6.25, 15.625, -9.375]
+      },
+      "retained_markers": {
+        "evidence_id": "DESCF::G2::online",
+        "row": "G2",
+        "attribute": "online",
+        "direction": "overrepresented",
+        "row_percentage": 46.875,
+        "global_percentage": 31.25,
+        "difference_percentage_points": 15.625,
+        "row_frequency": 15,
+        "global_frequency": 30,
+        "p_value": 0.0374,
+        "v_test": 2.0818,
+        "abs_v_test": 2.0818,
+        "source_order": 1,
+        "rank": 1,
+        "source": "FactoMineR::descfreq"
+      },
+      "overrepresented": {
+        "evidence_id": "DESCF::G2::online",
+        "row": "G2",
+        "attribute": "online",
+        "direction": "overrepresented",
+        "row_percentage": 46.875,
+        "global_percentage": 31.25,
+        "difference_percentage_points": 15.625,
+        "row_frequency": 15,
+        "global_frequency": 30,
+        "p_value": 0.0374,
+        "v_test": 2.0818,
+        "abs_v_test": 2.0818,
+        "source_order": 1,
+        "rank": 1,
+        "source": "FactoMineR::descfreq"
+      },
+      "underrepresented": {
+        "evidence_id": [],
+        "row": [],
+        "attribute": [],
+        "direction": [],
+        "row_percentage": [],
+        "global_percentage": [],
+        "difference_percentage_points": [],
+        "row_frequency": [],
+        "global_frequency": [],
+        "p_value": [],
+        "v_test": [],
+        "abs_v_test": [],
+        "source_order": [],
+        "rank": [],
+        "source": []
+      },
+      "metrics": {
+        "n_attributes_total": 3,
+        "n_markers_retained": 1,
+        "n_overrepresented": 1,
+        "n_underrepresented": 0,
+        "min_p_value": 0.0374,
+        "max_abs_v_test": 2.0818
+      }
+    },
+    "G3": {
+      "row": "G3",
+      "row_total": 32,
+      "row_share_percent": 33.3333,
+      "column_profile": {
+        "attribute": ["supermarket", "online", "local_market"],
+        "frequency": [12, 8, 12],
+        "row_percentage": [37.5, 25, 37.5],
+        "global_frequency": [42, 30, 24],
+        "global_percentage": [43.75, 31.25, 25],
+        "difference_percentage_points": [-6.25, -6.25, 12.5]
+      },
+      "retained_markers": {
+        "evidence_id": [],
+        "row": [],
+        "attribute": [],
+        "direction": [],
+        "row_percentage": [],
+        "global_percentage": [],
+        "difference_percentage_points": [],
+        "row_frequency": [],
+        "global_frequency": [],
+        "p_value": [],
+        "v_test": [],
+        "abs_v_test": [],
+        "source_order": [],
+        "rank": [],
+        "source": []
+      },
+      "overrepresented": {
+        "evidence_id": [],
+        "row": [],
+        "attribute": [],
+        "direction": [],
+        "row_percentage": [],
+        "global_percentage": [],
+        "difference_percentage_points": [],
+        "row_frequency": [],
+        "global_frequency": [],
+        "p_value": [],
+        "v_test": [],
+        "abs_v_test": [],
+        "source_order": [],
+        "rank": [],
+        "source": []
+      },
+      "underrepresented": {
+        "evidence_id": [],
+        "row": [],
+        "attribute": [],
+        "direction": [],
+        "row_percentage": [],
+        "global_percentage": [],
+        "difference_percentage_points": [],
+        "row_frequency": [],
+        "global_frequency": [],
+        "p_value": [],
+        "v_test": [],
+        "abs_v_test": [],
+        "source_order": [],
+        "rank": [],
+        "source": []
+      },
+      "metrics": {
+        "n_attributes_total": 3,
+        "n_markers_retained": 0,
+        "n_overrepresented": 0,
+        "n_underrepresented": 0,
+        "min_p_value": "NA",
+        "max_abs_v_test": "NA"
+      }
+    }
+  },
+  "evidence_registry": {
+    "evidence_id": "DESCF::G2::online",
+    "row": "G2",
+    "attribute": "online",
+    "direction": "overrepresented",
+    "row_percentage": 46.875,
+    "global_percentage": 31.25,
+    "difference_percentage_points": 15.625,
+    "row_frequency": 15,
+    "global_frequency": 30,
+    "p_value": 0.0374,
+    "v_test": 2.0818,
+    "abs_v_test": 2.0818,
+    "source_order": 1,
+    "rank": 1,
+    "source": "FactoMineR::descfreq"
+  },
+  "margins": {
+    "row_totals": [32, 32, 32],
+    "column_totals": [42, 30, 24],
+    "grand_total": 96
+  },
+  "aggregation": {
+    "performed": false,
+    "source_to_analyzed_row": {
+      "source_row": [1, 2, 3],
+      "source_row_label": ["G1", "G2", "G3"],
+      "analyzed_row": ["G1", "G2", "G3"]
+    }
+  },
+  "settings": {
+    "proba": 0.05,
+    "by_quali_supplied": false,
+    "statistical_source": "FactoMineR::descfreq",
+    "statistical_test": "two-sided hypergeometric tail test as implemented by FactoMineR::descfreq",
+    "retention_rule": "FactoMineR retains cells with p.value < proba.",
+    "ranking_rule": "Within each row: increasing p.value, then decreasing absolute v.test, then attribute and source order."
+  },
+  "metadata": {
+    "schema": "NaileR::descfreq_frequency_profiles",
+    "schema_version": "1.0.0",
+    "n_source_rows": 3,
+    "n_rows": 3,
+    "n_attributes": 3,
+    "n_retained_evidence": 1,
+    "aggregation_performed": false
+  }
+}

@@ -1,0 +1,446 @@
+{
+  "adjusted_means": {
+    "CocoaA": [7.0862, 6.5517, 4.6724, 6.2586, 6.7931, 6.3621],
+    "MilkA": [3.5862, 4, 6.0517, 4.1034, 4.1724, 4.569],
+    "CocoaF": [8.069, 6.9138, 3.3793, 6.6897, 6.7931, 6.2241],
+    "MilkF": [1.569, 2.3793, 7.7069, 2.5862, 3.1207, 3.3621],
+    "Caramel": [1.6724, 2.7759, 6.3276, 2.6724, 3.4138, 3.2586],
+    "Vanilla": [1.1034, 1.8103, 3.6724, 2.1207, 1.7931, 1.9138],
+    "Sweetness": [3.1379, 4.6207, 7.6034, 4.2931, 5.2241, 5.6207],
+    "Acidity": [4.6552, 3.1379, 1.569, 3.931, 3.0862, 2.6724],
+    "Bitterness": [7.069, 4.9483, 1.3966, 5.1897, 4.8793, 4.1897],
+    "Astringency": [4.7586, 3.1552, 1.2069, 3.6897, 3.1034, 2.7586],
+    "Crunchy": [5.9655, 7.7069, 2.9828, 6.1034, 6.6379, 7.3276],
+    "Melting": [4.7414, 4.3276, 7.3103, 4.3793, 4.7414, 4.2069],
+    "Sticky": [3.7586, 3.8276, 5.0345, 4.1034, 3.2241, 3.931],
+    "Granular": [3.4483, 3.1552, 1.6034, 3.5517, 3.069, 3.1724]
+  },
+  "pca_result": {
+    "eig": [
+      [12.4305, 88.7892, 88.7892],
+      [1.0607, 7.5766, 96.3657],
+      [0.3725, 2.6608, 99.0265],
+      [0.0957, 0.6836, 99.7102],
+      [0.0406, 0.2898, 100]
+    ],
+    "var": {
+      "coord": [
+        [-0.973],
+        [0.9941],
+        [-0.9957],
+        [0.9956],
+        [0.9897],
+        [0.9778],
+        [0.9532],
+        [-0.8995],
+        [-0.9731],
+        [-0.942],
+        [-0.79],
+        [0.8933],
+        [0.8256],
+        [-0.96]
+      ],
+      "cor": [
+        [-0.973],
+        [0.9941],
+        [-0.9957],
+        [0.9956],
+        [0.9897],
+        [0.9778],
+        [0.9532],
+        [-0.8995],
+        [-0.9731],
+        [-0.942],
+        [-0.79],
+        [0.8933],
+        [0.8256],
+        [-0.96]
+      ],
+      "cos2": [
+        [0.9468],
+        [0.9882],
+        [0.9914],
+        [0.9912],
+        [0.9795],
+        [0.9562],
+        [0.9085],
+        [0.8091],
+        [0.9468],
+        [0.8874],
+        [0.6242],
+        [0.798],
+        [0.6816],
+        [0.9217]
+      ],
+      "contrib": [
+        [7.6166],
+        [7.9496],
+        [7.9753],
+        [7.9739],
+        [7.8796],
+        [7.6921],
+        [7.3089],
+        [6.509],
+        [7.617],
+        [7.1388],
+        [5.0214],
+        [6.4201],
+        [5.4831],
+        [7.4147]
+      ]
+    },
+    "ind": {
+      "coord": [
+        [-3.7578],
+        [-1.3681],
+        [7.4795],
+        [-1.3121],
+        [-0.9585],
+        [-0.0829]
+      ],
+      "cos2": [
+        [0.8327],
+        [0.6657],
+        [0.9921],
+        [0.5646],
+        [0.3152],
+        [0.0037]
+      ],
+      "contrib": [
+        [18.9333],
+        [2.5097],
+        [75.0075],
+        [2.3084],
+        [1.2318],
+        [0.0092]
+      ],
+      "dist": [4.1179, 1.6768, 7.5094, 1.7462, 1.7071, 1.3699]
+    },
+    "svd": {
+      "vs": [3.5257, 1.0299, 0.6103, 0.3094, 0.2014],
+      "U": [
+        [-1.0658],
+        [-0.388],
+        [2.1214],
+        [-0.3722],
+        [-0.2719],
+        [-0.0235]
+      ],
+      "V": [
+        [-0.276],
+        [0.2819],
+        [-0.2824],
+        [0.2824],
+        [0.2807],
+        [0.2773],
+        [0.2703],
+        [-0.2551],
+        [-0.276],
+        [-0.2672],
+        [-0.2241],
+        [0.2534],
+        [0.2342],
+        [-0.2723]
+      ]
+    },
+    "call": {
+      "row.w": [0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667],
+      "col.w": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      "scale.unit": true,
+      "ncp": 1,
+      "centre": [6.2874, 4.4138, 6.3448, 3.454, 3.3534, 2.069, 5.0833, 3.1753, 4.6121, 3.1121, 6.1207, 4.9511, 3.9799, 3],
+      "ecart.type": [0.7723, 0.7871, 1.439, 1.9861, 1.4423, 0.7824, 1.3713, 0.9664, 1.6868, 1.0647, 1.5336, 1.0742, 0.5436, 0.6473],
+      "X": {
+        "CocoaA": [7.0862, 6.5517, 4.6724, 6.2586, 6.7931, 6.3621],
+        "MilkA": [3.5862, 4, 6.0517, 4.1034, 4.1724, 4.569],
+        "CocoaF": [8.069, 6.9138, 3.3793, 6.6897, 6.7931, 6.2241],
+        "MilkF": [1.569, 2.3793, 7.7069, 2.5862, 3.1207, 3.3621],
+        "Caramel": [1.6724, 2.7759, 6.3276, 2.6724, 3.4138, 3.2586],
+        "Vanilla": [1.1034, 1.8103, 3.6724, 2.1207, 1.7931, 1.9138],
+        "Sweetness": [3.1379, 4.6207, 7.6034, 4.2931, 5.2241, 5.6207],
+        "Acidity": [4.6552, 3.1379, 1.569, 3.931, 3.0862, 2.6724],
+        "Bitterness": [7.069, 4.9483, 1.3966, 5.1897, 4.8793, 4.1897],
+        "Astringency": [4.7586, 3.1552, 1.2069, 3.6897, 3.1034, 2.7586],
+        "Crunchy": [5.9655, 7.7069, 2.9828, 6.1034, 6.6379, 7.3276],
+        "Melting": [4.7414, 4.3276, 7.3103, 4.3793, 4.7414, 4.2069],
+        "Sticky": [3.7586, 3.8276, 5.0345, 4.1034, 3.2241, 3.931],
+        "Granular": [3.4483, 3.1552, 1.6034, 3.5517, 3.069, 3.1724]
+      },
+      "row.w.init": [1, 1, 1, 1, 1, 1],
+      "call": "FactoMineR::PCA(X = adjmean, scale.unit = scale.unit, ncp = max_ncp,     graph = FALSE)"
+    }
+  },
+  "eigenvalues": {
+    "eigenvalue": [12.4305, 1.0607, 0.3725, 0.0957, 0.0406],
+    "percent": [88.7892, 7.5766, 2.6608, 0.6836, 0.2898],
+    "cumulative_percent": [88.7892, 96.3657, 99.0265, 99.7102, 100]
+  },
+  "retained_axes": 1,
+  "axes": {
+    "Dim1": {
+      "dimension": "Dim1",
+      "axis": 1,
+      "inertia_percent": 88.7892,
+      "sensory_structure": {
+        "evidence_id": ["CONDQ001", "CONDQ002", "CONDQ003", "CONDQ004", "CONDQ005", "CONDQ006", "CONDQ007", "CONDQ008", "CONDQ009", "CONDQ010", "CONDQ011", "CONDQ012"],
+        "variable": ["CocoaF", "MilkF", "MilkA", "Caramel", "Vanilla", "Bitterness", "CocoaA", "Granular", "Sweetness", "Astringency", "Acidity", "Melting"],
+        "correlation": [-0.9957, 0.9956, 0.9941, 0.9897, 0.9778, -0.9731, -0.973, -0.96, 0.9532, -0.942, -0.8995, 0.8933],
+        "abs_correlation": [0.9957, 0.9956, 0.9941, 0.9897, 0.9778, 0.9731, 0.973, 0.96, 0.9532, 0.942, 0.8995, 0.8933],
+        "direction": ["negative", "positive", "positive", "positive", "positive", "negative", "negative", "negative", "positive", "negative", "negative", "positive"],
+        "p_value": [0, 0, 0.0001, 0.0002, 0.0007, 0.0011, 0.0011, 0.0024, 0.0032, 0.0049, 0.0146, 0.0165],
+        "rank": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      },
+      "characterization_status": "associations_selected",
+      "selected_association_count": 12,
+      "available_association_count": 13,
+      "condes_proba": 0.05,
+      "continuous_profile": {
+        "target": {
+          "variable": "NAILER_DIMENSION_SCORE",
+          "index": 1
+        },
+        "quantitative_associations": {
+          "evidence_id": ["CONDQ001", "CONDQ002", "CONDQ003", "CONDQ004", "CONDQ005", "CONDQ006", "CONDQ007", "CONDQ008", "CONDQ009", "CONDQ010", "CONDQ011", "CONDQ012", "CONDQ013"],
+          "variable": ["CocoaF", "MilkF", "MilkA", "Caramel", "Vanilla", "Bitterness", "CocoaA", "Granular", "Sweetness", "Astringency", "Acidity", "Melting", "Sticky"],
+          "correlation": [-0.9957, 0.9956, 0.9941, 0.9897, 0.9778, -0.9731, -0.973, -0.96, 0.9532, -0.942, -0.8995, 0.8933, 0.8256],
+          "abs_correlation": [0.9957, 0.9956, 0.9941, 0.9897, 0.9778, 0.9731, 0.973, 0.96, 0.9532, 0.942, 0.8995, 0.8933, 0.8256],
+          "direction": ["negative", "positive", "positive", "positive", "positive", "negative", "negative", "negative", "positive", "negative", "negative", "positive", "positive"],
+          "p_value": [0, 0, 0.0001, 0.0002, 0.0007, 0.0011, 0.0011, 0.0024, 0.0032, 0.0049, 0.0146, 0.0165, 0.043],
+          "rank": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        },
+        "qualitative_associations": {
+          "evidence_id": [],
+          "variable": [],
+          "r2": [],
+          "p_value": [],
+          "rank": []
+        },
+        "end_profiles": {
+          "low": {
+            "evidence_id": ["CONDL001", "CONDL002", "CONDL003", "CONDL004", "CONDL005", "CONDL006"],
+            "variable": ["CocoaA", "Crunchy", "Granular", "Melting", "MilkA", "MilkF"],
+            "category": ["Intermediate value", "Intermediate value", "Intermediate value", "Intermediate value", "Intermediate value", "Intermediate value"],
+            "source_type": ["quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative"],
+            "estimate": [-4.4877, -4.4877, -4.4877, -4.4877, -4.4877, -4.4877],
+            "abs_estimate": [4.4877, 4.4877, 4.4877, 4.4877, 4.4877, 4.4877],
+            "side": ["low", "low", "low", "low", "low", "low"],
+            "p_value": [0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039],
+            "rank": [1, 2, 3, 4, 5, 6]
+          },
+          "high": {
+            "evidence_id": ["CONDH001", "CONDH002", "CONDH003", "CONDH004", "CONDH005", "CONDH006", "CONDH007", "CONDH008", "CONDH009", "CONDH010", "CONDH011", "CONDH012", "CONDH013", "CONDH014"],
+            "variable": ["Acidity", "Astringency", "Bitterness", "Caramel", "CocoaF", "Sweetness", "Vanilla", "Sticky", "CocoaA", "Crunchy", "Granular", "Melting", "MilkA", "MilkF"],
+            "category": ["Below-average value", "Below-average value", "Below-average value", "Above-average value", "Below-average value", "Above-average value", "Above-average value", "Above-average value", "Below-average value", "Below-average value", "Below-average value", "Above-average value", "Above-average value", "Above-average value"],
+            "source_type": ["quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative", "quantitative"],
+            "estimate": [6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 5.8492, 4.4877, 4.4877, 4.4877, 4.4877, 4.4877, 4.4877],
+            "abs_estimate": [6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 5.8492, 4.4877, 4.4877, 4.4877, 4.4877, 4.4877, 4.4877],
+            "side": ["high", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high"],
+            "p_value": [0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039],
+            "rank": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+          }
+        },
+        "evidence_registry": {
+          "evidence_id": ["CONDQ001", "CONDQ002", "CONDQ003", "CONDQ004", "CONDQ005", "CONDQ006", "CONDQ007", "CONDQ008", "CONDQ009", "CONDQ010", "CONDQ011", "CONDQ012", "CONDQ013", "CONDL001", "CONDL002", "CONDL003", "CONDL004", "CONDL005", "CONDL006", "CONDH001", "CONDH002", "CONDH003", "CONDH004", "CONDH005", "CONDH006", "CONDH007", "CONDH008", "CONDH009", "CONDH010", "CONDH011", "CONDH012", "CONDH013", "CONDH014"],
+          "family": ["quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "quantitative_association", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile"],
+          "variable": ["CocoaF", "MilkF", "MilkA", "Caramel", "Vanilla", "Bitterness", "CocoaA", "Granular", "Sweetness", "Astringency", "Acidity", "Melting", "Sticky", "CocoaA", "Crunchy", "Granular", "Melting", "MilkA", "MilkF", "Acidity", "Astringency", "Bitterness", "Caramel", "CocoaF", "Sweetness", "Vanilla", "Sticky", "CocoaA", "Crunchy", "Granular", "Melting", "MilkA", "MilkF"],
+          "category": [null, null, null, null, null, null, null, null, null, null, null, null, null, "Intermediate value", "Intermediate value", "Intermediate value", "Intermediate value", "Intermediate value", "Intermediate value", "Below-average value", "Below-average value", "Below-average value", "Above-average value", "Below-average value", "Above-average value", "Above-average value", "Above-average value", "Below-average value", "Below-average value", "Below-average value", "Above-average value", "Above-average value", "Above-average value"],
+          "direction": ["negative", "positive", "positive", "positive", "positive", "negative", "negative", "negative", "positive", "negative", "negative", "positive", "positive", "low", "low", "low", "low", "low", "low", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high", "high"],
+          "statistic": [-0.9957, 0.9956, 0.9941, 0.9897, 0.9778, -0.9731, -0.973, -0.96, 0.9532, -0.942, -0.8995, 0.8933, 0.8256, -4.4877, -4.4877, -4.4877, -4.4877, -4.4877, -4.4877, 6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 6.5491, 5.8492, 4.4877, 4.4877, 4.4877, 4.4877, 4.4877, 4.4877],
+          "statistic_name": ["correlation", "correlation", "correlation", "correlation", "correlation", "correlation", "correlation", "correlation", "correlation", "correlation", "correlation", "correlation", "correlation", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate"],
+          "p_value": [0, 0, 0.0001, 0.0002, 0.0007, 0.0011, 0.0011, 0.0024, 0.0032, 0.0049, 0.0146, 0.0165, 0.043, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039, 0.0039],
+          "rank": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+        },
+        "metrics": {
+          "n_quantitative_associations": 13,
+          "n_qualitative_associations": 0,
+          "n_low_end_profiles": 6,
+          "n_high_end_profiles": 14
+        },
+        "settings": {
+          "num_var": 1,
+          "proba": 0.05,
+          "quanti_threshold": 1,
+          "quanti_cat": ["Above-average value", "Below-average value", "Intermediate value"],
+          "weights_supplied": false,
+          "statistical_source": "single_condes_on_augmented_data"
+        },
+        "metadata": {
+          "n_observations": 6,
+          "n_variables": 15
+        }
+      },
+      "products": {
+        "negative": {
+          "choc1": {
+            "product": "choc1",
+            "side": "negative",
+            "coordinate": -3.7578,
+            "contribution": 18.9333,
+            "cos2": 0.8327,
+            "interpretation": null,
+            "marker_roles": {
+              "reinforcing": {
+                "evidence_id": ["QDAP001E001", "QDAP001E002", "QDAP001E003", "QDAP001E004", "QDAP001E005"],
+                "product": ["choc1", "choc1", "choc1", "choc1", "choc1"],
+                "attribute": ["Bitterness", "MilkF", "CocoaF", "Sweetness", "Astringency"],
+                "direction": ["higher", "lower", "higher", "lower", "higher"],
+                "coefficient": [2.4569, -1.8851, 1.7241, -1.9454, 1.6466],
+                "adjusted_mean": [7.069, 1.569, 8.069, 3.1379, 4.7586],
+                "p_value": [2.5198e-23, 3.429e-18, 2.2668e-17, 1.1202e-16, 1.404e-12],
+                "v_test": [9.9501, -8.6963, 8.4792, -8.2913, 7.0837],
+                "rank": [1, 2, 3, 4, 5]
+              },
+              "conflicting": {
+                "evidence_id": [],
+                "product": [],
+                "attribute": [],
+                "direction": [],
+                "coefficient": [],
+                "adjusted_mean": [],
+                "p_value": [],
+                "v_test": [],
+                "rank": []
+              },
+              "additional": {
+                "evidence_id": [],
+                "product": [],
+                "attribute": [],
+                "direction": [],
+                "coefficient": [],
+                "adjusted_mean": [],
+                "p_value": [],
+                "v_test": [],
+                "rank": []
+              }
+            },
+            "metrics": {
+              "n_retained_markers": 10,
+              "n_reinforcing_shown": 5,
+              "n_conflicting_shown": 0,
+              "n_additional_shown": 0
+            }
+          },
+          "choc2": {
+            "product": "choc2",
+            "side": "negative",
+            "coordinate": -1.3681,
+            "contribution": 2.5097,
+            "cos2": 0.6657,
+            "interpretation": null,
+            "marker_roles": {
+              "reinforcing": {
+                "evidence_id": ["QDAP002E002", "QDAP002E003", "QDAP002E004", "QDAP002E005", "QDAP002E006"],
+                "product": ["choc2", "choc2", "choc2", "choc2", "choc2"],
+                "attribute": ["MilkF", "CocoaF", "Melting", "Caramel", "Sweetness"],
+                "direction": ["lower", "higher", "lower", "lower", "lower"],
+                "coefficient": [-1.0747, 0.569, -0.6236, -0.5776, -0.4626],
+                "adjusted_mean": [2.3793, 6.9138, 4.3276, 2.7759, 4.6207],
+                "p_value": [2.4578e-07, 0.0032, 0.0096, 0.013, 0.0377],
+                "v_test": [-5.1609, 2.946, -2.5896, -2.4847, -2.0778],
+                "rank": [2, 3, 4, 5, 6]
+              },
+              "conflicting": {
+                "evidence_id": [],
+                "product": [],
+                "attribute": [],
+                "direction": [],
+                "coefficient": [],
+                "adjusted_mean": [],
+                "p_value": [],
+                "v_test": [],
+                "rank": []
+              },
+              "additional": {
+                "evidence_id": "QDAP002E001",
+                "product": "choc2",
+                "attribute": "Crunchy",
+                "direction": "higher",
+                "coefficient": 1.5862,
+                "adjusted_mean": 7.7069,
+                "p_value": 4.6049e-12,
+                "v_test": 6.9173,
+                "rank": 1
+              }
+            },
+            "metrics": {
+              "n_retained_markers": 6,
+              "n_reinforcing_shown": 5,
+              "n_conflicting_shown": 0,
+              "n_additional_shown": 1
+            }
+          }
+        },
+        "positive": {
+          "choc3": {
+            "product": "choc3",
+            "side": "positive",
+            "coordinate": 7.4795,
+            "contribution": 75.0075,
+            "cos2": 0.9921,
+            "interpretation": null,
+            "marker_roles": {
+              "reinforcing": {
+                "evidence_id": ["QDAP003E001", "QDAP003E002", "QDAP003E004", "QDAP003E005", "QDAP003E006"],
+                "product": ["choc3", "choc3", "choc3", "choc3", "choc3"],
+                "attribute": ["MilkF", "CocoaF", "Bitterness", "Caramel", "Sweetness"],
+                "direction": ["higher", "lower", "lower", "higher", "higher"],
+                "coefficient": [4.2529, -2.9655, -3.2155, 2.9741, 2.5201],
+                "adjusted_mean": [7.7069, 3.3793, 1.3966, 6.3276, 7.6034],
+                "p_value": [2.5265e-61, 1.5454e-40, 1.9477e-35, 1.01e-30, 2.6348e-25],
+                "v_test": [16.5225, -13.3302, -12.4235, 11.523, 10.3942],
+                "rank": [1, 2, 4, 5, 6]
+              },
+              "conflicting": {
+                "evidence_id": [],
+                "product": [],
+                "attribute": [],
+                "direction": [],
+                "coefficient": [],
+                "adjusted_mean": [],
+                "p_value": [],
+                "v_test": [],
+                "rank": []
+              },
+              "additional": {
+                "evidence_id": ["QDAP003E003", "QDAP003E014"],
+                "product": ["choc3", "choc3"],
+                "attribute": ["Crunchy", "Sticky"],
+                "direction": ["lower", "higher"],
+                "coefficient": [-3.1379, 1.0546],
+                "adjusted_mean": [2.9828, 5.0345],
+                "p_value": [8.0258e-36, 0],
+                "v_test": [-12.4942, 4.2909],
+                "rank": [3, 14]
+              }
+            },
+            "metrics": {
+              "n_retained_markers": 14,
+              "n_reinforcing_shown": 5,
+              "n_conflicting_shown": 0,
+              "n_additional_shown": 2
+            }
+          }
+        }
+      }
+    }
+  },
+  "settings": {
+    "input_source": "canonical_product_profiles",
+    "ncp_requested": 1,
+    "ncp_computed": 1,
+    "scale_unit": true,
+    "min_inertia_pct": 10,
+    "top_n_var": 12,
+    "top_n_products": 2,
+    "top_n_profile_markers": 5,
+    "condes_proba": 0.05,
+    "axis_characterization": "nail_condes_latent"
+  },
+  "metadata": {
+    "schema": "NaileR::qda_space_evidence",
+    "schema_version": "1.0.0",
+    "n_products": 6,
+    "n_attributes": 14,
+    "n_retained_axes": 1
+  }
+}

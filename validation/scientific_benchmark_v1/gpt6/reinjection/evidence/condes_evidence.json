@@ -1,0 +1,75 @@
+{
+  "target": {
+    "variable": "satisfaction",
+    "index": 6
+  },
+  "quantitative_associations": {
+    "evidence_id": ["CONDQ001", "CONDQ002", "CONDQ003"],
+    "variable": ["purchase_frequency", "age", "household_size"],
+    "correlation": [0.3561, 0.3511, 0.2905],
+    "abs_correlation": [0.3561, 0.3511, 0.2905],
+    "direction": ["positive", "positive", "positive"],
+    "p_value": [0.0004, 0.0005, 0.0041],
+    "rank": [1, 2, 3]
+  },
+  "qualitative_associations": {
+    "evidence_id": ["CONDF001", "CONDF002"],
+    "variable": ["group", "diet"],
+    "r2": [0.3194, 0.0783],
+    "p_value": [1.6945e-08, 0.0226],
+    "rank": [1, 2]
+  },
+  "end_profiles": {
+    "low": {
+      "evidence_id": ["CONDL001", "CONDL002", "CONDL003"],
+      "variable": ["group", "diet", "age"],
+      "category": ["G3", "conventional", "Below-average value"],
+      "source_type": ["qualitative", "qualitative", "quantitative"],
+      "estimate": [-0.575, -0.3255, -0.4801],
+      "abs_estimate": [0.575, 0.3255, 0.4801],
+      "side": ["low", "low", "low"],
+      "p_value": [0.0001, 0.0084, 0.0129],
+      "rank": [1, 2, 3]
+    },
+    "high": {
+      "evidence_id": ["CONDH001", "CONDH002", "CONDH003", "CONDH004"],
+      "variable": ["group", "purchase_frequency", "diet", "monthly_spend"],
+      "category": ["G2", "Above-average value", "flexitarian", "Above-average value"],
+      "source_type": ["qualitative", "quantitative", "qualitative", "quantitative"],
+      "estimate": [0.7875, 0.5801, 0.2902, 0.3703],
+      "abs_estimate": [0.7875, 0.5801, 0.2902, 0.3703],
+      "side": ["high", "high", "high", "high"],
+      "p_value": [8.6036e-09, 0.0035, 0.0125, 0.0375],
+      "rank": [1, 2, 3, 4]
+    }
+  },
+  "evidence_registry": {
+    "evidence_id": ["CONDQ001", "CONDQ002", "CONDQ003", "CONDF001", "CONDF002", "CONDL001", "CONDL002", "CONDL003", "CONDH001", "CONDH002", "CONDH003", "CONDH004"],
+    "family": ["quantitative_association", "quantitative_association", "quantitative_association", "qualitative_association", "qualitative_association", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile", "end_profile"],
+    "variable": ["purchase_frequency", "age", "household_size", "group", "diet", "group", "diet", "age", "group", "purchase_frequency", "diet", "monthly_spend"],
+    "category": [null, null, null, null, null, "G3", "conventional", "Below-average value", "G2", "Above-average value", "flexitarian", "Above-average value"],
+    "direction": ["positive", "positive", "positive", "global", "global", "low", "low", "low", "high", "high", "high", "high"],
+    "statistic": [0.3561, 0.3511, 0.2905, 0.3194, 0.0783, -0.575, -0.3255, -0.4801, 0.7875, 0.5801, 0.2902, 0.3703],
+    "statistic_name": ["correlation", "correlation", "correlation", "R2", "R2", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate", "Estimate"],
+    "p_value": [0.0004, 0.0005, 0.0041, 1.6945e-08, 0.0226, 0.0001, 0.0084, 0.0129, 8.6036e-09, 0.0035, 0.0125, 0.0375],
+    "rank": [1, 2, 3, 1, 2, 1, 2, 3, 1, 2, 3, 4]
+  },
+  "metrics": {
+    "n_quantitative_associations": 3,
+    "n_qualitative_associations": 2,
+    "n_low_end_profiles": 3,
+    "n_high_end_profiles": 4
+  },
+  "settings": {
+    "num_var": 6,
+    "proba": 0.05,
+    "quanti_threshold": 1,
+    "quanti_cat": ["Above-average value", "Below-average value", "Intermediate value"],
+    "weights_supplied": false,
+    "statistical_source": "single_condes_on_augmented_data"
+  },
+  "metadata": {
+    "n_observations": 96,
+    "n_variables": 9
+  }
+}

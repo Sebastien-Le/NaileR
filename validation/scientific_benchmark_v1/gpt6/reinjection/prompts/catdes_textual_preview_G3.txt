@@ -1,0 +1,87 @@
+# Introduction
+
+This study examines food-purchasing behavior in 96 consumers from the same population, organized into three neutral groups named G1, G2 and G3. The data combine quantitative measures, categorical characteristics, and individual open comments. The purpose is to characterize patterns while preserving within-group heterogeneity and distinguishing observations from interpretive hypotheses.
+
+---
+
+## How to Read the Evidence
+
+CATDES and textual evidence do not play symmetrical roles here. The CATDES facts characterize the group statistically and form the anchor of the interpretation. The Statistical anchor field must contain only the mechanical CATDES facts stated above; put information from the textual profile in the other fields. The textual profile is supplementary evidence about how members of the group express the phenomenon in open-ended responses. A textual theme may confirm, clarify, nuance, or add information to the statistical characterization. A textual theme that has no direct CATDES counterpart is not automatically a contradiction; it may be an additional insight. Conversely, the absence of a statistical characteristic from the texts does not invalidate that characteristic. Representative and tension texts are illustrative grounding for the textual profile, not independent statistical proof. The textual evidence may illuminate only part of the statistical profile. Relate textual evidence to CATDES characteristics only when the connection is supported by what respondents explicitly express. When connecting textual evidence to CATDES, state explicitly which statistical characteristic or characteristics are being enriched. Do not use reasons, constraints, values, or considerations expressed about one characteristic as explanations for other CATDES characteristics. Do not use textual evidence as support for CATDES characteristics that are not substantively connected to the observed discourse. Response coverage and interpretation coverage are different: the first describes how many group members supplied text, while the second describes how much of the available corpus was shown to the textual LLM. When interpretation coverage is partial, avoid treating the textual profile as exhaustive evidence of everything expressed in the full corpus. Do not force agreement between the two layers of evidence. Stay close to the evidence shown for this group.
+
+# Overall Analytical Request
+
+Use the authoritative CATDES profile as the statistical anchor and use the parsed comments to illustrate, nuance or question it. Do not force one-to-one characteristic matching or invent individual configurations.
+
+# Local Task
+
+Interpret only the group shown below. Do not compare it with other groups at this stage.
+
+# Data
+
+## Group "G3"
+
+### Statistical anchor - mechanical CATDES evidence
+
+- The mean of "satisfaction" is LOWER in this group than in the full sample (group mean=5.88; full-sample mean=6.46).
+
+### Existing CATDES interpretation
+
+*No prior CATDES semantic interpretation was generated. Use the statistical facts above as the anchor.*
+
+### Textual profile
+
+Core textual profile:
+G3 conveys conditional appreciation of food offers: positive experiences and perceived quality coexist with doubts about whether price is justified, whether environmental claims can be verified and whether local alternatives are accessible.
+
+Dominant themes:
+- pleasant experience versus perceived expense
+- appreciation of quality with uncertain environmental claims
+- perceived responsibility of local products
+- difficulty finding local options
+
+Within-group coherence:
+moderate
+
+Internal diversity:
+The main reservations concern different constraints—price, verifiability of environmental claims and access to local products—rather than a uniform rejection of the offer. Some respondents explicitly qualify their judgments as varying across purchases. The 32 comments contain only five distinct formulations, limiting claims about the diversity of independent viewpoints.
+
+### Textual coverage
+
+- Non-empty textual responses: 32 of 32 observations (100.0%)
+- Texts used to build the textual profile: 32 of 32 (100.0%)
+- Distinct textual responses in the complete corpus: 5
+
+### Representative grounding texts
+
+[TXT000065] I appreciate the quality, yet the environmental claim is difficult to verify.
+
+[TXT000067] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000070] Local products feel more responsible, but they are not always easy to find.
+
+### Tension or minority grounding texts
+
+[TXT000066] The experience can be pleasant, although the price sometimes outweighs the benefits. Still, this is not true for every purchase.
+
+[TXT000077] I appreciate the quality, yet the environmental claim is difficult to verify. Still, this is not true for every purchase.
+
+[TXT000086] Local products feel more responsible, but they are not always easy to find.
+
+# Required output
+
+Your answer must contain exactly these fields and nothing else:
+
+Statistical anchor:
+[One concise statement summarizing the statistical characterization, grounded only in the CATDES evidence.]
+
+Textual enrichment:
+[Explain how the textual profile helps interpret, contextualize, or nuance CATDES characteristics when an explicit substantive connection is supported by the texts. Do not generalize it to unrelated dimensions.]
+
+Additional insights:
+[State what the texts add beyond the directly related CATDES characteristic or characteristics. Keep these insights within the scope of what respondents explicitly express. If nothing clear is added, write: none.]
+
+Internal diversity:
+[Describe meaningful textual diversity or tensions that should not be generalized to the whole group.]
+
+Contextualized profile:
+[One concise integrated portrait in which the CATDES characterization remains the broad anchor and textual enrichment is kept within what the observed discourse actually supports.]
