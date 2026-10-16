@@ -474,3 +474,511 @@ test_that("nail_descfreq validates contingency counts", {
     fixed = TRUE
   )
 })
+
+
+test_that("descfreq renders the approved modular prompt blocks", {
+  tab <- data.frame(
+    sweet = c(30, 5, 10),
+    bitter = c(5, 30, 10),
+    neutral = c(10, 10, 30),
+    row.names = c("A", "B", "C")
+  )
+
+  local <- nail_descfreq(
+    tab,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  local_prompt <- nail_prompt(
+    local,
+    select = "A",
+    print = FALSE
+  )
+
+  headings <- c(
+    "# Introduction",
+    "## How to Read the Statistical Evidence",
+    "# Analytical Request",
+    "## Interpretation Rules",
+    "## Row Identity — not specified",
+    "## Task — local",
+    "# Data",
+    "# Final Interpretation Requirements"
+  )
+  heading_positions <- vapply(
+    headings,
+    function(heading) regexpr(heading, local_prompt, fixed = TRUE)[[1]],
+    integer(1)
+  )
+
+  expect_true(all(diff(heading_positions) > 0))
+  expect_match(
+    local_prompt,
+    "The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns.",
+    fixed = TRUE
+  )
+  expect_match(
+    local_prompt,
+    "When several frequency patterns converge, you may synthesize them into a higher-level substantive characterization",
+    fixed = TRUE
+  )
+  expect_match(
+    local_prompt,
+    "Rare or sparsely represented attributes may provide secondary contextual nuance",
+    fixed = TRUE
+  )
+  expect_false(
+    grepl("formatted using valid Quarto Markdown", local_prompt, fixed = TRUE)
+  )
+
+  description <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    interpretation_mode = "description",
+    generate = FALSE
+  )
+  comparison <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    interpretation_mode = "comparison",
+    rows_are_ordered = TRUE,
+    generate = FALSE
+  )
+
+  expect_match(
+    nail_prompt(description, print = FALSE),
+    "## Task — description",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(comparison, print = FALSE),
+    "## Task — comparison",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(comparison, print = FALSE),
+    "The rows have an external order supplied by the analyst.",
+    fixed = TRUE
+  )
+
+  standard <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    explicit_row_labels = TRUE,
+    generate = FALSE
+  )
+  standard_prompt <- nail_prompt(standard, print = FALSE)
+  expect_match(standard_prompt, "## Row Identity — standard", fixed = TRUE)
+  expect_false(grepl("## Row Identity — latent", standard_prompt, fixed = TRUE))
+})
+
+
+test_that("descfreq preserves custom prompt blocks and canonical evidence", {
+  tab <- data.frame(
+    sweet = c(30, 5, 10),
+    bitter = c(5, 30, 10),
+    neutral = c(10, 10, 30),
+    row.names = c("A", "B", "C")
+  )
+
+  baseline <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+  customized <- nail_descfreq(
+    tab,
+    introduction = "Study context supplied by the analyst.",
+    request = "Answer the analyst's frequency-profile question.",
+    conclusion = "Return a concise, traceable interpretation.",
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+
+  customized_prompt <- nail_prompt(customized, print = FALSE)
+  expect_match(
+    customized_prompt,
+    "Study context supplied by the analyst.",
+    fixed = TRUE
+  )
+  expect_match(
+    customized_prompt,
+    "Answer the analyst's frequency-profile question.",
+    fixed = TRUE
+  )
+  expect_match(
+    customized_prompt,
+    "# Final Interpretation Requirements\n\nReturn a concise, traceable interpretation.",
+    fixed = TRUE
+  )
+  expect_identical(
+    attr(baseline, "frequency_profiles", exact = TRUE),
+    attr(customized, "frequency_profiles", exact = TRUE)
+  )
+  expect_identical(
+    nail_evidence(baseline),
+    nail_evidence(customized)
+  )
+})
+
+
+test_that("descfreq supports the six identity and task combinations", {
+  tab <- data.frame(
+    sweet = c(30, 5, 10),
+    bitter = c(5, 30, 10),
+    neutral = c(10, 10, 30),
+    row.names = c("A", "B", "C")
+  )
+
+  standard_local <- nail_descfreq(
+    tab,
+    isolate.groups = TRUE,
+    explicit_row_labels = TRUE,
+    row_identity_mode = "standard",
+    generate = FALSE
+  )
+  standard_description <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    explicit_row_labels = TRUE,
+    row_identity_mode = "standard",
+    interpretation_mode = "description",
+    generate = FALSE
+  )
+  standard_comparison <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    explicit_row_labels = TRUE,
+    row_identity_mode = "standard",
+    interpretation_mode = "comparison",
+    generate = FALSE
+  )
+  latent_local <- nail_descfreq(
+    tab,
+    isolate.groups = TRUE,
+    explicit_row_labels = FALSE,
+    row_identity_mode = "latent",
+    generate = FALSE
+  )
+  latent_description <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    row_identity_mode = "latent",
+    interpretation_mode = "description",
+    generate = FALSE
+  )
+  latent_comparison <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    row_identity_mode = "latent",
+    interpretation_mode = "comparison",
+    generate = FALSE
+  )
+
+  expect_match(
+    nail_prompt(standard_local, select = "A", print = FALSE),
+    "## Row Identity — standard",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(standard_local, select = "A", print = FALSE),
+    "## Task — local",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(standard_description, print = FALSE),
+    "## Task — description",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(standard_comparison, print = FALSE),
+    "## Task — comparison",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(latent_local, select = "A", print = FALSE),
+    "## Row Identity — latent",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(latent_description, print = FALSE),
+    "## Task — description",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(latent_comparison, print = FALSE),
+    "## Task — comparison",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(latent_local, select = "A", print = FALSE),
+    "Keep the original identifier alongside the proposed name.",
+    fixed = TRUE
+  )
+  expect_match(
+    nail_prompt(latent_local, select = "A", print = FALSE),
+    "## Row 'A'",
+    fixed = TRUE
+  )
+  expect_false(
+    grepl(
+      "## Row Identity — standard",
+      nail_prompt(latent_local, select = "A", print = FALSE),
+      fixed = TRUE
+    )
+  )
+})
+
+
+test_that("descfreq preserves positional generate and named row identity mode", {
+  tab <- data.frame(
+    sweet = c(40, 5),
+    bitter = c(5, 40),
+    row.names = c("A", "B")
+  )
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      "Mock positional generation"
+    },
+    .package = "NaileR"
+  )
+
+  positional_generated <- nail_descfreq(
+    tab,
+    NULL,
+    NULL,
+    NULL,
+    "llama3",
+    "ollama",
+    FALSE,
+    1,
+    FALSE,
+    NULL,
+    0.05,
+    "description",
+    FALSE,
+    FALSE,
+    TRUE
+  )
+
+  expect_true(
+    attr(positional_generated, "descfreq_settings", exact = TRUE)$generate
+  )
+  expect_match(
+    nail_response(positional_generated, print = FALSE),
+    "Mock positional generation",
+    fixed = TRUE
+  )
+
+  named_latent <- nail_descfreq(
+    tab,
+    row_identity_mode = "latent",
+    generate = FALSE
+  )
+
+  expect_match(
+    nail_prompt(named_latent, print = FALSE),
+    "## Row Identity — latent",
+    fixed = TRUE
+  )
+})
+
+
+test_that("auto identity mode preserves historical prompt behavior", {
+  tab <- data.frame(
+    sweet = c(30, 5, 10),
+    bitter = c(5, 30, 10),
+    neutral = c(10, 10, 30),
+    row.names = c("A", "B", "C")
+  )
+
+  legacy <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+  explicit_auto <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    row_identity_mode = "auto",
+    generate = FALSE
+  )
+  explicit_standard <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    explicit_row_labels = TRUE,
+    row_identity_mode = "auto",
+    generate = FALSE
+  )
+  explicit_standard_mode <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    explicit_row_labels = TRUE,
+    row_identity_mode = "standard",
+    generate = FALSE
+  )
+
+  expect_identical(
+    nail_prompt(legacy, print = FALSE),
+    nail_prompt(explicit_auto, print = FALSE)
+  )
+  expect_identical(
+    nail_prompt(explicit_standard, print = FALSE),
+    nail_prompt(explicit_standard_mode, print = FALSE)
+  )
+  expect_error(
+    nail_descfreq(
+      tab,
+      row_identity_mode = "unknown",
+      generate = FALSE
+    ),
+    "one of",
+    fixed = TRUE
+  )
+})
+
+
+test_that("rows without selected evidence remain identifiable without false claims", {
+  tab <- data.frame(
+    sweet = c(30, 5, 10),
+    bitter = c(5, 30, 10),
+    neutral = c(10, 10, 30),
+    row.names = c("A", "B", "C")
+  )
+
+  no_selected <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    sample.pct = 0,
+    generate = FALSE
+  )
+  prompt <- nail_prompt(no_selected, print = FALSE)
+
+  expect_true(all(vapply(
+    rownames(tab),
+    function(row_name) grepl(paste0("## Row '", row_name, "'"), prompt, fixed = TRUE),
+    logical(1)
+  )))
+  expect_match(
+    prompt,
+    "No selected statistical evidence is available for this row in the facts supplied to the prompt.",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "This does not establish the absence of a statistical difference or demonstrate similarity to the global profile.",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "not through direct pairwise tests between rows",
+    fixed = TRUE
+  )
+
+  ordinary <- nail_descfreq(
+    tab,
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+  expect_false(
+    grepl(
+      "No selected statistical evidence is available",
+      nail_prompt(ordinary, print = FALSE),
+      fixed = TRUE
+    )
+  )
+})
+
+
+test_that("latent explicit labels are preserved without proposing a replacement", {
+  tab <- data.frame(
+    sweet = c(40, 5),
+    bitter = c(5, 40),
+    row.names = c("Sweet-preferring group", "Bitter-preferring group")
+  )
+
+  labeled_local <- nail_descfreq(
+    tab,
+    row_identity_mode = "latent",
+    explicit_row_labels = TRUE,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  unlabeled_local <- nail_descfreq(
+    tab,
+    row_identity_mode = "latent",
+    explicit_row_labels = FALSE,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  labeled_global <- nail_descfreq(
+    tab,
+    row_identity_mode = "latent",
+    explicit_row_labels = TRUE,
+    isolate.groups = FALSE,
+    interpretation_mode = "comparison",
+    generate = FALSE
+  )
+
+  local_prompt <- nail_prompt(
+    labeled_local,
+    select = "Sweet-preferring group",
+    print = FALSE
+  )
+  global_prompt <- nail_prompt(labeled_global, print = FALSE)
+  unlabeled_prompt <- nail_prompt(
+    unlabeled_local,
+    select = "Sweet-preferring group",
+    print = FALSE
+  )
+
+  for (prompt in list(local_prompt, global_prompt)) {
+    expect_match(prompt, "## Row Identity — latent", fixed = TRUE)
+    expect_match(
+      prompt,
+      "Preserve the supplied row identifier and label exactly.",
+      fixed = TRUE
+    )
+    expect_match(
+      prompt,
+      "Do not rename the group or propose an alternative name.",
+      fixed = TRUE
+    )
+    expect_match(
+      prompt,
+      "complement the supplied label with an evidence-grounded characterization",
+      fixed = TRUE
+    )
+    expect_false(grepl("propose a concise, meaningful name", prompt, fixed = TRUE))
+  }
+
+  expect_match(
+    local_prompt,
+    "## Row 'Sweet-preferring group'",
+    fixed = TRUE
+  )
+  expect_match(
+    global_prompt,
+    "## Row 'Bitter-preferring group'",
+    fixed = TRUE
+  )
+  expect_match(
+    unlabeled_prompt,
+    "propose a concise, meaningful name",
+    fixed = TRUE
+  )
+
+  expect_identical(
+    attr(labeled_local, "frequency_profiles", exact = TRUE),
+    attr(unlabeled_local, "frequency_profiles", exact = TRUE)
+  )
+  expect_identical(
+    nail_evidence(labeled_local),
+    nail_evidence(unlabeled_local)
+  )
+})

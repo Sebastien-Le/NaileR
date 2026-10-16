@@ -115,6 +115,7 @@ validate_descfreq_inputs <- function(dataset,
                                      drop.negative,
                                      rows_are_ordered,
                                      explicit_row_labels,
+                                     row_identity_mode,
                                      generate,
                                      by.quali = NULL) {
   .validate_descfreq_table(dataset)
@@ -158,6 +159,16 @@ validate_descfreq_inputs <- function(dataset,
         paste(names(logical_args)[!valid_logical], collapse = ", "),
         "."
       ),
+      call. = FALSE
+    )
+  }
+
+  if (!is.character(row_identity_mode) ||
+      length(row_identity_mode) != 1L ||
+      is.na(row_identity_mode) ||
+      !row_identity_mode %in% c("auto", "standard", "latent")) {
+    stop(
+      "`row_identity_mode` must be one of \"auto\", \"standard\", or \"latent\".",
       call. = FALSE
     )
   }
@@ -846,8 +857,9 @@ validate_descfreq_inputs <- function(dataset,
 
     factual_text <- if (length(statements) == 0L) {
       paste(
-        "No retained statistical attribute is shown for this row",
-        "under the current prompt-selection settings."
+        "No selected statistical evidence is available for this row in the facts supplied to the prompt.",
+        "This does not establish the absence of a statistical difference or demonstrate similarity to the global profile.",
+        "Do not characterize the row beyond the available displayed facts."
       )
     } else {
       paste(
@@ -888,6 +900,211 @@ validate_descfreq_inputs <- function(dataset,
 # ---------------------------------------------------------------------------
 # Prompt builders
 # ---------------------------------------------------------------------------
+
+.descfreq_approved_reading <- function() {
+  paste(
+    "The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.",
+    "",
+    "For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.",
+    "",
+    "The cell count gives the observed frequency for a particular row and column. The column total gives its frequency across all rows. These counts do not necessarily represent distinct individuals.",
+    "",
+    "OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.",
+    "",
+    "Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.",
+    "",
+    "Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.",
+    "",
+    "Build the main interpretation and any descriptive name primarily from the strongest coherent pattern. Rare or sparsely represented attributes may provide secondary contextual nuance, but they should not drive the descriptive name unless supported by several convergent signals.",
+    sep = "\n"
+  )
+}
+
+.descfreq_approved_interpretation <- function() {
+  paste(
+    "Interpret each row by considering its displayed statistical characteristics jointly, rather than describing columns one by one. Identify meaningful patterns in its frequency profile, taking into account both what distinguishes the row from the global profile and the relative importance of each column within the row.",
+    "",
+    "Use the study context to develop a substantive synthesis grounded in the displayed evidence. Do not present conceptual connections between columns as statistically demonstrated relationships or causal mechanisms. When the evidence is sparse or points to several distinct themes, describe what it supports without forcing a single global interpretation.",
+    "",
+    "When several frequency patterns converge, you may synthesize them into a higher-level substantive characterization of the row or rows. Present that characterization as an interpretation of the profile, not as an additional directly observed frequency.",
+    sep = "\n"
+  )
+}
+
+.descfreq_identity_block <- function(row_identity_mode,
+                                     explicit_row_labels) {
+  resolved_mode <- if (identical(row_identity_mode, "auto")) {
+    if (isTRUE(explicit_row_labels)) "standard" else "unspecified"
+  } else {
+    row_identity_mode
+  }
+
+  if (identical(resolved_mode, "standard")) {
+    return(paste(
+      "## Row Identity — standard",
+      "",
+      "Each row represents an observed entity or category whose identity is already defined. Preserve its original name and any label provided by the analyst.",
+      "",
+      "Interpret its frequency profile to characterize what distinguishes this entity or category, without replacing its known identity with an invented one.",
+      sep = "\n"
+    ))
+  }
+
+  if (identical(resolved_mode, "latent")) {
+    if (isTRUE(explicit_row_labels)) {
+      return(paste(
+        "## Row Identity — latent",
+        "",
+        "Each row represents a constructed group with a substantive label already supplied by the analyst.",
+        "",
+        "Preserve the supplied row identifier and label exactly. Do not rename the group or propose an alternative name.",
+        "",
+        "Interpret its frequency profile to identify what makes it distinctive. You may complement the supplied label with an evidence-grounded characterization, without replacing or revising it.",
+        "",
+        "Do not force a substantive characterization when the profile is too heterogeneous or insufficiently informative.",
+        sep = "\n"
+      ))
+    }
+
+    return(paste(
+      "## Row Identity — latent",
+      "",
+      "Each row represents a constructed group whose identifier does not define its substantive meaning.",
+      "",
+      "Interpret its frequency profile to identify what makes the group distinctive. When supported by the evidence, propose a concise, meaningful name. Keep the original identifier alongside the proposed name.",
+      "",
+      "Do not force a name when the profile is too heterogeneous or insufficiently informative.",
+      sep = "\n"
+    ))
+  }
+
+  paste(
+    "## Row Identity — not specified",
+    "",
+    "Use the supplied row identifier for reference, but do not infer from the label alone whether the row represents an observed entity, a category, or a constructed group.",
+    "",
+    "Base the interpretation on the displayed frequency profile and preserve the row identifier as written.",
+    sep = "\n"
+  )
+}
+
+.descfreq_task_block <- function(row_identifier = NULL,
+                                 isolate_groups,
+                                 interpretation_mode,
+                                 rows_are_ordered) {
+  if (isTRUE(isolate_groups)) {
+    task <- paste(
+      "## Task — local",
+      "",
+      paste0(
+        "Interpret only the row \"",
+        row_identifier,
+        "\" using its displayed statistical evidence and the user's analytical request."
+      ),
+      "",
+      "Characterize what distinguishes this row from the overall table profile. Do not describe or compare rows whose evidence is not displayed.",
+      sep = "\n"
+    )
+    return(task)
+  }
+
+  if (identical(interpretation_mode, "comparison")) {
+    task <- paste(
+      "## Task — comparison",
+      "",
+      "Compare the displayed rows using their statistical evidence and the user's analytical request.",
+      "",
+      "Identify meaningful similarities and differences between their frequency profiles, considering how each row differs from the overall table profile.",
+      "",
+      "Develop a substantive interpretation of the main contrasts while preserving each row's identity. Do not claim statistically significant differences between rows unless direct comparisons have been provided.",
+      "",
+      "Do not infer a progression or hierarchy from the order of the rows alone.",
+      sep = "\n"
+    )
+
+    if (isTRUE(rows_are_ordered)) {
+      task <- paste(
+        task,
+        "",
+        "The rows have an external order supplied by the analyst. Discuss a broader gradient only when the displayed facts support it, and mention transitions or exceptions.",
+        sep = "\n"
+      )
+    }
+
+    return(task)
+  }
+
+  task <- paste(
+    "## Task — description",
+    "",
+    "Interpret each displayed row using its own statistical evidence and the user's analytical request.",
+    "",
+    "Focus on characterizing each row without forcing comparisons between rows.",
+    sep = "\n"
+  )
+
+  if (isTRUE(rows_are_ordered)) {
+    task <- paste(
+      task,
+      "",
+      "The rows have an external order supplied by the analyst. Mention broader tendencies only when the displayed facts support them.",
+      sep = "\n"
+    )
+  }
+
+  task
+}
+
+.descfreq_approved_output <- function() {
+  paste(
+    "Write a clear, substantive interpretation of the displayed frequency profiles.",
+    "",
+    "Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.",
+    "",
+    "Avoid unnecessary numerical repetition.",
+    sep = "\n"
+  )
+}
+
+.default_question_descfreq <- function(isolate_groups,
+                                       interpretation_mode) {
+  if (isTRUE(isolate_groups)) {
+    return(
+      "Interpret the displayed row as a relative frequency profile and identify what most clearly distinguishes it from the global profile."
+    )
+  }
+
+  if (identical(interpretation_mode, "comparison")) {
+    return(
+      "Compare the displayed row profiles and identify meaningful similarities and differences relative to the global profile."
+    )
+  }
+
+  "Interpret each displayed row using its own frequency profile and identify what distinguishes it from the global profile."
+}
+
+.render_descfreq_prompt_blocks <- function(blocks) {
+  normalize_blank_lines(
+    paste(
+      "# Introduction",
+      blocks$context,
+      "---",
+      "## How to Read the Statistical Evidence",
+      blocks$reading,
+      "# Analytical Request",
+      blocks$question,
+      "## Interpretation Rules",
+      blocks$interpretation,
+      blocks$identity,
+      blocks$task,
+      "# Data",
+      blocks$evidence,
+      "# Final Interpretation Requirements",
+      blocks$output,
+      sep = "\n\n"
+    )
+  )
+}
 
 build_request_descfreq <- function(isolate.groups = FALSE,
                                    interpretation_mode = c("description", "comparison"),
@@ -1138,7 +1355,9 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
                                 conclusion,
                                 isolate.groups,
                                 interpretation_mode = c("description", "comparison"),
-                                rows_are_ordered = FALSE) {
+                                rows_are_ordered = FALSE,
+                                explicit_row_labels = FALSE,
+                                row_identity_mode = "auto") {
   interpretation_mode <- match.arg(interpretation_mode)
 
   row_names <- names(semantic_facing_evidence$rows)
@@ -1154,30 +1373,44 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
     character(1)
   )
 
+  make_prompt <- function(data_text, row_identifier = NULL) {
+    .render_descfreq_prompt_blocks(
+      list(
+        context = introduction,
+        reading = .descfreq_approved_reading(),
+        question = request,
+        interpretation = .descfreq_approved_interpretation(),
+        identity = .descfreq_identity_block(
+          row_identity_mode = row_identity_mode,
+          explicit_row_labels = explicit_row_labels
+        ),
+        task = .descfreq_task_block(
+          row_identifier = row_identifier,
+          isolate_groups = isolate.groups,
+          interpretation_mode = interpretation_mode,
+          rows_are_ordered = rows_are_ordered
+        ),
+        evidence = data_text,
+        output = conclusion
+      )
+    )
+  }
+
   if (!isTRUE(isolate.groups)) {
     data_text <- paste(
       blocks,
       collapse = "\n\n---\n\n"
     )
 
-    return(
-      build_standard_prompt(
-        introduction = introduction,
-        request = request,
-        data = data_text,
-        conclusion = conclusion
-      )
-    )
+    return(make_prompt(data_text))
   }
 
   out <- lapply(
     seq_along(row_names),
     function(i) {
-      build_standard_prompt(
-        introduction = introduction,
-        request = request,
-        data = blocks[[i]],
-        conclusion = conclusion
+      make_prompt(
+        data_text = blocks[[i]],
+        row_identifier = row_names[[i]]
       )
     }
   )
@@ -1273,8 +1506,8 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'
 #' The canonical evidence is invariant to `generate`, `isolate.groups`,
 #' `sample.pct`, `drop.negative`, `interpretation_mode`, `rows_are_ordered`,
-#' `explicit_row_labels`, `introduction`, `request`, and `conclusion`. These
-#' arguments affect only the interpretation layer.
+#' `explicit_row_labels`, `row_identity_mode`, `introduction`, `request`, and
+#' `conclusion`. These arguments affect only the interpretation layer.
 #'
 #' @param dataset A data frame corresponding to a contingency table. Cells must
 #'   contain non-negative integer-like frequencies.
@@ -1304,6 +1537,11 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'   already have substantive meaning and should not be renamed by the LLM.
 #' @param generate Logical. If `FALSE`, build prompt(s) without contacting an
 #'   LLM. If `TRUE`, call the selected backend.
+#' @param row_identity_mode Character scalar selecting the semantic identity of
+#'   rows: `"auto"` preserves historical behavior; `"standard"` treats rows as
+#'   observed entities or categories; `"latent"` treats rows as constructed
+#'   groups and allows a supported interpretive name. This is independent of
+#'   `explicit_row_labels`, `isolate.groups`, and `interpretation_mode`.
 #' @param ... Additional provider-specific generation arguments.
 #'
 #' @return The main return is a prompt or named list of prompts when
@@ -1382,8 +1620,10 @@ nail_descfreq <- function(dataset,
                           rows_are_ordered = FALSE,
                           explicit_row_labels = FALSE,
                           generate = FALSE,
-                          ...) {
+                          ...,
+                          row_identity_mode = c("auto", "standard", "latent")) {
   interpretation_mode <- match.arg(interpretation_mode)
+  row_identity_mode <- match.arg(row_identity_mode)
   provider <- match.arg(provider)
 
   validate_descfreq_inputs(
@@ -1394,6 +1634,7 @@ nail_descfreq <- function(dataset,
     drop.negative = drop.negative,
     rows_are_ordered = rows_are_ordered,
     explicit_row_labels = explicit_row_labels,
+    row_identity_mode = row_identity_mode,
     generate = generate,
     by.quali = by.quali
   )
@@ -1429,49 +1670,32 @@ nail_descfreq <- function(dataset,
   if (is.null(introduction)) {
     introduction <- paste(
       "The table analyzed here is a contingency table.",
-      "Each row is interpreted through column attributes whose relative",
+      "Each row is interpreted through column frequencies whose relative",
       "frequency differs from the overall table profile."
     )
   }
 
   if (is.null(request)) {
-    request <- build_request_descfreq(
-      isolate.groups = isolate.groups,
-      interpretation_mode = interpretation_mode,
-      rows_are_ordered = rows_are_ordered,
-      explicit_row_labels = explicit_row_labels
+    request <- .default_question_descfreq(
+      isolate_groups = isolate.groups,
+      interpretation_mode = interpretation_mode
     )
   }
 
   if (is.null(conclusion)) {
-    conclusion <- build_conclusion_descfreq(
-      isolate.groups = isolate.groups,
-      interpretation_mode = interpretation_mode,
-      rows_are_ordered = rows_are_ordered,
-      explicit_row_labels = explicit_row_labels
-    )
+    conclusion <- .descfreq_approved_output()
   }
-
-  guide <- build_guide_descfreq(
-    interpretation_mode = interpretation_mode,
-    rows_are_ordered = rows_are_ordered,
-    explicit_row_labels = explicit_row_labels
-  )
-
-  prompt_introduction <- paste(
-    introduction,
-    guide,
-    sep = "\n\n---\n\n"
-  )
 
   prompts <- get_prompt_descfreq(
     semantic_facing_evidence = semantic_facing_evidence,
-    introduction = prompt_introduction,
+    introduction = introduction,
     request = request,
     conclusion = conclusion,
     isolate.groups = isolate.groups,
     interpretation_mode = interpretation_mode,
-    rows_are_ordered = rows_are_ordered
+    rows_are_ordered = rows_are_ordered,
+    explicit_row_labels = explicit_row_labels,
+    row_identity_mode = row_identity_mode
   )
 
   prompt_list <- if (isTRUE(isolate.groups)) {
@@ -1488,6 +1712,7 @@ nail_descfreq <- function(dataset,
     interpretation_mode = interpretation_mode,
     rows_are_ordered = rows_are_ordered,
     explicit_row_labels = explicit_row_labels,
+    row_identity_mode = row_identity_mode,
     isolate_groups = isolate.groups,
     generate = generate,
     provider = provider,

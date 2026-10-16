@@ -20,7 +20,8 @@ nail_descfreq(
   rows_are_ordered = FALSE,
   explicit_row_labels = FALSE,
   generate = FALSE,
-  ...
+  ...,
+  row_identity_mode = c("auto", "standard", "latent")
 )
 }
 \arguments{
@@ -68,6 +69,12 @@ already have substantive meaning and should not be renamed by the LLM.}
 LLM. If \code{TRUE}, call the selected backend.}
 
 \item{...}{Additional provider-specific generation arguments.}
+
+\item{row_identity_mode}{Character scalar selecting the semantic identity of
+rows: \code{"auto"} preserves historical behavior; \code{"standard"} treats rows as
+observed entities or categories; \code{"latent"} treats rows as constructed
+groups and allows a supported interpretive name. This is independent of
+\code{explicit_row_labels}, \code{isolate.groups}, and \code{interpretation_mode}.}
 }
 \value{
 The main return is a prompt or named list of prompts when
@@ -100,8 +107,8 @@ analysis; the LLM interprets the displayed relative patterns.
 \details{
 The canonical evidence is invariant to \code{generate}, \code{isolate.groups},
 \code{sample.pct}, \code{drop.negative}, \code{interpretation_mode}, \code{rows_are_ordered},
-\code{explicit_row_labels}, \code{introduction}, \code{request}, and \code{conclusion}. These
-arguments affect only the interpretation layer.
+\code{explicit_row_labels}, \code{row_identity_mode}, \code{introduction}, \code{request}, and
+\code{conclusion}. These arguments affect only the interpretation layer.
 
 FactoMineR retains row-column cells using its two-sided hypergeometric test.
 NaileR does not recompute or replace that test. It normalizes the returned
