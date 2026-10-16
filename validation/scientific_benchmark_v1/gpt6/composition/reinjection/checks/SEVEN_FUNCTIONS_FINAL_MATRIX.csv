@@ -1,0 +1,8 @@
+"function","prompt_exact","evidence_invariant","response_reinjected","usage_rows","status"
+"condes",TRUE,TRUE,TRUE,0,"executed_offline_simulated_backend"
+"catdes",TRUE,TRUE,TRUE,0,"executed_offline_simulated_backend"
+"descfreq",TRUE,TRUE,TRUE,0,"executed_offline_simulated_backend"
+"textual",TRUE,TRUE,TRUE,0,"executed_offline_simulated_backend"
+"qda",TRUE,TRUE,TRUE,0,"executed_offline_simulated_backend"
+"qda_space",TRUE,TRUE,TRUE,0,"executed_offline_simulated_backend"
+"catdes_textual",TRUE,TRUE,TRUE,0,"executed_offline;published_manifest_mismatch_G1"
