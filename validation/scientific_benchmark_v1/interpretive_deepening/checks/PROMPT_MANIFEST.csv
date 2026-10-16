@@ -1,4 +1,8 @@
 "function","condition","scope_id","prompt_file","prompt_sha256"
+"catdes","A","portfolio","prompts/catdes_A_portfolio.txt","8a0db49966ddba235204affedc360059c9642c3139cf477ad37567bae9b7ae1e"
+"catdes","B","portfolio","prompts/catdes_B_portfolio.txt","d1a2eab234e83e6aed58280a08e65259252a0da9720978962f5e8a63252d0298"
+"qda","A","portfolio","prompts/qda_A_portfolio.txt","5ed13325cece354d3e9452401a9c5571d26c44767f80f1d4a28d235479f81752"
+"qda","B","portfolio","prompts/qda_B_portfolio.txt","4b3224b7784eba29f7c06ae104944ab9b956eafd45671743afd497cff5b6171d"
 "catdes_textual","A","G1","prompts/catdes_textual_A_G1.txt","d8d61e902c707eb0ff22ed07276e9126497e4c1533fda2d2934939364e4bc072"
 "catdes_textual","B","G1","prompts/catdes_textual_B_G1.txt","75b8a3ba22db0fb0a996f49ad83ee43df2587ccd0fb14297cc3e1a9b867baa5a"
 "catdes_textual","A","G2","prompts/catdes_textual_A_G2.txt","bfc552b0d24be3d05a5f2f8bfc1ae538418b50950e869c884135ffb3daf9dad7"

@@ -16,5 +16,11 @@ All evidence comparisons passed: TRUE
 All canonical attribute comparisons passed: TRUE
 All prompt differences are limited to the added sentence: TRUE
 
+Six previously published CATDES-TEXTUAL prompts unchanged: TRUE
+The earlier export bug came from unnamed one-prompt lists: CATDES and
+QDA prompts were silently skipped by loops over names(). prompt_list()
+now names a unique prompt `portfolio`, rejects empty or ambiguous lists,
+and the manifest contains exactly ten prompt rows.
+
 The previews are fixtures for a later blind interpretation comparison;
 no model response is included or inferred in this experiment.

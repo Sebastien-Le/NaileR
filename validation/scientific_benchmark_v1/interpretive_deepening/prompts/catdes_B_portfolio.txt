@@ -1,0 +1,73 @@
+# Introduction
+
+This study examines food-purchasing behavior in 96 consumers from the same population, organized into three neutral groups named G1, G2 and G3. The data combine quantitative measures, categorical characteristics, and individual open comments. The purpose is to characterize patterns while preserving within-group heterogeneity and distinguishing observations from interpretive hypotheses.
+
+---
+
+## How to Read the Statistical Evidence
+
+The results come from `FactoMineR::catdes()`. Each qualitative finding compares the frequency of a response modality within a group with its frequency in the full analyzed sample.
+MORE FREQUENT indicates statistical overrepresentation; LESS FREQUENT indicates statistical underrepresentation. The full sample is the reference, not another group.
+Overrepresentation does not necessarily imply a majority within the group. Interpret each direction together with the reported group and full-sample percentages.
+Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale.
+Each quantitative finding compares a variable's mean within a group with its mean in the full analyzed sample. HIGHER and LOWER indicate that the group mean is statistically higher or lower, respectively.
+Read each difference according to what the variable measures, its unit when known, and the meaning of high and low values. Do not assume that higher means better or lower means worse.
+If the variable's meaning, scale, or unit is unclear, do not invent it. Do not compare means of unrelated variables as if they were measured on the same scale.
+Base your analysis on the provided statistical evidence.
+
+# Overall Analytical Request
+
+For each group, describe the main coherent profile from the displayed statistical facts. Distinguish central interpretive patterns from secondary characteristics and do not infer causality or individual properties from group-level results. When the evidence allows it, identify and explain the most informative insight that emerges from the configuration of findings rather than from any one finding alone, without presenting that insight as an additional demonstrated fact.
+
+## Interpretation Rules
+
+Interpret each group by considering its statistical characteristics jointly, rather than describing variables one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive synthesis that reveals what emerges from their combination.
+Use the study context to connect characteristics conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships or causal mechanisms. Preserve important nuances and ambiguities, without forcing an artificial coherence.
+Each group corresponds to an observed category defined by a specific variable and one of its response modalities. All group members share this modality.
+Use the meaning of both the defining variable and its modality to guide the interpretation of the group's statistical characteristics. Explain how the displayed findings characterize this category, combining its known identity with the multidimensional profile emerging from the evidence.
+Preserve the original category name. You may develop a higher-level interpretation, but do not replace the observed category with an invented identity.
+
+# Global Task
+
+Interpret each displayed group, then provide an overall synthesis of meaningful similarities, contrasts, and configurations across groups. Do not present descriptive contrasts as statistically demonstrated pairwise differences.
+The displayed observed categories are response modalities of the grouping variable 'group'. Preserve each category's original name.
+
+# Data
+
+## Category "G1"
+
+- For variable/proposition "concern":
+  - The response/modality "price" is MORE FREQUENT in this group than in the full sample (group=43.75%; full sample=23.96%).
+  - The response/modality "environment" is LESS FREQUENT in this group than in the full sample (group=9.38%; full sample=27.08%).
+  - The response/modality "quality" is LESS FREQUENT in this group than in the full sample (group=15.62%; full sample=29.17%).
+- For variable/proposition "diet":
+  - The response/modality "conventional" is MORE FREQUENT in this group than in the full sample (group=62.50%; full sample=44.79%).
+- The mean of "monthly spend" is LOWER in this group than in the full sample (group mean=103.12; full-sample mean=130.52).
+- The mean of "age" is LOWER in this group than in the full sample (group mean=34.41; full-sample mean=40.26).
+- The mean of "purchase frequency" is LOWER in this group than in the full sample (group mean=2.85; full-sample mean=3.50).
+- The mean of "household size" is LOWER in this group than in the full sample (group mean=2.25; full-sample mean=2.75).
+
+---
+
+## Category "G2"
+
+- For variable/proposition "diet":
+  - The response/modality "conventional" is LESS FREQUENT in this group than in the full sample (group=21.88%; full sample=44.79%).
+  - The response/modality "flexitarian" is MORE FREQUENT in this group than in the full sample (group=59.38%; full sample=40.62%).
+- For variable/proposition "channel":
+  - The response/modality "online" is MORE FREQUENT in this group than in the full sample (group=46.88%; full sample=31.25%).
+- The mean of "monthly spend" is HIGHER in this group than in the full sample (group mean=159.22; full-sample mean=130.52).
+- The mean of "age" is HIGHER in this group than in the full sample (group mean=47.12; full-sample mean=40.26).
+- The mean of "purchase frequency" is HIGHER in this group than in the full sample (group mean=4.32; full-sample mean=3.50).
+- The mean of "satisfaction" is HIGHER in this group than in the full sample (group mean=7.24; full-sample mean=6.46).
+- The mean of "household size" is HIGHER in this group than in the full sample (group mean=3.38; full-sample mean=2.75).
+
+---
+
+## Category "G3"
+
+- The mean of "satisfaction" is LOWER in this group than in the full sample (group mean=5.88; full-sample mean=6.46).
+
+# Output
+
+Write a clear, substantive interpretation highlighting the central profile, its main supporting statistical characteristics, and important nuances or exceptions. Favor meaningful synthesis over repetitive numerical reporting.

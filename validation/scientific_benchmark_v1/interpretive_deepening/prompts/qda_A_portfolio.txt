@@ -1,0 +1,161 @@
+# Introduction
+
+Six chocolate products were evaluated by a trained sensory panel using common sensory attributes. The aim is to describe product profiles and the main sensory opposition in the adjusted product means without making causal or hedonic claims.
+
+---
+
+## How to Read the Statistical Evidence
+
+The results come from `SensoMineR::decat()` and characterize evaluated products or stimuli through their sensory attributes, relative to the average sensory profile of the evaluated set. This average product is a statistical reference, not an actual evaluated product.
+
+For a given attribute, HIGHER means that the product's adjusted sensory score is statistically higher than the reference; LOWER means it is statistically lower. These directions are relative: LOWER does not mean that the attribute is absent or that its opposite is present.
+
+The adjusted mean is the model-adjusted sensory score for the product and attribute, not its difference from the reference. The `v.test` is a signed standardized statistic, while the `p.value` describes statistical evidence. Neither measures sensory intensity or substantive importance. Do not compare adjusted means across different attributes as if they measured the same sensory characteristic.
+
+Preserve the meaning of each sensory attribute. Use the study context to understand the sensory characteristics, without treating it as additional statistical evidence. Do not infer liking, preference, quality, manufacturing causes, or statistically demonstrated differences between pairs of products from these results.
+
+---
+
+# Analytical Request
+
+Interpret the sensory configuration of the products from the statistical evidence. Group related attributes into a coherent meaning, distinguish product markers from axis associations, and keep every interpretation traceable to the displayed facts.
+
+---
+
+## Interpretation Rules
+
+Interpret each product or stimulus by considering its displayed sensory attributes jointly, rather than describing them one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive interpretation of the overall sensory profile.
+
+Use knowledge of sensory perception and the study context to connect conceptually related characteristics across the relevant perceptual dimensions. When several attributes converge, develop a higher-level interpretation that captures their combined meaning.
+
+Preserve the relative direction and meaning of each attribute. Distinguish higher-level interpretations from directly measured characteristics, and do not present conceptual connections as statistically demonstrated relationships.
+
+Preserve meaningful contrasts, nuances, and ambiguities. When the evidence is heterogeneous or insufficient to support a unified characterization, do not force a single global interpretation.
+
+---
+
+## Identity — known
+
+Each product or stimulus has a known identity or a meaningful label provided by the analyst. Preserve its original identifier and label.
+
+Use this identity as contextual information when interpreting the sensory profile, without letting it substitute for the statistical evidence.
+
+Do not replace the known identity with an invented descriptive name. A concise sensory characterization may complement it when useful.
+
+---
+
+# Global Task
+
+Interpret the displayed products or stimuli jointly, using their statistical evidence and the user's analytical request.
+Characterize each sensory profile, then identify the main similarities, contrasts and, when supported, coherent sensory families across the evaluated set.
+Ground comparisons in the displayed sensory profiles, interpreted relative to the average product. Do not present descriptive contrasts as statistically demonstrated pairwise differences between products or stimuli.
+
+---
+
+# Data
+
+## Product 'choc1'
+
+R-derived facts retained for this product:
+- Attribute "Bitterness" is HIGHER than for the average product (adjusted mean=7.07; v.test=9.95; p.value=<0.001).
+- Attribute "MilkF" is LOWER than for the average product (adjusted mean=1.57; v.test=-8.70; p.value=<0.001).
+- Attribute "CocoaF" is HIGHER than for the average product (adjusted mean=8.07; v.test=8.48; p.value=<0.001).
+- Attribute "Sweetness" is LOWER than for the average product (adjusted mean=3.14; v.test=-8.29; p.value=<0.001).
+- Attribute "Astringency" is HIGHER than for the average product (adjusted mean=4.76; v.test=7.08; p.value=<0.001).
+- Attribute "Caramel" is LOWER than for the average product (adjusted mean=1.67; v.test=-6.99; p.value=<0.001).
+- Attribute "Acidity" is HIGHER than for the average product (adjusted mean=4.66; v.test=6.14; p.value=<0.001).
+- Attribute "Vanilla" is LOWER than for the average product (adjusted mean=1.10; v.test=-4.77; p.value=<0.001).
+- Attribute "CocoaA" is HIGHER than for the average product (adjusted mean=7.09; v.test=3.90; p.value=<0.001).
+- Attribute "MilkA" is LOWER than for the average product (adjusted mean=3.59; v.test=-3.41; p.value=<0.001).
+
+---
+
+## Product 'choc2'
+
+R-derived facts retained for this product:
+- Attribute "Crunchy" is HIGHER than for the average product (adjusted mean=7.71; v.test=6.92; p.value=<0.001).
+- Attribute "MilkF" is LOWER than for the average product (adjusted mean=2.38; v.test=-5.16; p.value=<0.001).
+- Attribute "CocoaF" is HIGHER than for the average product (adjusted mean=6.91; v.test=2.95; p.value=0.003).
+- Attribute "Melting" is LOWER than for the average product (adjusted mean=4.33; v.test=-2.59; p.value=0.010).
+- Attribute "Caramel" is LOWER than for the average product (adjusted mean=2.78; v.test=-2.48; p.value=0.013).
+- Attribute "Sweetness" is LOWER than for the average product (adjusted mean=4.62; v.test=-2.08; p.value=0.038).
+
+---
+
+## Product 'choc3'
+
+R-derived facts retained for this product:
+- Attribute "MilkF" is HIGHER than for the average product (adjusted mean=7.71; v.test=16.52; p.value=<0.001).
+- Attribute "CocoaF" is LOWER than for the average product (adjusted mean=3.38; v.test=-13.33; p.value=<0.001).
+- Attribute "Crunchy" is LOWER than for the average product (adjusted mean=2.98; v.test=-12.49; p.value=<0.001).
+- Attribute "Bitterness" is LOWER than for the average product (adjusted mean=1.40; v.test=-12.42; p.value=<0.001).
+- Attribute "Caramel" is HIGHER than for the average product (adjusted mean=6.33; v.test=11.52; p.value=<0.001).
+- Attribute "Sweetness" is HIGHER than for the average product (adjusted mean=7.60; v.test=10.39; p.value=<0.001).
+- Attribute "Melting" is HIGHER than for the average product (adjusted mean=7.31; v.test=9.19; p.value=<0.001).
+- Attribute "Astringency" is LOWER than for the average product (adjusted mean=1.21; v.test=-8.09; p.value=<0.001).
+- Attribute "Vanilla" is HIGHER than for the average product (adjusted mean=3.67; v.test=7.68; p.value=<0.001).
+- Attribute "CocoaA" is LOWER than for the average product (adjusted mean=4.67; v.test=-7.61; p.value=<0.001).
+- Attribute "Acidity" is LOWER than for the average product (adjusted mean=1.57; v.test=-6.63; p.value=<0.001).
+- Attribute "MilkA" is HIGHER than for the average product (adjusted mean=6.05; v.test=6.58; p.value=<0.001).
+- Attribute "Granular" is LOWER than for the average product (adjusted mean=1.60; v.test=-5.44; p.value=<0.001).
+- Attribute "Sticky" is HIGHER than for the average product (adjusted mean=5.03; v.test=4.29; p.value=<0.001).
+
+---
+
+## Product 'choc4'
+
+R-derived facts retained for this product:
+- Attribute "MilkF" is LOWER than for the average product (adjusted mean=2.59; v.test=-4.20; p.value=<0.001).
+- Attribute "Sweetness" is LOWER than for the average product (adjusted mean=4.29; v.test=-3.53; p.value=<0.001).
+- Attribute "Acidity" is HIGHER than for the average product (adjusted mean=3.93; v.test=3.21; p.value=0.001).
+- Attribute "Caramel" is LOWER than for the average product (adjusted mean=2.67; v.test=-2.92; p.value=0.003).
+- Attribute "Astringency" is HIGHER than for the average product (adjusted mean=3.69; v.test=2.57; p.value=0.010).
+- Attribute "Bitterness" is HIGHER than for the average product (adjusted mean=5.19; v.test=2.52; p.value=0.012).
+- Attribute "Melting" is LOWER than for the average product (adjusted mean=4.38; v.test=-2.38; p.value=0.017).
+- Attribute "Granular" is HIGHER than for the average product (adjusted mean=3.55; v.test=2.19; p.value=0.028).
+
+---
+
+## Product 'choc5'
+
+R-derived facts retained for this product:
+- Attribute "Sticky" is LOWER than for the average product (adjusted mean=3.22; v.test=-3.10; p.value=0.002).
+- Attribute "CocoaA" is HIGHER than for the average product (adjusted mean=6.79; v.test=2.48; p.value=0.013).
+- Attribute "Crunchy" is HIGHER than for the average product (adjusted mean=6.64; v.test=2.33; p.value=0.020).
+- Attribute "CocoaF" is HIGHER than for the average product (adjusted mean=6.79; v.test=2.33; p.value=0.020).
+
+---
+
+## Product 'choc6'
+
+R-derived facts retained for this product:
+- Attribute "Crunchy" is HIGHER than for the average product (adjusted mean=7.33; v.test=5.35; p.value=<0.001).
+- Attribute "Melting" is LOWER than for the average product (adjusted mean=4.21; v.test=-3.08; p.value=0.002).
+- Attribute "Sweetness" is HIGHER than for the average product (adjusted mean=5.62; v.test=2.41; p.value=0.016).
+- Attribute "Acidity" is LOWER than for the average product (adjusted mean=2.67; v.test=-2.14; p.value=0.032).
+
+---
+
+## Reusable NaileR Metadata
+
+After the visible answer, append exactly one reusable HTML comment block for each product or stimulus represented in the evidence.
+The block is for downstream reuse and is not part of the visible report.
+Use the exact product/stimulus label shown in the evidence.
+Populate the fields consistently with the visible interpretation grounded in the evidence displayed in this prompt.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: <exact label>
+core_profile: <one concise evidence-grounded sensory synthesis>
+dominant_configuration: <2 to 5 evidence-grounded sensory descriptors or short phrases separated by semicolons>
+secondary_configuration: <secondary evidence-grounded descriptors or short phrases separated by semicolons; write none if absent>
+distinctive_interpretation: <one concise strictly sensory statement of what distinguishes this item relative to the evaluated set>
+descriptive_name: <short evidence-grounded descriptive name; write none only if no descriptive name is requested or no defensible name can be proposed>
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+Repeat the complete comment block once for every product/stimulus represented in the answer.
+
+---
+
+# Final Interpretation Requirements
+
+Provide a concise descriptive interpretation while preserving product identifiers and distinguishing evidence from interpretation.

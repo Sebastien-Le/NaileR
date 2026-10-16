@@ -44,8 +44,25 @@ write_json <- function(path, object) {
 }
 prompt_list <- function(x) {
   p <- nail_prompt(x, print = FALSE)
-  if (!is.list(p)) p <- list(p)
+  if (!is.list(p)) p <- list(portfolio = p)
+  if (!length(p)) {
+    stop("nail_prompt() returned an empty prompt list", call. = FALSE)
+  }
+  if (is.null(names(p)) || any(!nzchar(names(p))) ||
+      anyDuplicated(names(p))) {
+    stop("Prompt scopes must be non-empty and uniquely named", call. = FALSE)
+  }
+  if (!all(vapply(p, function(prompt) {
+    is.character(prompt) && length(prompt) == 1L && nzchar(prompt)
+  }, logical(1)))) {
+    stop("Each prompt scope must contain one non-empty character prompt",
+         call. = FALSE)
+  }
   p
+}
+read_head_file <- function(relative_path) {
+  paste(system2("git", c("show", paste0("HEAD:", relative_path)),
+                stdout = TRUE), collapse = "\n")
 }
 evidence_equal <- function(x, y) identical(nail_evidence(x), nail_evidence(y))
 attr_equal <- function(x, y, names) {
@@ -182,12 +199,26 @@ for (fun in names(results)) {
       "semantic_facing_evidence", "product_profiles",
       "contextualized_evidence", "catdes_textual_evidence")
   )
+  published_textual_unchanged <- NA
+  if (identical(fun, "catdes_textual")) {
+    published_textual_unchanged <- all(vapply(names(prompts_A), function(id) {
+      relative_path <- file.path(
+        "validation", "scientific_benchmark_v1", "interpretive_deepening",
+        "prompts", paste0(fun, "_A_", id, ".txt")
+      )
+      identical(prompts_A[[id]], read_head_file(relative_path)) &&
+        identical(prompts_B[[id]], read_head_file(sub(
+          "_A_", "_B_", relative_path, fixed = TRUE
+        )))
+    }, logical(1)))
+  }
   comparison_rows[[fun]] <- data.frame(
     function. = fun,
     n_prompts = length(prompts_A),
     evidence_identical = ev_equal,
     canonical_attributes_identical = canonical_equal,
     only_extra_sentence = prompt_diff_only,
+    published_catdes_textual_prompts_unchanged = published_textual_unchanged,
     stringsAsFactors = FALSE
   )
   for (id in names(prompts_A)) {
@@ -211,6 +242,12 @@ comparison <- do.call(rbind, comparison_rows)
 manifest <- do.call(rbind, manifest_rows)
 names(comparison)[names(comparison) == "function."] <- "function"
 names(manifest)[names(manifest) == "function."] <- "function"
+if (nrow(manifest) != 10L || anyDuplicated(manifest$prompt_file) ||
+    any(!file.exists(file.path(out, manifest$prompt_file))) ||
+    any(!nzchar(manifest$prompt_sha256))) {
+  stop("The prompt manifest must contain exactly ten valid prompt files",
+       call. = FALSE)
+}
 utils::write.csv(comparison, file.path(out, "checks", "COMPARISON.csv"),
                  row.names = FALSE)
 utils::write.csv(manifest, file.path(out, "checks", "PROMPT_MANIFEST.csv"),
@@ -232,11 +269,22 @@ writeLines(c(
          all(comparison$canonical_attributes_identical)),
   paste0("All prompt differences are limited to the added sentence: ",
          all(comparison$only_extra_sentence)), "",
+  paste0("Six previously published CATDES-TEXTUAL prompts unchanged: ",
+         comparison$published_catdes_textual_prompts_unchanged[
+           comparison[["function"]] == "catdes_textual"
+         ]),
+  "The earlier export bug came from unnamed one-prompt lists: CATDES and",
+  "QDA prompts were silently skipped by loops over names(). prompt_list()",
+  "now names a unique prompt `portfolio`, rejects empty or ambiguous lists,",
+  "and the manifest contains exactly ten prompt rows.", "",
   "The previews are fixtures for a later blind interpretation comparison;",
   "no model response is included or inferred in this experiment."
 ), file.path(out, "README.md"), useBytes = TRUE)
 
 ok <- all(comparison$evidence_identical) &&
   all(comparison$canonical_attributes_identical) &&
-  all(comparison$only_extra_sentence)
+  all(comparison$only_extra_sentence) &&
+  isTRUE(comparison$published_catdes_textual_prompts_unchanged[
+    comparison[["function"]] == "catdes_textual"
+  ])
 cat("PREVIEW_EXPERIMENT_OK=", ok, "\n", sep = "")

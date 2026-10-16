@@ -1,4 +1,4 @@
-"function","n_prompts","evidence_identical","canonical_attributes_identical","only_extra_sentence"
-"catdes",1,TRUE,TRUE,TRUE
-"qda",1,TRUE,TRUE,TRUE
-"catdes_textual",3,TRUE,TRUE,TRUE
+"function","n_prompts","evidence_identical","canonical_attributes_identical","only_extra_sentence","published_catdes_textual_prompts_unchanged"
+"catdes",1,TRUE,TRUE,TRUE,NA
+"qda",1,TRUE,TRUE,TRUE,NA
+"catdes_textual",3,TRUE,TRUE,TRUE,TRUE
