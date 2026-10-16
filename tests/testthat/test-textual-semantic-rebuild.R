@@ -52,6 +52,68 @@ mock_textual_response <- function(prompt) {
 }
 
 
+approved_textual_reading <- function() {
+  paste(
+    "The evidence consists of textual observations associated with one group. These texts are the empirical material for qualitative analysis. Themes and broader interpretations are constructed from the texts by the language model; they are not statistical results calculated beforehand.",
+    "",
+    "Each text has an identifier linked to a source observation. An observation does not necessarily represent a distinct individual, and identical statements may occur more than once. Preserve the original wording and use the supplied text identifiers when referring to supporting or contrasting evidence. Do not invent quotations.",
+    "",
+    "Interpret the meaning and strength of each statement carefully, preserving negations, hesitation, qualifications, ambiguity and contradictions. Distinguish expressed opinions, perceptions, intentions, reported experiences and observed behaviors.",
+    "",
+    "Distinguish recurring ideas in the texts from the prevalence of opinions among individuals. Repetition does not necessarily imply independent agreement or group consensus. Do not invent numerical prevalence estimates.",
+    "",
+    "Use the study context to understand the responses and the analytical question, without treating it as additional empirical evidence.",
+    sep = "\n"
+  )
+}
+
+
+approved_textual_interpretation <- function() {
+  paste(
+    "Identify the main themes expressed in the texts, grouping statements according to their meaning rather than shared vocabulary. Explain their substantive significance in relation to the analytical question.",
+    "",
+    "Interpret the group's discourse by considering these themes jointly, rather than presenting them as a simple list. When supported by the texts, develop a higher-level interpretation that captures the broader concerns, perspectives or frames of meaning emerging from their combination.",
+    "",
+    "Examine internal diversity, including differences in emphasis, reservations, ambivalence, contradictions and meaningful minority perspectives. A shared interpretive frame may accommodate different positions, while several distinct or conflicting frames may coexist within the same group.",
+    "",
+    "Assess whether the discourse exhibits a recognizable common frame. Treat coherence as a qualitative interpretation, not a statistical measure. Do not impose unity when the texts support multiple perspectives or when the evidence is insufficient.",
+    "",
+    "Adapt the depth of interpretation to the richness and diversity of the texts. Avoid elaborate group-level characterizations from sparse evidence. Do not infer hidden motives, personality traits, social identities or causal mechanisms that the texts do not support.",
+    sep = "\n"
+  )
+}
+
+
+approved_textual_output <- function() {
+  paste(
+    "Produce a concise, substantive and evidence-grounded qualitative profile of the group.",
+    "",
+    "Use exactly the following fields and preserve their names and order:",
+    "",
+    "Core textual profile:",
+    "One concise statement capturing the main configuration of meaning emerging from the discourse.",
+    "",
+    "Dominant themes:",
+    "One to five concise themes, separated by semicolons.",
+    "",
+    "Within-group coherence:",
+    "Choose exactly one: `strong` / `moderate` / `mixed` / `weak`, based on the qualitative organization of the discourse, not numerical recurrence alone.",
+    "",
+    "Internal diversity:",
+    "One concise statement identifying meaningful variations, reservations, tensions or minority perspectives.",
+    "",
+    "Representative text IDs:",
+    "One to three supplied text identifiers supporting the central interpretation, separated by semicolons.",
+    "",
+    "Tension text IDs:",
+    "Zero to three supplied text identifiers illustrating tensions or contrasting perspectives, separated by semicolons, or `none`.",
+    "",
+    "Do not add other fields or introductory text. Use only supplied text identifiers. Representative texts illustrate an interpretation; they do not establish the prevalence of a theme.",
+    sep = "\n"
+  )
+}
+
+
 test_that("textual_evidence is canonical, complete, and mechanically traceable", {
   dat <- make_textual_semantic_test_data()
 
@@ -123,6 +185,82 @@ test_that("textual_evidence is invariant to interpretation options", {
 })
 
 
+test_that("text_role changes only descriptive data labels and preserves evidence", {
+  dat <- make_textual_semantic_test_data()
+
+  by_role <- lapply(
+    c("responses", "comments", "verbatims"),
+    function(role) {
+      nail_textual(
+        dat,
+        num.var = 1,
+        num.text = 2,
+        text_role = role,
+        generate = FALSE
+      )
+    }
+  )
+  names(by_role) <- c("responses", "comments", "verbatims")
+
+  expect_match(
+    by_role$responses[[1L]],
+    "- Non-empty responses:",
+    fixed = TRUE
+  )
+  expect_match(
+    by_role$comments[[1L]],
+    "- Non-empty comments:",
+    fixed = TRUE
+  )
+  expect_match(
+    by_role$verbatims[[1L]],
+    "- Non-empty verbatims:",
+    fixed = TRUE
+  )
+  expect_match(by_role$responses[[1L]], "### Responses", fixed = TRUE)
+  expect_match(by_role$comments[[1L]], "### Comments", fixed = TRUE)
+  expect_match(by_role$verbatims[[1L]], "### Verbatims", fixed = TRUE)
+
+  expect_identical(
+    lapply(
+      by_role,
+      function(x) attr(x, "textual_evidence", exact = TRUE)
+    )[[1L]],
+    lapply(
+      by_role,
+      function(x) attr(x, "textual_evidence", exact = TRUE)
+    )[[2L]]
+  )
+  expect_identical(
+    lapply(
+      by_role,
+      function(x) attr(x, "textual_evidence", exact = TRUE)
+    )[[1L]],
+    lapply(
+      by_role,
+      function(x) attr(x, "textual_evidence", exact = TRUE)
+    )[[3L]]
+  )
+
+  blocks <- lapply(
+    by_role,
+    function(x) attr(x, "textual_prompt_blocks", exact = TRUE)$A
+  )
+  expect_identical(blocks$responses$reading, blocks$comments$reading)
+  expect_identical(blocks$responses$reading, blocks$verbatims$reading)
+  expect_identical(
+    blocks$responses$interpretation,
+    blocks$comments$interpretation
+  )
+  expect_identical(
+    blocks$responses$interpretation,
+    blocks$verbatims$interpretation
+  )
+  expect_identical(blocks$responses$output, blocks$comments$output)
+  expect_identical(blocks$responses$output, blocks$verbatims$output)
+})
+
+
 test_that("interpretation_input records only what the LLM sees", {
   dat <- make_textual_semantic_test_data()
 
@@ -186,8 +324,24 @@ test_that("textual prompts are local-first and preserve user instructions", {
 
   expect_match(prompt_a, "USER INTRODUCTION SENTINEL", fixed = TRUE)
   expect_match(prompt_a, "USER REQUEST SENTINEL", fixed = TRUE)
-  expect_match(prompt_a, "higher-level contextual interpretation", fixed = TRUE)
-  expect_match(prompt_a, "what respondents literally expressed", fixed = TRUE)
+  expect_match(
+    prompt_a,
+    "The evidence consists of textual observations associated with one group.",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt_a,
+    "Interpret the group's discourse by considering these themes jointly",
+    fixed = TRUE
+  )
+  expect_identical(
+    attr(x, "textual_prompt_blocks", exact = TRUE)$A$local_task,
+    paste(
+      'Interpret only the texts associated with group "A", in light of the user\'s analytical request.',
+      "Construct a substantive textual profile of this group without describing, comparing or inferring the discourse of other groups.",
+      sep = "\n\n"
+    )
+  )
   expect_match(prompt_a, '## Group "A"', fixed = TRUE)
   expect_false(grepl('## Group "B"', prompt_a, fixed = TRUE))
 
@@ -245,31 +399,65 @@ test_that("textual prompts expose ordered semantic blocks", {
   expect_true(all(positions > 0L))
   expect_true(all(diff(positions) > 0L))
 
-  expect_match(
-    blocks$A$reading,
-    "raw responses",
-    fixed = TRUE
-  )
-  expect_match(
+  expect_identical(blocks$A$reading, approved_textual_reading())
+  expect_identical(
     blocks$A$interpretation,
-    "higher-level contextual interpretation",
-    fixed = TRUE
+    approved_textual_interpretation()
   )
-  expect_match(
-    blocks$A$interpretation,
-    "what respondents literally expressed",
-    fixed = TRUE
-  )
-  expect_false(
-    grepl("higher-level contextual interpretation", blocks$A$evidence, fixed = TRUE)
-  )
-  expect_false(
-    grepl("higher-level contextual interpretation", blocks$A$local_task, fixed = TRUE)
-  )
+  expect_match(blocks$A$local_task, 'group "A"', fixed = TRUE)
   expect_false(grepl('## Group "B"', blocks$A$evidence, fixed = TRUE))
   expect_true(
     regexpr("# Required output", prompt_a, fixed = TRUE)[[1L]] >
       regexpr("# Data", prompt_a, fixed = TRUE)[[1L]]
+  )
+})
+
+
+test_that("approved textual blocks are identical in detailed and compact styles", {
+  dat <- make_textual_semantic_test_data()
+
+  detailed <- nail_textual(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    prompt_style = "detailed",
+    generate = FALSE
+  )
+  compact <- nail_textual(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    prompt_style = "compact",
+    generate = FALSE
+  )
+
+  detailed_blocks <- attr(
+    detailed,
+    "textual_prompt_blocks",
+    exact = TRUE
+  )$A
+  compact_blocks <- attr(
+    compact,
+    "textual_prompt_blocks",
+    exact = TRUE
+  )$A
+
+  expect_identical(detailed_blocks$reading, approved_textual_reading())
+  expect_identical(
+    detailed_blocks$interpretation,
+    approved_textual_interpretation()
+  )
+  expect_identical(detailed_blocks$output, approved_textual_output())
+  expect_identical(compact_blocks$reading, detailed_blocks$reading)
+  expect_identical(
+    compact_blocks$interpretation,
+    detailed_blocks$interpretation
+  )
+  expect_identical(compact_blocks$output, detailed_blocks$output)
+  expect_match(
+    nail_prompt(detailed, select = "A", print = FALSE),
+    "# Required output",
+    fixed = TRUE
   )
 })
 
@@ -754,4 +942,173 @@ test_that("mixed valid tension IDs and none are parsed without failure", {
   expect_identical(profile$status, "available")
   expect_identical(length(profile$tension_text_ids), 1L)
   expect_false("none" %in% tolower(profile$tension_text_ids))
+})
+
+
+test_that("empty groups remain no_texts without an invented profile", {
+  dat <- data.frame(
+    group = factor(c("A", "B", "C"), levels = c("A", "B", "C")),
+    text = c("A substantive response.", "", ""),
+    stringsAsFactors = FALSE
+  )
+
+  x <- nail_textual(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+
+  profiles <- attr(x, "textual_profiles", exact = TRUE)
+  input <- attr(x, "interpretation_input", exact = TRUE)
+
+  expect_named(profiles$groups, c("A", "B", "C"))
+  expect_identical(profiles$groups$B$status, "no_texts")
+  expect_identical(profiles$groups$C$status, "no_texts")
+  expect_length(profiles$groups$B$selected_text_ids, 0L)
+  expect_length(profiles$groups$C$selected_text_ids, 0L)
+  expect_identical(input$groups$C$status, "no_texts")
+  expect_match(
+    nail_prompt(x, select = "C", print = FALSE),
+    "Do not invent a textual profile for it.",
+    fixed = TRUE
+  )
+})
+
+
+test_that("textual prep keeps its distinct output contract after shared blocks", {
+  dat <- make_textual_semantic_test_data()
+
+  with_cues <- nail_textual_prep(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    include_verbatims_in_prompt = TRUE,
+    generate = FALSE
+  )
+  without_cues <- nail_textual_prep(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    include_verbatims_in_prompt = FALSE,
+    generate = FALSE
+  )
+
+  expect_named(with_cues, c("A", "B"))
+  expect_named(without_cues, c("A", "B"))
+  expect_match(
+    with_cues$A,
+    "The evidence consists of textual observations associated with one group.",
+    fixed = TRUE
+  )
+  expect_match(with_cues$A, "Main themes:", fixed = TRUE)
+  expect_match(with_cues$A, "Central verbatim cues:", fixed = TRUE)
+  expect_match(with_cues$A, "Tension verbatim cues:", fixed = TRUE)
+  expect_false(grepl("Central verbatim cues:", without_cues$A, fixed = TRUE))
+  expect_false(grepl("Tension verbatim cues:", without_cues$A, fixed = TRUE))
+  expect_match(without_cues$A, "Injectable summary:", fixed = TRUE)
+})
+
+
+test_that("textual prep generation separates generated cues from selected verbatims", {
+  dat <- make_textual_semantic_test_data()
+
+  mock_prep_response <- paste(
+    "Core textual profile:",
+    "The group combines practical support with reservations.",
+    "",
+    "Main themes:",
+    "practical alternatives; constraints",
+    "",
+    "Dominant concerns or motives:",
+    "feasibility; selective change",
+    "",
+    "Tone or stance:",
+    "ambivalent",
+    "",
+    "Intra-group consistency:",
+    "moderate",
+    "",
+    "Injectable summary:",
+    "The group supports selective change under practical constraints.",
+    "",
+    "Central verbatim cues:",
+    "generated central cue",
+    "",
+    "Tension verbatim cues:",
+    "generated tension cue",
+    sep = "\n"
+  )
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      data.frame(
+        model = model,
+        response = mock_prep_response,
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  with_cues <- nail_textual_prep(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    include_verbatims_in_prompt = TRUE,
+    generate = TRUE,
+    model = "mock-model"
+  )
+  without_cues <- nail_textual_prep(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    include_verbatims_in_prompt = FALSE,
+    generate = TRUE,
+    model = "mock-model"
+  )
+
+  expect_named(
+    with_cues$A$parsed,
+    c(
+      "core_textual_profile",
+      "main_themes",
+      "dominant_concerns",
+      "tone_or_stance",
+      "intra_group_consistency",
+      "intra_group_consistency_raw",
+      "injectable_summary",
+      "central_verbatim_cues",
+      "tension_verbatim_cues"
+    )
+  )
+  expect_length(with_cues$A$parsed$central_verbatim_cues, 1L)
+  expect_length(with_cues$A$parsed$tension_verbatim_cues, 1L)
+  expect_length(without_cues$A$parsed$central_verbatim_cues, 0L)
+  expect_length(without_cues$A$parsed$tension_verbatim_cues, 0L)
+  expect_true(
+    all(
+      c("generated central cue", "generated tension cue") %in%
+        c(
+          with_cues$A$parsed$central_verbatim_cues,
+          with_cues$A$parsed$tension_verbatim_cues
+        )
+    )
+  )
+  expect_false(
+    any(
+      c("generated central cue", "generated tension cue") %in%
+        c(
+          with_cues$A$selected_verbatims$central,
+          with_cues$A$selected_verbatims$tension
+        )
+    )
+  )
+  expect_match(with_cues$A$prompt, "Central verbatim cues:", fixed = TRUE)
+  expect_false(grepl("Central verbatim cues:", without_cues$A$prompt, fixed = TRUE))
 })

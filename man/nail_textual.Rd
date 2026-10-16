@@ -62,9 +62,10 @@ each group. This affects only \code{interpretation_input}; the complete
 \item{seed}{Optional seed used to sample texts reproducibly without
 altering the user's RNG state.}
 
-\item{prompt_style}{Either \code{"detailed"} (default) or \code{"compact"}; this
-changes the reading and interpretation instructions without changing the
-registered texts or selected text IDs.}
+\item{prompt_style}{Either \code{"detailed"} (default) or \code{"compact"}; both
+settings use the same approved scientific reading and interpretation
+wording. The compact option is retained for compatibility and does not
+introduce an alternate scientific formulation.}
 
 \item{text_role}{Either \code{"responses"} (default), \code{"comments"}, or
 \code{"verbatims"}; this changes the terminology used in the prompt.}

@@ -210,51 +210,35 @@
 .textual_default_request <- function(prompt_style = c("detailed", "compact")) {
   prompt_style <- match.arg(prompt_style)
 
-  if (identical(prompt_style, "compact")) {
-    return(paste(
-      "Ground your characterization in the texts shown for this group and make its support traceable to recurring themes or texts.",
-      "Identify the main recurring themes, assess whether a common interpretive",
-      "frame is present, and report meaningful internal diversity or tensions.",
-      "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation and label it as an interpretation rather than a literal statement by respondents."
-    ))
-  }
-
-  paste(
-    "Ground your characterization in the texts shown for this group and make its support traceable to recurring themes or texts.",
-    "Identify the core textual profile and the dominant recurring themes.",
-    "Assess whether a common interpretive frame structures the responses.",
-    "Distinguish a shared frame with variations from the coexistence of several",
-    "different frames, and report meaningful internal diversity or tensions.",
-    "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation and label it as an interpretation rather than a literal statement by respondents.",
-    "Do not infer hidden motives, personality traits, moral qualities,",
-    "or attitudes that are not expressed in the corpus."
-  )
+  "Interpret the discourse of this group in relation to the user's analytical request."
 }
 
 
 .textual_canonical_conclusion <- function() {
   paste(
-    "# Required output",
+    "Produce a concise, substantive and evidence-grounded qualitative profile of the group.",
     "",
-    "Your answer must contain exactly these fields and nothing else:",
+    "Use exactly the following fields and preserve their names and order:",
     "",
     "Core textual profile:",
-    "[One concise statement describing what mainly characterizes the discourse.]",
+    "One concise statement capturing the main configuration of meaning emerging from the discourse.",
     "",
     "Dominant themes:",
-    "[1 to 5 short themes separated by semicolons.]",
+    "One to five concise themes, separated by semicolons.",
     "",
     "Within-group coherence:",
-    "[Choose exactly one: strong / moderate / mixed / weak]",
+    "Choose exactly one: `strong` / `moderate` / `mixed` / `weak`, based on the qualitative organization of the discourse, not numerical recurrence alone.",
     "",
     "Internal diversity:",
-    "[One concise statement describing meaningful variations, tensions, minority positions, or the absence of clear internal diversity.]",
+    "One concise statement identifying meaningful variations, reservations, tensions or minority perspectives.",
     "",
     "Representative text IDs:",
-    "[1 to 3 supplied text IDs separated by semicolons.]",
+    "One to three supplied text identifiers supporting the central interpretation, separated by semicolons.",
     "",
     "Tension text IDs:",
-    "[0 to 3 supplied text IDs separated by semicolons, or none.]",
+    "Zero to three supplied text identifiers illustrating tensions or contrasting perspectives, separated by semicolons, or `none`.",
+    "",
+    "Do not add other fields or introductory text. Use only supplied text identifiers. Representative texts illustrate an interpretation; they do not establish the prevalence of a theme.",
     sep = "\n"
   )
 }
@@ -300,32 +284,35 @@
     text_role = c("responses", "comments", "verbatims")) {
   prompt_style <- match.arg(prompt_style)
   text_role <- match.arg(text_role)
-  unit <- .text_unit_word(text_role, plural = TRUE)
-
-  core <- c(
-    paste0("The evidence below consists of raw ", unit, "."),
-    "Each displayed text has a mechanically assigned ID that refers to an exact observation.",
-    "Do not assume that a statistical or observed group necessarily has a homogeneous discourse.",
-    "Base the interpretation on recurring patterns across several texts.",
-    "A shared discourse may consist of a common interpretive frame even when positions vary within that frame.",
-    "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation.",
-    "Distinguish that interpretation from what respondents literally expressed, and do not present it as a direct quotation or empirical fact stated by them.",
-    "Do not treat the absence of a theme as evidence that the group rejects or ignores it.",
-    "Do not infer hidden motives, personality traits, or moral qualities.",
-    "Representative and tension texts must be referenced only by supplied text IDs."
+  reading <- paste(
+    "The evidence consists of textual observations associated with one group. These texts are the empirical material for qualitative analysis. Themes and broader interpretations are constructed from the texts by the language model; they are not statistical results calculated beforehand.",
+    "",
+    "Each text has an identifier linked to a source observation. An observation does not necessarily represent a distinct individual, and identical statements may occur more than once. Preserve the original wording and use the supplied text identifiers when referring to supporting or contrasting evidence. Do not invent quotations.",
+    "",
+    "Interpret the meaning and strength of each statement carefully, preserving negations, hesitation, qualifications, ambiguity and contradictions. Distinguish expressed opinions, perceptions, intentions, reported experiences and observed behaviors.",
+    "",
+    "Distinguish recurring ideas in the texts from the prevalence of opinions among individuals. Repetition does not necessarily imply independent agreement or group consensus. Do not invent numerical prevalence estimates.",
+    "",
+    "Use the study context to understand the responses and the analytical question, without treating it as additional empirical evidence.",
+    sep = "\n"
   )
 
-  if (identical(prompt_style, "compact")) {
-    reading <- core[c(1, 2, 3, 8)]
-    interpretation <- core[4]
-  } else {
-    reading <- core[c(1, 2, 3, 8, 10)]
-    interpretation <- core[c(4, 5, 6, 7, 9)]
-  }
+  interpretation <- paste(
+    "Identify the main themes expressed in the texts, grouping statements according to their meaning rather than shared vocabulary. Explain their substantive significance in relation to the analytical question.",
+    "",
+    "Interpret the group's discourse by considering these themes jointly, rather than presenting them as a simple list. When supported by the texts, develop a higher-level interpretation that captures the broader concerns, perspectives or frames of meaning emerging from their combination.",
+    "",
+    "Examine internal diversity, including differences in emphasis, reservations, ambivalence, contradictions and meaningful minority perspectives. A shared interpretive frame may accommodate different positions, while several distinct or conflicting frames may coexist within the same group.",
+    "",
+    "Assess whether the discourse exhibits a recognizable common frame. Treat coherence as a qualitative interpretation, not a statistical measure. Do not impose unity when the texts support multiple perspectives or when the evidence is insufficient.",
+    "",
+    "Adapt the depth of interpretation to the richness and diversity of the texts. Avoid elaborate group-level characterizations from sparse evidence. Do not infer hidden motives, personality traits, social identities or causal mechanisms that the texts do not support.",
+    sep = "\n"
+  )
 
   list(
-    reading = paste(reading, collapse = "\n"),
-    interpretation = paste(interpretation, collapse = "\n")
+    reading = reading,
+    interpretation = interpretation
   )
 }
 
@@ -347,11 +334,16 @@
 
 .textual_group_data_block <- function(textual_evidence,
                                       interpretation_input,
-                                      group_name) {
+                                      group_name,
+                                      text_role = c("responses", "comments", "verbatims")) {
+  text_role <- match.arg(text_role)
   evidence_group <- textual_evidence$groups[[group_name]]
   input_group <- interpretation_input$groups[[group_name]]
   m <- evidence_group$metrics
   im <- input_group$metrics
+
+  text_label <- .text_unit_word(text_role, capital = FALSE, plural = TRUE)
+  text_heading <- .text_unit_word(text_role, capital = TRUE, plural = TRUE)
 
   coverage_pct <- if (is.na(im$interpretation_coverage)) {
     "NA"
@@ -367,10 +359,10 @@
 
   corpus_info <- paste(
     paste0("- Individuals/observations in group: ", m$n_group_rows),
-    paste0("- Non-empty textual responses: ", m$n_texts),
+    paste0("- Non-empty ", text_label, ": ", m$n_texts),
     paste0("- Response coverage: ", response_pct),
-    paste0("- Distinct textual responses: ", m$n_unique_texts),
-    paste0("- Texts shown for this interpretation: ", im$n_shown_texts,
+    paste0("- Distinct ", text_label, ": ", m$n_unique_texts),
+    paste0("- ", text_heading, " shown for this interpretation: ", im$n_shown_texts,
            " of ", im$n_available_texts, " (", coverage_pct, ")"),
     sep = "\n"
   )
@@ -391,7 +383,7 @@
     "## Group \"", group_name, "\"\n\n",
     "### Corpus information\n\n",
     corpus_info,
-    "\n\n### Texts\n\n",
+    "\n\n### ", text_heading, "\n\n",
     text_lines
   )
 }
@@ -411,7 +403,7 @@
       c("# Local Task", blocks$local_task)
     },
     c("# Data", blocks$evidence),
-    blocks$output
+    c("# Required output", blocks$output)
   )
 
   sections <- Filter(
@@ -453,9 +445,13 @@
     "ready"
   )) {
     paste(
-      "Interpret only the group shown below.",
-      "Do not compare it with groups whose texts are not shown.",
-      "Address the overall analytical request while respecting the evidence rules."
+      paste0(
+        "Interpret only the texts associated with group \"",
+        group_name,
+        "\", in light of the user's analytical request."
+      ),
+      "Construct a substantive textual profile of this group without describing, comparing or inferring the discourse of other groups.",
+      sep = "\n\n"
     )
   } else {
     paste(
@@ -485,7 +481,8 @@
     evidence = .textual_group_data_block(
       textual_evidence = textual_evidence,
       interpretation_input = interpretation_input,
-      group_name = group_name
+      group_name = group_name,
+      text_role = text_role
     ),
     output = conclusion
   )

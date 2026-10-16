@@ -422,9 +422,10 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'   `textual_evidence` object is invariant to this option.
 #' @param seed Optional seed used to sample texts reproducibly without
 #'   altering the user's RNG state.
-#' @param prompt_style Either `"detailed"` (default) or `"compact"`; this
-#'   changes the reading and interpretation instructions without changing the
-#'   registered texts or selected text IDs.
+#' @param prompt_style Either `"detailed"` (default) or `"compact"`; both
+#'   settings use the same approved scientific reading and interpretation
+#'   wording. The compact option is retained for compatibility and does not
+#'   introduce an alternate scientific formulation.
 #' @param text_role Either `"responses"` (default), `"comments"`, or
 #'   `"verbatims"`; this changes the terminology used in the prompt.
 #' @param default_blocks Character vector selecting optional NaileR prompt
