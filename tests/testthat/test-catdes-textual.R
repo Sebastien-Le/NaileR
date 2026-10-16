@@ -741,3 +741,219 @@ test_that("textual enrichment stays tied to explicitly identified CATDES charact
     fixed = TRUE
   )
 })
+
+
+test_that("authoritative CATDES anchor is isolated from a contaminated LLM field", {
+  obj <- build_catdes_textual_test_objects()
+
+  preview <- nail_catdes_textual(
+    catdes = obj$catdes,
+    textual = obj$textual,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  preview_evidence <- attr(
+    preview,
+    "contextualized_evidence",
+    exact = TRUE
+  )
+  preview_profiles <- attr(
+    preview,
+    "contextualized_profiles",
+    exact = TRUE
+  )
+
+  for (g in names(preview_profiles$groups)) {
+    expect_identical(
+      preview_profiles$groups[[g]]$statistical_anchor_authoritative,
+      list(
+        source = "semantic_facing_evidence",
+        factual_text = preview_evidence$groups[[g]]$statistical_anchor$factual_text,
+        selected_evidence_ids =
+          preview_evidence$groups[[g]]$statistical_anchor$selected_evidence_ids,
+        n_selected_evidence =
+          preview_evidence$groups[[g]]$statistical_anchor$n_selected_evidence,
+        n_displayed_evidence =
+          preview_evidence$groups[[g]]$statistical_anchor$n_displayed_evidence
+      )
+    )
+  }
+
+  contaminated <- paste(
+    "Statistical anchor:",
+    "The group has reliable access, but limited evening service and exclusive car dependence.",
+    "",
+    "Textual enrichment:",
+    "The verbatim provides a practical nuance.",
+    "",
+    "Additional insights:",
+    "The text adds a contextual detail.",
+    "",
+    "Internal diversity:",
+    "Some members disagree.",
+    "",
+    "Contextualized profile:",
+    "A combined interpretation.",
+    sep = "\n"
+  )
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      data.frame(
+        model = model,
+        response = contaminated,
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  generated <- nail_catdes_textual(
+    catdes = obj$catdes,
+    textual = obj$textual,
+    isolate.groups = TRUE,
+    generate = TRUE,
+    model = "mock-model"
+  )
+  profile <- attr(
+    generated,
+    "contextualized_profiles",
+    exact = TRUE
+  )$groups$G1
+  evidence <- attr(
+    generated,
+    "contextualized_evidence",
+    exact = TRUE
+  )
+
+  expect_identical(profile$status, "available")
+  expect_match(profile$statistical_anchor, "limited evening service", fixed = TRUE)
+  expect_match(profile$statistical_anchor, "exclusive car dependence", fixed = TRUE)
+  expect_identical(
+    profile$statistical_anchor_authoritative$factual_text,
+    evidence$groups$G1$statistical_anchor$factual_text
+  )
+  expect_identical(
+    profile$statistical_anchor_authoritative$selected_evidence_ids,
+    evidence$groups$G1$statistical_anchor$selected_evidence_ids
+  )
+  expect_identical(
+    nail_response(generated, select = "G1", print = FALSE),
+    contaminated
+  )
+  expect_identical(
+    nail_evidence(generated)$groups$G1$statistical_anchor,
+    evidence$groups$G1$statistical_anchor
+  )
+})
+
+
+test_that("authoritative CATDES anchor survives parse failure", {
+  obj <- build_catdes_textual_test_objects()
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      data.frame(
+        model = model,
+        response = "Statistical anchor: incomplete response",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  generated <- nail_catdes_textual(
+    catdes = obj$catdes,
+    textual = obj$textual,
+    isolate.groups = TRUE,
+    generate = TRUE,
+    model = "mock-model"
+  )
+  profile <- attr(
+    generated,
+    "contextualized_profiles",
+    exact = TRUE
+  )$groups$G1
+  evidence <- attr(
+    generated,
+    "contextualized_evidence",
+    exact = TRUE
+  )
+
+  expect_identical(profile$status, "parse_failed")
+  expect_identical(
+    profile$statistical_anchor_authoritative$factual_text,
+    evidence$groups$G1$statistical_anchor$factual_text
+  )
+  expect_identical(
+    profile$statistical_anchor_authoritative$selected_evidence_ids,
+    evidence$groups$G1$statistical_anchor$selected_evidence_ids
+  )
+  expect_match(
+    nail_response(generated, select = "G1", print = FALSE),
+    "incomplete response",
+    fixed = TRUE
+  )
+})
+
+
+test_that("authoritative anchors and contextualized evidence are invariant across local-first modes", {
+  obj <- build_catdes_textual_test_objects()
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      data.frame(
+        model = model,
+        response = mock_contextualized_profile(prompt),
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  local <- nail_catdes_textual(
+    catdes = obj$catdes,
+    textual = obj$textual,
+    isolate.groups = TRUE,
+    generate = TRUE,
+    model = "mock-model"
+  )
+  combined <- nail_catdes_textual(
+    catdes = obj$catdes,
+    textual = obj$textual,
+    isolate.groups = FALSE,
+    generate = TRUE,
+    model = "mock-model"
+  )
+
+  expect_identical(
+    attr(local, "contextualized_evidence", exact = TRUE),
+    attr(combined, "contextualized_evidence", exact = TRUE)
+  )
+  expect_identical(
+    attr(local, "catdes_textual_settings", exact = TRUE)$llm_calls,
+    3L
+  )
+  expect_identical(
+    attr(combined, "catdes_textual_settings", exact = TRUE)$llm_calls,
+    3L
+  )
+  for (g in names(attr(local, "contextualized_profiles", exact = TRUE)$groups)) {
+    expect_identical(
+      attr(local, "contextualized_profiles", exact = TRUE)$groups[[g]]$statistical_anchor_authoritative,
+      attr(combined, "contextualized_profiles", exact = TRUE)$groups[[g]]$statistical_anchor_authoritative
+    )
+  }
+})

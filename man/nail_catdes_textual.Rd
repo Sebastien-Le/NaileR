@@ -87,6 +87,15 @@ The textual side comes from the parsed \code{textual_profiles}. Representative a
 tension text IDs are resolved back to exact texts through \code{textual_evidence}
 so that the final enrichment remains inspectable and grounded.
 
+The five parsed fields are retained for compatibility. In a generated
+\code{contextualized_profiles} object, \code{statistical_anchor} is the narrative
+proposal returned by the current LLM and is not independently validated.
+\code{statistical_anchor_authoritative} is an additive deterministic projection
+of the CATDES \code{semantic_facing_evidence}; it contains the factual text and
+selected evidence identifiers and remains available in previews, generation
+failures, and parse failures. It must be used when an authoritative CATDES
+anchor is required.
+
 When \code{generate = TRUE} and a generated CATDES interpretation is reused in
 the contextualized prompt, the function emits one non-blocking warning about
 possible propagation of overinterpretation. The enriched portrait should be

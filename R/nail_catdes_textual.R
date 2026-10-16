@@ -509,6 +509,7 @@
   paste(
     "CATDES and textual evidence do not play symmetrical roles here.",
     "The CATDES facts characterize the group statistically and form the anchor of the interpretation.",
+    "The Statistical anchor field must contain only the mechanical CATDES facts stated above; put information from the textual profile in the other fields.",
     "The textual profile is supplementary evidence about how members of the group express the phenomenon in open-ended responses.",
     "A textual theme may confirm, clarify, nuance, or add information to the statistical characterization.",
     "A textual theme that has no direct CATDES counterpart is not automatically a contradiction; it may be an additional insight.",
@@ -821,11 +822,14 @@
 
 .empty_catdes_textual_profile <- function(status,
                                           prompt,
+                                          statistical_anchor_authoritative,
                                           response = NULL,
                                           backend_result = NULL,
                                           parse_issues = character(0)) {
   list(
     status = status,
+    statistical_anchor_authoritative =
+      statistical_anchor_authoritative,
     statistical_anchor = NA_character_,
     textual_enrichment = NA_character_,
     additional_insights = NA_character_,
@@ -841,6 +845,7 @@
 
 .build_catdes_textual_profiles <- function(local_results,
                                            local_prompts,
+                                           contextualized_evidence,
                                            generated) {
   group_names <- names(local_prompts)
   groups <- stats::setNames(
@@ -849,6 +854,16 @@
   )
 
   for (group_name in group_names) {
+    statistical_anchor <-
+      contextualized_evidence$groups[[group_name]]$statistical_anchor
+    statistical_anchor_authoritative <- list(
+      source = "semantic_facing_evidence",
+      factual_text = statistical_anchor$factual_text,
+      selected_evidence_ids = statistical_anchor$selected_evidence_ids,
+      n_selected_evidence = statistical_anchor$n_selected_evidence,
+      n_displayed_evidence = statistical_anchor$n_displayed_evidence
+    )
+
     result_group <- if (!is.null(local_results)) {
       local_results[[group_name]]
     } else {
@@ -862,7 +877,9 @@
     if (!isTRUE(generated)) {
       groups[[group_name]] <- .empty_catdes_textual_profile(
         status = "prompt_ready",
-        prompt = local_prompts[[group_name]]
+        prompt = local_prompts[[group_name]],
+        statistical_anchor_authoritative =
+          statistical_anchor_authoritative
       )
       next
     }
@@ -871,6 +888,8 @@
       groups[[group_name]] <- .empty_catdes_textual_profile(
         status = "generation_missing",
         prompt = local_prompts[[group_name]],
+        statistical_anchor_authoritative =
+          statistical_anchor_authoritative,
         backend_result = result_group,
         parse_issues = "missing_backend_response"
       )
@@ -882,6 +901,8 @@
     groups[[group_name]] <- c(
       parsed,
       list(
+        statistical_anchor_authoritative =
+          statistical_anchor_authoritative,
         prompt = local_prompts[[group_name]],
         response = response,
         backend_result = result_group
@@ -1040,6 +1061,15 @@
 #' The textual side comes from the parsed `textual_profiles`. Representative and
 #' tension text IDs are resolved back to exact texts through `textual_evidence`
 #' so that the final enrichment remains inspectable and grounded.
+#'
+#' The five parsed fields are retained for compatibility. In a generated
+#' `contextualized_profiles` object, `statistical_anchor` is the narrative
+#' proposal returned by the current LLM and is not independently validated.
+#' `statistical_anchor_authoritative` is an additive deterministic projection
+#' of the CATDES `semantic_facing_evidence`; it contains the factual text and
+#' selected evidence identifiers and remains available in previews, generation
+#' failures, and parse failures. It must be used when an authoritative CATDES
+#' anchor is required.
 #'
 #' When `generate = TRUE` and a generated CATDES interpretation is reused in
 #' the contextualized prompt, the function emits one non-blocking warning about
@@ -1206,6 +1236,7 @@ nail_catdes_textual <- function(catdes,
   contextualized_profiles <- .build_catdes_textual_profiles(
     local_results = NULL,
     local_prompts = local_prompts,
+    contextualized_evidence = contextualized_evidence,
     generated = FALSE
   )
 
@@ -1269,6 +1300,7 @@ nail_catdes_textual <- function(catdes,
   contextualized_profiles <- .build_catdes_textual_profiles(
     local_results = local_results,
     local_prompts = local_prompts,
+    contextualized_evidence = contextualized_evidence,
     generated = TRUE
   )
 
