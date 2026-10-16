@@ -94,6 +94,20 @@ The section 5 board above is a **historical baseline at the scope-freeze decisio
 
 The order of finalization and evidence-first separation remain unchanged. A locally observed model interpretive error is not the same as a failure in R statistical truth, selection, or software behavior. Current exact local R test output is retained in the corresponding review records or marked as analyst-reported when not attached.
 
+## 5B. Progress update — 2026-10-16 (DESCFREQ closeout)
+
+The original table in §5 is the historical scope-freeze baseline; the update in §5A was recorded before DESCFREQ integration. The **current core-five progress** is:
+
+| Function | Current scoped status | Evidence |
+| --- | --- | --- |
+| `nail_condes()` | TECHNICALLY FINALIZED | `dev/CORE5_CONDES_INTEGRATION_REVIEW.md` |
+| `nail_catdes()` | TECHNICALLY FINALIZED | `dev/CORE5_CATDES_FINALIZATION_REVIEW.md` |
+| `nail_descfreq()` | **TECHNICALLY FINALIZED**; `R CMD check` still blocked by local `processx` environment | `dev/CORE5_DESCFREQ_FINALIZATION_REVIEW.md`; implementation commit `5621473bf3ae3641293ac938f89f90636cde3a6f` |
+| `nail_qda()` | **NEXT — OPEN** | Approved `QDA_MODULAR_PROMPT.md` / `QDA_ASSEMBLY_REVIEW.md` |
+| `nail_textual()` | OPEN | Approved classic TEXTUAL sources |
+
+Last analyst-reported DESCFREQ checks: 91 focused + 1,352 complete test assertions passed with zero failures and warnings; six scientific identity/task configurations exercised; prior actual Ollama generations examined. Evidence and API invariance checked. `devtools::check(document = FALSE)` was **not completed**, failing before build because `processx` could not load (`Operation not permitted`). This is **not** a clean-package-check claim; rerun from unrestricted RStudio before release. Known overinterpretation risks in raw LLM answers remain under documented human-review safeguards, not silent acceptance as R statistics. The analyst authorized technical progression to QDA on 2026-10-16.
+
 ## 6. Exit condition
 
 The freeze lifts **only after all five functions are explicitly finalized** and the analyst agrees on the next phase. Then consider the two composed analyses `nail_qda_space()` and `nail_catdes_textual()`, and only later deprecations/cleanup of intermediate functions. Until then, no extra feature roadmap.

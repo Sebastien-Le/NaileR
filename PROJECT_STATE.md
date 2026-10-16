@@ -171,3 +171,14 @@ Reuse and verify **existing historical NaileR applications** first. Search `vign
 
 **Known limitations:** TEXTUAL group syntheses may overstate minority/majority patterns and require human review; CATDES + TEXTUAL and QDA-space may propagate upstream LLM interpretation errors; published runtime warnings signal but do not solve them. QDA-space weakly characterized axes can yield unjustifiably coherent prose. DESCFREQ and other outputs require human interpretive review. Local operational materials under `dev/operational_validation/` are not GitHub-published.
 
+
+
+## CORE 5 progress — 2026-10-16: DESCFREQ technically finalized
+
+`nail_descfreq()` has passed its scoped, evidence-first scientific runtime integration and review; see [`dev/CORE5_DESCFREQ_FINALIZATION_REVIEW.md`](dev/CORE5_DESCFREQ_FINALIZATION_REVIEW.md). The analyst accepted technical closeout on 2026-10-16. Verified GitHub code commit: `5621473bf3ae3641293ac938f89f90636cde3a6f`, with only `R/nail_descfreq.R`, `man/nail_descfreq.Rd`, and `tests/testthat/test-descfreq-semantic-rebuild.R` modified.
+
+The runtime uses separate approved reading/interpretation, observed/constructed identity, local/joint task, evidence and output blocks; `row_identity_mode = c("auto", "standard", "latent")` is a named-only argument after `...`. The last label rule protects analyst-named latent groups against renaming. Six identity/task combinations, historical positional calls, zero-selected-evidence cases and canonical-evidence invariance were exercised. Local Codex results, reported and accepted by the analyst: 91 focused and 1,352 complete tests passed, no failures/warnings. Real Ollama `mistral-small3.2` examples were reviewed in earlier passes. These results were **not rerun here in R**.
+
+**R CMD check is still NOT verified:** Codex's local `devtools::check(document = FALSE)` stopped before package construction because `processx` raised `Operation not permitted` during namespace loading. Do not state that package check passed. Repeat from an unrestricted RStudio session before release. Residual LLM misinterpretations (relative frequency versus majority; unsupported pairwise significance, rare-signal overweighting) are documented, non-blocking for this scoped core-five milestone, and require expert review. Local operational archives and `tests/testthat/Rplots.pdf` were intentionally not committed.
+
+**Next active core-five target:** `nail_qda()` (fourth of five); `nail_textual()` remains fifth. All deferred functions stay frozen.
