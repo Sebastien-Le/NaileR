@@ -1,0 +1,6 @@
+Core textual profile: G1 expresses qualified acceptance of everyday food choices: familiar taste, manageable price and practical convenience are appreciated, while restricted choice and uncertainty about ingredients or environmental impact limit an unreserved endorsement.
+Dominant themes: familiar taste and affordable purchase; convenience after work; desire for clearer environmental information; doubts about ingredient quality and range of choice
+Within-group coherence: moderate
+Internal diversity: The comments emphasize different practical benefits and reservations rather than a single priority; some qualify their generally balanced assessment as not applying to every purchase. The corpus contains only four distinct formulations despite 32 observations, limiting the depth of independent discourse variation that can be inferred.
+Representative text IDs: TXT000001; TXT000003; TXT000004
+Tension text IDs: TXT000011; TXT000016; TXT000024

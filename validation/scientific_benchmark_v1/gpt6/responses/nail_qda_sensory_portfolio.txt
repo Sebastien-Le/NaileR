@@ -1,0 +1,71 @@
+## Sensory interpretation of the six chocolates
+
+**choc1 — a cocoa-forward, bitter and astringent profile.** Compared with the average product, choc1 has higher CocoaF (adjusted mean 8.07), bitterness (7.07), CocoaA (7.09), astringency (4.76) and acidity (4.66), alongside lower MilkF (1.57), MilkA (3.59), sweetness (3.14), caramel (1.67) and vanilla (1.10). Together these markers support an interpretation centered on prominent cocoa-related sensations and bitter, astringent and acidic notes, rather than a sweet or milky configuration. The lower values are relative to the product set and do not imply that the attributes are absent.
+
+**choc2 — a crunchy, cocoa-led profile with less melting.** Its strongest retained marker is higher crunchiness (adjusted mean 7.71). Higher CocoaF (6.91) accompanies lower MilkF (2.38), melting (4.33), caramel (2.78) and sweetness (4.62). The combination suggests a texture-led, relatively cocoa-forward sensory profile. Unlike choc1, bitterness, astringency and acidity are not among the selected markers for choc2; their absence from the prompt does not establish their equivalence to the average.
+
+**choc3 — a milky, sweet and melting configuration.** This product has strongly higher MilkF (7.71), sweetness (7.60), caramel (6.33), melting (7.31), MilkA (6.05) and vanilla (3.67). At the same time, CocoaF (3.38), CocoaA (4.67), bitterness (1.40), astringency (1.21) and acidity (1.57) are lower relative to the average product; crunchiness and granularity are also lower, while stickiness is higher. These consistent markers support an integrated sensory characterization emphasizing milky and sweet notes, caramel/vanilla associations and a more melting, less crunchy texture. This is descriptive, not a judgment of product quality or liking.
+
+**choc4 — a relatively acidic, bitter/astringent and granular profile.** Higher acidity (adjusted mean 3.93), astringency (3.69), bitterness (5.19) and granularity (3.55) accompany lower MilkF (2.59), sweetness (4.29), caramel (2.67) and melting (4.38). This suggests a profile combining relatively sharp or drying sensations with more granular and less melting texture. The data do not establish any particular manufacturing cause.
+
+**choc5 — cocoa notes and crunch with reduced stickiness.** Higher CocoaA (adjusted mean 6.79), CocoaF (6.79) and crunchiness (6.64) occur alongside lower stickiness (3.22). Its retained sensory picture is narrower than those of choc1 or choc3: it supports a cocoa-associated, crunchy characterization, but not a claim about unreported sweetness, bitterness or milk attributes.
+
+**choc6 — a crunchy and relatively sweet, less melting profile.** Higher crunchiness (adjusted mean 7.33) and sweetness (5.62), together with lower melting (4.21) and acidity (2.67), suggest a contrasting configuration of crunch and sweetness without a correspondingly strong melting sensation. No additional cocoa- or milk-oriented identity is justified by the selected attributes.
+
+## Overall configuration
+
+The strongest recurring sensory contrast is between **cocoa-oriented, bitter/astringent profiles** (especially choc1, and partly choc4) and the **milky, sweet, caramel-associated, melting configuration** of choc3. Texture supplies an additional distinction: choc2, choc5 and choc6 are each relatively crunchy, but their accompanying flavors and mouthfeel markers differ. Choc5's cocoa notes distinguish its reported profile from choc6's sweeter characterization, while choc2 shows lower melting, milk flavor and sweetness. These similarities and contrasts are descriptive comparisons of deviations from the common product average; they are **not direct statistical tests between products**. No conclusions about liking, preference, ingredients, manufacturing or quality follow from these panel descriptors alone.
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc1
+core_profile: Cocoa-forward sensations combined with greater bitterness, astringency and acidity and lower milky and sweet notes relative to the evaluated average.
+dominant_configuration: higher CocoaF; higher bitterness; higher astringency; higher acidity; lower MilkF and sweetness
+secondary_configuration: higher CocoaA; lower MilkA; lower caramel and vanilla
+distinctive_interpretation: A relatively cocoa-led, bitter, astringent and acidic profile rather than a sweet or milky one.
+descriptive_name: Cocoa-forward bitter-astringent profile
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc2
+core_profile: Stronger crunchiness and cocoa flavor alongside reduced milk flavor, sweetness, caramel and melting relative to the evaluated average.
+dominant_configuration: higher Crunchy; higher CocoaF; lower MilkF; lower Melting
+secondary_configuration: lower Caramel; lower Sweetness
+distinctive_interpretation: A crunchy, relatively cocoa-forward product with reduced melting and sweeter flavor markers.
+descriptive_name: Crunchy cocoa-led profile
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc3
+core_profile: A comparatively milky, sweet, caramel-associated and melting product with lower cocoa, bitter, acidic and crunchy notes.
+dominant_configuration: higher MilkF and MilkA; higher Sweetness; higher Caramel; higher Melting; lower CocoaF and Bitterness
+secondary_configuration: higher Vanilla; lower Astringency and Acidity; lower Crunchy and Granular; higher Sticky; lower CocoaA
+distinctive_interpretation: A milk- and sweetness-led configuration distinguished by higher melting and less prominent cocoa/bitter sensations relative to the average.
+descriptive_name: Milky sweet melting profile
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc4
+core_profile: Relatively acidic, bitter, astringent and granular sensations together with lower sweetness, milk flavor, caramel and melting.
+dominant_configuration: higher Acidity; higher Astringency; higher Bitterness; higher Granular
+secondary_configuration: lower MilkF; lower Sweetness; lower Caramel; lower Melting
+distinctive_interpretation: A sharper, more astringent and granular sensory configuration with less sweet and melting character relative to the average.
+descriptive_name: Acidic bitter-granular profile
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc5
+core_profile: Higher cocoa aroma and flavor and crunchiness, with lower stickiness, relative to the evaluated average.
+dominant_configuration: higher CocoaA; higher CocoaF; higher Crunchy; lower Sticky
+secondary_configuration: none
+distinctive_interpretation: A cocoa-associated crunchy profile whose relatively lower stickiness provides an additional mouthfeel distinction.
+descriptive_name: Cocoa-crunch profile
+END_NAILER_PRODUCT_INTERPRETATION -->
+
+<!-- NAILER_PRODUCT_INTERPRETATION
+product: choc6
+core_profile: Higher crunchiness and sweetness with lower melting and acidity relative to the evaluated average.
+dominant_configuration: higher Crunchy; higher Sweetness; lower Melting; lower Acidity
+secondary_configuration: none
+distinctive_interpretation: A relatively sweet and crunchy configuration accompanied by reduced melting and acidity.
+descriptive_name: Sweet crunchy profile
+END_NAILER_PRODUCT_INTERPRETATION -->
