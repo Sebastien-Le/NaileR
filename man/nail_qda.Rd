@@ -70,12 +70,9 @@ one direction, the strongest opposite-direction marker is prioritized when
 available. \code{"top"} keeps only the statistically strongest eligible markers.}
 
 \item{prompt_style}{Either \code{"detailed"} (the default selected by
-\code{match.arg()}) or \code{"compact"}. The detailed style includes the full QDA
-reading and interpretation safeguards, including relative direction,
-unsupported-descriptor, and causal-claim guidance. The compact style keeps
-the core reading and synthesis rules while shortening the interpretation
-instructions. It is an abbreviated prompt style, but its exact token
-savings depend on the evidence and surrounding user text.}
+\code{match.arg()}) or \code{"compact"}. Both styles use the approved QDA reading
+and interpretation wording. The compact style uses tighter paragraph
+spacing; it does not introduce an alternate scientific reading.}
 
 \item{product_knowledge}{Either \code{"known"} (the default selected by
 \code{match.arg()}) for meaningful product names or \code{"unknown"} for

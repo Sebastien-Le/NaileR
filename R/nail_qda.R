@@ -1068,127 +1068,25 @@ validate_qda_default_blocks <- function(default_blocks) {
   product_knowledge <- match.arg(product_knowledge)
   sample.method <- match.arg(sample.method)
 
-  unit <- if (product_knowledge == "known") {
-    "product"
-  } else {
-    "stimulus"
-  }
-
-  common <- c(
-    "## How to Read the Evidence",
-    paste0(
-      "The R-derived facts below come from `SensoMineR::decat()` under the ",
-      "current significance threshold (p <= ", proba, ")."
-    ),
-    paste0(
-      "For each sensory attribute, the evaluated ", unit,
-      " is characterized relative to the average product, defined by the ",
-      "average product profile for that attribute across the evaluated set."
-    ),
-    "The average product is a statistical reference profile, not an actual evaluated product.",
-    "Understanding the statistical information:",
-    paste0(
-      "- HIGHER indicates that the adjusted score of the evaluated ", unit,
-      " is significantly higher than that of the average product for the named attribute."
-    ),
-    paste0(
-      "- LOWER indicates that the adjusted score is significantly lower than that of the ",
-      "average product for the named attribute."
-    ),
-    paste0(
-      "- The adjusted mean is the model-adjusted sensory score for the evaluated ",
-      unit, " and attribute. It is not the deviation from the average product."
-    ),
-    "- The v.test is a signed standardized test statistic. It provides information about the statistical deviation, not sensory intensity or practical importance.",
-    "- The p.value quantifies statistical evidence against the corresponding null hypothesis. It does not measure sensory intensity or substantive importance.",
-    paste0(
-      "Each comparison concerns one sensory attribute. Do not compare adjusted means across different attributes as though they were measurements of the same sensory characteristic."
-    ),
-    "Role of the study context:",
-    "The introduction provides the scientific and experimental context for interpreting the results.",
-    "It may inform the substantive meaning of the sensory characteristics but does not provide additional statistical evidence.",
-    "The statistical results establish how the product differs from the average product; the study context helps interpret what those differences mean."
+  reading_paragraphs <- c(
+    "The results come from `SensoMineR::decat()` and characterize evaluated products or stimuli through their sensory attributes, relative to the average sensory profile of the evaluated set. This average product is a statistical reference, not an actual evaluated product.",
+    "For a given attribute, HIGHER means that the product's adjusted sensory score is statistically higher than the reference; LOWER means it is statistically lower. These directions are relative: LOWER does not mean that the attribute is absent or that its opposite is present.",
+    "The adjusted mean is the model-adjusted sensory score for the product and attribute, not its difference from the reference. The `v.test` is a signed standardized statistic, while the `p.value` describes statistical evidence. Neither measures sensory intensity or substantive importance. Do not compare adjusted means across different attributes as if they measured the same sensory characteristic.",
+    "Preserve the meaning of each sensory attribute. Use the study context to understand the sensory characteristics, without treating it as additional statistical evidence. Do not infer liking, preference, quality, manufacturing causes, or statistically demonstrated differences between pairs of products from these results."
   )
 
-  selection <- c(
-    paste0(
-      "The LLM receives ", round(100 * sample.pct, 1),
-      "% of the eligible retained markers under the current sampling setting."
-    ),
-    if (identical(sample.method, "stratified") && sample.pct < 1) {
-      paste(
-        "The retained subset is selected deterministically using an anchor +",
-        "exploration strategy: the strongest retained markers form the",
-        "statistical backbone, while some lower-ranked retained markers are",
-        "included to preserve potentially informative sensory nuances."
-      )
-    } else if (identical(sample.method, "top") && sample.pct < 1) {
-      "The retained subset contains the statistically strongest eligible markers."
-    } else {
-      "All eligible retained markers are shown, so the sampling method has no effect."
-    },
-    if (isTRUE(drop.negative)) {
-      "Markers LOWER than the average product are intentionally excluded from the LLM evidence."
-    } else {
-      "Both HIGHER and LOWER retained markers are eligible for the LLM evidence."
-    },
-    "An undisplayed attribute must not automatically be interpreted as absent, average, unimportant, or non-discriminating: it may be absent because it was not statistically retained or because of the prompt-selection settings.",
-    "When the sensory scoring scale is not specified, use relative interpretations rather than unsupported absolute intensity categories.",
-    if (isTRUE(drop.negative)) {
-      "Only retained HIGHER attributes contribute to the sensory characterization under the current negative-marker policy."
-    } else {
-      "Both HIGHER and LOWER retained attributes contribute to the sensory characterization of a product."
-    }
+  interpretation_paragraphs <- c(
+    "Interpret each product or stimulus by considering its displayed sensory attributes jointly, rather than describing them one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive interpretation of the overall sensory profile.",
+    "Use knowledge of sensory perception and the study context to connect conceptually related characteristics across the relevant perceptual dimensions. When several attributes converge, develop a higher-level interpretation that captures their combined meaning.",
+    "Preserve the relative direction and meaning of each attribute. Distinguish higher-level interpretations from directly measured characteristics, and do not present conceptual connections as statistically demonstrated relationships.",
+    "Preserve meaningful contrasts, nuances, and ambiguities. When the evidence is heterogeneous or insufficient to support a unified characterization, do not force a single global interpretation."
   )
 
-  epistemic <- c(
-    "Build an overall sensory interpretation from the retained attributes together instead of merely listing them.",
-    "Identify meaningful relationships among their sensory meanings and propose an overall description supported by the displayed results.",
-    "Where relevant, distinguish or connect sensory dimensions such as taste, aroma, and texture.",
-    "A higher-level sensory concept is allowed when it is a reasonable synthesis of several displayed attributes; present this broader sensory characterization as an interpretation, not as a directly measured attribute or an additional measured attribute.",
-    "Do not force a single unifying concept when the evidence is limited or heterogeneous.",
-    "Preserve the direction of every displayed fact: HIGHER means more of the named attribute and LOWER means less of the named attribute relative to the average product.",
-    "Do not turn a LOWER attribute into a positive presence of that attribute or infer an opposite attribute that was not measured.",
-    "Do not invent sensory notes or unsupported sensory descriptors, change the technical meaning of an attribute, or present a synthesis as a directly measured sensory fact.",
-    "Do not equate statistical significance with sensory intensity, sensory importance, or practical importance.",
-    "Adapt the specificity of the synthesis to the quantity and coherence of the available information.",
-    "Do not claim a multivariate statistical association that was not analyzed.",
-    "Do not infer unsupported hedonic, evaluative, marketing, positioning, or causal claims, including unsupported liking, preference, quality, composition, manufacturing, or market-positioning claims, from the displayed evidence.",
-    "If you move beyond direct sensory description, make clear that you are offering an interpretation or hypothesis."
-  )
-
-  relative_interpretation <- c(
-    "Interpret every HIGHER/LOWER result relative to the average product.",
-    "Prefer:",
-    "- \"more marked by [attribute]\" for HIGHER;",
-    "- \"less marked by [attribute]\" for LOWER.",
-    "Preserve this relative meaning when building the overall sensory interpretation."
-  )
-
-  labels <- if (product_knowledge == "known") {
-    paste(
-      "Product labels are meaningful identifiers. Preserve them as identifiers.",
-      "A descriptive name may supplement the identifier when requested, but it must not replace the original product label."
-    )
-  } else {
-    "Stimulus labels are identifiers only. A short descriptive name may be proposed when the sensory evidence is sufficiently coherent."
-  }
-
-  reading <- if (prompt_style == "compact") {
-    c(common[-1L], selection)
-  } else {
-    c(common[-1L], "", selection)
-  }
-
-  interpretation <- if (prompt_style == "compact") {
-    c(epistemic[1:4], relative_interpretation, labels)
-  } else {
-    c(epistemic, relative_interpretation, labels)
-  }
+  separator <- if (identical(prompt_style, "compact")) "\n" else "\n\n"
 
   list(
-    reading = paste(reading, collapse = "\n"),
-    interpretation = paste(interpretation, collapse = "\n")
+    reading = paste(reading_paragraphs, collapse = separator),
+    interpretation = paste(interpretation_paragraphs, collapse = separator)
   )
 }
 
@@ -1210,7 +1108,7 @@ build_guide_qda <- function(proba = 0.05,
 
   paste(
     c(
-      "## How to Read the Evidence",
+      "## How to Read the Statistical Evidence",
       blocks$reading,
       "",
       blocks$interpretation
@@ -1227,114 +1125,24 @@ build_request_qda <- function(isolate_groups = FALSE,
   product_knowledge <- match.arg(product_knowledge)
 
   if (isolate_groups) {
-    if (product_knowledge == "known") {
-      return(
-        paste(
-          "Using only the evidence below, interpret this product as a coherent relative sensory profile.",
-          "Identify the dominant sensory pattern, distinguish central from secondary evidence, and explain what makes the product distinctive relative to the average product profile.",
-          "Preserve the product label as its identifier; a descriptive name, when requested, supplements rather than replaces it.",
-          "Do not claim specific pairwise differences that are not shown.",
-          sep = "\n"
-        )
-      )
-    }
-
-    return(
-      paste(
-        "Using only the evidence below, interpret this stimulus as a coherent relative sensory profile.",
-        "Identify the dominant sensory pattern, distinguish central from secondary evidence, and explain what makes the stimulus distinctive relative to the average stimulus profile.",
-        "If the pattern is sufficiently coherent, you may propose a short descriptive name.",
-        "Do not claim specific pairwise differences that are not shown.",
-        sep = "\n"
-      )
-    )
+    return("Interpret the sensory profile of the evaluated product or stimulus.")
   }
 
-  if (product_knowledge == "known") {
-    return(
-      paste(
-        "Using only the evidence below, interpret the sensory profiles of the products jointly.",
-        "For each product, identify the coherent sensory pattern formed by its retained attributes and distinguish central from secondary evidence.",
-        "Then identify the main contrasts, similarities, or product families that emerge across the full set.",
-        "Preserve the product names and do not invent pairwise differences that are not supported by the evidence.",
-        sep = "\n"
-      )
-    )
-  }
-
-  paste(
-    "Using only the evidence below, interpret the sensory profiles of the stimuli jointly.",
-    "For each stimulus, identify the coherent sensory pattern formed by its retained attributes and distinguish central from secondary evidence.",
-    "Then identify the main contrasts, similarities, or families that emerge across the full set.",
-    "If useful and sufficiently supported, propose short descriptive names for the stimuli.",
-    "Do not invent pairwise differences that are not supported by the evidence.",
-    sep = "\n"
-  )
+  "Interpret the sensory profiles of the evaluated products or stimuli jointly."
 }
 
 
 build_conclusion_qda <- function(isolate_groups = FALSE,
                                  product_knowledge = c("known", "unknown")) {
+  isolate_groups <- isTRUE(isolate_groups)
   product_knowledge <- match.arg(product_knowledge)
 
-  if (isolate_groups) {
-    if (product_knowledge == "known") {
-      return(
-        paste(
-          "# Final Summary Task",
-          "End with:",
-          "1. **Core sensory profile** - one concise synthesis of the product.",
-          "2. **Main supporting evidence** - the most important retained sensory facts.",
-          "3. **Distinctive interpretation** - what this profile suggests relative to the evaluated set, without replacing the product identifier.",
-          "",
-          "# Output format",
-          "Your output must be **formatted using valid Quarto Markdown**.",
-          sep = "\n"
-        )
-      )
-    }
-
-    return(
-      paste(
-        "# Final Summary Task",
-        "End with:",
-        "1. **Core sensory profile** - one concise synthesis of the stimulus.",
-        "2. **Main supporting evidence** - the most important retained sensory facts.",
-        "3. **Descriptive name** - only if the sensory pattern is sufficiently coherent.",
-        "",
-        "# Output format",
-        "Your output must be **formatted using valid Quarto Markdown**.",
-        sep = "\n"
-      )
-    )
-  }
-
-  if (product_knowledge == "known") {
-    return(
-      paste(
-        "# Final Summary Task",
-        "End with:",
-        "1. **A short profile of each product**.",
-        "2. **The main contrasts and similarities across products**.",
-        "3. **Any coherent product families or sensory poles**, only when supported by the evidence.",
-        "",
-        "# Output format",
-        "Your output must be **formatted using valid Quarto Markdown**.",
-        sep = "\n"
-      )
-    )
-  }
-
   paste(
-    "# Final Summary Task",
-    "End with:",
-    "1. **A short profile of each stimulus**.",
-    "2. **The main contrasts and similarities across stimuli**.",
-    "3. **Any coherent families or sensory poles**, only when supported by the evidence.",
-    "4. **Descriptive names**, when justified by the evidence.",
+    "Write a clear, well-structured and substantive interpretation of the evaluated sensory profiles.",
     "",
-    "# Output format",
-    "Your output must be **formatted using valid Quarto Markdown**.",
+    "Support the main conclusions with the most relevant sensory attributes, preserving their HIGHER/LOWER directions. Include adjusted means or other statistical values when they help clarify and substantiate the interpretation.",
+    "",
+    "Avoid mechanically reproducing the statistical results or unnecessary numerical repetition.",
     sep = "\n"
   )
 }
@@ -1348,39 +1156,45 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
   if (!isTRUE(isolate_groups)) {
     return(
       paste(
-        "This prompt addresses the complete evaluated set of products or stimuli shown below.",
-        "Interpret the complete set as coherent sensory profiles and compare their supported patterns.",
-        "Do not treat this as a single-product prompt.",
+        "Interpret the displayed products or stimuli jointly, using their statistical evidence and the user's analytical request.",
+        "Characterize each sensory profile, then identify the main similarities, contrasts and, when supported, coherent sensory families across the evaluated set.",
+        "Ground comparisons in the displayed sensory profiles, interpreted relative to the average product. Do not present descriptive contrasts as statistically demonstrated pairwise differences between products or stimuli.",
         sep = "\n"
       )
     )
   }
 
-  unit <- if (identical(product_knowledge, "known")) {
-    "product"
-  } else {
-    "stimulus"
-  }
-
-  identifier_rule <- if (identical(product_knowledge, "known")) {
-    paste0("Preserve \"", product_name, "\" as its product identifier.")
-  } else {
+  paste(
     paste0(
-      "Treat \"", product_name,
-      "\" as an identifier; propose a descriptive sensory name only if supported."
-    )
+      "Interpret only the product or stimulus \"", product_name,
+      "\" using its displayed statistical evidence and the user's analytical request."
+    ),
+    "Characterize its distinctive sensory profile relative to the average product. Do not describe or compare other products or stimuli.",
+    sep = "\n"
+  )
+}
+
+
+.build_qda_identity_block <- function(product_knowledge = c("known", "unknown")) {
+  product_knowledge <- match.arg(product_knowledge)
+
+  if (identical(product_knowledge, "known")) {
+    return(paste(
+      "Each product or stimulus has a known identity or a meaningful label provided by the analyst. Preserve its original identifier and label.",
+      "",
+      "Use this identity as contextual information when interpreting the sensory profile, without letting it substitute for the statistical evidence.",
+      "",
+      "Do not replace the known identity with an invented descriptive name. A concise sensory characterization may complement it when useful.",
+      sep = "\n"
+    ))
   }
 
   paste(
-    paste0(
-      "This prompt addresses only ", unit, " \"", product_name,
-      "\" as part of the overall analytical request."
-    ),
-    paste0(
-      "Describe its sensory profile relative to the average product using the evidence provided.",
-      " Do not describe other products whose evidence is not shown."
-    ),
-    identifier_rule,
+    "Each stimulus is identified by a code or label that does not reveal its substantive identity. Preserve this original identifier.",
+    "",
+    "Interpret its sensory profile to characterize what makes it distinctive. When supported by a coherent sensory pattern, propose a concise, meaningful sensory name alongside the identifier.",
+    "",
+    "Do not attempt to guess the stimulus's actual identity or force a descriptive name when the profile does not support one.",
     sep = "\n"
   )
 }
@@ -1402,16 +1216,20 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
 
 
 .render_qda_prompt_blocks <- function(blocks,
-                                      isolate_groups = FALSE) {
+                                      isolate_groups = FALSE,
+                                      product_knowledge = c("known", "unknown")) {
+  product_knowledge <- match.arg(product_knowledge)
+
   section_values <- list(
     c("# Introduction", blocks$context),
     if (!is.null(blocks$reading)) {
-      c("## How to Read the Evidence", blocks$reading)
+      c("## How to Read the Statistical Evidence", blocks$reading)
     },
-    c("# Analytical Question", blocks$question),
+    c("# Analytical Request", blocks$question),
     if (!is.null(blocks$interpretation)) {
       c("## Interpretation Rules", blocks$interpretation)
     },
+    c(paste0("## Identity — ", product_knowledge), blocks$identity),
     if (!is.null(blocks$local_task)) {
       c(
         if (isTRUE(isolate_groups)) "# Local Task" else "# Global Task",
@@ -1481,6 +1299,9 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
       } else {
         NULL
       },
+      identity = .build_qda_identity_block(
+        product_knowledge = product_knowledge
+      ),
       local_task = if ("local_task" %in% default_blocks) {
         .build_qda_local_task(
           product_name = product_name,
@@ -1533,7 +1354,8 @@ build_conclusion_qda <- function(isolate_groups = FALSE,
   prompts <- lapply(
     blocks,
     .render_qda_prompt_blocks,
-    isolate_groups = isolate_groups
+    isolate_groups = isolate_groups,
+    product_knowledge = product_knowledge
   )
 
   list(
@@ -1744,12 +1566,9 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'   one direction, the strongest opposite-direction marker is prioritized when
 #'   available. `"top"` keeps only the statistically strongest eligible markers.
 #' @param prompt_style Either `"detailed"` (the default selected by
-#'   `match.arg()`) or `"compact"`. The detailed style includes the full QDA
-#'   reading and interpretation safeguards, including relative direction,
-#'   unsupported-descriptor, and causal-claim guidance. The compact style keeps
-#'   the core reading and synthesis rules while shortening the interpretation
-#'   instructions. It is an abbreviated prompt style, but its exact token
-#'   savings depend on the evidence and surrounding user text.
+#'   `match.arg()`) or `"compact"`. Both styles use the approved QDA reading
+#'   and interpretation wording. The compact style uses tighter paragraph
+#'   spacing; it does not introduce an alternate scientific reading.
 #' @param product_knowledge Either `"known"` (the default selected by
 #'   `match.arg()`) for meaningful product names or `"unknown"` for
 #'   identifier-like stimulus labels. With `"known"`, the prompt refers to
@@ -2045,7 +1864,7 @@ nail_qda <- function(dataset, formul, firstvar,
   }
 
   if (!isolate.groups) {
-    result <- .call_llm(prompts)
+    result <- .call_llm(prompts$portfolio)
 
     return(
       .attach_qda_artifacts(

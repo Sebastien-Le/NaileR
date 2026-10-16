@@ -128,17 +128,17 @@ test_that("QDA prompts allow traceable higher-level sensory concepts", {
 
   expect_match(
     prompt,
-    "higher-level sensory concept",
+    "develop a higher-level interpretation that captures their combined meaning",
     fixed = TRUE
   )
   expect_match(
     prompt,
-    "reasonable synthesis of several displayed attributes",
+    "connect conceptually related characteristics across the relevant perceptual dimensions",
     fixed = TRUE
   )
   expect_match(
     prompt,
-    "not as a directly measured attribute",
+    "do not present conceptual connections as statistically demonstrated relationships",
     fixed = TRUE
   )
 })
@@ -270,73 +270,20 @@ test_that("QDA reading defines the average product and statistical meanings", {
 
   reading <- attr(x, "qda_prompt_blocks", exact = TRUE)$A$reading
 
-  expect_match(
-    reading,
-    "average product, defined by the average product profile for that attribute",
-    fixed = TRUE
+  expected_reading <- paste(
+    "The results come from `SensoMineR::decat()` and characterize evaluated products or stimuli through their sensory attributes, relative to the average sensory profile of the evaluated set. This average product is a statistical reference, not an actual evaluated product.",
+    "",
+    "For a given attribute, HIGHER means that the product's adjusted sensory score is statistically higher than the reference; LOWER means it is statistically lower. These directions are relative: LOWER does not mean that the attribute is absent or that its opposite is present.",
+    "",
+    "The adjusted mean is the model-adjusted sensory score for the product and attribute, not its difference from the reference. The `v.test` is a signed standardized statistic, while the `p.value` describes statistical evidence. Neither measures sensory intensity or substantive importance. Do not compare adjusted means across different attributes as if they measured the same sensory characteristic.",
+    "",
+    "Preserve the meaning of each sensory attribute. Use the study context to understand the sensory characteristics, without treating it as additional statistical evidence. Do not infer liking, preference, quality, manufacturing causes, or statistically demonstrated differences between pairs of products from these results.",
+    sep = "\n"
   )
-  expect_match(
-    reading,
-    "The average product is a statistical reference profile, not an actual evaluated product.",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "HIGHER indicates that the adjusted score of the evaluated product is significantly higher",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "LOWER indicates that the adjusted score is significantly lower than that of the average product",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "The adjusted mean is the model-adjusted sensory score",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "It is not the deviation from the average product.",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "The v.test is a signed standardized test statistic",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "It does not measure sensory intensity or substantive importance.",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "The p.value quantifies statistical evidence against the corresponding null hypothesis.",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "It does not measure sensory intensity or substantive importance.",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "An undisplayed attribute must not automatically be interpreted as absent, average, unimportant, or non-discriminating",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "The introduction provides the scientific and experimental context",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "does not provide additional statistical evidence",
-    fixed = TRUE
-  )
-  expect_false(grepl("average sensory profile for this item", reading, fixed = TRUE))
-  expect_false(grepl("panel average", reading, fixed = TRUE))
+
+  expect_identical(reading, expected_reading)
+  expect_false(grepl("eligible retained markers", reading, fixed = TRUE))
+  expect_false(grepl("undisplayed attribute", reading, fixed = TRUE))
 })
 
 
@@ -373,28 +320,28 @@ test_that("QDA local and global prompts preserve scope and user request", {
   expect_match(local_prompt, custom_request, fixed = TRUE)
   expect_match(
     local_prompt,
-    "This prompt addresses only product \"A\" as part of the overall analytical request.",
+    "Interpret only the product or stimulus \"A\" using its displayed statistical evidence and the user's analytical request.",
     fixed = TRUE
   )
   expect_match(
     local_prompt,
-    "Describe its sensory profile relative to the average product using the evidence provided.",
+    "Characterize its distinctive sensory profile relative to the average product.",
     fixed = TRUE
   )
   expect_match(
     local_prompt,
-    "Do not describe other products whose evidence is not shown.",
+    "Do not describe or compare other products or stimuli.",
     fixed = TRUE
   )
   expect_match(global_prompt, custom_request, fixed = TRUE)
   expect_match(
     global_prompt,
-    "This prompt addresses the complete evaluated set of products or stimuli shown below.",
+    "Interpret the displayed products or stimuli jointly, using their statistical evidence and the user's analytical request.",
     fixed = TRUE
   )
   expect_match(
     global_prompt,
-    "Do not treat this as a single-product prompt.",
+    "Ground comparisons in the displayed sensory profiles, interpreted relative to the average product.",
     fixed = TRUE
   )
   expect_false(grepl("This prompt addresses only product", global_prompt, fixed = TRUE))
@@ -403,7 +350,90 @@ test_that("QDA local and global prompts preserve scope and user request", {
 })
 
 
-test_that("QDA reading reports dynamic partial selection and negative policy", {
+test_that("QDA approved identity and task blocks cover known and unknown scopes", {
+  args <- qda_semantic_args()
+  cases <- list(
+    known_local = list(
+      product_knowledge = "known",
+      isolate.groups = TRUE,
+      expected_identity = "## Identity — known",
+      expected_task = "# Local Task"
+    ),
+    known_global = list(
+      product_knowledge = "known",
+      isolate.groups = FALSE,
+      expected_identity = "## Identity — known",
+      expected_task = "# Global Task"
+    ),
+    unknown_local = list(
+      product_knowledge = "unknown",
+      isolate.groups = TRUE,
+      expected_identity = "## Identity — unknown",
+      expected_task = "# Local Task"
+    ),
+    unknown_global = list(
+      product_knowledge = "unknown",
+      isolate.groups = FALSE,
+      expected_identity = "## Identity — unknown",
+      expected_task = "# Global Task"
+    )
+  )
+
+  for (case in cases) {
+    x <- do.call(
+      nail_qda,
+      c(
+        args,
+        case[c("product_knowledge", "isolate.groups")],
+        list(generate = FALSE)
+      )
+    )
+
+    prompt <- if (isTRUE(case$isolate.groups)) {
+      nail_prompt(x, select = "A", print = FALSE)
+    } else {
+      nail_prompt(x, print = FALSE)
+    }
+
+    expect_match(prompt, case$expected_identity, fixed = TRUE)
+    expect_match(prompt, case$expected_task, fixed = TRUE)
+    expect_match(
+      prompt,
+      "This average product is a statistical reference, not an actual evaluated product.",
+      fixed = TRUE
+    )
+    expect_match(
+      prompt,
+      "Write a clear, well-structured and substantive interpretation of the evaluated sensory profiles.",
+      fixed = TRUE
+    )
+  }
+
+  compact <- do.call(
+    nail_qda,
+    c(
+      args,
+      list(
+        isolate.groups = TRUE,
+        product_knowledge = "unknown",
+        prompt_style = "compact",
+        generate = FALSE
+      )
+    )
+  )
+  compact_prompt <- nail_prompt(compact, select = "A", print = FALSE)
+  expect_match(
+    compact_prompt,
+    "The adjusted mean is the model-adjusted sensory score for the product and attribute",
+    fixed = TRUE
+  )
+  expect_false(
+    grepl("eligible retained markers", compact_prompt, fixed = TRUE)
+  )
+})
+
+
+test_that("QDA reading stays approved when selection settings change", {
   x <- do.call(
     nail_qda,
     c(
@@ -419,18 +449,10 @@ test_that("QDA reading reports dynamic partial selection and negative policy", {
   )
 
   reading <- attr(x, "qda_prompt_blocks", exact = TRUE)$A$reading
-  expect_match(reading, "50% of the eligible retained markers", fixed = TRUE)
-  expect_match(reading, "statistically strongest eligible markers", fixed = TRUE)
-  expect_match(
-    reading,
-    "Markers LOWER than the average product are intentionally excluded",
-    fixed = TRUE
-  )
-  expect_match(
-    reading,
-    "An undisplayed attribute must not automatically be interpreted",
-    fixed = TRUE
-  )
+  expect_false(grepl("50% of the eligible retained markers", reading, fixed = TRUE))
+  expect_false(grepl("statistically strongest eligible markers", reading, fixed = TRUE))
+  expect_false(grepl("intentionally excluded", reading, fixed = TRUE))
+  expect_false(grepl("undisplayed attribute", reading, fixed = TRUE))
 })
 
 
@@ -490,6 +512,7 @@ test_that("QDA stores ordered modular prompt blocks and renders their order", {
       "reading",
       "question",
       "interpretation",
+      "identity",
       "local_task",
       "evidence",
       "reusable",
@@ -501,9 +524,10 @@ test_that("QDA stores ordered modular prompt blocks and renders their order", {
   prompt <- nail_prompt(x, select = "A", print = FALSE)
   headings <- c(
     "# Introduction",
-    "## How to Read the Evidence",
-    "# Analytical Question",
+    "## How to Read the Statistical Evidence",
+    "# Analytical Request",
     "## Interpretation Rules",
+    "## Identity — known",
     "# Local Task",
     "# Data",
     "## Reusable NaileR Metadata",
@@ -517,7 +541,7 @@ test_that("QDA stores ordered modular prompt blocks and renders their order", {
   expect_true(all(positions > 0L))
   expect_true(all(diff(positions) > 0L))
   expect_true(
-    positions[[8L]] >
+    positions[[9L]] >
       regexpr("END_NAILER_PRODUCT_INTERPRETATION", prompt, fixed = TRUE)[[1L]]
   )
 })
@@ -565,85 +589,48 @@ test_that("QDA interpretation and reusable blocks have distinct responsibilities
 
   blocks <- attr(x, "qda_prompt_blocks", exact = TRUE)$A
   interpretation <- blocks$interpretation
+  identity <- blocks$identity
   reusable <- blocks$reusable
 
   expect_match(
-    interpretation,
-    "Preserve them as identifiers",
+    identity,
+    "Preserve its original identifier and label.",
+    fixed = TRUE
+  )
+  expect_match(
+    identity,
+    "A concise sensory characterization may complement it when useful.",
     fixed = TRUE
   )
   expect_match(
     interpretation,
-    "A descriptive name may supplement the identifier",
+    "develop a higher-level interpretation that captures their combined meaning",
     fixed = TRUE
   )
   expect_match(
     interpretation,
-    "HIGHER means more of the named attribute",
+    "do not present conceptual connections as statistically demonstrated relationships",
     fixed = TRUE
   )
   expect_match(
     interpretation,
-    "infer an opposite attribute that was not measured",
+    "Preserve meaningful contrasts, nuances, and ambiguities.",
     fixed = TRUE
   )
   expect_match(
     interpretation,
-    "unsupported sensory descriptors",
+    "When the evidence is heterogeneous or insufficient to support a unified characterization",
     fixed = TRUE
   )
-  expect_match(
-    interpretation,
-    "hedonic, evaluative, marketing, positioning, or causal claims",
-    fixed = TRUE
-  )
-  expect_match(
-    interpretation,
-    "Interpret every HIGHER/LOWER result relative to the average product.",
-    fixed = TRUE
-  )
-  expect_match(
-    interpretation,
-    "more marked by [attribute]",
-    fixed = TRUE
-  )
-  expect_match(
-    interpretation,
-    "less marked by [attribute]",
-    fixed = TRUE
-  )
-  expect_match(
-    interpretation,
-    "Preserve this relative meaning when building the overall sensory interpretation.",
-    fixed = TRUE
-  )
-
-  b2_rule <- "Interpret every HIGHER/LOWER result relative to the average product."
-  expect_false(grepl(b2_rule, blocks$reading, fixed = TRUE))
-  expect_false(grepl(b2_rule, blocks$evidence, fixed = TRUE))
-  expect_false(grepl(b2_rule, reusable, fixed = TRUE))
-  expect_false(grepl(b2_rule, blocks$output, fixed = TRUE))
 
   expect_false(grepl("STRICT GROUNDING RULES", reusable, fixed = TRUE))
-  expect_false(
-    grepl("Preserve the direction of every displayed fact", reusable, fixed = TRUE)
-  )
-  expect_false(
-    grepl("infer an opposite attribute that was not measured", reusable, fixed = TRUE)
-  )
-  expect_false(
-    grepl("unsupported sensory descriptors", reusable, fixed = TRUE)
-  )
-  expect_false(
-    grepl("marketing, or positioning language", reusable, fixed = TRUE)
-  )
   expect_false(grepl("descriptive_name: none", reusable, fixed = TRUE))
   expect_match(
     reusable,
     "descriptive_name: <short evidence-grounded descriptive name; write none only if no descriptive name is requested or no defensible name can be proposed>",
     fixed = TRUE
   )
-  expect_lt(nchar(reusable), nchar(interpretation))
+  expect_gt(nchar(reusable), 0)
 })
 
 
@@ -712,22 +699,23 @@ test_that("QDA default blocks can be removed without changing evidence", {
     print = FALSE
   )
 
-  expect_false(grepl("## How to Read the Evidence", minimal_prompt, fixed = TRUE))
+  expect_false(grepl("## How to Read the Statistical Evidence", minimal_prompt, fixed = TRUE))
   expect_false(grepl("## Interpretation Rules", minimal_prompt, fixed = TRUE))
   expect_false(grepl("# Local Task", minimal_prompt, fixed = TRUE))
+  expect_true(grepl("## Identity — known", minimal_prompt, fixed = TRUE))
   expect_true(grepl("# Data", minimal_prompt, fixed = TRUE))
   expect_true(grepl("## Reusable NaileR Metadata", minimal_prompt, fixed = TRUE))
   expect_true(grepl("# Final Interpretation Requirements", minimal_prompt, fixed = TRUE))
-  expect_true(grepl("## How to Read the Evidence", reading_prompt, fixed = TRUE))
+  expect_true(grepl("## How to Read the Statistical Evidence", reading_prompt, fixed = TRUE))
   expect_false(grepl("## Interpretation Rules", reading_prompt, fixed = TRUE))
   expect_true(grepl("## Interpretation Rules", interpretation_prompt, fixed = TRUE))
   expect_false(
-    grepl("## How to Read the Evidence", interpretation_prompt, fixed = TRUE)
+    grepl("## How to Read the Statistical Evidence", interpretation_prompt, fixed = TRUE)
   )
   expect_false(grepl("# Local Task", interpretation_prompt, fixed = TRUE))
   expect_true(grepl("# Local Task", local_task_prompt, fixed = TRUE))
   expect_false(
-    grepl("## How to Read the Evidence", local_task_prompt, fixed = TRUE)
+    grepl("## How to Read the Statistical Evidence", local_task_prompt, fixed = TRUE)
   )
   expect_false(
     grepl("## Interpretation Rules", local_task_prompt, fixed = TRUE)
@@ -845,6 +833,63 @@ test_that("QDA generated results expose raw LLM responses without reinterpretati
     "RAW MOCK RESPONSE::",
     fixed = TRUE
   )
+})
+
+
+test_that("QDA local and joint generation forward scalar prompts", {
+  args <- qda_semantic_args()
+  seen_prompts <- list()
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      seen_prompts[[length(seen_prompts) + 1L]] <<- prompt
+      data.frame(
+        model = model,
+        response = "Mock scalar-prompt response",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  local <- do.call(
+    nail_qda,
+    c(
+      args,
+      list(
+        isolate.groups = TRUE,
+        generate = TRUE,
+        model = "mock-model"
+      )
+    )
+  )
+  joint <- do.call(
+    nail_qda,
+    c(
+      args,
+      list(
+        isolate.groups = FALSE,
+        generate = TRUE,
+        model = "mock-model"
+      )
+    )
+  )
+
+  expect_length(seen_prompts, 4L)
+  expect_true(all(vapply(
+    seen_prompts,
+    function(prompt) is.character(prompt) && length(prompt) == 1L,
+    logical(1)
+  )))
+  expect_identical(
+    nail_prompt(joint, print = FALSE),
+    attr(joint, "llm_io", exact = TRUE)$prompts$portfolio
+  )
+  expect_true(is.list(local))
 })
 
 
