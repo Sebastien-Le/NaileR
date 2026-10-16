@@ -1,0 +1,14 @@
+Statistical anchor:
+Relative to the full sample, G1 shows more frequent selection of price as the main concern (43.75% versus 23.96%) and of a conventional diet (62.50% versus 44.79%), while environmental concern (9.38% versus 27.08%) and quality concern (15.62% versus 29.17%) are less frequent. Its mean monthly spending (103.12 versus 130.52), age (34.41 versus 40.26), purchase frequency (2.85 versus 3.50), and household size (2.25 versus 2.75) are all lower.
+
+Textual enrichment:
+The relatively greater salience of the price modality is substantively echoed by comments appreciating a manageable price alongside familiar taste (TXT000003); this adds a concrete, qualified expression of price considerations without establishing why G1 spends or purchases less. The reported lower means for spending and purchase frequency are not directly explained by these comments. Nor do the texts establish a link to the conventional diet, younger age, or smaller household size.
+
+Additional insights:
+Respondents also mention convenience after work (TXT000004), limited choice (TXT000003), uncertainty about ingredient quality (TXT000004), and a desire for clearer environmental-impact information (TXT000001). These are expressed considerations, not additional CATDES group markers. In particular, asking for environmental information is compatible with environmental concern being less frequently selected as a primary concern than in the whole sample; the two measures address different kinds of expression.
+
+Internal diversity:
+The texts alternate between familiar taste and manageable price, practical convenience, and reservations about information, quality, or choice. Some explicitly qualify their assessments as not applying to every purchase (TXT000011). Although all 32 observations supplied comments, there are only four distinct formulations, so this apparent pattern should not be treated as a rich or unanimous group discourse.
+
+Contextualized profile:
+G1 is statistically characterized by relatively more frequent price concern and conventional-diet responses, alongside lower average spending, purchasing frequency, age, and household size. Its limited set of comments gives a more situated account of price as manageable within a familiar food choice, while also expressing convenience and reservations about information, quality, and range. Those remarks enrich only the directly relevant aspects of the statistical portrait; they do not explain its demographic or behavioral averages.

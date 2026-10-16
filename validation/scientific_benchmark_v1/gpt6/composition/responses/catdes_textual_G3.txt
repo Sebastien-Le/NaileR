@@ -1,0 +1,14 @@
+Statistical anchor:
+The only retained CATDES characteristic for G3 is lower mean satisfaction relative to the full analyzed sample (5.88 versus 6.46). No other selected statistical characteristics are supplied, so the available CATDES evidence does not establish a broader purchasing, dietary, demographic, or attitudinal group profile.
+
+Textual enrichment:
+Comments describing experiences as potentially pleasant but sometimes not worth their price (TXT000067) offer a qualified account of how a food offer may be evaluated. This is relevant contextual material for the observed lower satisfaction mean, but it does not demonstrate that price considerations account for that difference, that everyone in G3 is dissatisfied, or that these judgments correspond directly to the measured satisfaction variable.
+
+Additional insights:
+Some comments value perceived product quality while questioning the verifiability of environmental claims (TXT000065); others describe local products as feeling more responsible but not always accessible (TXT000070). These are additional expressed perceptions and practical concerns. No CATDES evidence here establishes their relative frequency or their statistical relationship to satisfaction.
+
+Internal diversity:
+The comments combine potentially positive experiences with distinct reservations about price, environmental information, and finding local alternatives. Certain judgments are explicitly qualified as not applying to every purchase (TXT000066; TXT000077). All 32 observations contributed comments, but only five distinct formulations appear; neither their repetition nor the limited themes justify claiming unanimity or a homogeneous dissatisfied group.
+
+Contextualized profile:
+G3 is statistically distinguishable here only by a lower average satisfaction score. Its comments suggest a pattern of conditional appreciation, in which positive experiences and perceptions of quality coexist with reservations about expense, environmental-claim verification and access to local products. These observations give qualitative nuance to how offers are discussed, but they do not explain the satisfaction difference or warrant additional statistical traits for G3.

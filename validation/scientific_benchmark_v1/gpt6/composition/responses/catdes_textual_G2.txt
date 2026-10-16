@@ -1,0 +1,14 @@
+Statistical anchor:
+Compared with the full sample, G2 has more frequent flexitarian responses (59.38% versus 40.62%) and fewer conventional-diet responses (21.88% versus 44.79%); online purchasing is also more frequent (46.88% versus 31.25%). The group's mean monthly spending (159.22 versus 130.52), age (47.12 versus 40.26), purchase frequency (4.32 versus 3.50), satisfaction (7.24 versus 6.46), and household size (3.38 versus 2.75) are higher.
+
+Textual enrichment:
+Three statistical characteristics receive direct, but qualified, textual illumination. Comments reporting satisfaction with the choice while continuing to compare prices (TXT000034) nuance the higher mean satisfaction: satisfaction does not imply an absence of price vigilance. Remarks that attractive variety and quality sometimes cost more than planned (TXT000035) provide an experience related to spending, without demonstrating what causes the higher average monthly spending. Reports that online ordering saves time but delivery can be unreliable (TXT000039) clarify the perceived benefit and limits of a channel that is statistically more frequent in G2. These comments neither explain purchase frequency nor support claims about the flexitarian response, age, or household size.
+
+Additional insights:
+The comments introduce perceived variety and quality, unplanned spending, continued price comparison, time savings, and concerns about delivery convenience and reliability. These themes help describe conditional appraisals of particular shopping experiences. They should not be interpreted as statistically established defining characteristics, or as motivations for the more frequent flexitarian response.
+
+Internal diversity:
+Different comments foreground appealing assortment and perceived quality despite expense, satisfaction alongside price comparison, or online efficiency alongside delivery problems. Several statements limit their applicability to particular purchases (TXT000033; TXT000044; TXT000055). Despite complete response coverage across 32 observations, just six distinct formulations are available; a stable group-wide consensus or prevalence ranking of these themes cannot be inferred.
+
+Contextualized profile:
+G2 is statistically characterized by higher average spending, purchasing frequency and satisfaction, relatively greater online use, more frequent flexitarian responses and higher demographic means. Its comments particularly enrich the satisfaction, spending and online-channel findings: positive evaluations coexist with budget monitoring, occasional excess spending and delivery-related reservations. The dietary and demographic characteristics remain statistical facts for which this textual material supplies no substantive explanation.
