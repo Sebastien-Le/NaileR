@@ -1,0 +1,79 @@
+# Introduction
+
+This study examines food-purchasing behavior in 96 consumers from the same population, organized into three neutral groups named G1, G2 and G3. The data combine quantitative measures, categorical characteristics, and individual open comments. The purpose is to characterize patterns while preserving within-group heterogeneity and distinguishing observations from interpretive hypotheses.
+
+---
+
+## How to Read the Statistical Evidence
+
+The results come from `FactoMineR::descfreq()` and describe rows of a contingency table through their frequency profiles across columns. Statistical overrepresentation and underrepresentation are assessed relative to the overall table profile, not through direct pairwise tests between rows. Descriptive comparisons between row profiles remain possible.
+
+For each column, the row profile percentage is its count within a row divided by the total count of that row. The global profile percentage is its total count across all rows divided by the total count of the table.
+
+The cell count gives the observed frequency for a particular row and column. The column total gives its frequency across all rows. These counts do not necessarily represent distinct individuals.
+
+OVERREPRESENTED means that a column's row profile percentage is statistically higher than its global profile percentage; UNDERREPRESENTED means statistically lower. Overrepresentation does not imply that a column accounts for the majority of a row or is its most frequent column. Interpret each direction together with both percentages and the available counts.
+
+Statistical distinctiveness does not necessarily imply substantive importance. A column with a low overall frequency can be distinctive without defining the entire row.
+
+Interpret column labels according to their actual meaning, including negations and distinctions between perceptions, intentions, and observed behaviors. Do not infer associations between columns, individual-level relationships, or causal mechanisms from these frequency profiles. Use the study context to understand what the counts represent, without treating it as additional statistical evidence.
+
+Build the main interpretation and any descriptive name primarily from the strongest coherent pattern. Rare or sparsely represented attributes may provide secondary contextual nuance, but they should not drive the descriptive name unless supported by several convergent signals.
+
+# Analytical Request
+
+Describe the main frequency profile of the groups from the displayed relative frequencies. Synthesize convergent patterns without treating a frequency difference as an absolute preference or causal effect.
+
+## Interpretation Rules
+
+Interpret each row by considering its displayed statistical characteristics jointly, rather than describing columns one by one. Identify meaningful patterns in its frequency profile, taking into account both what distinguishes the row from the global profile and the relative importance of each column within the row.
+
+Use the study context to develop a substantive synthesis grounded in the displayed evidence. Do not present conceptual connections between columns as statistically demonstrated relationships or causal mechanisms. When the evidence is sparse or points to several distinct themes, describe what it supports without forcing a single global interpretation.
+
+When several frequency patterns converge, you may synthesize them into a higher-level substantive characterization of the row or rows. Present that characterization as an interpretation of the profile, not as an additional directly observed frequency.
+
+## Row Identity — standard
+
+Each row represents an observed entity or category whose identity is already defined. Preserve its original name and any label provided by the analyst.
+
+Interpret its frequency profile to characterize what distinguishes this entity or category, without replacing its known identity with an invented one.
+
+## Task — description
+
+Interpret each displayed row using its own statistical evidence and the user's analytical request.
+
+Focus on characterizing each row without forcing comparisons between rows.
+
+The rows have an external order supplied by the analyst. Mention broader tendencies only when the displayed facts support them.
+
+# Data
+
+## Row 'G1'
+
+### Retained relative-frequency facts
+
+No selected statistical evidence is available for this row in the facts supplied to the prompt. This does not establish the absence of a statistical difference or demonstrate similarity to the global profile. Do not characterize the row beyond the available displayed facts.
+
+---
+
+## Row 'G2'
+
+### Retained relative-frequency facts
+
+- Attribute "online" has a higher relative frequency in this row than in the whole table (row profile=46.88%; global profile=31.25%; row frequency=15; total attribute frequency=30).
+
+---
+
+## Row 'G3'
+
+### Retained relative-frequency facts
+
+No selected statistical evidence is available for this row in the facts supplied to the prompt. This does not establish the absence of a statistical difference or demonstrate similarity to the global profile. Do not characterize the row beyond the available displayed facts.
+
+# Final Interpretation Requirements
+
+Write a clear, substantive interpretation of the displayed frequency profiles.
+
+Support the main findings with the most relevant columns and enough row and global percentages or counts to make the interpretation traceable.
+
+Avoid unnecessary numerical repetition.

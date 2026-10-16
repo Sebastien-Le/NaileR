@@ -1,0 +1,5 @@
+CATDES-TEXTUAL composition is intentionally deferred in benchmark v1.
+The public function requires textual = nail_textual(generate = TRUE)
+with successfully parsed textual_profiles; a generate = FALSE textual
+preview therefore cannot be passed to nail_catdes_textual(). No mock
+LLM response is introduced in this offline prompt-only benchmark.

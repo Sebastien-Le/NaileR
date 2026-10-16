@@ -1,0 +1,13 @@
+source_commit=f697f006e04faa8f9613885ec40cd37799bd7282
+consumer_rows=96
+consumer_groups=G1,G2,G3
+textual_groups=G1,G2,G3
+condes_preview=TRUE
+catdes_preview=TRUE
+descfreq_preview=TRUE
+textual_preview=TRUE
+qda_preview=TRUE
+qda_space_preview=TRUE
+preview_usage_rows_zero=TRUE
+llm_calls_executed=0
+all_prompts_written_as_exact_utf8_bytes=TRUE

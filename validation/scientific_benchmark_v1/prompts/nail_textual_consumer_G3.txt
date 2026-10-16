@@ -1,0 +1,153 @@
+# Introduction
+
+This study examines food-purchasing behavior in 96 consumers from the same population, organized into three neutral groups named G1, G2 and G3. The data combine quantitative measures, categorical characteristics, and individual open comments. The purpose is to characterize patterns while preserving within-group heterogeneity and distinguishing observations from interpretive hypotheses.
+
+---
+
+## How to Read the Textual Evidence
+
+The evidence consists of textual observations associated with one group. These texts are the empirical material for qualitative analysis. Themes and broader interpretations are constructed from the texts by the language model; they are not statistical results calculated beforehand.
+
+Each text has an identifier linked to a source observation. An observation does not necessarily represent a distinct individual, and identical statements may occur more than once. Preserve the original wording and use the supplied text identifiers when referring to supporting or contrasting evidence. Do not invent quotations.
+
+Interpret the meaning and strength of each statement carefully, preserving negations, hesitation, qualifications, ambiguity and contradictions. Distinguish expressed opinions, perceptions, intentions, reported experiences and observed behaviors.
+
+Distinguish recurring ideas in the texts from the prevalence of opinions among individuals. Repetition does not necessarily imply independent agreement or group consensus. Do not invent numerical prevalence estimates.
+
+Use the study context to understand the responses and the analytical question, without treating it as additional empirical evidence.
+
+---
+
+# Overall Analytical Request
+
+Identify recurring themes and meaningful tensions in the comments. Synthesize several responses when justified, preserve minority positions and distinguish what respondents literally expressed from contextual interpretation. Do not infer hidden motivations.
+
+---
+
+## Interpretation Rules
+
+Identify the main themes expressed in the texts, grouping statements according to their meaning rather than shared vocabulary. Explain their substantive significance in relation to the analytical question.
+
+Interpret the group's discourse by considering these themes jointly, rather than presenting them as a simple list. When supported by the texts, develop a higher-level interpretation that captures the broader concerns, perspectives or frames of meaning emerging from their combination.
+
+Examine internal diversity, including differences in emphasis, reservations, ambivalence, contradictions and meaningful minority perspectives. A shared interpretive frame may accommodate different positions, while several distinct or conflicting frames may coexist within the same group.
+
+Assess whether the discourse exhibits a recognizable common frame. Treat coherence as a qualitative interpretation, not a statistical measure. Do not impose unity when the texts support multiple perspectives or when the evidence is insufficient.
+
+Adapt the depth of interpretation to the richness and diversity of the texts. Avoid elaborate group-level characterizations from sparse evidence. Do not infer hidden motives, personality traits, social identities or causal mechanisms that the texts do not support.
+
+---
+
+# Local Task
+
+Interpret only the texts associated with group "G3", in light of the user's analytical request.
+
+Construct a substantive textual profile of this group without describing, comparing or inferring the discourse of other groups.
+
+---
+
+# Data
+
+## Group "G3"
+
+### Corpus information
+
+- Individuals/observations in group: 32
+- Non-empty comments: 32
+- Response coverage: 100.0%
+- Distinct comments: 5
+- Comments shown for this interpretation: 32 of 32 (100.0%)
+
+### Comments
+
+[TXT000065] I appreciate the quality, yet the environmental claim is difficult to verify.
+
+[TXT000066] The experience can be pleasant, although the price sometimes outweighs the benefits. Still, this is not true for every purchase.
+
+[TXT000067] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000068] I appreciate the quality, yet the environmental claim is difficult to verify.
+
+[TXT000069] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000070] Local products feel more responsible, but they are not always easy to find.
+
+[TXT000071] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000072] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000073] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000074] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000075] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000076] I appreciate the quality, yet the environmental claim is difficult to verify.
+
+[TXT000077] I appreciate the quality, yet the environmental claim is difficult to verify. Still, this is not true for every purchase.
+
+[TXT000078] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000079] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000080] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000081] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000082] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000083] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000084] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000085] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000086] Local products feel more responsible, but they are not always easy to find.
+
+[TXT000087] I appreciate the quality, yet the environmental claim is difficult to verify.
+
+[TXT000088] I appreciate the quality, yet the environmental claim is difficult to verify. Still, this is not true for every purchase.
+
+[TXT000089] I appreciate the quality, yet the environmental claim is difficult to verify.
+
+[TXT000090] I appreciate the quality, yet the environmental claim is difficult to verify.
+
+[TXT000091] Local products feel more responsible, but they are not always easy to find.
+
+[TXT000092] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000093] Local products feel more responsible, but they are not always easy to find.
+
+[TXT000094] I appreciate the quality, yet the environmental claim is difficult to verify.
+
+[TXT000095] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+[TXT000096] The experience can be pleasant, although the price sometimes outweighs the benefits.
+
+---
+
+# Required output
+
+Produce a concise, substantive and evidence-grounded qualitative profile of the group.
+
+Use exactly the following fields and preserve their names and order:
+
+Core textual profile:
+One concise statement capturing the main configuration of meaning emerging from the discourse.
+
+Dominant themes:
+One to five concise themes, separated by semicolons.
+
+Within-group coherence:
+Choose exactly one: `strong` / `moderate` / `mixed` / `weak`, based on the qualitative organization of the discourse, not numerical recurrence alone.
+
+Internal diversity:
+One concise statement identifying meaningful variations, reservations, tensions or minority perspectives.
+
+Representative text IDs:
+One to three supplied text identifiers supporting the central interpretation, separated by semicolons.
+
+Tension text IDs:
+Zero to three supplied text identifiers illustrating tensions or contrasting perspectives, separated by semicolons, or `none`.
+
+Do not add other fields or introductory text. Use only supplied text identifiers. Representative texts illustrate an interpretation; they do not establish the prevalence of a theme.
