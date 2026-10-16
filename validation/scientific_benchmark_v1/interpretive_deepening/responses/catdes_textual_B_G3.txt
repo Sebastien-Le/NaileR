@@ -1,0 +1,14 @@
+Statistical anchor:
+The only retained CATDES characteristic is lower mean satisfaction in G3 (5.88 versus 6.46 in the full sample). No selected statistical marker is supplied for the group's diet, purchasing channel, price concerns, spending, age or household size.
+
+Textual enrichment:
+Some comments describe the experience as potentially pleasant while the price can outweigh the perceived benefits (TXT000067). This allows a narrow, qualified interpretation alongside the lower group mean satisfaction: positive aspects and reservations can be expressed together. It neither demonstrates that the reported expense explains the lower mean nor establishes an individual connection between these comments and the measured satisfaction scores.
+
+Additional insights:
+Respondents also express appreciation of perceived quality while questioning the verifiability of environmental claims (TXT000065), and regard local products as more responsible while noting difficulties finding them (TXT000070). These are additional perspectives in the open comments, not statistically established group characteristics; no CATDES counterpart permits claims that such concerns are distinctive of G3 relative to other groups.
+
+Internal diversity:
+The comments do not form a uniformly negative discourse. Pleasant experiences, appreciation of quality and local products coexist with different reservations about price, evidence of environmental claims and availability. Some evaluations are explicitly limited to particular purchases (TXT000066; TXT000077). The 32 observations offer just five distinct formulations, restricting claims of breadth and consensus.
+
+Contextualized profile:
+The most informative combined reading is **lower average satisfaction without blanket rejection**: the single CATDES marker establishes a relatively lower satisfaction score, whereas the comments show that appreciation of some aspects can coexist with reservations about others. This is a more nuanced description of expressed experience, but the available evidence does not warrant a broader statistical identity for G3 or an explanation of why its satisfaction mean is lower.
