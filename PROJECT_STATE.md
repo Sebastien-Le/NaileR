@@ -208,3 +208,12 @@ Final local Codex-reported validation: **194 targeted assertions passed**; **1,3
 **Scientific qualification:** with only one source text, the model can still assign `Within-group coherence = strong`; neither parsing nor this qualitative label establishes group consensus. Keep source-level `TXT%06d` IDs, evidence/provenance and substantive expert oversight. **Package check outstanding:** `devtools::check(document = FALSE)` was blocked by missing Pandoc during vignette build; no claim of a clean full R CMD check.
 
 **Next approved phase (ordered):** audit/finalize `nail_qda_space()` first, then `nail_catdes_textual()`. After both, conduct a code-grounded *general NaileR architecture audit* (are the seven functions a shared extensible interpretation framework or merely similar implementations?), then test all documentation examples and finally undertake the local-vs-external LLM backend assessment. Do not start broad refactoring or other feature work ahead of this plan.
+
+
+## COMPOSED 1/2 CLOSED — 2026-10-16: `nail_qda_space()` technically finalized
+
+**Code commit:** `67bca18a1e2428bde570ed5a16cf0d969169197b`, three tracked files only (`R/nail_qda_space.R`, `man/nail_qda_space.Rd`, `tests/testthat/test-qda-space-condes-engine.R`). See [`dev/COMPOSED_QDA_SPACE_FINALIZATION_REVIEW.md`](dev/COMPOSED_QDA_SPACE_FINALIZATION_REVIEW.md) for the code-grounded contract, Phases 1–4, residual limits and validation trace. The operational archive remains local and untracked.
+
+**Final Phase 4 Codex-reported verification:** 93 targeted and 1,455 whole-suite assertions passed (0 failures, 0 warnings); generated eligible Dim1, returned deterministic blocked Dim2 without treating R text as an LLM response, preserved PCA/QDA/CONDES evidence and provenance. The eligibility statuses `associations_selected` and `no_selected_associations` depend on selected attribute–axis associations under `condes_proba`, **not** a universal test of axis interpretability. The `hybrid` model sometimes extrapolates beyond sensory data, requiring expert review; an ineligible axis retains an unsubmitted prompt for audit, but has no raw model response.
+
+**Next approved composed function:** `nail_catdes_textual()`, initial audit **before** any code changes; after both composed functions, the seven-function general architecture audit, documentation-example verification and local/external provider evaluation. Package release check remains outstanding (Pandoc/processx/vignettes, unrestricted local R environment).
