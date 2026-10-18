@@ -1771,11 +1771,13 @@ nail_condes <- function(dataset,
   }
 
   if (is.null(request)) {
-    request <- build_request_condes(
-      mode = interpretation_mode,
-      target_concept = target_concept,
-      target_label = target_label,
-      prompt_style = prompt_style
+    request <- .append_nail_default_interpretive_insight(
+      build_request_condes(
+        mode = interpretation_mode,
+        target_concept = target_concept,
+        target_label = target_label,
+        prompt_style = prompt_style
+      )
     )
   }
 

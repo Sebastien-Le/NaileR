@@ -1406,11 +1406,13 @@ nail_descfreq <- function(dataset,
   }
 
   if (is.null(request)) {
-    request <- build_request_descfreq(
-      isolate.groups = isolate.groups,
-      interpretation_mode = interpretation_mode,
-      rows_are_ordered = rows_are_ordered,
-      explicit_row_labels = explicit_row_labels
+    request <- .append_nail_default_interpretive_insight(
+      build_request_descfreq(
+        isolate.groups = isolate.groups,
+        interpretation_mode = interpretation_mode,
+        rows_are_ordered = rows_are_ordered,
+        explicit_row_labels = explicit_row_labels
+      )
     )
   }
 

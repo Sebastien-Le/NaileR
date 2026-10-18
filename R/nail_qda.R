@@ -1505,10 +1505,12 @@ nail_qda <- function(dataset, formul, firstvar,
   }
 
   if (is.null(request)) {
-    request <- build_request_qda(
-      isolate_groups = isolate.groups,
-      prompt_style = prompt_style,
-      product_knowledge = product_knowledge
+    request <- .append_nail_default_interpretive_insight(
+      build_request_qda(
+        isolate_groups = isolate.groups,
+        prompt_style = prompt_style,
+        product_knowledge = product_knowledge
+      )
     )
   }
 
