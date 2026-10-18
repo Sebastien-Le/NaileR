@@ -9,6 +9,23 @@ count_fixed_text <- function(text, pattern) {
   sum(lengths(regmatches(text, gregexpr(pattern, text, fixed = TRUE))))
 }
 
+prompt_units <- function(value) {
+  expect_true(is.character(value) || is.list(value))
+  units <- if (is.character(value)) list(value) else value
+  expect_gt(length(units), 0L)
+  expect_true(all(vapply(
+    units,
+    function(unit) {
+      is.character(unit) &&
+        length(unit) == 1L &&
+        !is.na(unit) &&
+        nzchar(trimws(unit))
+    },
+    logical(1)
+  )))
+  units
+}
+
 strip_default_insight <- function(text) {
   suffix <- paste0("\n\n", interpretive_insight_sentence)
   expect_true(endsWith(text, interpretive_insight_sentence))
@@ -212,8 +229,7 @@ test_that("all seven public defaults contain the instruction and custom requests
   )
 
   for (name in names(previews)) {
-    prompts <- nail_prompt(previews[[name]], print = FALSE)
-    if (!is.list(prompts)) prompts <- list(prompts)
+    prompts <- prompt_units(nail_prompt(previews[[name]], print = FALSE))
     expect_true(
       all(vapply(
         prompts,
@@ -228,9 +244,9 @@ test_that("all seven public defaults contain the instruction and custom requests
 
   custom <- "CUSTOM REQUEST MUST REMAIN BYTE IDENTICAL."
   custom_objects <- list(
-    nail_catdes(iris, num.var = 5, request = custom, generate = FALSE),
-    nail_condes(condes_data, num.var = 1, request = custom, generate = FALSE),
-    nail_descfreq(
+    catdes = nail_catdes(iris, num.var = 5, request = custom, generate = FALSE),
+    condes = nail_condes(condes_data, num.var = 1, request = custom, generate = FALSE),
+    descfreq = nail_descfreq(
       data.frame(
         A = c(20, 5, 2), B = c(5, 20, 5), C = c(2, 5, 20),
         row.names = c("R1", "R2", "R3")
@@ -238,28 +254,28 @@ test_that("all seven public defaults contain the instruction and custom requests
       request = custom,
       generate = FALSE
     ),
-    nail_qda(
+    qda = nail_qda(
       sensochoc,
       formul = "~Product+Panelist",
       firstvar = 5,
       request = custom,
       generate = FALSE
     ),
-    nail_textual(
+    textual = nail_textual(
       textual_data,
       num.var = 1,
       num.text = 2,
       request = custom,
       generate = FALSE
     ),
-    nail_qda_space(
+    qda_space = nail_qda_space(
       previews$qda,
       ncp = 1,
       min_inertia_pct = 0,
       request = custom,
       generate = FALSE
     ),
-    nail_catdes_textual(
+    catdes_textual = nail_catdes_textual(
       composed$catdes,
       composed$textual,
       request = custom,
@@ -267,9 +283,8 @@ test_that("all seven public defaults contain the instruction and custom requests
     )
   )
 
-  for (object in custom_objects) {
-    prompts <- nail_prompt(object, print = FALSE)
-    if (!is.list(prompts)) prompts <- list(prompts)
+  for (name in names(custom_objects)) {
+    prompts <- prompt_units(nail_prompt(custom_objects[[name]], print = FALSE))
     expect_true(all(vapply(
       prompts,
       function(prompt) count_fixed_text(prompt, interpretive_insight_sentence) == 0L,
@@ -282,21 +297,76 @@ test_that("all seven public defaults contain the instruction and custom requests
       pattern = custom,
       fixed = TRUE
     )))
+    expect_identical(
+      vapply(
+        prompt_units(nail_prompt(previews[[name]], print = FALSE)),
+        function(prompt) sub("^.*# Data\\n\\n", "", prompt),
+        character(1)
+      ),
+      vapply(
+        prompts,
+        function(prompt) sub("^.*# Data\\n\\n", "", prompt),
+        character(1)
+      )
+    )
   }
 
-  empty_request <- nail_catdes(
-    iris,
-    num.var = 5,
-    request = "",
-    generate = FALSE
+  empty_objects <- list(
+    catdes = nail_catdes(
+      iris, num.var = 5, request = "", generate = FALSE
+    ),
+    condes = nail_condes(
+      condes_data, num.var = 1, request = "", generate = FALSE
+    ),
+    descfreq = nail_descfreq(
+      data.frame(
+        A = c(20, 5, 2), B = c(5, 20, 5), C = c(2, 5, 20),
+        row.names = c("R1", "R2", "R3")
+      ),
+      request = "",
+      generate = FALSE
+    ),
+    qda = nail_qda(
+      sensochoc,
+      formul = "~Product+Panelist",
+      firstvar = 5,
+      request = "",
+      generate = FALSE
+    ),
+    textual = nail_textual(
+      textual_data,
+      num.var = 1,
+      num.text = 2,
+      request = "",
+      generate = FALSE
+    ),
+    qda_space = nail_qda_space(
+      previews$qda,
+      ncp = 1,
+      min_inertia_pct = 0,
+      request = "",
+      generate = FALSE
+    ),
+    catdes_textual = nail_catdes_textual(
+      composed$catdes,
+      composed$textual,
+      request = "",
+      generate = FALSE
+    )
   )
-  empty_prompts <- nail_prompt(empty_request, print = FALSE)
-  if (!is.list(empty_prompts)) empty_prompts <- list(empty_prompts)
-  expect_true(all(vapply(
-    empty_prompts,
-    function(prompt) count_fixed_text(prompt, interpretive_insight_sentence) == 0L,
-    logical(1)
-  )))
+
+  for (name in names(empty_objects)) {
+    prompts <- prompt_units(nail_prompt(empty_objects[[name]], print = FALSE))
+    expect_true(all(vapply(
+      prompts,
+      function(prompt) count_fixed_text(prompt, interpretive_insight_sentence) == 0L,
+      logical(1)
+    )))
+    expect_identical(
+      nail_evidence(empty_objects[[name]]),
+      nail_evidence(previews[[name]])
+    )
+  }
 })
 
 
