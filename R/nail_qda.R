@@ -1817,27 +1817,172 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #'
 #' @export
 #' @examples
+#' # The examples below build previews only: no LLM call is made.
+#'
+#' ## 1. Chocolates: inspect local product profiles
 #' data(chocolates, package = "SensoMineR")
 #'
 #' qda_preview <- nail_qda(
 #'   dataset = sensochoc,
 #'   formul = "~Product+Panelist",
 #'   firstvar = 5,
+#'   lastvar = 18,
 #'   isolate.groups = TRUE,
 #'   sample.pct = 1,
 #'   generate = FALSE
 #' )
 #'
-#' qda_product <- names(nail_evidence(qda_preview)$products)[[1L]]
-#' nail_evidence(qda_preview, select = qda_product)
+#' chocolate_product <- names(nail_evidence(qda_preview)$products)[[1L]]
+#' nail_evidence(qda_preview, select = chocolate_product)
 #' cat(
 #'   substr(
-#'     nail_prompt(qda_preview, select = qda_product, print = FALSE),
+#'     nail_prompt(qda_preview, select = chocolate_product, print = FALSE),
 #'     1,
 #'     600
 #'   ),
 #'   "\n"
 #' )
+#'
+#' ## 2. Strawberries: a repeated-panel design and a joint prompt
+#' data(qda_strawberries)
+#' strawberry_preview <- nail_qda(
+#'   dataset = qda_strawberries,
+#'   formul = "~Product+Panelist+Session",
+#'   firstvar = 4,
+#'   lastvar = 13,
+#'   product_knowledge = "unknown",
+#'   isolate.groups = FALSE,
+#'   generate = FALSE
+#' )
+#' nail_evidence(strawberry_preview)
+#' cat(substr(nail_prompt(strawberry_preview, print = FALSE), 1, 700), "\n")
+#'
+#' ## 3. Apples: preserve unresolved descriptor labels
+#' data(qda_apples)
+#' apple_preview <- nail_qda(
+#'   dataset = qda_apples,
+#'   formul = "~Product+Panelist+Session",
+#'   firstvar = 4,
+#'   lastvar = 27,
+#'   product_knowledge = "unknown",
+#'   generate = FALSE
+#' )
+#' apple_evidence <- nail_evidence(apple_preview)
+#' apple_prompt <- nail_prompt(apple_preview, print = FALSE)
+#' apple_attributes <- apple_evidence$products[[1L]]$adjusted_means$attribute
+#' stopifnot("peau_t" %in% apple_attributes,
+#'           any(grepl("paisse_t$", apple_attributes)))
+#' cat(substr(apple_prompt, 1, 700), "\n")
+#'
+#' ## 4. Perfumes: inspect product names after Latin-1 decoding
+#' data(qda_perfumes)
+#' perfume_preview <- nail_qda(
+#'   dataset = qda_perfumes,
+#'   formul = "~Product+Panelist+Session",
+#'   firstvar = 4,
+#'   lastvar = 15,
+#'   product_knowledge = "known",
+#'   drop.negative = TRUE,
+#'   generate = FALSE
+#' )
+#' nail_evidence(perfume_preview)
+#' cat(substr(nail_prompt(perfume_preview, print = FALSE), 1, 700), "\n")
+#'
+#' ## 5. Melons: no artificial Session factor
+#' data(qda_melons)
+#' melon_preview <- nail_qda(
+#'   dataset = qda_melons,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 3,
+#'   lastvar = 12,
+#'   product_knowledge = "unknown",
+#'   isolate.groups = TRUE,
+#'   generate = FALSE
+#' )
+#' melon_product <- names(nail_evidence(melon_preview)$products)[[1L]]
+#' nail_evidence(melon_preview, select = melon_product)
+#' cat(substr(nail_prompt(melon_preview, select = melon_product, print = FALSE),
+#'           1, 700), "\n")
+#'
+#' ## 6. Add scientific context without changing the evidence
+#' strawberry_context <- paste(
+#'   "This sensory study compares four strawberry products evaluated by a panel",
+#'   "over two observed sessions. The descriptors cover appearance, odor,",
+#'   "texture, taste, and flavor."
+#' )
+#' strawberry_context_preview <- nail_qda(
+#'   dataset = qda_strawberries,
+#'   formul = "~Product+Panelist+Session",
+#'   firstvar = 4,
+#'   lastvar = 13,
+#'   introduction = strawberry_context,
+#'   request = paste(
+#'     "Describe the overall sensory profile of each strawberry product by",
+#'     "grouping related attributes together. Keep HIGHER and LOWER relative",
+#'     "to the mean profile of the products and do not infer preference or cause."
+#'   ),
+#'   generate = FALSE
+#' )
+#' identical(
+#'   nail_evidence(strawberry_preview),
+#'   nail_evidence(strawberry_context_preview)
+#' )
+#'
+#' ## 7. Generate and inspect a response when a backend is configured
+#' \dontrun{
+#' strawberry_generated <- nail_qda(
+#'   dataset = qda_strawberries,
+#'   formul = "~Product+Panelist+Session",
+#'   firstvar = 4,
+#'   lastvar = 13,
+#'   introduction = strawberry_context,
+#'   request = "Describe each product from the displayed evidence.",
+#'   provider = "ollama",
+#'   model = "mistral-small3.2",
+#'   isolate.groups = TRUE,
+#'   generate = TRUE
+#' )
+#' nail_response(strawberry_generated, print = FALSE)
+#' nail_prompt(strawberry_generated, print = FALSE)
+#' nail_evidence(strawberry_generated)
+#' }
+#'
+#' ## 8. Keep product identities when product knowledge is unknown
+#' unknown_product_preview <- nail_qda(
+#'   dataset = qda_perfumes,
+#'   formul = "~Product+Panelist+Session",
+#'   firstvar = 4,
+#'   lastvar = 15,
+#'   product_knowledge = "unknown",
+#'   isolate.groups = TRUE,
+#'   generate = FALSE
+#' )
+#' names(nail_evidence(unknown_product_preview)$products)
+#'
+#' ## 9. Compare local and joint prompt contracts
+#' local_strawberry <- nail_qda(
+#'   dataset = qda_strawberries,
+#'   formul = "~Product+Panelist+Session",
+#'   firstvar = 4,
+#'   lastvar = 13,
+#'   isolate.groups = TRUE,
+#'   generate = FALSE
+#' )
+#' joint_strawberry <- nail_qda(
+#'   dataset = qda_strawberries,
+#'   formul = "~Product+Panelist+Session",
+#'   firstvar = 4,
+#'   lastvar = 13,
+#'   isolate.groups = FALSE,
+#'   generate = FALSE
+#' )
+#' length(nail_prompt(local_strawberry, print = FALSE))
+#' length(nail_prompt(joint_strawberry, print = FALSE))
+#'
+#' ## 10. The melons are retained as a complementary small study
+#' melon_evidence <- nail_evidence(melon_preview)
+#' c("DAI", "DHL", "HL", "KS", "TAKI", "TL3") %in%
+#'   names(melon_evidence$products)
 nail_qda <- function(dataset, formul, firstvar,
                      lastvar = length(colnames(dataset)),
                      introduction = NULL,
