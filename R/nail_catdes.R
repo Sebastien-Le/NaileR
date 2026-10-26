@@ -2152,52 +2152,186 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' @export
 #'
 #' @examples
+#' # All examples below are previews: generate = FALSE never contacts an LLM.
+#' # Inspect the evidence and prompt before requesting any interpretation.
+#'
 #' data(iris)
 #'
-#' # Observed categorical variable: keep and interpret the species names.
-#' prompt <- nail_catdes(
-#'   iris,
-#'   num.var = 5,
-#'   interpretation_mode = "standard",
-#'   generate = FALSE
+#' # 1. Observed categories: one autonomous prompt per species.
+#' iris_local <- nail_catdes(
+#'   iris, num.var = 5, interpretation_mode = "standard",
+#'   isolate.groups = TRUE, generate = FALSE
 #' )
-#' cat(substr(prompt, 1, 700))
+#' iris_evidence <- nail_evidence(iris_local)
+#' iris_group <- names(iris_evidence$groups)[[1L]]
+#' nail_evidence(iris_local, select = iris_group)
+#' iris_prompt <- nail_prompt(iris_local, select = iris_group, print = FALSE)
+#' cat(substr(iris_prompt, 1, 700), "\n")
 #'
-#' # Reuse the canonical profile attached to the preview without recomputing catdes().
-#' profiles <- nail_catdes_prep(
-#'   x = attr(prompt, "statistical_profiles", exact = TRUE)
+#' # 2. The joint prompt compares the same observed categories.
+#' iris_joint <- nail_catdes(
+#'   iris, num.var = 5, interpretation_mode = "standard",
+#'   isolate.groups = FALSE, generate = FALSE
 #' )
-#' prompt_from_profiles <- nail_catdes(
-#'   x = profiles,
-#'   interpretation_mode = "standard",
-#'   generate = FALSE
-#' )
+#' cat(substr(nail_prompt(iris_joint, print = FALSE), 1, 900), "\n")
+#' identical(nail_evidence(iris_local), nail_evidence(iris_joint))
 #'
-#' # Retrieve and customize one approved scientific block without changing
-#' # the statistical evidence.
-#' blocks <- nail_catdes_default_blocks("standard", isolate.groups = TRUE)
-#' custom <- nail_catdes(
-#'   iris,
-#'   num.var = 5,
-#'   prompt_overrides = list(
-#'     reading = paste(
-#'       blocks$reading,
-#'       "Interpret sepal and petal measurements in their original units."
-#'     )
+#' # 3. Compact guidance changes the prompt projection, not the evidence.
+#' iris_compact <- nail_catdes(
+#'   iris, num.var = 5, interpretation_mode = "standard",
+#'   isolate.groups = TRUE, prompt_style = "compact", generate = FALSE
+#' )
+#' identical(nail_evidence(iris_local), nail_evidence(iris_compact))
+#' cat(substr(nail_prompt(iris_compact, select = iris_group,
+#'                        print = FALSE), 1, 500), "\n")
+#'
+#' # 4. Food-waste survey: MCA/HCPC creates the groups and the public
+#' #    nail_catdes() entry point computes and interprets their CATDES markers.
+#' data(waste)
+#' waste <- waste[-14]
+#' set.seed(1)
+#' waste_mca <- FactoMineR::MCA(
+#'   waste, quali.sup = c(1, 2, 50:76), ncp = 35,
+#'   level.ventil = 0.05, graph = FALSE
+#' )
+#' waste_hcpc <- FactoMineR::HCPC(waste_mca, nb.clust = 3, graph = FALSE)
+#' waste_data <- waste_hcpc$data.clust
+#' waste_preview <- nail_catdes(
+#'   dataset = waste_data, num.var = ncol(waste_data),
+#'   interpretation_mode = "latent",
+#'   introduction = paste(
+#'     "This survey describes reported food-waste practices and related",
+#'     "attitudes. The groups were constructed from the questionnaire",
+#'     "responses; the interpretation should summarize displayed associations,",
+#'     "not explain their causes or rank participants morally."
+#'   ),
+#'   request = paste(
+#'     "For each constructed group, describe the coherent configuration of",
+#'     "reported practices and attitudes supported by the CATDES evidence.",
+#'     "Keep the group identifier and distinguish observations from hypotheses.",
+#'     "Do not infer causes or assign a normative wastefulness score."
+#'   ),
+#'   isolate.groups = TRUE, generate = FALSE
+#' )
+#' waste_group <- names(nail_evidence(waste_preview)$groups)[[1L]]
+#' nail_evidence(waste_preview, select = waste_group)
+#' cat(substr(nail_prompt(waste_preview, select = waste_group,
+#'                        print = FALSE), 1, 700), "\n")
+#'
+#' # 5. Sustainable food systems: declared positions, not observed behaviour.
+#' #    ncp = 100 matches the reference C01 MCA/HCPC protocol; changing it
+#' #    can change the HCPC partition and therefore does not reproduce C01.
+#' data(local_food)
+#' set.seed(1)
+#' food_mca <- FactoMineR::MCA(
+#'   local_food, quali.sup = 46:63, ncp = 100,
+#'   level.ventil = 0.05, graph = FALSE
+#' )
+#' food_hcpc <- FactoMineR::HCPC(food_mca, nb.clust = 3, graph = FALSE)
+#' food_data <- food_hcpc$data.clust
+#' food_preview <- nail_catdes(
+#'   dataset = food_data, num.var = ncol(food_data),
+#'   interpretation_mode = "latent",
+#'   introduction = paste(
+#'     "This survey concerns declared positions about sustainable food",
+#'     "systems. Participants evaluated food-system statements and reported",
+#'     "agreement with additional statements; the resulting groups describe",
+#'     "configurations of responses rather than observed behaviour."
+#'   ),
+#'   request = paste(
+#'     "Describe each constructed group as a configuration of declared",
+#'     "positions, using several CATDES findings together when possible.",
+#'     "Keep the group identifier, distinguish displayed facts from hypotheses,",
+#'     "and do not infer behaviour or causality."
+#'   ),
+#'   isolate.groups = TRUE, drop.negative = TRUE, generate = FALSE
+#' )
+#' food_group <- names(nail_evidence(food_preview)$groups)[[1L]]
+#' nail_evidence(food_preview, select = food_group)
+#' cat(substr(nail_prompt(food_preview, select = food_group,
+#'                        print = FALSE), 1, 700), "\n")
+#'
+#' # 6. Constructed transition groups: keep numeric identifiers in latent mode.
+#' data(atomic_habit_clust)
+#' atomic_latent <- nail_catdes(
+#'   atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+#'   isolate.groups = TRUE,
+#'   introduction = paste(
+#'     "This survey records perceived ability and perceived restrictiveness",
+#'     "for possible changes in everyday practices. The displayed responses",
+#'     "describe perceptions about these changes, not verified behaviour or",
+#'     "the causes of adoption."
+#'   ),
+#'   request = paste(
+#'     "Describe the configuration of displayed responses for each constructed",
+#'     "group, combining related findings where the evidence supports it.",
+#'     "Do not call perceived ability observed behaviour or infer causal",
+#'     "mechanisms from the group profile."
 #'   ),
 #'   generate = FALSE
 #' )
-#' cat(substr(custom[[1]], 1, 500))
+#' atomic_group <- names(nail_evidence(atomic_latent)$groups)[[1L]]
+#' nail_evidence(atomic_latent, select = atomic_group)
+#' cat(substr(nail_prompt(atomic_latent, select = atomic_group,
+#'                        print = FALSE), 1, 700), "\n")
 #'
+#' # 7. Selection controls do not alter canonical evidence.
+#' atomic_full <- nail_catdes(
+#'   atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+#'   isolate.groups = TRUE, generate = FALSE
+#' )
+#' atomic_reduced <- nail_catdes(
+#'   atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+#'   isolate.groups = TRUE, quali.sample = 0.5, quanti.sample = 0.5,
+#'   drop.negative = TRUE, generate = FALSE
+#' )
+#' identical(nail_evidence(atomic_full), nail_evidence(atomic_reduced))
+#' !identical(nail_prompt(atomic_full, print = FALSE),
+#'            nail_prompt(atomic_reduced, print = FALSE))
+#'
+#' # 8. Reuse a prepared profile through the public preparation function.
+#' atomic_catdes <- FactoMineR::catdes(
+#'   atomic_habit_clust[, c(1:20, 51)], num.var = 21, proba = 0.05
+#' )
+#' atomic_profiles <- nail_catdes_prep(x = atomic_catdes)
+#' atomic_from_profiles <- nail_catdes(
+#'   x = atomic_profiles, interpretation_mode = "latent",
+#'   isolate.groups = FALSE, generate = FALSE
+#' )
+#' nail_evidence(atomic_from_profiles)
+#' cat(substr(nail_prompt(atomic_from_profiles, print = FALSE),
+#'           1, 900), "\n")
+#'
+#' # 9. Customize context, request, and one complete approved block.
+#' blocks <- nail_catdes_default_blocks("latent", isolate.groups = TRUE)
+#' customized <- nail_catdes(
+#'   atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+#'   introduction = "The study concerns perceived feasibility of food and mobility changes.",
+#'   request = "Summarize the displayed configuration and label it cautiously.",
+#'   prompt_overrides = list(
+#'     interpretation = paste(
+#'       blocks$interpretation,
+#'       "Keep every synthesis traceable to several displayed facts."
+#'     )
+#'   ),
+#'   isolate.groups = TRUE, generate = FALSE
+#' )
+#' customized_group <- names(nail_evidence(customized)$groups)[[1L]]
+#' cat(substr(nail_prompt(customized, select = customized_group,
+#'                        print = FALSE), 1, 800), "\n")
+#'
+#' # 10. Real generation is intentionally kept outside ordinary checks.
 #' \dontrun{
 #' generated <- nail_catdes(
-#'   iris,
-#'   num.var = 5,
-#'   provider = "ollama",
-#'   model = "llama3",
+#'   atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+#'   isolate.groups = TRUE, provider = "ollama", model = "llama3",
 #'   generate = TRUE
 #' )
-#' cat(generated$response)
+#' generated_group <- names(nail_evidence(generated)$groups)[[1L]]
+#' nail_evidence(generated, select = generated_group)
+#' cat(substr(nail_prompt(generated, select = generated_group,
+#'                        print = FALSE), 1, 800), "\n")
+#' nail_response(generated, select = generated_group, print = FALSE)
 #' }
 nail_catdes <- function(dataset = NULL,
                         num.var = NULL,
