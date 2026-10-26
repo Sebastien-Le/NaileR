@@ -1,0 +1,192 @@
+# Introduction
+
+A study on sustainable food systems was led on several French participants. This study had 2 parts. In the first part, participants had to rate how acceptable "a food system that..." (e.g, "a food system that only uses renewable energy") was to them. In the second part, they had to say if they agreed or disagreed with some statements.
+
+---
+
+## How to Read the Statistical Evidence
+
+The results come from `FactoMineR::catdes()`. Each qualitative finding compares the frequency of a response modality within a group with its frequency in the full analyzed sample.
+MORE FREQUENT indicates statistical overrepresentation; LESS FREQUENT indicates statistical underrepresentation. The full sample is the reference, not another group.
+Overrepresentation does not necessarily imply a majority within the group. Interpret each direction together with the reported group and full-sample percentages.
+Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale. Do not infer the distribution of unreported modalities from a single displayed result.
+Each quantitative finding compares a variable's mean within a group with its mean in the full analyzed sample. HIGHER and LOWER indicate that the group mean is statistically higher or lower, respectively.
+Read each difference according to what the variable measures, its unit when known, and the meaning of high and low values. Do not assume that higher means better or lower means worse.
+If the variable's meaning, scale, or unit is unclear, do not invent it. Do not compare means of unrelated variables as if they were measured on the same scale.
+Base your analysis on the provided statistical evidence. Do not make assumptions about variables or modalities that are not shown.
+
+# Overall Analytical Request
+
+I will give you the answers from one group. Please explain who the individuals of this group are, what their beliefs are. Then, give this group a new name, and explain why you chose this name. Do not use 1st person ("I", "my"...) in your answer.
+
+## Interpretation Rules
+
+Interpret each group by considering its statistical characteristics jointly, rather than describing variables one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive synthesis that reveals what emerges from their combination.
+Use the study context to connect characteristics conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships or causal mechanisms. Preserve important nuances and ambiguities, without forcing an artificial coherence.
+Each group is a constructed group whose identifier does not define its substantive meaning. Interpret its combined statistical characteristics to identify what makes it distinctive.
+When supported by the evidence, propose a concise, meaningful name that captures the group's overall profile. Keep the original identifier alongside the proposed name.
+Do not force a label when the profile is too heterogeneous or insufficiently informative.
+
+# Local Task
+
+Interpret only the selected group using its displayed statistical evidence. Do not describe groups whose profiles have not been provided.
+The constructed group identifier shown below is '2'. Keep this original identifier alongside any proposed interpretive name.
+
+# Data
+
+## Group "2"
+
+- For variable/proposition "Impose an economic model based on barter (products or services)":
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=19.68%; full sample=37.52%).
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=34.04%; full sample=26.35%).
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=36.17%; full sample=28.80%).
+- For variable/proposition "Trust science in the development of innovative technologies":
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=32.45%; full sample=18.15%).
+  - The response/modality "Totally unacceptable" is MORE FREQUENT in this group than in the full sample (group=13.83%; full sample=6.63%).
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=4.26%; full sample=10.99%).
+  - The response/modality "Acceptable" is LESS FREQUENT in this group than in the full sample (group=9.57%; full sample=16.23%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=39.89%; full sample=47.99%).
+- For variable/proposition "Impose surplus food to be donated to disadvantaged populations":
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=40.43%; full sample=24.78%).
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=24.47%; full sample=35.43%).
+- For variable/proposition "Support, through taxes, aid programs for disadvantaged regions and populations":
+  - The response/modality "Acceptable" is LESS FREQUENT in this group than in the full sample (group=9.04%; full sample=21.82%).
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=25.00%; full sample=18.50%).
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=52.66%; full sample=45.20%).
+- For variable/proposition "Let the State alone decide on food policies, possibly after consultation":
+  - The response/modality "Totally unacceptable" is MORE FREQUENT in this group than in the full sample (group=74.47%; full sample=58.99%).
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=16.49%; full sample=28.10%).
+- For variable/proposition "Impose the food industry to increase the number of product references for specific diets":
+  - The response/modality "Totally unacceptable" is MORE FREQUENT in this group than in the full sample (group=26.06%; full sample=15.18%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=28.19%; full sample=40.66%).
+- For variable/proposition "Regularly impose dishes from other cultures in collective catering":
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=28.72%; full sample=42.93%).
+  - The response/modality "Totally unacceptable" is MORE FREQUENT in this group than in the full sample (group=28.19%; full sample=17.45%).
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=38.83%; full sample=30.37%).
+  - The response/modality "Acceptable" is LESS FREQUENT in this group than in the full sample (group=4.26%; full sample=9.25%).
+- For variable/proposition "Prioritize respect for biodiversity and nature over yield":
+  - The response/modality "Totally acceptable" is MORE FREQUENT in this group than in the full sample (group=37.23%; full sample=24.78%).
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=2.66%; full sample=9.25%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=22.87%; full sample=30.37%).
+- For variable/proposition "Follow policies defined for a minimum of 10 years":
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=45.21%; full sample=31.94%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=17.02%; full sample=24.61%).
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=29.26%; full sample=37.70%).
+- For variable/proposition "Impose a fair redistribution of profits throughout the food chain":
+  - The response/modality "Totally acceptable" is MORE FREQUENT in this group than in the full sample (group=34.04%; full sample=22.16%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=25.53%; full sample=34.03%).
+- For variable/proposition "Age":
+  - The response/modality "18 to 29" is LESS FREQUENT in this group than in the full sample (group=64.36%; full sample=76.27%).
+  - The response/modality "50 to 64" is MORE FREQUENT in this group than in the full sample (group=26.06%; full sample=16.40%).
+- For variable/proposition "Tax food that was not produced and processed in France":
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=0.53%; full sample=6.46%).
+  - The response/modality "Totally acceptable" is MORE FREQUENT in this group than in the full sample (group=25.00%; full sample=17.10%).
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=12.23%; full sample=16.58%).
+- For variable/proposition "Ban all products that are too fatty and/or too sweet":
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=18.09%; full sample=30.37%).
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=43.09%; full sample=36.13%).
+- For variable/proposition "Marital status":
+  - The response/modality "Married" is MORE FREQUENT in this group than in the full sample (group=30.32%; full sample=19.55%).
+  - The response/modality "Single" is LESS FREQUENT in this group than in the full sample (group=41.49%; full sample=49.39%).
+- For variable/proposition "Impose civic education courses, at school, to understand public decisions":
+  - The response/modality "Acceptable" is MORE FREQUENT in this group than in the full sample (group=26.06%; full sample=16.06%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=39.36%; full sample=50.09%).
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=2.66%; full sample=6.81%).
+- For variable/proposition "Impose optimized and reasoned energy management":
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=48.94%; full sample=36.65%).
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=15.43%; full sample=21.82%).
+- For variable/proposition "Have a citizens' council without which no decisions could be taken":
+  - The response/modality "Acceptable" is MORE FREQUENT in this group than in the full sample (group=20.21%; full sample=11.87%).
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=22.87%; full sample=31.06%).
+- For variable/proposition "Force food companies to invest in innovative technologies":
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=0.53%; full sample=5.41%).
+  - The response/modality "Totally unacceptable" is MORE FREQUENT in this group than in the full sample (group=17.55%; full sample=11.69%).
+  - The response/modality "Acceptable" is LESS FREQUENT in this group than in the full sample (group=7.45%; full sample=12.91%).
+- For variable/proposition "Systematically favor supply from small producers and family farms":
+  - The response/modality "Totally acceptable" is MORE FREQUENT in this group than in the full sample (group=30.85%; full sample=20.94%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=34.57%; full sample=42.93%).
+- For variable/proposition "Support, through taxes, food companies that commit to sustainable food":
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=3.72%; full sample=10.47%).
+- For variable/proposition "I don’t trust science when it comes to my diet":
+  - The response/modality "Totally disagree" is LESS FREQUENT in this group than in the full sample (group=26.60%; full sample=37.70%).
+  - The response/modality "Agree" is MORE FREQUENT in this group than in the full sample (group=14.36%; full sample=7.85%).
+  - The response/modality "Neither agree nor disagree" is MORE FREQUENT in this group than in the full sample (group=26.60%; full sample=21.64%).
+- For variable/proposition "Redistribute the world’s food and water resources fairly":
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=49.47%; full sample=38.39%).
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=17.55%; full sample=23.39%).
+  - The response/modality "Acceptable" is LESS FREQUENT in this group than in the full sample (group=23.94%; full sample=29.49%).
+- For variable/proposition "Guarantee prices that are stable and profitable for the producer throughout the year":
+  - The response/modality "Acceptable" is LESS FREQUENT in this group than in the full sample (group=26.06%; full sample=36.82%).
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=30.85%; full sample=23.21%).
+- For variable/proposition "Ban all ultra-processed products":
+  - The response/modality "Totally acceptable" is MORE FREQUENT in this group than in the full sample (group=20.21%; full sample=12.57%).
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=16.49%; full sample=23.91%).
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=34.04%; full sample=27.40%).
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=12.23%; full sample=17.63%).
+- For variable/proposition "I don’t trust the government, whether national or local":
+  - The response/modality "Totally agree" is MORE FREQUENT in this group than in the full sample (group=13.30%; full sample=7.50%).
+- For variable/proposition "Sell products that are out of season at a much higher price":
+  - The response/modality "Totally unacceptable" is MORE FREQUENT in this group than in the full sample (group=13.30%; full sample=7.50%).
+- For variable/proposition "Ban the import of food whose production does not respect human rights":
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=23.94%; full sample=16.06%).
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=45.21%; full sample=54.62%).
+- For variable/proposition "Impose an annual nutritional health checkup for everyone":
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=26.60%; full sample=36.30%).
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=5.85%; full sample=11.69%).
+  - The response/modality "Acceptable" is MORE FREQUENT in this group than in the full sample (group=23.40%; full sample=16.75%).
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=28.72%; full sample=22.16%).
+- For variable/proposition "Impose schools to teach the importance of good nutrition":
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=15.43%; full sample=23.91%).
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=44.15%; full sample=37.35%).
+- For variable/proposition "Create urban gardens that citizens would be obligated to maintain":
+  - The response/modality "Acceptable" is MORE FREQUENT in this group than in the full sample (group=13.30%; full sample=7.85%).
+- For variable/proposition "Require all players, including consumers, to recycle their waste":
+  - The response/modality "Totally acceptable" is LESS FREQUENT in this group than in the full sample (group=15.43%; full sample=23.39%).
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=39.36%; full sample=32.46%).
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=4.79%; full sample=8.38%).
+- For variable/proposition "Impose a baseline amount of traditional local recipes in catering":
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=3.72%; full sample=8.73%).
+- For variable/proposition "Systematically favor certified products (organic, PDO, Label Rouge )":
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=28.72%; full sample=37.52%).
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=22.34%; full sample=16.06%).
+- For variable/proposition "Remove all synthetic chemicals from agriculture":
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=2.66%; full sample=6.98%).
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=16.49%; full sample=23.21%).
+  - The response/modality "Totally acceptable" is MORE FREQUENT in this group than in the full sample (group=12.77%; full sample=8.90%).
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=47.87%; full sample=41.54%).
+- For variable/proposition "Impose optimized and reasoned water management":
+  - The response/modality "Acceptable" is LESS FREQUENT in this group than in the full sample (group=33.51%; full sample=41.88%).
+  - The response/modality "Neither acceptable nor unacceptable" is MORE FREQUENT in this group than in the full sample (group=32.98%; full sample=26.70%).
+- For variable/proposition "I think that eating well should be earned":
+  - The response/modality "Neither agree nor disagree" is LESS FREQUENT in this group than in the full sample (group=17.02%; full sample=24.08%).
+- For variable/proposition "Socio-professional category":
+  - The response/modality "Students" is LESS FREQUENT in this group than in the full sample (group=50.00%; full sample=58.29%).
+  - The response/modality "Executives and higher intellectual professions" is MORE FREQUENT in this group than in the full sample (group=26.60%; full sample=20.42%).
+  - The response/modality "Retired" is MORE FREQUENT in this group than in the full sample (group=8.51%; full sample=5.58%).
+- For variable/proposition "Let local authorities alone decide on food policies, possibly after consultation":
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=31.91%; full sample=39.79%).
+  - The response/modality "Totally unacceptable" is MORE FREQUENT in this group than in the full sample (group=37.77%; full sample=31.76%).
+- For variable/proposition "Never sell packaged products when they can be sold in bulk":
+  - The response/modality "Acceptable" is MORE FREQUENT in this group than in the full sample (group=40.43%; full sample=32.98%).
+  - The response/modality "Unacceptable" is LESS FREQUENT in this group than in the full sample (group=7.45%; full sample=11.52%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=32.98%; full sample=39.09%).
+- For variable/proposition "Only use renewable energy":
+  - The response/modality "Unacceptable" is MORE FREQUENT in this group than in the full sample (group=27.13%; full sample=20.77%).
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=37.23%; full sample=43.11%).
+- For variable/proposition "Ban the sale of meat from animals whose welfare was not respected":
+  - The response/modality "Neither acceptable nor unacceptable" is LESS FREQUENT in this group than in the full sample (group=19.68%; full sample=26.18%).
+  - The response/modality "Acceptable" is MORE FREQUENT in this group than in the full sample (group=37.23%; full sample=31.24%).
+- For variable/proposition "Impose a civic service for social and environmental purposes (gardening, food distribution )":
+  - The response/modality "Acceptable" is MORE FREQUENT in this group than in the full sample (group=17.02%; full sample=12.22%).
+- For variable/proposition "I consider that it’s those who pollute the most who should make efforts, not me":
+  - The response/modality "Totally agree" is MORE FREQUENT in this group than in the full sample (group=11.17%; full sample=7.50%).
+- For variable/proposition "I don’t have enough money to agree with some assertions":
+  - The response/modality "Totally agree" is LESS FREQUENT in this group than in the full sample (group=4.26%; full sample=7.68%).
+- For variable/proposition "Limit meat to two days a week in collective catering":
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=9.04%; full sample=13.26%).
+- For variable/proposition "Force wages to be redistributed, to pay better wages to physical and difficult jobs":
+  - The response/modality "Totally unacceptable" is LESS FREQUENT in this group than in the full sample (group=4.79%; full sample=8.03%).
+
+# Output
+
+Write a clear, substantive interpretation highlighting the central profile, its main supporting statistical characteristics, and important nuances or exceptions. Favor meaningful synthesis over repetitive numerical reporting.
