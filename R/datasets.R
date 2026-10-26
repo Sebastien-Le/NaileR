@@ -258,6 +258,98 @@
 #' }
 "atomic_habit_clust"
 
+#' QDA sensory evaluations of strawberries
+#'
+#' A standardized, English-labelled copy of the local strawberry QDA study.
+#' The data describe four strawberry products evaluated by a panel over two
+#' observed sessions. The labels are retained from the local standardization;
+#' uncertain sensory meanings are documented in the validation materials.
+#'
+#' @docType data
+#' @format A data frame with 96 rows and 13 columns. The first three columns
+#' are `Product`, `Panelist`, and `Session`; the remaining columns are ten
+#' quantitative sensory descriptors covering appearance, odor, texture, taste,
+#' and flavor.
+#' @details The source contained `NR`, `CJ`, `ProductName`, ten numeric
+#' descriptors, and `Commentaire`. The comment field is not part of this QDA
+#' dataset. `Session` records the observed repetition. The local English
+#' labels are documented translations, not new measurements.
+#' @source Local sensory study; standardized from
+#' `local_data/qda/study_01/fraise.Rdata`.
+#' @examples
+#' data(qda_strawberries)
+#' dim(qda_strawberries)
+#' head(qda_strawberries[, 1:4])
+"qda_strawberries"
+
+#' QDA sensory evaluations of apples
+#'
+#' A standardized, English-labelled copy of the local apple QDA study. Six
+#' apple products were evaluated by 22 panelists over two observed sessions.
+#' Two original labels, one of them accented in the source, are retained
+#' because their individual sensory meanings remain unresolved.
+#'
+#' @docType data
+#' @format A data frame with 264 rows and 27 columns. The first three columns
+#' are `Product`, `Panelist`, and `Session`; the remaining columns are 24
+#' quantitative sensory descriptors.
+#' @details Leading spaces in the original `Renette` and `Golden` modalities
+#' were removed in the standardized copy after a collision check. Aromatic
+#' descriptors were evaluated in the mouth. The suffixes and unresolved labels
+#' must not be given a more specific interpretation without the original
+#' codebook.
+#' @source Local sensory study; standardized from
+#' `local_data/qda/study_02/apples.Rdata`.
+#' @examples
+#' data(qda_apples)
+#' dim(qda_apples)
+#' table(qda_apples$Product)
+"qda_apples"
+
+#' QDA sensory evaluations of perfumes
+#'
+#' A standardized UTF-8 copy of a Latin-1 encoded expert perfume QDA study.
+#' Twelve commercial products were evaluated by 12 panelists over two sessions.
+#'
+#' @docType data
+#' @format A data frame with 288 rows and 15 columns. The first three columns
+#' are `Product`, `Panelist`, and `Session`; the remaining columns are 12
+#' quantitative odor descriptors.
+#' @details The source `Rank` column is not included in the QDA descriptors.
+#' Product names, including the accented commercial product name in the source,
+#' are preserved. The
+#' meanings of `Odor_Greedy`, `Odor_Oriental`, and `Odor_Wrapping`, as well as
+#' the scale anchors, require confirmation from the original codebook.
+#' @source Local sensory study; standardized from
+#' `local_data/qda/study_04/perfumes_qda_experts.csv`.
+#' @examples
+#' data(qda_perfumes)
+#' dim(qda_perfumes)
+#' unique(qda_perfumes$Product)
+"qda_perfumes"
+
+#' QDA sensory evaluations of melons
+#'
+#' A standardized, English-labelled copy of the local melon QDA study. Six
+#' melon products were evaluated by 12 judges. No observed session or
+#' repetition field is present, so no `Session` column was created.
+#'
+#' @docType data
+#' @format A data frame with 72 rows and 12 columns. The first two columns are
+#' `Product` and `Panelist`; the remaining columns are ten quantitative sensory
+#' descriptors covering mouthfeel, odor, and texture.
+#' @details The source `Smp.code` column is excluded from the QDA dataset. The
+#' standardized product identifiers are `DAI`, `DHL`, `HL`, `KS`, `TAKI`, and
+#' `TL3`. Some source labels remain provisional where the codebook does not
+#' resolve their exact sensory scope.
+#' @source Local sensory study; standardized from
+#' `local_data/qda/study_03/melons.Rdata`.
+#' @examples
+#' data(qda_melons)
+#' dim(qda_melons)
+#' table(qda_melons$Product)
+"qda_melons"
+
 
 #' Beard descriptions
 #'
