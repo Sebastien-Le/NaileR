@@ -1,0 +1,7 @@
+textual_readiness
+text_columns=10
+all_text_columns_nonempty=TRUE
+Each text column is a justification associated with the same-named habit.
+The future textual route must be run one question/text column at a time.
+No textual generation was executed in C02.
+No raw verbatim was written to the shareable report or aggregate tables.

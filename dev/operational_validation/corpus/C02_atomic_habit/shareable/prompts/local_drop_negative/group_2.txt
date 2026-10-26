@@ -1,0 +1,55 @@
+# Introduction
+
+These data come from a survey of 167 people about everyday practices. Participants reported whether they felt able to adopt several practices and how restrictive they perceived them to be. The three groups are constructed profiles from an upstream classification; their labels are identifiers, not substantive names.
+
+---
+
+## How to Read the Statistical Evidence
+
+The results come from `FactoMineR::catdes()`. Each qualitative finding compares the frequency of a response modality within a group with its frequency in the full analyzed sample.
+MORE FREQUENT indicates statistical overrepresentation; LESS FREQUENT indicates statistical underrepresentation. The full sample is the reference, not another group.
+Overrepresentation does not necessarily imply a majority within the group. Interpret each direction together with the reported group and full-sample percentages.
+Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale. Do not infer the distribution of unreported modalities from a single displayed result.
+Each quantitative finding compares a variable's mean within a group with its mean in the full analyzed sample. HIGHER and LOWER indicate that the group mean is statistically higher or lower, respectively.
+Read each difference according to what the variable measures, its unit when known, and the meaning of high and low values. Do not assume that higher means better or lower means worse.
+If the variable's meaning, scale, or unit is unclear, do not invent it. Do not compare means of unrelated variables as if they were measured on the same scale.
+Base your analysis on the provided statistical evidence. Do not make assumptions about variables or modalities that are not shown.
+
+# Overall Analytical Request
+
+Interpret the constructed groups from the displayed capability and perceived-restrictiveness evidence. Synthesize convergent findings, distinguish declared capability from perceived constraint, and do not turn intentions into observed behaviour or perceived constraints into demonstrated causes.
+
+## Interpretation Rules
+
+Interpret each group by considering its statistical characteristics jointly, rather than describing variables one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive synthesis that reveals what emerges from their combination.
+Use the study context to connect characteristics conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships or causal mechanisms. Preserve important nuances and ambiguities, without forcing an artificial coherence.
+Each group is a constructed group whose identifier does not define its substantive meaning. Interpret its combined statistical characteristics to identify what makes it distinctive.
+When supported by the evidence, propose a concise, meaningful name that captures the group's overall profile. Keep the original identifier alongside the proposed name.
+Do not force a label when the profile is too heterogeneous or insufficiently informative.
+
+# Local Task
+
+Interpret only the selected group using its displayed statistical evidence. Do not describe groups whose profiles have not been provided.
+The constructed group identifier shown below is '2'. Keep this original identifier alongside any proposed interpretive name.
+
+# Data
+
+## Group "2"
+
+- For variable/proposition "linen capable":
+  - The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer" is MORE FREQUENT in this group than in the full sample (group=84.62%; full sample=7.78%).
+- For variable/proposition "drop temperature capable":
+  - The response/modality "I don't feel able to lower the temperature in my home" is MORE FREQUENT in this group than in the full sample (group=61.54%; full sample=13.17%).
+- For variable/proposition "never plane capable":
+  - The response/modality "I feel able not to take the plane" is MORE FREQUENT in this group than in the full sample (group=92.31%; full sample=48.50%).
+- For variable/proposition "turn off capable":
+  - The response/modality "I don't feel able to switch off plugged-in appliances" is MORE FREQUENT in this group than in the full sample (group=46.15%; full sample=13.77%).
+- For variable/proposition "second hand capable":
+  - The response/modality "I feel able to buy only second-hand clothes" is MORE FREQUENT in this group than in the full sample (group=84.62%; full sample=56.89%).
+- The mean of "From 0 to 5 linen is restrictive" is HIGHER in this group than in the full sample (group mean=3.92; full-sample mean=1.15).
+- The mean of "From 0 to 5 drop temperature is restrictive" is HIGHER in this group than in the full sample (group mean=2.46; full-sample mean=1.50).
+- The mean of "From 0 to 5 turn off is restrictive" is HIGHER in this group than in the full sample (group mean=2.46; full-sample mean=1.65).
+
+# Output
+
+Write a clear, substantive interpretation highlighting the central profile, its main supporting statistical characteristics, and important nuances or exceptions. Favor meaningful synthesis over repetitive numerical reporting.

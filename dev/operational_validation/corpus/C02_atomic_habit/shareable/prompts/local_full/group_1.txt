@@ -1,0 +1,78 @@
+# Introduction
+
+These data come from a survey of 167 people about everyday practices. Participants reported whether they felt able to adopt several practices and how restrictive they perceived them to be. The three groups are constructed profiles from an upstream classification; their labels are identifiers, not substantive names.
+
+---
+
+## How to Read the Statistical Evidence
+
+The results come from `FactoMineR::catdes()`. Each qualitative finding compares the frequency of a response modality within a group with its frequency in the full analyzed sample.
+MORE FREQUENT indicates statistical overrepresentation; LESS FREQUENT indicates statistical underrepresentation. The full sample is the reference, not another group.
+Overrepresentation does not necessarily imply a majority within the group. Interpret each direction together with the reported group and full-sample percentages.
+Interpret each response modality according to its actual meaning, including negation and, when relevant, its position on an ordered scale. Do not infer the distribution of unreported modalities from a single displayed result.
+Each quantitative finding compares a variable's mean within a group with its mean in the full analyzed sample. HIGHER and LOWER indicate that the group mean is statistically higher or lower, respectively.
+Read each difference according to what the variable measures, its unit when known, and the meaning of high and low values. Do not assume that higher means better or lower means worse.
+If the variable's meaning, scale, or unit is unclear, do not invent it. Do not compare means of unrelated variables as if they were measured on the same scale.
+Base your analysis on the provided statistical evidence. Do not make assumptions about variables or modalities that are not shown.
+
+# Overall Analytical Request
+
+Interpret the constructed groups from the displayed capability and perceived-restrictiveness evidence. Synthesize convergent findings, distinguish declared capability from perceived constraint, and do not turn intentions into observed behaviour or perceived constraints into demonstrated causes.
+
+## Interpretation Rules
+
+Interpret each group by considering its statistical characteristics jointly, rather than describing variables one by one. Identify meaningful patterns and distinctive configurations, and develop a substantive synthesis that reveals what emerges from their combination.
+Use the study context to connect characteristics conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships or causal mechanisms. Preserve important nuances and ambiguities, without forcing an artificial coherence.
+Each group is a constructed group whose identifier does not define its substantive meaning. Interpret its combined statistical characteristics to identify what makes it distinctive.
+When supported by the evidence, propose a concise, meaningful name that captures the group's overall profile. Keep the original identifier alongside the proposed name.
+Do not force a label when the profile is too heterogeneous or insufficiently informative.
+
+# Local Task
+
+Interpret only the selected group using its displayed statistical evidence. Do not describe groups whose profiles have not been provided.
+The constructed group identifier shown below is '1'. Keep this original identifier alongside any proposed interpretive name.
+
+# Data
+
+## Group "1"
+
+- For variable/proposition "local products capable":
+  - The response/modality "I don't feel able to buy only locally sourced food products" is LESS FREQUENT in this group than in the full sample (group=23.81%; full sample=46.71%).
+  - The response/modality "I feel able to buy only locally sourced food products" is MORE FREQUENT in this group than in the full sample (group=76.19%; full sample=53.29%).
+- For variable/proposition "second hand capable":
+  - The response/modality "I don't feel able to buy only second-hand clothes" is LESS FREQUENT in this group than in the full sample (group=25.00%; full sample=43.11%).
+  - The response/modality "I feel able to buy only second-hand clothes" is MORE FREQUENT in this group than in the full sample (group=75.00%; full sample=56.89%).
+- For variable/proposition "unpackaged capable":
+  - The response/modality "I don't feel able to buy only products without packaging" is LESS FREQUENT in this group than in the full sample (group=13.10%; full sample=29.34%).
+  - The response/modality "I feel able to buy only products without packaging" is MORE FREQUENT in this group than in the full sample (group=86.90%; full sample=70.66%).
+- For variable/proposition "linen capable":
+  - The response/modality "I feel able to let my washing air dry rather than use a tumble dryer" is MORE FREQUENT in this group than in the full sample (group=100.00%; full sample=92.22%).
+  - The response/modality "I don't feel able to let my washing air dry rather than use a tumble dryer" is LESS FREQUENT in this group than in the full sample (group=0.00%; full sample=7.78%).
+- For variable/proposition "drop temperature capable":
+  - The response/modality "I feel able to lower the temperature in my home" is MORE FREQUENT in this group than in the full sample (group=96.43%; full sample=86.83%).
+  - The response/modality "I don't feel able to lower the temperature in my home" is LESS FREQUENT in this group than in the full sample (group=3.57%; full sample=13.17%).
+- For variable/proposition "car alone capable":
+  - The response/modality "I don't feel able of ever taking my car alone" is LESS FREQUENT in this group than in the full sample (group=39.29%; full sample=52.69%).
+  - The response/modality "I feel able of never taking my car alone" is MORE FREQUENT in this group than in the full sample (group=60.71%; full sample=47.31%).
+- For variable/proposition "vegan capable":
+  - The response/modality "I don't feel able of adopting a strictly plant-based diet" is LESS FREQUENT in this group than in the full sample (group=65.48%; full sample=76.65%).
+  - The response/modality "I feel able of adopting a strictly plant-based diet" is MORE FREQUENT in this group than in the full sample (group=34.52%; full sample=23.35%).
+- For variable/proposition "loan capable":
+  - The response/modality "I don't feel able to use loan systems for equipment" is LESS FREQUENT in this group than in the full sample (group=4.76%; full sample=9.58%).
+  - The response/modality "I feel able to use loan systems for equipment" is MORE FREQUENT in this group than in the full sample (group=95.24%; full sample=90.42%).
+- For variable/proposition "never plane capable":
+  - The response/modality "I don't feel able not to take the plane" is MORE FREQUENT in this group than in the full sample (group=59.52%; full sample=51.50%).
+  - The response/modality "I feel able not to take the plane" is LESS FREQUENT in this group than in the full sample (group=40.48%; full sample=48.50%).
+- The mean of "From 0 to 5 unpackaged is restrictive" is LOWER in this group than in the full sample (group mean=1.67; full-sample mean=2.40).
+- The mean of "From 0 to 5 second hand is restrictive" is LOWER in this group than in the full sample (group mean=1.58; full-sample mean=2.28).
+- The mean of "From 0 to 5 drop temperature is restrictive" is LOWER in this group than in the full sample (group mean=0.98; full-sample mean=1.50).
+- The mean of "From 0 to 5 linen is restrictive" is LOWER in this group than in the full sample (group mean=0.58; full-sample mean=1.15).
+- The mean of "From 0 to 5 local products is restrictive" is LOWER in this group than in the full sample (group mean=2.26; full-sample mean=2.74).
+- The mean of "From 0 to 5 loan is restrictive" is LOWER in this group than in the full sample (group mean=1.33; full-sample mean=1.72).
+- The mean of "From 0 to 5 car alone is restrictive" is LOWER in this group than in the full sample (group mean=2.64; full-sample mean=3.08).
+- The mean of "From 0 to 5 vegan is restrictive" is LOWER in this group than in the full sample (group mean=3.13; full-sample mean=3.56).
+- The mean of "From 0 to 5 turn off is restrictive" is LOWER in this group than in the full sample (group mean=1.29; full-sample mean=1.65).
+
+# Output
+
+Write a clear, substantive interpretation highlighting the central profile, its main supporting statistical characteristics, and important nuances or exceptions. Favor meaningful synthesis over repetitive numerical reporting.

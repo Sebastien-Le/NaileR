@@ -1,0 +1,11 @@
+"text_column","non_empty","missing","unique_texts","median_characters"
+"car_alone_text",167,0,158,57
+"never_plane_text",167,0,164,71
+"loan_text",167,0,162,58
+"second_hand_text",167,0,163,72
+"unpackaged_text",167,0,159,70
+"local_products_text",167,0,161,75
+"turn off_text",167,0,157,51
+"drop_temperature_text",167,0,159,49
+"vegan_text",167,0,158,84
+"linen_text",167,0,148,50
