@@ -9,7 +9,8 @@ A data frame with 573 rows (participants) and 63 columns (questions):
 \itemize{
 \item columns 1-45 statements about food systems
 \item columns 46-59 opinions
-\item columns 60-63 personal information
+\item columns 60-63 contextual variables (\code{Age}, marital status, city size and
+socio-professional category)
 }
 }
 \source{
@@ -24,7 +25,11 @@ local_food
 These data were collected after a Q-method-like survey on sustainable food systems.
 Participants rated the acceptability of 45 statements about a sustainable
 food system and then answered 14 additional opinion statements. The
-distributed object contains the original participant-level factor responses.
+distributed object contains the original participant-level factor responses
+and four contextual variables. The object \code{mashs_food_system} represents
+the same survey in a different preparation: it retains the 59 response
+variables, \code{Age}, and a four-group constructed classification. The two
+objects are complementary teaching resources, not interchangeable exports.
 }
 \examples{
 library(FactoMineR)

@@ -549,7 +549,11 @@
 #' These data were collected after a Q-method-like survey on sustainable food systems.
 #' Participants rated the acceptability of 45 statements about a sustainable
 #' food system and then answered 14 additional opinion statements. The
-#' distributed object contains the original participant-level factor responses.
+#' distributed object contains the original participant-level factor responses
+#' and four contextual variables. The object `mashs_food_system` represents
+#' the same survey in a different preparation: it retains the 59 response
+#' variables, `Age`, and a four-group constructed classification. The two
+#' objects are complementary teaching resources, not interchangeable exports.
 #'
 #' @docType data
 #'
@@ -557,7 +561,8 @@
 #' A data frame with 573 rows (participants) and 63 columns (questions):
 #' * columns 1-45 statements about food systems
 #' * columns 46-59 opinions
-#' * columns 60-63 personal information
+#' * columns 60-63 contextual variables (`Age`, marital status, city size and
+#'   socio-professional category)
 #' @source Applied mathematics department, Institut Agro Rennes-Angers
 #' The reproducible C01 validation record is maintained in the repository at
 #' \url{https://github.com/Sebastien-Le/NaileR/tree/dev-core5-condes-integration-20261015/dev/operational_validation/corpus/C01_local_food}.
@@ -976,19 +981,22 @@
 #' @docType data
 #'
 #' @format
-#' A data frame with 573 rows and 61 columns. The first 60 columns are
-#' categorical questionnaire responses and the last column, `clust`, is the
-#' retained four-level constructed group identifier.
+#' A data frame with 573 rows and 61 columns. Columns 1--59 are categorical
+#' questionnaire responses, column 60 is the retained `Age` variable, and the
+#' last column, `clust`, is the retained four-level constructed group
+#' identifier.
 #'
 #' @details
 #' The source analysis used the first 45 questionnaire variables as active MCA
-#' variables and later questionnaire variables as supplementary variables.
-#' Demographic variables were excluded from this distributed object to avoid
-#' unnecessary disclosure of quasi-identifying information. The group labels
-#' remain numeric identifiers and are not substantive names. The four group
-#' sizes are 226, 113, 116 and 118. The data describe reported opinions about
-#' an ideal food system; they do not measure observed behaviour or causal
-#' effects.
+#' variables and columns 46--60 as supplementary or contextual variables.
+#' `Age` is retained because it was part of the frozen source table; the other
+#' three contextual variables distributed in `local_food` are omitted here.
+#' The group labels remain numeric identifiers and are not substantive names.
+#' The four group sizes are 226, 113, 116 and 118. The data describe reported
+#' opinions about an ideal food system; they do not measure observed behaviour
+#' or causal effects. Unlike `local_food`, this object includes a retained
+#' four-group classification, whereas the C01 `local_food` example constructs
+#' a three-group HCPC classification for teaching purposes.
 #'
 #' @source Local MASHS research export, de-identified from
 #' `don_clust.rData`. The reconstruction script is documented in
@@ -1023,8 +1031,7 @@
 #'
 #' A de-identified frozen export from the 2024--2025 IRTSAT survey on local
 #' food practices and representations. It contains an IRT score, categorical
-#' descriptors, and the scientifically retained four-level profile
-#' assignment.
+#' descriptors, and the retained four-level profile identifiers.
 #'
 #' @docType data
 #'
@@ -1038,9 +1045,11 @@
 #' k-means illustration and is not the final four-profile classification.
 #' This object preserves the frozen four-profile assignment from the retained
 #' IRT workspace. The score and descriptors are aligned by their original row
-#' order; no personal identifier is distributed. Seven rows present in the
-#' 536-row raw export are not part of the frozen 529-row analysis table. The
-#' score is a retained analysis result and is not recomputed by the package.
+#' order; no personal identifier is distributed. The distributed table has
+#' 529 observations and no missing values. The score is a retained analysis
+#' result and is not recomputed by the package. The current profile levels are
+#' preserved as identifiers; the four historical names are documented
+#' separately and are not used here to assert a verified code-to-name mapping.
 #'
 #' @source Local IRTSAT research workspace, de-identified from the frozen
 #' `dta_gold` and `theta` objects. The reconstruction script is documented in

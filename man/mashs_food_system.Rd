@@ -5,9 +5,10 @@
 \alias{mashs_food_system}
 \title{Ideal food-system questionnaire from the MASHS Q-sort study}
 \format{
-A data frame with 573 rows and 61 columns. The first 60 columns are
-categorical questionnaire responses and the last column, \code{clust}, is the
-retained four-level constructed group identifier.
+A data frame with 573 rows and 61 columns. Columns 1--59 are categorical
+questionnaire responses, column 60 is the retained \code{Age} variable, and the
+last column, \code{clust}, is the retained four-level constructed group
+identifier.
 }
 \source{
 Local MASHS research export, de-identified from
@@ -25,13 +26,15 @@ not a classical Q-method factor extraction.
 }
 \details{
 The source analysis used the first 45 questionnaire variables as active MCA
-variables and later questionnaire variables as supplementary variables.
-Demographic variables were excluded from this distributed object to avoid
-unnecessary disclosure of quasi-identifying information. The group labels
-remain numeric identifiers and are not substantive names. The four group
-sizes are 226, 113, 116 and 118. The data describe reported opinions about
-an ideal food system; they do not measure observed behaviour or causal
-effects.
+variables and columns 46--60 as supplementary or contextual variables.
+\code{Age} is retained because it was part of the frozen source table; the other
+three contextual variables distributed in \code{local_food} are omitted here.
+The group labels remain numeric identifiers and are not substantive names.
+The four group sizes are 226, 113, 116 and 118. The data describe reported
+opinions about an ideal food system; they do not measure observed behaviour
+or causal effects. Unlike \code{local_food}, this object includes a retained
+four-group classification, whereas the C01 \code{local_food} example constructs
+a three-group HCPC classification for teaching purposes.
 }
 \examples{
 library(NaileR)

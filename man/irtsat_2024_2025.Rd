@@ -20,17 +20,18 @@ irtsat_2024_2025
 \description{
 A de-identified frozen export from the 2024--2025 IRTSAT survey on local
 food practices and representations. It contains an IRT score, categorical
-descriptors, and the scientifically retained four-level profile
-assignment.
+descriptors, and the retained four-level profile identifiers.
 }
 \details{
 The visible historical script \code{analyse_irt_multidim.Rmd} uses a three-centre
 k-means illustration and is not the final four-profile classification.
 This object preserves the frozen four-profile assignment from the retained
 IRT workspace. The score and descriptors are aligned by their original row
-order; no personal identifier is distributed. Seven rows present in the
-536-row raw export are not part of the frozen 529-row analysis table. The
-score is a retained analysis result and is not recomputed by the package.
+order; no personal identifier is distributed. The distributed table has
+529 observations and no missing values. The score is a retained analysis
+result and is not recomputed by the package. The current profile levels are
+preserved as identifiers; the four historical names are documented
+separately and are not used here to assert a verified code-to-name mapping.
 }
 \examples{
 library(NaileR)
