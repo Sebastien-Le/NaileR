@@ -7,53 +7,47 @@
 #'
 #' @format
 #' A data frame with 600 rows and 5 columns:
-#' * The Panel effect (3 panels)
-#' * The Inkblot effect (10 inkblots)
-#' * The Panelist effect (20 panelists par panel)
-#' * The interaction Panel and Panelist
-#' * The perception of the inkblot
+#' * `Panel`: panel identifier (3 panels)
+#' * `Inkblot`: inkblot identifier (10 inkblots)
+#' * `Panelist`: panelist identifier (20 panelists per panel)
+#' * `Consumer`: panel-by-panelist identifier
+#' * `Description`: free-text description of the inkblot
 #'
 #' @source Applied mathematics department, Institut Agro Rennes-Angers
 #' @examples
-#' \dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
-#'
 #' library(NaileR)
-#' data(rorschach)
+#' data(rorschach, package = "NaileR")
 #'
 #' ### Example 1: perception of the inkblots for one panel ###
-#' intro_rorschach <- "For this study,
-#' we asked 20 people to briefly describe
-#' the 10 inkblots of the Rorschach test."
-#' intro_rorschach <- gsub('\n', ' ', intro_rorschach) |>
-#' stringr::str_squish()
+#' intro_rorschach <- paste(
+#'   "For this study, 20 people briefly described the 10 inkblots",
+#'   "in each of three panels. This preview uses panel A."
+#' )
 #'
-#' request_rorschach <- "Based on the comments of the 20 people,
-#' please give me a description of each inkblot
-#' in terms of how it was perceived. Tell me if it was
-#' a rather positive or negative perception."
-#' request_rorschach <- gsub('\n', ' ', request_rorschach) |>
-#' stringr::str_squish()
+#' request_rorschach <- paste(
+#'   "Describe recurring perceptions of each inkblot from the displayed",
+#'   "responses. Preserve variation in the descriptions and do not infer",
+#'   "personality, causes or positive/negative attitudes unless stated."
+#' )
 #'
 #' rorschach_A <- droplevels(rorschach[rorschach$Panel=="A",])
 #'
-#' res_nail_textual_rorschach <- nail_textual(rorschach_A, num.var = 2,
-#'                                            num.text = 5,
-#'                                            introduction = intro_rorschach,
-#'                                            request = request_rorschach,
-#'                                            model = 'llama3',
-#'                                            isolate.groups = FALSE,
-#'                                            generate = FALSE)
-#' res_nail_textual_rorschach |> cat()
-#'
-#' ppt <- gsub("## Group", "## Inkblot", res_nail_textual_rorschach)
-#' ppt |> cat()
-#'
-#' res_inkblot <- ollamar::generate(model = 'llama3', prompt = ppt,
-#'                                  output = "text")
-#' res_inkblot |> cat()
-#' }
+#' res_nail_textual_rorschach <- nail_textual(
+#'   rorschach_A,
+#'   num.var = 2,
+#'   num.text = 5,
+#'   introduction = intro_rorschach,
+#'   request = request_rorschach,
+#'   isolate.groups = FALSE,
+#'   generate = FALSE
+#' )
+#' rorschach_textual_evidence <- nail_evidence(res_nail_textual_rorschach)
+#' rorschach_textual_prompt <- nail_prompt(
+#'   res_nail_textual_rorschach,
+#'   select = "1",
+#'   print = FALSE
+#' )
+#' cat(substr(rorschach_textual_prompt, 1, 600), "\n")
 "rorschach"
 
 #' Car seat fabrics

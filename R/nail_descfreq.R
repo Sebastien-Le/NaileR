@@ -1400,6 +1400,51 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #' children_evidence <- nail_evidence(children_preview)
 #' cat(substr(nail_prompt(children_preview, print = FALSE), 1, 600), "\n")
 #'
+#' # Example 3: build an observed-term table from Rorschach descriptions.
+#' # Each term is counted at most once per description; the six terms below
+#' # are observed in the corpus and are not selected by significance.
+#' data(rorschach, package = "NaileR")
+#' rorschach_terms <- c("animal", "bat", "black", "butterfly", "color", "red")
+#' rorschach_tokens <- strsplit(
+#'   tolower(gsub("[^a-z]+", " ", rorschach$Description)),
+#'   "\\s+"
+#' )
+#' rorschach_counts <- vapply(
+#'   rorschach_terms,
+#'   function(term) {
+#'     vapply(rorschach_tokens, function(tokens) as.numeric(term %in% tokens), numeric(1))
+#'   },
+#'   numeric(nrow(rorschach))
+#' )
+#' rorschach_table <- aggregate(
+#'   rorschach_counts,
+#'   by = list(Inkblot = rorschach$Inkblot),
+#'   FUN = sum
+#' )
+#' rownames(rorschach_table) <- as.character(rorschach_table$Inkblot)
+#' rorschach_table$Inkblot <- NULL
+#' rorschach_table <- rorschach_table[, colSums(rorschach_table) > 0, drop = FALSE]
+#'
+#' rorschach_preview <- nail_descfreq(
+#'   dataset = rorschach_table,
+#'   introduction = paste(
+#'     "Participants described ten Rorschach inkblots.",
+#'     "This contingency table counts six observed descriptive terms",
+#'     "at most once per description across the ten inkblots."
+#'   ),
+#'   request = paste(
+#'     "Describe the perceptual characteristics associated with each inkblot",
+#'     "using the retained frequency evidence. Distinguish inkblots based on",
+#'     "their descriptions without inferring personality or causal mechanisms."
+#'   ),
+#'   proba = 0.05,
+#'   interpretation_mode = "comparison",
+#'   isolate.groups = FALSE,
+#'   generate = FALSE
+#' )
+#' rorschach_evidence <- nail_evidence(rorschach_preview)
+#' cat(substr(nail_prompt(rorschach_preview, print = FALSE), 1, 600), "\n")
+#'
 #' @export
 nail_descfreq <- function(dataset,
                           introduction = NULL,
