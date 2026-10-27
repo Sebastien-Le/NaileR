@@ -140,3 +140,106 @@ test_that("Distinction uses a documented assertion subset", {
   expect_false("quality_food_open" %in% active)
   expect_true(nrow(nail_evidence(result)$evidence_registry) > 0L)
 })
+
+test_that("Distinction semantic assertion labels preserve the statistics", {
+  data(distinction, package = "NaileR")
+  dictionary <- utils::read.csv(
+    testthat::test_path("..", "..", "dev", "transition_reconstruction",
+                        "DISTINCTION_VARIABLE_DICTIONARY.csv"),
+    check.names = FALSE,
+    stringsAsFactors = FALSE,
+    fileEncoding = "UTF-8"
+  )
+  active <- c(
+    grep("^assertion_q17_", names(distinction), value = TRUE),
+    grep("^assertion_q2[1-5]_", names(distinction), value = TRUE)
+  )
+  rows <- match(active, dictionary$english_name)
+  labels <- dictionary$original_name[rows]
+  expect_length(active, 47L)
+  expect_false(anyNA(rows))
+  expect_length(unique(labels), 47L)
+  expect_true(all(nzchar(labels)))
+
+  technical_data <- distinction[, active, drop = FALSE]
+  semantic_data <- technical_data
+  names(semantic_data) <- labels
+  technical_mca <- FactoMineR::MCA(technical_data, ncp = 5, graph = FALSE)
+  semantic_mca <- FactoMineR::MCA(semantic_data, ncp = 5, graph = FALSE)
+  expect_equal(technical_mca$eig, semantic_mca$eig, tolerance = 1e-12)
+  expect_true(isTRUE(all.equal(
+    unname(technical_mca$ind$coord),
+    unname(semantic_mca$ind$coord),
+    tolerance = 1e-12,
+    check.attributes = FALSE
+  )))
+  expect_true(isTRUE(all.equal(
+    unname(technical_mca$ind$contrib),
+    unname(semantic_mca$ind$contrib),
+    tolerance = 1e-12,
+    check.attributes = FALSE
+  )))
+  expect_true(isTRUE(all.equal(
+    unname(technical_mca$ind$cos2),
+    unname(semantic_mca$ind$cos2),
+    tolerance = 1e-12,
+    check.attributes = FALSE
+  )))
+  expect_true(isTRUE(all.equal(
+    unname(technical_mca$var$coord),
+    unname(semantic_mca$var$coord),
+    tolerance = 1e-12,
+    check.attributes = FALSE
+  )))
+  expect_true(isTRUE(all.equal(
+    unname(technical_mca$var$contrib),
+    unname(semantic_mca$var$contrib),
+    tolerance = 1e-12,
+    check.attributes = FALSE
+  )))
+  expect_true(isTRUE(all.equal(
+    unname(technical_mca$var$cos2),
+    unname(semantic_mca$var$cos2),
+    tolerance = 1e-12,
+    check.attributes = FALSE
+  )))
+
+  technical_result <- nail_condes(
+    data.frame(Dim1 = technical_mca$ind$coord[, 1], technical_data,
+               check.names = FALSE),
+    num.var = 1,
+    interpretation_mode = "latent",
+    target_label = "Dim1",
+    target_concept = "food-transition representations",
+    generate = FALSE
+  )
+  semantic_result <- nail_condes(
+    data.frame(Dim1 = semantic_mca$ind$coord[, 1], semantic_data,
+               check.names = FALSE),
+    num.var = 1,
+    interpretation_mode = "latent",
+    target_label = "Dim1",
+    target_concept = "food-transition representations",
+    generate = FALSE
+  )
+  technical_evidence <- nail_evidence(technical_result)
+  semantic_evidence <- nail_evidence(semantic_result)
+  registry_columns <- c(
+    "family", "category", "direction", "statistic", "statistic_name",
+    "p_value", "rank"
+  )
+  expect_true(isTRUE(all.equal(
+    technical_evidence$evidence_registry[registry_columns],
+    semantic_evidence$evidence_registry[registry_columns],
+    tolerance = 1e-12,
+    check.attributes = FALSE
+  )))
+  expect_equal(
+    nrow(technical_evidence$evidence_registry),
+    nrow(semantic_evidence$evidence_registry)
+  )
+  expect_true(grepl("Je regarde systématiquement", nail_prompt(
+    semantic_result,
+    print = FALSE
+  ), fixed = TRUE))
+})

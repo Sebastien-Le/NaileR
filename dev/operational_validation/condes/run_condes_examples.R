@@ -80,6 +80,19 @@ run_case <- function(label, data, mca, active, supplementary, target,
   )
 }
 
+same_numeric <- function(x, y, tolerance = 1e-12) {
+  isTRUE(all.equal(
+    unname(x),
+    unname(y),
+    tolerance = tolerance,
+    check.attributes = FALSE
+  ))
+}
+
+same_or_global_sign <- function(x, y, tolerance = 1e-12) {
+  same_numeric(x, y, tolerance) || same_numeric(x, -y, tolerance)
+}
+
 cases <- list()
 
 # Reference examples already present in the main help: an observed target and
@@ -270,12 +283,160 @@ distinction_active <- c(
   grep("^assertion_q2[1-5]_", names(distinction), value = TRUE)
 )
 stopifnot(length(distinction_active) == 47L)
-distinction_active_data <- distinction[, distinction_active, drop = FALSE]
+distinction_dictionary <- utils::read.csv(
+  file.path(repo, "dev/transition_reconstruction/DISTINCTION_VARIABLE_DICTIONARY.csv"),
+  check.names = FALSE,
+  stringsAsFactors = FALSE,
+  fileEncoding = "UTF-8"
+)
+stopifnot(
+  all(c("original_position", "original_name", "english_name") %in%
+    names(distinction_dictionary))
+)
+distinction_dictionary_rows <- match(
+  distinction_active,
+  distinction_dictionary$english_name
+)
+stopifnot(
+  all(!is.na(distinction_dictionary_rows)),
+  !anyDuplicated(distinction_dictionary$original_name[distinction_dictionary_rows]),
+  all(nzchar(distinction_dictionary$original_name[distinction_dictionary_rows]))
+)
+distinction_assertion_crosswalk <- data.frame(
+  technical_name = distinction_active,
+  documented_label = distinction_dictionary$original_name[distinction_dictionary_rows],
+  dictionary_position = distinction_dictionary$original_position[distinction_dictionary_rows],
+  label_language = "French",
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+distinction_active_data_raw <- distinction[, distinction_active, drop = FALSE]
+distinction_active_data <- distinction_active_data_raw
+names(distinction_active_data) <- distinction_assertion_crosswalk$documented_label
+distinction_mca_raw <- FactoMineR::MCA(
+  distinction_active_data_raw,
+  ncp = 5,
+  graph = FALSE
+)
 distinction_mca <- FactoMineR::MCA(
   distinction_active_data,
   ncp = 5,
   graph = FALSE
 )
+distinction_raw_work <- data.frame(
+  Dim1 = distinction_mca_raw$ind$coord[, 1],
+  distinction_active_data_raw,
+  check.names = FALSE
+)
+distinction_semantic_work <- data.frame(
+  Dim1 = distinction_mca$ind$coord[, 1],
+  distinction_active_data,
+  check.names = FALSE
+)
+distinction_raw_result <- NaileR::nail_condes(
+  dataset = distinction_raw_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  target_concept = "food-transition representations",
+  introduction = paste(
+    "This survey records reported food, territory and food-choice",
+    "attitudes. The active variables cover local-food representations,",
+    "literacy, social context, place confidence, cooking time and health."
+  ),
+  request = paste(
+    "Interpret the opposition between the two ends of Dim1 from the",
+    "retained evidence. Keep reported attitudes distinct from observed",
+    "behaviour, and do not use the open response as an active ACM variable."
+  ),
+  generate = FALSE
+)
+distinction_semantic_result <- NaileR::nail_condes(
+  dataset = distinction_semantic_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  target_concept = "food-transition representations",
+  introduction = paste(
+    "This survey records reported food, territory and food-choice",
+    "attitudes. The active variables cover local-food representations,",
+    "literacy, social context, place confidence, cooking time and health."
+  ),
+  request = paste(
+    "Interpret the opposition between the two ends of Dim1 from the",
+    "retained evidence. Keep reported attitudes distinct from observed",
+    "behaviour, and do not use the open response as an active ACM variable."
+  ),
+  generate = FALSE
+)
+distinction_raw_evidence <- NaileR::nail_evidence(distinction_raw_result)
+distinction_semantic_evidence <- NaileR::nail_evidence(distinction_semantic_result)
+registry_numeric_columns <- c(
+  "family", "category", "direction", "statistic", "statistic_name",
+  "p_value", "rank"
+)
+distinction_invariance <- data.frame(
+  check = c(
+    "mca_eigenvalues",
+    "mca_ind_coord_dim1_same_or_sign_flip",
+    "mca_ind_contrib",
+    "mca_ind_cos2",
+    "mca_var_coord_same_or_sign_flip",
+    "mca_var_contrib",
+    "mca_var_cos2",
+    "condes_target",
+    "condes_registry_numeric",
+    "condes_marker_count"
+  ),
+  passed = c(
+    same_numeric(distinction_mca_raw$eig, distinction_mca$eig),
+    same_or_global_sign(
+      distinction_mca_raw$ind$coord[, 1],
+      distinction_mca$ind$coord[, 1]
+    ),
+    same_numeric(distinction_mca_raw$ind$contrib, distinction_mca$ind$contrib),
+    same_numeric(distinction_mca_raw$ind$cos2, distinction_mca$ind$cos2),
+    same_or_global_sign(
+      distinction_mca_raw$var$coord,
+      distinction_mca$var$coord
+    ),
+    same_numeric(distinction_mca_raw$var$contrib, distinction_mca$var$contrib),
+    same_numeric(distinction_mca_raw$var$cos2, distinction_mca$var$cos2),
+    identical(distinction_raw_evidence$target, distinction_semantic_evidence$target),
+    isTRUE(all.equal(
+      distinction_raw_evidence$evidence_registry[registry_numeric_columns],
+      distinction_semantic_evidence$evidence_registry[registry_numeric_columns],
+      check.attributes = FALSE
+    )),
+    identical(
+      nrow(distinction_raw_evidence$evidence_registry),
+      nrow(distinction_semantic_evidence$evidence_registry)
+    )
+  ),
+  stringsAsFactors = FALSE
+)
+stopifnot(all(distinction_invariance$passed))
+if (nzchar(output_dir)) {
+  utils::write.csv(
+    distinction_assertion_crosswalk,
+    file.path(output_dir, "distinction_assertion_crosswalk.csv"),
+    row.names = FALSE,
+    fileEncoding = "UTF-8"
+  )
+  saveRDS(
+    distinction_raw_evidence,
+    file.path(output_dir, "distinction_raw_evidence.rds")
+  )
+  saveRDS(
+    distinction_semantic_evidence,
+    file.path(output_dir, "distinction_semantic_evidence.rds")
+  )
+  utils::write.csv(
+    distinction_invariance,
+    file.path(output_dir, "distinction_semantic_invariance.csv"),
+    row.names = FALSE
+  )
+}
 cases[["distinction"]] <- run_case(
   "distinction",
   distinction_active_data,
