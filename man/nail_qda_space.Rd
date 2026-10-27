@@ -128,6 +128,9 @@ warning. The resulting axis interpretation should be confronted with the
 original QDA evidence and the PCA/CONDES statistical evidence.
 }
 \examples{
+# Scientific context: QDA adjusted product means are summarized in a
+# standardized PCA space. The axis prompt describes that geometry and its
+# descriptive CONDES associations; it is not an independent causal test.
 data(chocolates, package = "SensoMineR")
 
 qda_preview <- nail_qda(
@@ -142,6 +145,17 @@ qda_preview <- nail_qda(
 space_preview <- nail_qda_space(
   qda_preview,
   ncp = 2,
+  introduction = paste(
+    "This sensory study compares chocolate products evaluated by a panel.",
+    "The product space describes configurations of adjusted sensory means,",
+    "not consumer preference or product quality."
+  ),
+  request = paste(
+    "Describe the retained sensory axes from the displayed PCA geometry",
+    "and descriptive attribute associations. Distinguish contributions,",
+    "cos2, QDA product markers and descriptive CONDES evidence; do not",
+    "infer causality, preference or an independent significance test."
+  ),
   expertise_mode = "sensory",
   generate = FALSE
 )

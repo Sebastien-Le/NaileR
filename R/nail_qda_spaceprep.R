@@ -207,6 +207,9 @@ parse_qda_spaceprep_response <- function(text) {
 #' @seealso [nail_qda()], [nail_qda_space()], [nail_qda_interpretation()]
 #'
 #' @examples
+#' # Compatibility example: this helper returns one historical preparation
+#' # prompt per product. New analyses should prefer nail_qda() followed by
+#' # nail_qda_space(); no LLM call is made here.
 #' data(chocolates, package = "SensoMineR")
 #' spaceprep_prompts <- nail_qda_spaceprep(
 #'   sensochoc,

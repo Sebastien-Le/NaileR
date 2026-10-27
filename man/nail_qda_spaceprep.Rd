@@ -69,6 +69,9 @@ The historical function still reuses \code{nail_qda()} in isolated mode with a
 dedicated prompt to create structured product summaries for older code.
 }
 \examples{
+# Compatibility example: this helper returns one historical preparation
+# prompt per product. New analyses should prefer nail_qda() followed by
+# nail_qda_space(); no LLM call is made here.
 data(chocolates, package = "SensoMineR")
 spaceprep_prompts <- nail_qda_spaceprep(
   sensochoc,

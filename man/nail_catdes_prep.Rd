@@ -142,6 +142,8 @@ questions.
 }
 }
 \examples{
+# This preparation step is mechanical: it computes and stores CATDES
+# evidence, but it does not contact an LLM or name the groups.
 data(iris)
 
 iris_catdes <- FactoMineR::catdes(
@@ -152,8 +154,18 @@ iris_catdes <- FactoMineR::catdes(
 
 iris_profiles <- nail_catdes_prep(iris_catdes)
 names(iris_profiles$groups)
-iris_profiles$groups$setosa$quantitative_markers
-iris_profiles$evidence_registry
+head(iris_profiles$evidence_registry)
+
+# Reuse the prepared profiles through the main public interpretation entry
+# point, then inspect the canonical evidence and exact prompt.
+iris_interpretation <- nail_catdes(
+  x = iris_profiles,
+  interpretation_mode = "standard",
+  isolate.groups = FALSE,
+  generate = FALSE
+)
+nail_evidence(iris_interpretation)
+cat(substr(nail_prompt(iris_interpretation, print = FALSE), 1, 600), "\n")
 }
 \seealso{
 \code{\link[FactoMineR:catdes]{FactoMineR::catdes()}}, \code{\link[=nail_catdes]{nail_catdes()}},

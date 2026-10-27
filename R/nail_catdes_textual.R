@@ -1062,6 +1062,9 @@
 #'
 #' @export
 #' @examples
+#' # This is a deterministic composition fixture. The group labels, scores,
+#' # choices and texts are constructed solely to exercise the composition
+#' # contract; they are not observations from an LLM campaign or a real study.
 #' composition_data <- data.frame(
 #'   group = factor(rep(c("G1", "G2", "G3"), each = 12)),
 #'   score = c(
