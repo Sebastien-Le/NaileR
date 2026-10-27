@@ -119,15 +119,12 @@
 
 #' Atomic habits survey
 #'
-#' People think they need to make big changes to change
-#' the course of their lives. But in James Clear's book,
-#' Atomic Habits, they will discover that the smallest of changes,
-#' coupled with a good knowledge of psychology and neuroscience,
-#' can have a revolutionary effect on their lives and relationships.
-#' To understand this concept of atomic habits, we interviewed 167 people
-#' and asked them if they were able to never take their car alone again,
-#' to buy local products...
-#' We also asked them how restrictive they found this and why.
+#' These data come from a questionnaire about declared capacity to adopt
+#' ecological or everyday changes and the perceived restrictiveness of those
+#' changes. Ten capability items, ten numeric restrictiveness ratings, ten
+#' binary restrictiveness items, ten explanation fields and ten derived
+#' combinations are retained. Capability and restrictiveness are reported
+#' perceptions, not observations of behaviour.
 #'
 #' @docType data
 #'
@@ -141,31 +138,54 @@
 #'
 #' @source Applied mathematics department, Institut Agro Rennes-Angers
 #' @examples
+#' library(FactoMineR)
+#' library(NaileR)
+#' data(atomic_habit, package = "NaileR")
+#'
+#' habits_mfa <- FactoMineR::MFA(
+#'   atomic_habit[, 1:30],
+#'   group = c(10, 10, 10),
+#'   type = c("n", "s", "n"),
+#'   num.group.sup = 3,
+#'   name.group = c("capable", "restrictive", "restrictive binary"),
+#'   graph = FALSE
+#' )
+#' habits_hcpc <- FactoMineR::HCPC(habits_mfa, nb.clust = 3, graph = FALSE)
+#' summary(habits_hcpc$data.clust)
+#'
+#' # One paired capability/explanation question can also be previewed with
+#' # the public TEXTUAL API. The full response text is not printed here.
+#' habits_textual <- nail_textual(
+#'   dataset = atomic_habit,
+#'   num.var = 1,
+#'   num.text = 31,
+#'   introduction = paste(
+#'     "This questionnaire records declared capacity and perceived",
+#'     "restrictiveness for everyday changes. The selected text column contains",
+#'     "participants' explanations associated with one questionnaire item."
+#'   ),
+#'   request = paste(
+#'     "Summarize the recurring and divergent ideas in the responses.",
+#'     "Keep reported reasons distinct from observed behaviour and causal claims."
+#'   ),
+#'   isolate.groups = TRUE,
+#'   generate = FALSE
+#' )
+#' habits_textual_evidence <- nail_evidence(habits_textual)
+#' habits_textual_prompt <- nail_prompt(habits_textual, print = FALSE)
+#' stopifnot(length(habits_textual_prompt) > 0L)
+#'
 #' \dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
-#'
-#'library(FactoMineR)
-#'library(NaileR)
-#'data(atomic_habit)
-#'
-#'res_mfa <- MFA(atomic_habit[,1:30],
-#'               group = c(10,10,10),
-#'               type = c("n","s","n"),
-#'               num.group.sup = 3,
-#'               name.group = c("capable","restrictive", "restrictive binary"),
-#'               graph = FALSE)
-#'
-#'plot.MFA(res_mfa, choix = "ind", invisible = c("quali","quali.sup"),
-#'         lab.ind = FALSE,
-#'         title = "MFA based on being capable and restrictiveness data")
-#'
-#'res_hcpc <- HCPC(res_mfa, nb.clust = 3, graph = FALSE)
-#'plot.HCPC(res_hcpc, choice = "map",
-#'          draw.tree = FALSE,
-#'          ind.names = FALSE,
-#'          title = "Atomic habits - typology")
-#'summary(res_hcpc$data.clust)
+#' habits_textual_generated <- nail_textual(
+#'   dataset = atomic_habit,
+#'   num.var = 1,
+#'   num.text = 31,
+#'   isolate.groups = TRUE,
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#' nail_response(habits_textual_generated, print = FALSE)
 #' }
 "atomic_habit"
 
@@ -223,15 +243,11 @@
 
 #' Atomic habits survey
 #'
-#' People think they need to make big changes to change
-#' the course of their lives. But in James Clear's book,
-#' Atomic Habits, they will discover that the smallest of changes,
-#' coupled with a good knowledge of psychology and neuroscience,
-#' can have a revolutionary effect on their lives and relationships.
-#' To understand this concept of atomic habits, we interviewed 167 people
-#' and asked them if they were able to never take their car alone again,
-#' to buy local products...
-#' We also asked them how restrictive they found this and why.
+#' This object adds a three-level classification to the questionnaire data.
+#' The labels identify constructed groups and are not substantive names. The
+#' C02 statistical preparation uses the first 20 questionnaire variables and
+#' this classification; textual and derived columns remain available in the
+#' source object but are not treated as independent CATDES evidence.
 #'
 #' @docType data
 #'
@@ -242,19 +258,54 @@
 #' * columns 21-30, is it restrictive, yes or no...
 #' * columns 31-40, justify your answers
 #' * columns 41-50, a combination of able and restrictive
-#' * column 51, cluster variable based on MFA (20 first variables)
+#' * column 51, the constructed three-level group identifier 'clust'
 #'
 #' @source Applied mathematics department, Institut Agro Rennes-Angers
+#' The reproducible C02 preparation is documented at
+#' \url{https://github.com/Sebastien-Le/NaileR/tree/dev-core5-condes-integration-20261015/dev/operational_validation/corpus/C02_atomic_habit}.
 #' @examples
+#' library(NaileR)
+#' data(atomic_habit_clust, package = "NaileR")
+#'
+#' # These are the 20 variables used by the C02 statistical reference plus
+#' # the published constructed-group identifier.
+#' atomic_habit_statistical <- atomic_habit_clust[, c(1:20, 51)]
+#' intro_atomic <- paste(
+#'   "The questionnaire records declared capacity and perceived",
+#'   "restrictiveness for everyday changes. The groups are constructed from",
+#'   "the response data and are identified by their original labels."
+#' )
+#' request_atomic <- paste(
+#'   "Describe the central configuration of the displayed evidence for each",
+#'   "constructed group. Preserve the group identifiers, distinguish reported",
+#'   "capacity from perceived constraint, and avoid causal or behavioural claims."
+#' )
+#' atomic_preview <- nail_catdes(
+#'   dataset = atomic_habit_statistical,
+#'   num.var = ncol(atomic_habit_statistical),
+#'   interpretation_mode = "latent",
+#'   introduction = intro_atomic,
+#'   request = request_atomic,
+#'   isolate.groups = FALSE,
+#'   drop.negative = FALSE,
+#'   generate = FALSE
+#' )
+#' atomic_evidence <- nail_evidence(atomic_preview)
+#' atomic_prompt <- nail_prompt(atomic_preview, print = FALSE)
+#' cat(substr(atomic_prompt, 1, 600), "\n")
+#'
 #' \dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
-#'
-#'library(FactoMineR)
-#'library(NaileR)
-#'data(atomic_habit_clust)
-#'
-#'catdes(atomic_habit_clust, num.var = 51)
+#' atomic_generated <- nail_catdes(
+#'   dataset = atomic_habit_statistical,
+#'   num.var = ncol(atomic_habit_statistical),
+#'   interpretation_mode = "latent",
+#'   introduction = intro_atomic,
+#'   request = request_atomic,
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#' nail_response(atomic_generated, print = FALSE)
 #' }
 "atomic_habit_clust"
 
@@ -496,7 +547,9 @@
 #' Local food systems survey
 #'
 #' These data were collected after a Q-method-like survey on sustainable food systems.
-#' Participants had to rank how acceptable they found 45 statements about a sustainable food system; then, they were asked if they agreed with 14 other statements.
+#' Participants rated the acceptability of 45 statements about a sustainable
+#' food system and then answered 14 additional opinion statements. The
+#' distributed object contains the original participant-level factor responses.
 #'
 #' @docType data
 #'
@@ -506,45 +559,68 @@
 #' * columns 46-59 opinions
 #' * columns 60-63 personal information
 #' @source Applied mathematics department, Institut Agro Rennes-Angers
+#' The reproducible C01 validation record is maintained in the repository at
+#' \url{https://github.com/Sebastien-Le/NaileR/tree/dev-core5-condes-integration-20261015/dev/operational_validation/corpus/C01_local_food}.
 #' @examples
-#' \dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
-#'
 #' library(FactoMineR)
 #' library(NaileR)
-#' data(local_food)
+#' data(local_food, package = "NaileR")
 #'
-#' res_mca_food <- MCA(local_food, quali.sup = 46:63,
-#' ncp = 100, level.ventil = 0.05, graph = FALSE)
-#' res_hcpc_food <- HCPC(res_mca_food, nb.clust = 3, graph = FALSE)
-#' don_clust_food <- res_hcpc_food$data.clust
+#' # The C01 preparation uses the first 45 statements as active variables and
+#' # columns 46:63 as supplementary/contextual variables. ncp = 100 is kept
+#' # here to make the preparation comparable with that validation case.
+#' food_mca <- FactoMineR::MCA(
+#'   local_food,
+#'   quali.sup = 46:63,
+#'   ncp = 100,
+#'   level.ventil = 0.05,
+#'   graph = FALSE
+#' )
+#' food_hcpc <- FactoMineR::HCPC(food_mca, nb.clust = 3, graph = FALSE)
+#' food_profiles <- food_hcpc$data.clust
 #'
-#' intro_food <- 'A study on sustainable food systems
-#' was led on several French participants.
-#' This study had 2 parts. In the first part,
-#' participants had to rate how acceptable
-#' "a food system that..." (e.g, "a food system that
-#' only uses renewable energy") was to them.
-#' In the second part, they had to say
-#' if they agreed or disagreed with some statements.'
-#' intro_food <- gsub('\n', ' ', intro_food) |>
-#' stringr::str_squish()
+#' intro_food <- paste(
+#'   "This study concerns declared views about sustainable food systems.",
+#'   "Participants rated the acceptability of statements about what a food",
+#'   "system could be, then answered additional opinion statements.",
+#'   "The groups are statistical profiles of these responses, not observed",
+#'   "behavioural types or causal explanations."
+#' )
+#' request_food <- paste(
+#'   "Describe the central configuration of evidence for each group.",
+#'   "Use the displayed statistical characteristics as the factual basis,",
+#'   "distinguish observations from interpretation, and propose a concise",
+#'   "descriptive label without ranking the groups."
+#' )
+#' food_preview <- nail_catdes(
+#'   dataset = food_profiles,
+#'   num.var = ncol(food_profiles),
+#'   introduction = intro_food,
+#'   request = request_food,
+#'   isolate.groups = TRUE,
+#'   drop.negative = TRUE,
+#'   generate = FALSE
+#' )
+#' food_evidence <- nail_evidence(food_preview)
+#' food_prompts <- nail_prompt(food_preview, print = FALSE)
+#' cat(substr(unname(food_prompts)[[1L]], 1, 600), "\n")
 #'
-#' req_food <- 'I will give you the answers from one group.
-#' Please explain who the individuals of this group are,
-#' what their beliefs are.
-#' Then, give this group a new name,
-#' and explain why you chose this name.
-#' Do not use 1st person ("I", "my"...) in your answer.'
-#' req_food <- gsub('\n', ' ', req_food) |>
-#' stringr::str_squish()
-#'
-#' res_food <- nail_catdes(don_clust_food, num.var = 64,
-#' introduction = intro_food,
-#' request = req_food,
-#' isolate.groups = TRUE, drop.negative = TRUE)
-#' res_food[[1]] |> cat()
+#' # C01 reports and aggregate controls are maintained in the repository
+#' # validation corpus. The following optional generation is never run by
+#' # package checks.
+#' \dontrun{
+#' food_generated <- nail_catdes(
+#'   dataset = food_profiles,
+#'   num.var = ncol(food_profiles),
+#'   introduction = intro_food,
+#'   request = request_food,
+#'   isolate.groups = TRUE,
+#'   drop.negative = TRUE,
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#' nail_response(food_generated, print = FALSE)
 #' }
 "local_food"
 
@@ -684,7 +760,10 @@
 
 #' Food waste survey
 #'
-#' These data were collected after a survey on food waste, with participants describing their habits.
+#' These data were collected after a survey on food waste. They combine
+#' questions about perceived impact, disposal practices, reasons, information
+#' and contextual variables. The answers are self-reports and must not be read
+#' as direct measurements of observed waste.
 #'
 #' @docType data
 #'
@@ -693,39 +772,58 @@
 #'
 #' @source Héloïse BILLES and Amélie RATEAU, students at l'Institut Agro Rennes-Angers
 #' @examples
-#' \dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
-#'
 #' library(NaileR)
 #' library(FactoMineR)
-#' data(waste)
-#' waste <- waste[-14]
+#' data(waste, package = "NaileR")
 #'
-#' res_mca_waste <- MCA(waste, quali.sup = c(1,2,50:76),
-#' ncp = 35, level.ventil = 0.05, graph = FALSE)
-#' res_hcpc_waste <- HCPC(res_mca_waste, nb.clust = 3, graph = FALSE)
-#' don_clust_waste <- res_hcpc_waste$data.clust
+#' # Item 14 is constant in the distributed table and is removed only for
+#' # this historical MCA preparation.
+#' waste_active <- waste[, -14, drop = FALSE]
+#' waste_mca <- FactoMineR::MCA(
+#'   waste_active,
+#'   quali.sup = c(1, 2, 50:76),
+#'   ncp = 35,
+#'   level.ventil = 0.05,
+#'   graph = FALSE
+#' )
+#' waste_hcpc <- FactoMineR::HCPC(waste_mca, nb.clust = 3, graph = FALSE)
+#' waste_profiles <- waste_hcpc$data.clust
 #'
-#' intro_waste <- 'These data were collected
-#' after a survey on food waste,
-#' with participants describing their habits.'
-#' intro_waste <- gsub('\n', ' ', intro_waste) |>
-#' stringr::str_squish()
+#' intro_waste <- paste(
+#'   "This study describes self-reported views and practices related to food",
+#'   "waste, including disposal, information and possible reasons.",
+#'   "The groups are statistical profiles of the questionnaire responses;",
+#'   "they are not direct measurements of quantities wasted."
+#' )
+#' request_waste <- paste(
+#'   "Summarize the main coherent configuration of evidence for each group.",
+#'   "Propose a descriptive label grounded in the displayed characteristics.",
+#'   "Do not assign a normative score, infer unobserved behaviour, or claim",
+#'   "causal explanations."
+#' )
+#' waste_preview <- nail_catdes(
+#'   dataset = waste_profiles,
+#'   num.var = ncol(waste_profiles),
+#'   introduction = intro_waste,
+#'   request = request_waste,
+#'   drop.negative = TRUE,
+#'   generate = FALSE
+#' )
+#' waste_evidence <- nail_evidence(waste_preview)
+#' waste_prompt <- nail_prompt(waste_preview, print = FALSE)
+#' cat(substr(waste_prompt, 1, 600), "\n")
 #'
-#' req_waste <- 'Please summarize the characteristics of each group.
-#' Then, give each group a new name, based on your conclusions.
-#' Finally, give each group a grade between 0 and 10,
-#' based on how wasteful they are with food:
-#' 0 being "not at all", 10 being "absolutely".'
-#' req_waste <- gsub('\n', ' ', req_waste) |>
-#' stringr::str_squish()
-#'
-#' res_waste <- nail_catdes(don_clust_waste,
-#' num.var = ncol(don_clust_waste),
-#' introduction = intro_waste, request = req_waste,
-#' drop.negative = TRUE)
-#' res_waste |> cat()
+#' \dontrun{
+#' waste_generated <- nail_catdes(
+#'   dataset = waste_profiles,
+#'   num.var = ncol(waste_profiles),
+#'   introduction = intro_waste,
+#'   request = request_waste,
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#' nail_response(waste_generated, print = FALSE)
 #' }
 "waste"
 
@@ -733,7 +831,10 @@
 #' Perception of food quality
 #'
 #' These data were collected after a study on the perception of food quality.
-#' Participants were given 9 French logos; they had to rate, on a scale from 0 (not at all) to 10 (absolutely), how much a product bearing them aligned with their own perception of quality.
+#' Participants rated nine food-related logos from 0 (not at all) to 10
+#' (absolutely) according to how much a product bearing each logo matched
+#' their own perception of quality. The scores describe perceived associations,
+#' not an objective or normative quality scale.
 #'
 #' @docType data
 #'
@@ -750,51 +851,62 @@
 #' * Médailles Agro: a prize won at a yearly contest based on taste.
 #' @source Sébastien Lê, applied mathematics department, Institut Agro Rennes-Angers
 #' @examples
-#' \dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
-#'
 #' library(NaileR)
-#' data(quality)
+#' data(quality, package = "NaileR")
 #'
-#' colnames(quality) <- c("Agriculture biologique",
-#' "Label Rouge",
-#' "FairTrade",
-#' "Bleu Blanc Coeur",
-#' "Appelation d'origine contrôlée",
-#' "Produit en Bretagne",
-#' "Viandes de France",
-#' "Nourri sans OGM",
-#' "Médailles Agro")
+#' quality_pca <- FactoMineR::PCA(quality, graph = FALSE)
+#' quality_work <- data.frame(
+#'   Dim1 = quality_pca$ind$coord[, 1],
+#'   quality,
+#'   check.names = FALSE
+#' )
+#' intro_quality <- paste(
+#'   "Students rated nine food-related logos from 0 to 10 according to how",
+#'   "much each logo matched their perception of food quality.",
+#'   "The target below is the first PCA dimension, so it is a constructed",
+#'   "continuum rather than an observed quality measurement."
+#' )
+#' request_quality <- paste(
+#'   "Describe the configuration of logo associations along this dimension.",
+#'   "Distinguish statistical description from interpretation and do not turn",
+#'   "the dimension into a normative ranking of products or people."
+#' )
+#' quality_preview <- nail_condes(
+#'   dataset = quality_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "first PCA dimension",
+#'   introduction = intro_quality,
+#'   request = request_quality,
+#'   generate = FALSE
+#' )
+#' quality_evidence <- nail_evidence(quality_preview)
+#' quality_prompt <- nail_prompt(quality_preview, print = FALSE)
+#' cat(substr(quality_prompt, 1, 600), "\n")
 #'
-#' res_pca_quality <- FactoMineR::PCA(quality, graph = FALSE)
-#' quali_work <- res_pca_quality$ind$coord |> as.data.frame()
-#' quali_work <- quali_work[,1] |> cbind(quality)
-#'
-#' intro_quali <- "These data were collected after a study
-#' on the perception of food quality.
-#' Participants were given 9 French logos;
-#' they had to rate, on a scale from 0 (not at all)
-#' to 10 (absolutely), how much a product bearing them
-#' aligned with their own perception of quality."
-#' intro_quali <- gsub('\n', ' ', intro_quali) |>
-#' stringr::str_squish()
-#'
-#' res_quality <- nail_condes(quali_work, num.var = 1,
-#' quanti.cat = c('Higher quality', 'Lower quality', 'Neutral'),
-#' introduction = intro_quali, generate = FALSE)
-#'
-#' ppt <- gsub('characteristics', 'opinions', res_quality)
-#'
-#' res_quality <- ollamar::generate('llama3', ppt, output = 'df')
-#' res_quality$response |> cat()
+#' \dontrun{
+#' quality_generated <- nail_condes(
+#'   dataset = quality_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "first PCA dimension",
+#'   introduction = intro_quality,
+#'   request = request_quality,
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#' nail_response(quality_generated, print = FALSE)
 #' }
 "quality"
 
 
 #' Nutri-score survey
 #'
-#' These data were collected after a survey on the nutri-score. Participants were asked various questions about their views on the nutri-score, and about their eating habits.
+#' These data were collected after a survey on the Nutri-Score. The first
+#' 16 variables concern perceptions and uses of the label; later variables
+#' describe eating practices and contextual information. The answers are
+#' self-reports and should not be treated as observed dietary behaviour.
 #'
 #' @docType data
 #'
@@ -803,39 +915,52 @@
 #'
 #' @source Anaëlle YANNIC and Jessie PICOT, students at l'Institut Agro Rennes-Angers
 #' @examples
-#' \dontrun{
-#' # Processing time is often longer than ten seconds
-#' # because the function uses a large language model.
-#'
 #' library(NaileR)
 #' library(FactoMineR)
+#' data(nutriscore, package = "NaileR")
 #'
-#' data(nutriscore)
+#' nutri_mca <- FactoMineR::MCA(
+#'   nutriscore,
+#'   quali.sup = 17:36,
+#'   ncp = 15,
+#'   level.ventil = 0.05,
+#'   graph = FALSE
+#' )
+#' nutri_hcpc <- FactoMineR::HCPC(nutri_mca, nb.clust = 3, graph = FALSE)
+#' nutri_profiles <- nutri_hcpc$data.clust
+#' intro_nutri <- paste(
+#'   "This survey concerns perceptions and uses of the Nutri-Score label.",
+#'   "The first block contains label-related answers and the remaining",
+#'   "variables provide eating-practice or contextual information.",
+#'   "Groups summarize response configurations and are not dietary diagnoses."
+#' )
+#' request_nutri <- paste(
+#'   "Describe the main coherent configuration of evidence for each group.",
+#'   "Propose a concise descriptive label and keep perceptions distinct from",
+#'   "reported practices. Do not infer causes or rank participants."
+#' )
+#' nutri_preview <- nail_catdes(
+#'   dataset = nutri_profiles,
+#'   num.var = ncol(nutri_profiles),
+#'   introduction = intro_nutri,
+#'   request = request_nutri,
+#'   drop.negative = TRUE,
+#'   generate = FALSE
+#' )
+#' nutri_evidence <- nail_evidence(nutri_preview)
+#' nutri_prompt <- nail_prompt(nutri_preview, print = FALSE)
+#' cat(substr(nutri_prompt, 1, 600), "\n")
 #'
-#' res_mca_nutriscore <- MCA(nutriscore, quali.sup = 17:36,
-#' ncp = 15, level.ventil = 0.05, graph = FALSE)
-#'
-#' res_hcpc_nutriscore <- HCPC(res_mca_nutriscore, nb.clust = 3,
-#' graph = FALSE)
-#' don_clust_nutriscore <- res_hcpc_nutriscore$data.clust
-#'
-#' intro_nutri <- 'These data were collected after a survey
-#' on the nutri-score. Participants were asked
-#' various questions about their views on the nutri-score,
-#' and about their eating habits.
-#' Participants were split into groups according to their answers.'
-#' intro_nutri <- gsub('\n', ' ', intro_nutri) |>
-#' stringr::str_squish()
-#'
-#' req_nutri <- 'Please summarize the characteristics
-#' of each group. Then, give each group a new name,
-#' based on your conclusions.'
-#' req_nutri <- gsub('\n', ' ', req_nutri)|>
-#' stringr::str_squish()
-#'
-#' res_nutriscore <- nail_catdes(don_clust_nutriscore, num.var = 37,
-#' introduction = intro_nutri, request = req_nutri,
-#' drop.negative = TRUE)
-#' res_nutriscore |> cat()
+#' \dontrun{
+#' nutri_generated <- nail_catdes(
+#'   dataset = nutri_profiles,
+#'   num.var = ncol(nutri_profiles),
+#'   introduction = intro_nutri,
+#'   request = request_nutri,
+#'   provider = "ollama",
+#'   model = "llama3",
+#'   generate = TRUE
+#' )
+#' nail_response(nutri_generated, print = FALSE)
 #' }
 "nutriscore"

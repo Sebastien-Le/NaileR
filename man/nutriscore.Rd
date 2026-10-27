@@ -14,43 +14,59 @@ Anaëlle YANNIC and Jessie PICOT, students at l'Institut Agro Rennes-Angers
 nutriscore
 }
 \description{
-These data were collected after a survey on the nutri-score. Participants were asked various questions about their views on the nutri-score, and about their eating habits.
+These data were collected after a survey on the Nutri-Score. The first
+16 variables concern perceptions and uses of the label; later variables
+describe eating practices and contextual information. The answers are
+self-reports and should not be treated as observed dietary behaviour.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
 library(NaileR)
 library(FactoMineR)
+data(nutriscore, package = "NaileR")
 
-data(nutriscore)
+nutri_mca <- FactoMineR::MCA(
+  nutriscore,
+  quali.sup = 17:36,
+  ncp = 15,
+  level.ventil = 0.05,
+  graph = FALSE
+)
+nutri_hcpc <- FactoMineR::HCPC(nutri_mca, nb.clust = 3, graph = FALSE)
+nutri_profiles <- nutri_hcpc$data.clust
+intro_nutri <- paste(
+  "This survey concerns perceptions and uses of the Nutri-Score label.",
+  "The first block contains label-related answers and the remaining",
+  "variables provide eating-practice or contextual information.",
+  "Groups summarize response configurations and are not dietary diagnoses."
+)
+request_nutri <- paste(
+  "Describe the main coherent configuration of evidence for each group.",
+  "Propose a concise descriptive label and keep perceptions distinct from",
+  "reported practices. Do not infer causes or rank participants."
+)
+nutri_preview <- nail_catdes(
+  dataset = nutri_profiles,
+  num.var = ncol(nutri_profiles),
+  introduction = intro_nutri,
+  request = request_nutri,
+  drop.negative = TRUE,
+  generate = FALSE
+)
+nutri_evidence <- nail_evidence(nutri_preview)
+nutri_prompt <- nail_prompt(nutri_preview, print = FALSE)
+cat(substr(nutri_prompt, 1, 600), "\n")
 
-res_mca_nutriscore <- MCA(nutriscore, quali.sup = 17:36,
-ncp = 15, level.ventil = 0.05, graph = FALSE)
-
-res_hcpc_nutriscore <- HCPC(res_mca_nutriscore, nb.clust = 3,
-graph = FALSE)
-don_clust_nutriscore <- res_hcpc_nutriscore$data.clust
-
-intro_nutri <- 'These data were collected after a survey
-on the nutri-score. Participants were asked
-various questions about their views on the nutri-score,
-and about their eating habits.
-Participants were split into groups according to their answers.'
-intro_nutri <- gsub('\n', ' ', intro_nutri) |>
-stringr::str_squish()
-
-req_nutri <- 'Please summarize the characteristics
-of each group. Then, give each group a new name,
-based on your conclusions.'
-req_nutri <- gsub('\n', ' ', req_nutri)|>
-stringr::str_squish()
-
-res_nutriscore <- nail_catdes(don_clust_nutriscore, num.var = 37,
-introduction = intro_nutri, request = req_nutri,
-drop.negative = TRUE)
-res_nutriscore |> cat()
+\dontrun{
+nutri_generated <- nail_catdes(
+  dataset = nutri_profiles,
+  num.var = ncol(nutri_profiles),
+  introduction = intro_nutri,
+  request = request_nutri,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+nail_response(nutri_generated, print = FALSE)
 }
 }
 \keyword{datasets}

@@ -21,42 +21,62 @@ Applied mathematics department, Institut Agro Rennes-Angers
 atomic_habit
 }
 \description{
-People think they need to make big changes to change
-the course of their lives. But in James Clear's book,
-Atomic Habits, they will discover that the smallest of changes,
-coupled with a good knowledge of psychology and neuroscience,
-can have a revolutionary effect on their lives and relationships.
-To understand this concept of atomic habits, we interviewed 167 people
-and asked them if they were able to never take their car alone again,
-to buy local products...
-We also asked them how restrictive they found this and why.
+These data come from a questionnaire about declared capacity to adopt
+ecological or everyday changes and the perceived restrictiveness of those
+changes. Ten capability items, ten numeric restrictiveness ratings, ten
+binary restrictiveness items, ten explanation fields and ten derived
+combinations are retained. Capability and restrictiveness are reported
+perceptions, not observations of behaviour.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
 library(FactoMineR)
 library(NaileR)
-data(atomic_habit)
+data(atomic_habit, package = "NaileR")
 
-res_mfa <- MFA(atomic_habit[,1:30],
-              group = c(10,10,10),
-              type = c("n","s","n"),
-              num.group.sup = 3,
-              name.group = c("capable","restrictive", "restrictive binary"),
-              graph = FALSE)
+habits_mfa <- FactoMineR::MFA(
+  atomic_habit[, 1:30],
+  group = c(10, 10, 10),
+  type = c("n", "s", "n"),
+  num.group.sup = 3,
+  name.group = c("capable", "restrictive", "restrictive binary"),
+  graph = FALSE
+)
+habits_hcpc <- FactoMineR::HCPC(habits_mfa, nb.clust = 3, graph = FALSE)
+summary(habits_hcpc$data.clust)
 
-plot.MFA(res_mfa, choix = "ind", invisible = c("quali","quali.sup"),
-        lab.ind = FALSE,
-        title = "MFA based on being capable and restrictiveness data")
+# One paired capability/explanation question can also be previewed with
+# the public TEXTUAL API. The full response text is not printed here.
+habits_textual <- nail_textual(
+  dataset = atomic_habit,
+  num.var = 1,
+  num.text = 31,
+  introduction = paste(
+    "This questionnaire records declared capacity and perceived",
+    "restrictiveness for everyday changes. The selected text column contains",
+    "participants' explanations associated with one questionnaire item."
+  ),
+  request = paste(
+    "Summarize the recurring and divergent ideas in the responses.",
+    "Keep reported reasons distinct from observed behaviour and causal claims."
+  ),
+  isolate.groups = TRUE,
+  generate = FALSE
+)
+habits_textual_evidence <- nail_evidence(habits_textual)
+habits_textual_prompt <- nail_prompt(habits_textual, print = FALSE)
+stopifnot(length(habits_textual_prompt) > 0L)
 
-res_hcpc <- HCPC(res_mfa, nb.clust = 3, graph = FALSE)
-plot.HCPC(res_hcpc, choice = "map",
-         draw.tree = FALSE,
-         ind.names = FALSE,
-         title = "Atomic habits - typology")
-summary(res_hcpc$data.clust)
+\dontrun{
+habits_textual_generated <- nail_textual(
+  dataset = atomic_habit,
+  num.var = 1,
+  num.text = 31,
+  isolate.groups = TRUE,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+nail_response(habits_textual_generated, print = FALSE)
 }
 }
 \keyword{datasets}

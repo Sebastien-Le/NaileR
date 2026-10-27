@@ -14,53 +14,78 @@ A data frame with 573 rows (participants) and 63 columns (questions):
 }
 \source{
 Applied mathematics department, Institut Agro Rennes-Angers
+The reproducible C01 validation record is maintained in the repository at
+\url{https://github.com/Sebastien-Le/NaileR/tree/dev-core5-condes-integration-20261015/dev/operational_validation/corpus/C01_local_food}.
 }
 \usage{
 local_food
 }
 \description{
 These data were collected after a Q-method-like survey on sustainable food systems.
-Participants had to rank how acceptable they found 45 statements about a sustainable food system; then, they were asked if they agreed with 14 other statements.
+Participants rated the acceptability of 45 statements about a sustainable
+food system and then answered 14 additional opinion statements. The
+distributed object contains the original participant-level factor responses.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
 library(FactoMineR)
 library(NaileR)
-data(local_food)
+data(local_food, package = "NaileR")
 
-res_mca_food <- MCA(local_food, quali.sup = 46:63,
-ncp = 100, level.ventil = 0.05, graph = FALSE)
-res_hcpc_food <- HCPC(res_mca_food, nb.clust = 3, graph = FALSE)
-don_clust_food <- res_hcpc_food$data.clust
+# The C01 preparation uses the first 45 statements as active variables and
+# columns 46:63 as supplementary/contextual variables. ncp = 100 is kept
+# here to make the preparation comparable with that validation case.
+food_mca <- FactoMineR::MCA(
+  local_food,
+  quali.sup = 46:63,
+  ncp = 100,
+  level.ventil = 0.05,
+  graph = FALSE
+)
+food_hcpc <- FactoMineR::HCPC(food_mca, nb.clust = 3, graph = FALSE)
+food_profiles <- food_hcpc$data.clust
 
-intro_food <- 'A study on sustainable food systems
-was led on several French participants.
-This study had 2 parts. In the first part,
-participants had to rate how acceptable
-"a food system that..." (e.g, "a food system that
-only uses renewable energy") was to them.
-In the second part, they had to say
-if they agreed or disagreed with some statements.'
-intro_food <- gsub('\n', ' ', intro_food) |>
-stringr::str_squish()
+intro_food <- paste(
+  "This study concerns declared views about sustainable food systems.",
+  "Participants rated the acceptability of statements about what a food",
+  "system could be, then answered additional opinion statements.",
+  "The groups are statistical profiles of these responses, not observed",
+  "behavioural types or causal explanations."
+)
+request_food <- paste(
+  "Describe the central configuration of evidence for each group.",
+  "Use the displayed statistical characteristics as the factual basis,",
+  "distinguish observations from interpretation, and propose a concise",
+  "descriptive label without ranking the groups."
+)
+food_preview <- nail_catdes(
+  dataset = food_profiles,
+  num.var = ncol(food_profiles),
+  introduction = intro_food,
+  request = request_food,
+  isolate.groups = TRUE,
+  drop.negative = TRUE,
+  generate = FALSE
+)
+food_evidence <- nail_evidence(food_preview)
+food_prompts <- nail_prompt(food_preview, print = FALSE)
+cat(substr(unname(food_prompts)[[1L]], 1, 600), "\n")
 
-req_food <- 'I will give you the answers from one group.
-Please explain who the individuals of this group are,
-what their beliefs are.
-Then, give this group a new name,
-and explain why you chose this name.
-Do not use 1st person ("I", "my"...) in your answer.'
-req_food <- gsub('\n', ' ', req_food) |>
-stringr::str_squish()
-
-res_food <- nail_catdes(don_clust_food, num.var = 64,
-introduction = intro_food,
-request = req_food,
-isolate.groups = TRUE, drop.negative = TRUE)
-res_food[[1]] |> cat()
+# C01 reports and aggregate controls are maintained in the repository
+# validation corpus. The following optional generation is never run by
+# package checks.
+\dontrun{
+food_generated <- nail_catdes(
+  dataset = food_profiles,
+  num.var = ncol(food_profiles),
+  introduction = intro_food,
+  request = request_food,
+  isolate.groups = TRUE,
+  drop.negative = TRUE,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+nail_response(food_generated, print = FALSE)
 }
 }
 \keyword{datasets}
