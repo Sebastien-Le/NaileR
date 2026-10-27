@@ -18,6 +18,7 @@ The R script in this directory performs read-only structural checks and the
 smallest reproducible preparations. It does not write to source projects, call
 an LLM, or alter NaileR data.
 
-The six distributed datasets are documented separately in `R/datasets.R`.
+The distributed datasets are documented separately in `R/datasets.R`, including
+the MASHS and IRTSAT teaching objects and the independent IRTSAT item export.
 Their C01/C02 validation material remains in
 `dev/operational_validation/corpus/` and is not copied here.

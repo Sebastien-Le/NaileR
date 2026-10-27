@@ -61,7 +61,7 @@ check_spise <- function() {
   if (!file.exists(path)) return(cat("SPISE: source unavailable\n"))
   x <- readxl::read_excel(path)
   stopifnot(nrow(x) == 182L, ncol(x) == 81L)
-  cat(sprintf("SPISE Bretons.xlsx %d x %d; candidate items = 48\n",
+  cat(sprintf("SPISE/Distinction Bretons subset %d x %d; candidate items = 48\n",
               nrow(x), ncol(x)))
 }
 
@@ -72,7 +72,7 @@ check_survey <- function() {
   )
   if (!file.exists(path)) return(cat("Survey/Distinction: source unavailable\n"))
   x <- readxl::read_excel(path, sheet = 1, col_names = FALSE)
-  cat(sprintf("Survey/Distinction export first sheet: %d x %d; raw identifiers not printed\n",
+  cat(sprintf("SPISE/Distinction export first sheet: %d x %d; raw identifiers not printed\n",
               nrow(x), ncol(x)))
 }
 

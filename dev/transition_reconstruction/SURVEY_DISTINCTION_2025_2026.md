@@ -1,15 +1,20 @@
-# Survey / Distinction 2025–2026
+# SPISE / Distinction 2025–2026: Distinction materials
 
-**Status:** `reconstructible mais non diffusable en l'état`
+**Status:** source materials remain `local/private`; the de-identified
+48-item teaching object is distributed separately
 **Priority:** medium
 **Distribution:** local/private pending de-identification
 
 ## Sources
 
-The main files are under `/Users/sebastienle/Documents/2025-2026/Survey/`:
+The main Distinction materials are under
+`/Users/sebastienle/Documents/2025-2026/Survey/`:
 the questionnaire XLSX/DOCX/PDF versions, `Distinction.qmd`,
 `Distinction_plus.qmd`, `quality.xlsx`, `quality.omv`, `dta.xlsx` and notes.
-Related scripts and exports are under `/Users/sebastienle/Documents/2025-2026/Albin/`.
+Related SPISE scripts and exports are under
+`/Users/sebastienle/Documents/2025-2026/Spise/` and
+`/Users/sebastienle/Documents/2025-2026/Albin/`. These are working subsets
+and analysis stages of the same study, not a second independent survey.
 
 ## What is established
 
@@ -19,9 +24,10 @@ large export contains identifiers or quasi-identifiers, including technical
 survey fields. A small number of open questions are present, but their
 individual sharing status and exact row key require confirmation.
 
-No IRT script or executed IRT result was found in the Survey project. SPISE
-is a related but separate execution context and must not be used to claim that
-this survey already ran IRT.
+No IRT script or executed IRT result was found in the Distinction materials.
+The SPISE IRT/GRM work belongs to the same overall study but must not be
+projected onto a Distinction table unless the exact observations and
+transformations are demonstrated.
 
 ## Candidate NaileR route
 
@@ -35,4 +41,7 @@ common population, group mapping and explicit coverage denominators.
 Freeze one questionnaire export, remove identifiers, document missingness and
 coding, obtain permission for open text, and decide whether the theoretical
 constructs are context only or measured variables. Until then no distributed
-object is proposed.
+score, class or open-text object is proposed. The distributed
+`spise_distinction_items_2025_2026` object contains only the de-identified
+48-item instrument and does not claim to reproduce the full Distinction
+export.

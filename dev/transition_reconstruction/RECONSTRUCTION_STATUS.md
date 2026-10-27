@@ -10,8 +10,7 @@ called and no individual response is reproduced.
 | Case | Status | NaileR route | Main decision still required |
 |---|---|---|---|
 | IRTSAT 2024–2025 | `validated` for the distributed frozen export | `nail_condes()` on the retained IRT score; `nail_catdes()` on the frozen four-profile table | Preserve the caveat that the visible three-centre script is not the final classification and document the source-order alignment |
-| Survey / Distinction 2025–2026 | `reconstructible mais non diffusable en l'état` | `nail_catdes_prep()`/`nail_catdes()` after de-identification; `nail_textual()` only for authorised open text | Remove identifiers and establish a canonical questionnaire export and dictionary |
-| SPISE 2025–2026 | `reconstructible mais non diffusable en l'état` | `nail_condes()` on selected GRM scores; later `nail_catdes()` or composition | Freeze item extraction, model-selection decision, versions and rights |
+| SPISE / Distinction 2025–2026 | `reconstructible mais non diffusable en l'état` | `nail_catdes_prep()`/`nail_catdes()` on a de-identified selected table; `nail_condes()` on documented scores; text routes only after authorization | Treat SPISE and Distinction as one study with distinct subsets/analysis stages; freeze the canonical export, transformations and rights |
 | MASHS ideal food system 2023–2024 | `validated` for the distributed de-identified export | MCA/HCPC → `nail_catdes()` | Keep this Q-sort-like questionnaire distinct from the separate MASHS logo study and retain numeric group identifiers |
 | ProjetSystAlimED 2023–2024 | `retrouvée mais incomplète` | `nail_catdes_prep()`/`nail_catdes()` after a justified join | Resolve the 576/586 discrepancy, duplicate IDs and the 536-row join |
 | C01 `local_food` | `retrouvée et reconstructible` and technically validated | MCA/HCPC → `nail_catdes()` | Keep the exploratory semantic review distinct from a general superiority claim |
@@ -40,13 +39,18 @@ The visible three-centre script remains a historical or illustrative route and
 must not be presented as the final scientific classification. The frozen
 export does not claim to reconstruct every upstream IRT fitting choice.
 
-## Survey / Distinction 2025–2026
+## SPISE / Distinction 2025–2026
 
-Sources are in `/Users/sebastienle/Documents/2025-2026/Survey/` and related
-`Albin` material. The questionnaire and Quarto analyses are retrievable, but
-the export contains identifiers or quasi-identifiers (including technical
-survey fields). No IRT execution was found in this project. The Bourdieu-based
-framework is theoretical context, not a measured latent variable by itself.
+SPISE and Distinction are two names used for the same 2025--2026 study. The
+working files are distributed across `/Users/sebastienle/Documents/2025-2026/Spise/`,
+`Survey/` and related `Albin` material. The names identify different subsets,
+questionnaire exports or analysis stages, not two independent surveys.
+
+The questionnaire and Quarto analyses are retrievable, but some exports
+contain identifiers or quasi-identifiers (including technical survey fields).
+No IRT execution was found in the Distinction survey materials. The
+Bourdieu-based framework is theoretical context, not a measured latent
+variable by itself.
 
 The local route is technically plausible after de-identification: select a
 documented set of attitudes/practices, derive a classification only with a
@@ -54,19 +58,23 @@ recorded rule, and pass the resulting table to `nail_catdes()`. Open text can
 reach `nail_textual()` or `nail_catdes_textual()` only after consent,
 individual matching, and denominator rules are documented.
 
-## SPISE
+## SPISE / Distinction working subsets
 
-The source is `/Users/sebastienle/Documents/2025-2026/Spise/`, principally
+The SPISE working subset is in `/Users/sebastienle/Documents/2025-2026/Spise/`, principally
 `data/Bretons.xlsx` (182 rows, 81 columns, 48 Likert items). The diagnostics,
 GRM/mirt scripts, model registry, item parameters, fit, information, local
 dependence and scores are present. This establishes executed IRT work, but not
 one final psychometric model. `Bretons_no_NA.xlsx` is a derived 181-row file
 and is not the same source.
 
-The next NaileR case should use a frozen score table and `nail_condes()` in
-latent mode. The six blocks and their labels are useful context, but the
-available diagnostics do not by themselves validate a single global
-continuum. The data remain local pending rights and extraction documentation.
+The same study also appears in the Distinction questionnaire and Quarto
+materials. These materials must be compared as subsets or processing stages,
+not treated as an independent second survey. A future NaileR case should use
+a frozen, documented table and `nail_condes()` in latent mode, or
+`nail_catdes()` after a canonical classification is selected. The six blocks
+and their labels are useful context, but the available diagnostics do not by
+themselves validate a single global continuum. The data remain local pending
+rights and extraction documentation.
 
 ## MASHS ideal food system
 

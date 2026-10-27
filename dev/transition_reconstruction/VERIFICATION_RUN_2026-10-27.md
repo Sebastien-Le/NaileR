@@ -16,12 +16,14 @@ Observed checks:
 |---|---|
 | Installed package cases: local_food, waste, nutriscore, quality, atomic_habit, atomic_habit_clust | PASS; dimensions match the documented objects and no missing values were found |
 | IRTSAT/data_536.csv | PASS; 536 x 56, candidate item block 3:50 has 48 columns |
-| Survey / Distinction export | PASS for structural reading; 1229 x 116 first sheet; raw identifiers were not printed or copied |
+| SPISE / Distinction export | PASS for structural reading of the Distinction materials; 1229 x 116 first sheet; raw identifiers were not printed or copied |
 | SPISE/data/Bretons.xlsx | PASS; 182 x 81; candidate item count 48 |
 | MASHS logos | PASS; identifier columns removed as in the historical script, 55 x 9, PCA/HCPC route gives 15/8/32 with ncp = 6 |
 
 The script only reads source files and computes the existing MASHS
 preparation in memory. It writes no files and does not call a provider.
+The SPISE and Distinction paths in this historical run are treated as
+subsets or stages of one study, not as independent surveys.
 
 ## T1 documentation checks
 

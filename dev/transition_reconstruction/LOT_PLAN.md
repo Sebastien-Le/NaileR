@@ -45,8 +45,9 @@ before staging; no recursive git add is planned.
 No T3 source is currently ready. A future T3 commit must include only a
 de-identified object under data/, its roxygen source and generated .Rd,
 its dictionary/provenance documentation, and a deterministic offline test.
-The first candidate is SPISE after the extraction rule, selected model,
-package versions and rights are frozen. Proposed commit:
+The first candidate is the shared SPISE / Distinction study after its
+extraction rule, selected model, package versions and rights are frozen.
+Proposed commit:
 feat(data): add validated transition study.
 
 ## T4 — index and teach the corpus

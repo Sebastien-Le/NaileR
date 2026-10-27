@@ -9,9 +9,9 @@ demonstrations. It separates technical availability from scientific review and
 publication rights. A successful data load, prompt preview, or LLM generation
 is not by itself a scientific validation.
 
-No LLM was called for this review. The eight package datasets were loaded from a
+No LLM was called for this review. The nine package datasets were loaded from a
 real installed NaileR package built from the reference branch. The installed
-package was checked with R 4.4.2 on macOS 26.6.2. The eight objects covered by
+package was checked with R 4.4.2 on macOS 26.6.2. The nine objects covered by
 this register loaded successfully and contained no missing values in the
 installed copies.
 
@@ -43,6 +43,7 @@ remains only `prepared`.
 | `local_food` | Sustainable food-system representations and opinions; participants | 573 × 63; all factors; 45 acceptability statements, 14 opinion statements, 4 contextual variables; no NA | `distributed`, `installed_and_tested` | `nail_catdes_prep()`, `nail_catdes()`; possible future TEXTUAL only with an approved text corpus | C01 technical/statistical workflow validated; 314-marker reference and A/B/C invariance checked | C01 exploratory semantic review completed; not a general prompt-superiority claim. Provenance to historical files remains separate from package availability |
 | `mashs_food_system` | Same ideal-food-system survey as `local_food`, in a distinct prepared representation | 573 × 61; 59 response variables, `Age`, and `clust`; four groups 226/113/116/118; no NA | `distributed`, `installed_and_tested` | `nail_catdes()` on the retained four-group table | Offline preview and installed-package checks validated | Teaching representation; group identifiers are preserved and are not substantive names |
 | `irtsat_2024_2025` | IRTSAT local-food practices and representations | 529 × 36; `IRT_score`, 34 categorical descriptors and four-level `profile`; no NA | `distributed`, `installed_and_tested` | `nail_condes()` on the score and `nail_catdes()` on the frozen profile table | Offline previews, tests and installed-package checks validated | Four profiles are retained; historical names are not asserted as verified code mappings |
+| `irtsat_items_2024_2025` | IRTSAT questionnaire instrument | 541 × 48 ordered factors; six blocks of eight items; 14 item-level NA; English variable names and levels | `distributed`, `installed_and_tested` | Instrument inspection; no CATDES without an external documented grouping | Item structure and English presentation validated offline | Independent item export; no validated row key to the 529-row profile table |
 | `waste` | Food-waste attitudes, self-reported habits, disposal reasons and context | 180 × 77; all factors; no NA; one constant item is removed in the historical MCA example | `distributed`, `installed_and_tested` | MCA/HCPC → `nail_catdes_prep()` / `nail_catdes()` | Dataset load verified; historical example is not yet a current offline validation case | Rights and exact questionnaire provenance require confirmation; self-reports are not observed behavior |
 | `nutriscore` | Perceptions of the Nutri-Score and eating habits | 112 × 36; all factors; no NA; documentation treats columns 17:36 as supplementary/contextual | `distributed`, `installed_and_tested` | MCA/HCPC → `nail_catdes()` | Dataset load verified; historical example is not yet a current offline validation case | Rights/provenance and question coding should be confirmed before scientific reuse |
 | `quality` | Perceived quality associated with nine food logos | 55 × 9; tibble/data.frame; nine numeric scores; ranges are observed in the package object and are not recoded | `distributed`, `installed_and_tested` | PCA/HCPC → `nail_condes()` and `nail_catdes()` | Historical MASHS pipeline is documented; current help example needs API modernization | Historical source and reuse status need explicit confirmation; no normative quality score should be requested without a validated criterion |
@@ -105,6 +106,36 @@ The historical names “Territorially disengaged”, “Distant consumers”,
 “Pragmatic involved consumers” and “Territorial activists” are listed only as
 separate historical labels; this documentation does not assert their exact
 correspondence to the current codes.
+
+### `irtsat_items_2024_2025`
+
+This independent object contains the 48 assertions used in the IRTSAT
+instrument for 541 respondents. The assertions are grouped into six blocks of
+eight and retain 14 missing responses. Variable names and Likert response
+levels are in English; the exact French wording is preserved in the local
+dictionary `dev/transition_reconstruction/IRTSAT_48_ITEMS_DICTIONARY.csv`.
+Timestamp, region and complementary questionnaire fields are excluded.
+
+There is no validated common key between these 541 rows and the 529-row
+profile table. The item object is therefore suitable for instrument-oriented
+teaching and data inspection, but must not be joined to `irtsat_2024_2025` by
+row order or used for profile CATDES without a separately documented grouping
+variable.
+
+### `spise_distinction_items_2025_2026`
+
+This de-identified object contains 181 complete responses to the same
+48-item food-transition instrument in the SPISE / Distinction study. The six
+blocks and the English Likert levels are retained, while the source respondent
+identifier and auxiliary context/choice fields are excluded. It is a clean
+instrument export for teaching and inspection, not an IRT score table and not
+a classification. The source and reconstruction script are documented in
+`dev/transition_reconstruction/SPISE_2025_2026.md` and
+`dev/transition_reconstruction/build_spise_distinction_data.R`.
+
+Because SPISE and Distinction refer to one study represented by several
+stages, this object must not be treated as a second survey or joined to a
+Distinction table without a demonstrated row key and transformation history.
 
 ### `waste`
 
@@ -170,6 +201,8 @@ not yet a uniform public workflow.
 | `local_food` | MCA/HCPC, then `nail_catdes()` with custom context | Retain the C01 protocol parameters and use public accessors; clarify that C01 is not reproduced if parameters are simplified | Data installed; C01 case already validated offline and technically end-to-end |
 | `mashs_food_system` | Frozen four-group MCA/HCPC representation, then `nail_catdes()` | Use the same public preview/evidence/prompt route while explaining its complementarity with `local_food` | Data installed; preview, targeted tests and installed-package checks pass |
 | `irtsat_2024_2025` | Frozen four-profile table; `nail_catdes()` plus score-only `nail_condes()` | Keep current profile identifiers and list historical names separately without asserting code correspondence | Data installed; previews, targeted tests and installed-package checks pass |
+| `irtsat_items_2024_2025` | 48-item instrument inspection with English variable names and levels | Use for item-level teaching; do not infer profiles or join to the 529-row table by order | Data installed; structure and missingness tests pass |
+| `spise_distinction_items_2025_2026` | 48-item SPISE / Distinction instrument inspection with English variable names and levels | Use for item-level teaching; no score or class is inferred | Data installed; de-identified 181 × 48 structure and ordered levels pass |
 | `waste` | MCA/HCPC, then `nail_catdes()` | Remove the unsupported 0–10 “wastefulness” grading request; use descriptive group characterization and evidence inspection | Data installed; historical example not rerun in this pass |
 | `nutriscore` | MCA/HCPC, then `nail_catdes()` | Keep descriptive scope and add explicit evidence/prompt access; check current `num.var` and supplementary-variable convention | Data installed; historical example not rerun in this pass |
 | `quality` | PCA/HCPC/CONDES, then direct `ollamar::generate()` | Replace the direct backend call by `nail_condes(..., generate = FALSE/TRUE)` and public accessors in a future documentation-only lot | Data installed; historical MASHS pipeline documented locally |
@@ -218,8 +251,7 @@ package data and are not copied into the repository by this review.
 |---|---|---|---|---|
 | 2023–2024 ProjetSystAlimED | `Base_K.xlsx`, `Base_F.xlsx`, `SystalimED.R`, `Projet_systalim_ED.Rmd`, `SystAlimED.Rdata`; MCA/HCPC/CATDES visible | `nail_catdes_prep()`/`nail_catdes()` after stabilizing the join | `identified`, potentially `blocked` | 576/586 discrepancy, duplicated IDs, 45/46 assertion discrepancy, rights/anonymization unknown |
 | 2024–2025 IRTSAT | Frozen `dta_gold`/`theta` workspace export, `analyse_irt_multidim.Rmd`, visible `mirt()`/k-means history | `nail_condes()` on the retained score; `nail_catdes()` on the frozen four-profile table | `distributed`, `installed_and_tested` | Four profiles are retained; the visible three-centre script is historical and is not the final classification |
-| 2025–2026 Survey / Distinction | questionnaire XLSX, `Distinction.qmd`, related teaching materials | `nail_catdes()` on de-identified practices/attitudes; `nail_textual()` only if open text is authorized | `documented`, not shareable | Export contains identifiers/network metadata; no IRT execution was found in the Survey root |
-| 2025–2026 SPISE | `Spise/data/Bretons.xlsx` (182 × 81), GRM/mirt scripts and outputs | `nail_condes(..., interpretation_mode="latent")` on validated scores; later CATDES/composition | `prepared` locally, not distributed | Extraction rule, item dictionary, package versions, model-selection decision and rights are incomplete |
+| 2025–2026 SPISE / Distinction | `Spise/data/Bretons.xlsx` and the documented `Bretons_no_NA.xlsx` derivative; Distinction questionnaire and Quarto materials; GRM/mirt scripts and outputs | `spise_distinction_items_2025_2026` for instrument inspection; `nail_condes(..., interpretation_mode="latent")` only after a documented score table; later CATDES/text routes after canonical classification and alignment | `distributed`, `installed_and_tested` for the de-identified 48-item instrument; latent scores/classes remain local | One study represented by several subsets/stages; no distributed score or classification is asserted |
 | 2023–2024 MASHS ideal food system | `don_clust.rData`, questionnaire/Q-sort-like protocol, MCA/HCPC route | `nail_catdes()` on `mashs_food_system` | `distributed`, `installed_and_tested` | Complementary to `local_food`; not the separate MASHS logo study |
 | 2023–2024 MASHS logos | `quality/Analyse_logos.R`, `perception de la qualité 2024.xlsx`, saved PCA/HCPC/NaileR objects, historical reports | Reproduce the nine-logo PCA/HCPC/CONDES/CATDES example | `documented`, private source | Historical data and saved objects are local; rights and exact relation to package `quality` need confirmation |
 
@@ -231,10 +263,10 @@ package data and are not copied into the repository by this review.
 - The 2024–2025 scientific decision is four profiles. The visible three-center
   k-means script is a reproducibility discrepancy, not a reason to silently
   replace the scientific decision.
-- SPISE contains executed IRT/GRM work on `Bretons.xlsx`, but the 2025–2026
-  Survey root does not provide evidence of an IRT run. Survey and SPISE are
-  related by the author's provenance decision, while `IRTSAT/data_536.csv`
-  remains a distinct corpus.
+- SPISE contains executed IRT/GRM work on `Bretons.xlsx`, while the
+  Distinction materials document the same study through questionnaire and
+  Quarto stages without an independently identified IRT run. These are not
+  two independent surveys, and neither should be confused with IRTSAT.
 - Bourdieu-inspired concepts are theoretical framing, not automatically
   measured latent variables. Scores, classes, declared practices and text
   responses must not be conflated.
@@ -296,10 +328,10 @@ questions remain unresolved.
    NaileR composition validation, with explicit matching and denominator rules.
 6. For IRTSAT, document the canonical source export, four-group table and
    model-selection diagnostics.
-7. For SPISE, document the 182-row extraction, item dictionary, model versions
-   and rights.
-8. For Survey/Distinction and ProjetSystAlimED, complete de-identification and
-   join/version documentation before any package integration.
+7. For SPISE / Distinction, document the 182-row extraction, item dictionary,
+   model versions, subset relation and rights.
+8. For ProjetSystAlimED, complete de-identification and join/version
+   documentation before any package integration.
 
 ## Proposed commit plan
 
