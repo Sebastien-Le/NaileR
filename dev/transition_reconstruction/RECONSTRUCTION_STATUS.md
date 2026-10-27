@@ -1,18 +1,18 @@
 # Reconstruction status of existing transition studies
 
 Review date: 2026-10-27
-NaileR reference: `dev-core5-condes-integration-20261015` at
-`b257e708cd437343b35d7e3d35ed3c153905664d`
+NaileR reference: `dev-core5-condes-integration-20261015` at the local
+validation baseline `48b6967b45613f535d4b8b75d541d0dd84328d95`.
 
 This is a focused reconstruction report, not a new inventory. No LLM was
 called and no individual response is reproduced.
 
 | Case | Status | NaileR route | Main decision still required |
 |---|---|---|---|
-| IRTSAT 2024–2025 | `retrouvée mais incomplète` | `nail_condes()` on validated IRT scores; then `nail_catdes()` on a frozen class table | Reconcile the scientific four-profile decision with the visible three-centre script and freeze the source export |
+| IRTSAT 2024–2025 | `validated` for the distributed frozen export | `nail_condes()` on the retained IRT score; `nail_catdes()` on the frozen four-profile table | Preserve the caveat that the visible three-centre script is not the final classification and document the source-order alignment |
 | Survey / Distinction 2025–2026 | `reconstructible mais non diffusable en l'état` | `nail_catdes_prep()`/`nail_catdes()` after de-identification; `nail_textual()` only for authorised open text | Remove identifiers and establish a canonical questionnaire export and dictionary |
 | SPISE 2025–2026 | `reconstructible mais non diffusable en l'état` | `nail_condes()` on selected GRM scores; later `nail_catdes()` or composition | Freeze item extraction, model-selection decision, versions and rights |
-| MASHS logos 2023–2024 | `retrouvée et reconstructible` locally; not yet package-ready | PCA/HCPC, `nail_condes()`, and `nail_catdes()` | Confirm the relationship between the historical workbook and package `quality`, then confirm citation/rights |
+| MASHS ideal food system 2023–2024 | `validated` for the distributed de-identified export | MCA/HCPC → `nail_catdes()` | Keep this Q-sort-like questionnaire distinct from the separate MASHS logo study and retain numeric group identifiers |
 | ProjetSystAlimED 2023–2024 | `retrouvée mais incomplète` | `nail_catdes_prep()`/`nail_catdes()` after a justified join | Resolve the 576/586 discrepancy, duplicate IDs and the 536-row join |
 | C01 `local_food` | `retrouvée et reconstructible` and technically validated | MCA/HCPC → `nail_catdes()` | Keep the exploratory semantic review distinct from a general superiority claim |
 | C02 `atomic_habit_clust` | `retrouvée et reconstructible` for offline preparation; semantic generation blocked/unfinished | MFA/HCPC reference → `nail_catdes()` | Preserve the published 84/13/70 classes and obtain a scientific decision on private text use |
@@ -29,10 +29,16 @@ territorial, distant consumers, pragmatic involved consumers, and territorial
 activists. The latter decision must not be silently replaced by the visible
 three-centre script.
 
-The reproducible local candidate is therefore a score table only after the
-canonical export and class table are fixed. A future NaileR preparation should
-record item order, ordered levels, model settings, score version, class
-assignment and `sessionInfo()` before using `nail_condes()` in latent mode.
+The distributed object `irtsat_2024_2025` is the frozen 529-row export used for
+the package preview. It contains the retained IRT score, 34 categorical
+descriptors and the four-level profile assignment; no direct personal key is
+distributed. The score and profile are aligned by the retained workspace row
+order. The object was checked with `nail_condes()` on the score/descriptors
+table and with `nail_catdes()` on the four-profile table, both offline.
+
+The visible three-centre script remains a historical or illustrative route and
+must not be presented as the final scientific classification. The frozen
+export does not claim to reconstruct every upstream IRT fitting choice.
 
 ## Survey / Distinction 2025–2026
 
@@ -61,6 +67,20 @@ The next NaileR case should use a frozen score table and `nail_condes()` in
 latent mode. The six blocks and their labels are useful context, but the
 available diagnostics do not by themselves validate a single global
 continuum. The data remain local pending rights and extraction documentation.
+
+## MASHS ideal food system
+
+The 2023--2024 MASHS study concerns opinions about an ideal food system. Its
+working protocol is Q-sort-like, while the retained computational route is
+MCA followed by HCPC. The distributed object `mashs_food_system` contains 573
+rows, 60 categorical questionnaire responses and the four-level constructed
+group identifier `clust` (226/113/116/118). Demographic columns were omitted
+from the package object. The object was checked with `nail_catdes()` offline;
+the group identifiers are preserved without replacing them by substantive
+names.
+
+The study is separate from the MASHS logo analysis described below and must
+not be conflated with the package dataset `quality`.
 
 ## MASHS logos
 
