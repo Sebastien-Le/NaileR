@@ -337,18 +337,32 @@ cat(substr(nail_prompt(irtsat_condes, print = FALSE), 1, 600), "\n")
 # Distinction: six coherent assertion blocks, with context and open text
 # excluded from the active ACM. The distributed object has 47 such fields.
 data(distinction, package = "NaileR")
+distinction_labels <- utils::read.csv(
+  system.file("extdata", "distinction_assertion_labels.csv", package = "NaileR"),
+  check.names = FALSE,
+  stringsAsFactors = FALSE,
+  fileEncoding = "UTF-8"
+)
 distinction_active <- c(
   grep("^assertion_q17_", names(distinction), value = TRUE),
   grep("^assertion_q2[1-5]_", names(distinction), value = TRUE)
 )
+distinction_rows <- match(distinction_active, distinction_labels$technical_name)
+stopifnot(
+  length(distinction_active) == 47L,
+  all(!is.na(distinction_rows)),
+  !anyDuplicated(distinction_labels$label_en[distinction_rows])
+)
+distinction_assertions <- distinction[, distinction_active, drop = FALSE]
+names(distinction_assertions) <- distinction_labels$label_en[distinction_rows]
 distinction_mca <- FactoMineR::MCA(
-  distinction[, distinction_active, drop = FALSE],
+  distinction_assertions,
   ncp = 5,
   graph = FALSE
 )
 distinction_work <- data.frame(
   Dim1 = distinction_mca$ind$coord[, 1],
-  distinction[, distinction_active, drop = FALSE],
+  distinction_assertions,
   check.names = FALSE
 )
 distinction_condes <- nail_condes(

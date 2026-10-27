@@ -143,9 +143,16 @@ test_that("Distinction uses a documented assertion subset", {
 
 test_that("Distinction semantic assertion labels preserve the statistics", {
   data(distinction, package = "NaileR")
+  label_path <- system.file(
+    "extdata", "distinction_assertion_labels.csv", package = "NaileR"
+  )
+  if (!nzchar(label_path) || !file.exists(label_path)) {
+    label_path <- testthat::test_path(
+      "..", "..", "inst", "extdata", "distinction_assertion_labels.csv"
+    )
+  }
   dictionary <- utils::read.csv(
-    testthat::test_path("..", "..", "dev", "transition_reconstruction",
-                        "DISTINCTION_VARIABLE_DICTIONARY.csv"),
+    label_path,
     check.names = FALSE,
     stringsAsFactors = FALSE,
     fileEncoding = "UTF-8"
@@ -154,12 +161,16 @@ test_that("Distinction semantic assertion labels preserve the statistics", {
     grep("^assertion_q17_", names(distinction), value = TRUE),
     grep("^assertion_q2[1-5]_", names(distinction), value = TRUE)
   )
-  rows <- match(active, dictionary$english_name)
-  labels <- dictionary$original_name[rows]
+  rows <- match(active, dictionary$technical_name)
+  labels <- dictionary$label_en[rows]
+  french_labels <- dictionary$label_fr[rows]
   expect_length(active, 47L)
   expect_false(anyNA(rows))
   expect_length(unique(labels), 47L)
   expect_true(all(nzchar(labels)))
+  expect_true(all(dictionary$translation_status[rows] %in%
+                    c("proposed", "proposed_review")))
+  expect_false(any(labels %in% active))
 
   technical_data <- distinction[, active, drop = FALSE]
   semantic_data <- technical_data
@@ -238,8 +249,10 @@ test_that("Distinction semantic assertion labels preserve the statistics", {
     nrow(technical_evidence$evidence_registry),
     nrow(semantic_evidence$evidence_registry)
   )
-  expect_true(grepl("Je regarde systématiquement", nail_prompt(
-    semantic_result,
-    print = FALSE
-  ), fixed = TRUE))
+  semantic_prompt <- nail_prompt(semantic_result, print = FALSE)
+  expect_true(grepl("I systematically look at the geographical origin", semantic_prompt,
+                    fixed = TRUE))
+  expect_false(any(vapply(french_labels, grepl, logical(1),
+                          x = semantic_prompt, fixed = TRUE)))
+  expect_false(grepl("assertion_q17_", semantic_prompt, fixed = TRUE))
 })

@@ -276,37 +276,50 @@ cases[["irtsat_items_2024_2025"]] <- run_case(
 )
 
 # Distinction: six coherent assertion blocks. Context variables and the open
-# response are deliberately excluded from the active ACM.
+# response are deliberately excluded from the active ACM. The semantic labels
+# are shipped with NaileR so the example also works after installation.
 data(distinction, package = "NaileR")
 distinction_active <- c(
   grep("^assertion_q17_", names(distinction), value = TRUE),
   grep("^assertion_q2[1-5]_", names(distinction), value = TRUE)
 )
 stopifnot(length(distinction_active) == 47L)
+distinction_label_path <- system.file(
+  "extdata", "distinction_assertion_labels.csv", package = "NaileR"
+)
+if (!nzchar(distinction_label_path) || !file.exists(distinction_label_path)) {
+  distinction_label_path <- file.path(
+    repo, "inst", "extdata", "distinction_assertion_labels.csv"
+  )
+}
+stopifnot(file.exists(distinction_label_path))
 distinction_dictionary <- utils::read.csv(
-  file.path(repo, "dev/transition_reconstruction/DISTINCTION_VARIABLE_DICTIONARY.csv"),
+  distinction_label_path,
   check.names = FALSE,
   stringsAsFactors = FALSE,
   fileEncoding = "UTF-8"
 )
 stopifnot(
-  all(c("original_position", "original_name", "english_name") %in%
+  all(c("technical_name", "label_fr", "label_en", "translation_status") %in%
     names(distinction_dictionary))
 )
 distinction_dictionary_rows <- match(
   distinction_active,
-  distinction_dictionary$english_name
+  distinction_dictionary$technical_name
 )
 stopifnot(
   all(!is.na(distinction_dictionary_rows)),
-  !anyDuplicated(distinction_dictionary$original_name[distinction_dictionary_rows]),
-  all(nzchar(distinction_dictionary$original_name[distinction_dictionary_rows]))
+  !anyDuplicated(distinction_dictionary$label_en[distinction_dictionary_rows]),
+  all(nzchar(distinction_dictionary$label_en[distinction_dictionary_rows])),
+  all(distinction_dictionary$translation_status[distinction_dictionary_rows] %in%
+        c("proposed", "proposed_review"))
 )
 distinction_assertion_crosswalk <- data.frame(
   technical_name = distinction_active,
-  documented_label = distinction_dictionary$original_name[distinction_dictionary_rows],
-  dictionary_position = distinction_dictionary$original_position[distinction_dictionary_rows],
-  label_language = "French",
+  documented_label = distinction_dictionary$label_en[distinction_dictionary_rows],
+  source_label_fr = distinction_dictionary$label_fr[distinction_dictionary_rows],
+  translation_status = distinction_dictionary$translation_status[distinction_dictionary_rows],
+  label_language = "English",
   stringsAsFactors = FALSE,
   check.names = FALSE
 )
