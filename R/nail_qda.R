@@ -1857,7 +1857,7 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #' nail_evidence(strawberry_preview)
 #' cat(substr(nail_prompt(strawberry_preview, print = FALSE), 1, 700), "\n")
 #'
-#' ## 3. Apples: preserve unresolved descriptor labels
+#' ## 3. Apples: preserve clarified skin descriptor labels
 #' data(qda_apples)
 #' apple_preview <- nail_qda(
 #'   dataset = qda_apples,
@@ -1870,8 +1870,8 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #' apple_evidence <- nail_evidence(apple_preview)
 #' apple_prompt <- nail_prompt(apple_preview, print = FALSE)
 #' apple_attributes <- apple_evidence$products[[1L]]$adjusted_means$attribute
-#' stopifnot("peau_t" %in% apple_attributes,
-#'           any(grepl("paisse_t$", apple_attributes)))
+#' stopifnot("Texture_SkinResistance" %in% apple_attributes,
+#'           "Texture_SkinThickness" %in% apple_attributes)
 #' cat(substr(apple_prompt, 1, 700), "\n")
 #'
 #' ## 4. Perfumes: inspect product names after Latin-1 decoding

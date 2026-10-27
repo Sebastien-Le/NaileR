@@ -19,15 +19,35 @@ qda_apples
 \description{
 A standardized, English-labelled copy of the local apple QDA study. Six
 apple products were evaluated by 22 panelists over two observed sessions.
-Two original labels, one of them accented in the source, are retained
-because their individual sensory meanings remain unresolved.
+The data preserve the original observation order and numeric measurements;
+only the product labels and descriptor names were standardized in this
+distributed copy.
 }
 \details{
 Leading spaces in the original \code{Renette} and \code{Golden} modalities
 were removed in the standardized copy after a collision check. Aromatic
-descriptors were evaluated in the mouth. The suffixes and unresolved labels
-must not be given a more specific interpretation without the original
-codebook.
+descriptors were evaluated in the mouth. The 24 descriptors are:
+\code{Appearance_ColorUniformity}, \code{Appearance_Glossiness},
+\code{Appearance_Spottedness}, \code{Appearance_Flatness}, \code{Surface_Smoothness},
+\code{Appearance_Size}, \code{Odor_Herbaceous}, \code{Odor_Stuffy}, \code{Odor_Citrus},
+\code{Texture_Crispness}, \code{Texture_Firmness}, \code{Texture_Mealiness},
+\code{Texture_Juiciness}, \code{Mouthfeel_Astringency},
+\code{Texture_SkinResistance}, \code{Texture_SkinThickness}, \code{Taste_Sweetness},
+\code{Taste_Sourness}, \code{Taste_Bitterness}, \code{Aroma_Herbal}, \code{Aroma_Banana},
+\code{Aroma_Candy}, \code{Aroma_Lemon}, and \code{Residual_Astringency}.
+
+The validated definitions are: \code{Texture_SkinResistance}, resistance of the
+apple skin during chewing; \code{Texture_SkinThickness}, perceived thickness of
+the apple skin in the mouth; \code{Odor_Stuffy}, a stuffy or enclosed-air odor;
+\code{Residual_Astringency}, a drying or rough sensation in the mouth;
+\code{Aroma_Herbal}, an herbaceous aroma reminiscent of grass;
+\code{Aroma_Banana}, a banana-like aroma; \code{Aroma_Candy}, a candy-like aroma with
+cooked-sugar, sweet, tangy, and fruity notes; and \code{Aroma_Lemon}, a
+lemon-like acidic citrus aroma. These correspond respectively to the
+original labels \code{peau_t}, \code{épaisse_t}, \code{renfermé_o}, \code{astringent_r},
+\code{herbacé_a}, \code{banane_a}, \code{bonbon_a}, and \code{citron_a}. The remaining labels
+retain their standardized names without additional definitions beyond the
+available source documentation.
 }
 \examples{
 data(qda_apples)

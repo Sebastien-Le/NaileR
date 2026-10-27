@@ -286,8 +286,9 @@
 #'
 #' A standardized, English-labelled copy of the local apple QDA study. Six
 #' apple products were evaluated by 22 panelists over two observed sessions.
-#' Two original labels, one of them accented in the source, are retained
-#' because their individual sensory meanings remain unresolved.
+#' The data preserve the original observation order and numeric measurements;
+#' only the product labels and descriptor names were standardized in this
+#' distributed copy.
 #'
 #' @docType data
 #' @format A data frame with 264 rows and 27 columns. The first three columns
@@ -295,9 +296,28 @@
 #' quantitative sensory descriptors.
 #' @details Leading spaces in the original `Renette` and `Golden` modalities
 #' were removed in the standardized copy after a collision check. Aromatic
-#' descriptors were evaluated in the mouth. The suffixes and unresolved labels
-#' must not be given a more specific interpretation without the original
-#' codebook.
+#' descriptors were evaluated in the mouth. The 24 descriptors are:
+#' `Appearance_ColorUniformity`, `Appearance_Glossiness`,
+#' `Appearance_Spottedness`, `Appearance_Flatness`, `Surface_Smoothness`,
+#' `Appearance_Size`, `Odor_Herbaceous`, `Odor_Stuffy`, `Odor_Citrus`,
+#' `Texture_Crispness`, `Texture_Firmness`, `Texture_Mealiness`,
+#' `Texture_Juiciness`, `Mouthfeel_Astringency`,
+#' `Texture_SkinResistance`, `Texture_SkinThickness`, `Taste_Sweetness`,
+#' `Taste_Sourness`, `Taste_Bitterness`, `Aroma_Herbal`, `Aroma_Banana`,
+#' `Aroma_Candy`, `Aroma_Lemon`, and `Residual_Astringency`.
+#'
+#' The validated definitions are: `Texture_SkinResistance`, resistance of the
+#' apple skin during chewing; `Texture_SkinThickness`, perceived thickness of
+#' the apple skin in the mouth; `Odor_Stuffy`, a stuffy or enclosed-air odor;
+#' `Residual_Astringency`, a drying or rough sensation in the mouth;
+#' `Aroma_Herbal`, an herbaceous aroma reminiscent of grass;
+#' `Aroma_Banana`, a banana-like aroma; `Aroma_Candy`, a candy-like aroma with
+#' cooked-sugar, sweet, tangy, and fruity notes; and `Aroma_Lemon`, a
+#' lemon-like acidic citrus aroma. These correspond respectively to the
+#' original labels `peau_t`, `épaisse_t`, `renfermé_o`, `astringent_r`,
+#' `herbacé_a`, `banane_a`, `bonbon_a`, and `citron_a`. The remaining labels
+#' retain their standardized names without additional definitions beyond the
+#' available source documentation.
 #' @source Local sensory study; standardized from
 #' `local_data/qda/study_02/apples.Rdata`.
 #' @examples
