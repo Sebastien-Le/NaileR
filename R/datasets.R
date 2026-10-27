@@ -964,3 +964,119 @@
 #' nail_response(nutri_generated, print = FALSE)
 #' }
 "nutriscore"
+
+
+#' Ideal food-system questionnaire from the MASHS Q-sort study
+#'
+#' These data come from the 2023--2024 MASHS study of opinions about an ideal
+#' food system. The study used a Q-sort-like questionnaire protocol. The
+#' statistical analysis retained for this object was an MCA followed by HCPC,
+#' not a classical Q-method factor extraction.
+#'
+#' @docType data
+#'
+#' @format
+#' A data frame with 573 rows and 61 columns. The first 60 columns are
+#' categorical questionnaire responses and the last column, `clust`, is the
+#' retained four-level constructed group identifier.
+#'
+#' @details
+#' The source analysis used the first 45 questionnaire variables as active MCA
+#' variables and later questionnaire variables as supplementary variables.
+#' Demographic variables were excluded from this distributed object to avoid
+#' unnecessary disclosure of quasi-identifying information. The group labels
+#' remain numeric identifiers and are not substantive names. The four group
+#' sizes are 226, 113, 116 and 118. The data describe reported opinions about
+#' an ideal food system; they do not measure observed behaviour or causal
+#' effects.
+#'
+#' @source Local MASHS research export, de-identified from
+#' `don_clust.rData`. The reconstruction script is documented in
+#' `dev/transition_reconstruction/build_mashs_irtsat_data.R`.
+#' @examples
+#' library(NaileR)
+#' data(mashs_food_system, package = "NaileR")
+#'
+#' mashs_preview <- nail_catdes(
+#'   dataset = mashs_food_system,
+#'   num.var = ncol(mashs_food_system),
+#'   interpretation_mode = "latent",
+#'   introduction = paste(
+#'     "This survey concerns opinions about an ideal food system.",
+#'     "The groups are constructed from questionnaire response patterns",
+#'     "using the retained MCA-HCPC analysis."
+#'   ),
+#'   request = paste(
+#'     "Describe the configuration of the selected response evidence for",
+#'     "each group. Preserve the group identifiers and distinguish reported",
+#'     "opinions from observed practices or causal explanations."
+#'   ),
+#'   generate = FALSE
+#' )
+#' mashs_evidence <- nail_evidence(mashs_preview)
+#' mashs_prompt <- nail_prompt(mashs_preview, print = FALSE)
+#' cat(substr(mashs_prompt, 1, 600), "\n")
+"mashs_food_system"
+
+
+#' IRTSAT 2024--2025 local-food profiles
+#'
+#' A de-identified frozen export from the 2024--2025 IRTSAT survey on local
+#' food practices and representations. It contains an IRT score, categorical
+#' descriptors, and the scientifically retained four-level profile
+#' assignment.
+#'
+#' @docType data
+#'
+#' @format
+#' A data frame with 529 rows and 36 columns. `IRT_score` is the numeric
+#' target score. Columns 2--35 are categorical descriptors and `profile` is
+#' the four-level constructed profile identifier.
+#'
+#' @details
+#' The visible historical script `analyse_irt_multidim.Rmd` uses a three-centre
+#' k-means illustration and is not the final four-profile classification.
+#' This object preserves the frozen four-profile assignment from the retained
+#' IRT workspace. The score and descriptors are aligned by their original row
+#' order; no personal identifier is distributed. Seven rows present in the
+#' 536-row raw export are not part of the frozen 529-row analysis table. The
+#' score is a retained analysis result and is not recomputed by the package.
+#'
+#' @source Local IRTSAT research workspace, de-identified from the frozen
+#' `dta_gold` and `theta` objects. The reconstruction script is documented in
+#' `dev/transition_reconstruction/build_mashs_irtsat_data.R`.
+#' @examples
+#' library(NaileR)
+#' data(irtsat_2024_2025, package = "NaileR")
+#'
+#' irtsat_catdes <- nail_catdes(
+#'   dataset = irtsat_2024_2025,
+#'   num.var = ncol(irtsat_2024_2025),
+#'   interpretation_mode = "latent",
+#'   introduction = paste(
+#'     "This survey describes reported relationships with local food.",
+#'     "The profile variable is a retained four-group classification linked",
+#'     "to an IRT score and categorical descriptors."
+#'   ),
+#'   request = paste(
+#'     "Describe the configuration of evidence associated with each profile.",
+#'     "Keep the profile identifiers, distinguish the IRT score from its",
+#'     "descriptors, and do not infer behaviour or causality."
+#'   ),
+#'   generate = FALSE
+#' )
+#' irtsat_evidence <- nail_evidence(irtsat_catdes)
+#' irtsat_prompt <- nail_prompt(irtsat_catdes, print = FALSE)
+#' cat(substr(irtsat_prompt, 1, 600), "\n")
+#'
+#' # CONDES can characterize the score without using the profile assignment
+#' # as a circular descriptor.
+#' irtsat_condes_data <- irtsat_2024_2025[, -ncol(irtsat_2024_2025)]
+#' irtsat_condes <- nail_condes(
+#'   dataset = irtsat_condes_data,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   generate = FALSE
+#' )
+#' nail_evidence(irtsat_condes)
+"irtsat_2024_2025"
