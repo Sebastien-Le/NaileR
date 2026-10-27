@@ -252,6 +252,7 @@ package data and are not copied into the repository by this review.
 | 2023–2024 ProjetSystAlimED | `Base_K.xlsx`, `Base_F.xlsx`, `SystalimED.R`, `Projet_systalim_ED.Rmd`, `SystAlimED.Rdata`; MCA/HCPC/CATDES visible | `nail_catdes_prep()`/`nail_catdes()` after stabilizing the join | `identified`, potentially `blocked` | 576/586 discrepancy, duplicated IDs, 45/46 assertion discrepancy, rights/anonymization unknown |
 | 2024–2025 IRTSAT | Frozen `dta_gold`/`theta` workspace export, `analyse_irt_multidim.Rmd`, visible `mirt()`/k-means history | `nail_condes()` on the retained score; `nail_catdes()` on the frozen four-profile table | `distributed`, `installed_and_tested` | Four profiles are retained; the visible three-centre script is historical and is not the final classification |
 | 2025–2026 SPISE / Distinction | `Spise/data/Bretons.xlsx` and the documented `Bretons_no_NA.xlsx` derivative; Distinction questionnaire and Quarto materials; GRM/mirt scripts and outputs | `spise_distinction_items_2025_2026` for instrument inspection; `nail_condes(..., interpretation_mode="latent")` only after a documented score table; later CATDES/text routes after canonical classification and alignment | `distributed`, `installed_and_tested` for the de-identified 48-item instrument; latent scores/classes remain local | One study represented by several subsets/stages; no distributed score or classification is asserted |
+| 2025–2026 Distinction complete survey | Complete 1,226-row questionnaire preparation; 105 public scientific columns after removal of ten technical fields and exact postal code; 48 ordered assertions and translated `quality_food_open` | `nail_catdes()`, `nail_condes()` and `nail_textual()` offline previews through public accessors | `distributed` after the integration lot; translation is technically complete but not fully human linguistically validated | Five reviewed translation corrections applied; 87 heuristic review alerts remain documented; original French texts and exact postal code remain private |
 | 2023–2024 MASHS ideal food system | `don_clust.rData`, questionnaire/Q-sort-like protocol, MCA/HCPC route | `nail_catdes()` on `mashs_food_system` | `distributed`, `installed_and_tested` | Complementary to `local_food`; not the separate MASHS logo study |
 | 2023–2024 MASHS logos | `quality/Analyse_logos.R`, `perception de la qualité 2024.xlsx`, saved PCA/HCPC/NaileR objects, historical reports | Reproduce the nine-logo PCA/HCPC/CONDES/CATDES example | `documented`, private source | Historical data and saved objects are local; rights and exact relation to package `quality` need confirmation |
 
@@ -297,11 +298,16 @@ labels look uniform.
 
 ### T3 — Add new transition datasets only after decisions
 
-Do not add ProjetSystAlimED, Survey/Distinction or SPISE to `data/` yet. First
-resolve the join/version/classification questions, de-identify exports,
-obtain a dictionary and confirm rights. MASHS ideal-food-system and IRTSAT are
-already distributed as the documented teaching objects described above. A
-future candidate order for the remaining cases is:
+The complete Distinction teaching object is now prepared from the audited
+1,226-row survey. It excludes the exact postal code and technical export
+fields, keeps the translated open responses, and records the translation
+limitations above. The object is not a replacement for the separate
+`spise_distinction_items_2025_2026` instrument table and must not be joined to
+it by row order. ProjetSystAlimED and any additional SPISE/Distinction score
+or class tables still require the join/version/classification decisions below.
+MASHS ideal-food-system and IRTSAT are already distributed as the documented
+teaching objects described above. A future candidate order for remaining
+cases is:
 
 1. a de-identified, documented SPISE subset if the 182-row extraction can be
    reproduced;
