@@ -1137,3 +1137,50 @@
 #' # as an instrument; it is not passed to nail_catdes() without an external,
 #' # documented grouping variable.
 "irtsat_items_2024_2025"
+
+
+#' SPISE / Distinction 48-item food-transition instrument
+#'
+#' This de-identified teaching object comes from the SPISE / Distinction
+#' 2025--2026 study, which is one study represented by several files and
+#' analysis stages. It contains the 48 Likert assertions used in the audited
+#' workshop export. It is an instrument table, not an IRT score table and not
+#' a classification.
+#'
+#' @docType data
+#'
+#' @format
+#' A data frame with 181 rows and 48 ordered factor columns. The columns are
+#' arranged in six blocks of eight items: geographical origin, procurement
+#' modes, local territory and actors, environment and ecology, accessibility
+#' and social justice, and engagement and civic participation. The response
+#' levels are `Strongly disagree`, `Disagree`, `Neither agree nor disagree`,
+#' `Agree`, and `Strongly agree`.
+#'
+#' @details
+#' The source export contains a respondent identifier and additional context
+#' and choice variables. Only the 48 item responses are distributed here; the
+#' identifier and auxiliary fields are excluded. The 181-row object follows
+#' the documented `Bretons_no_NA.xlsx` export and contains no missing item
+#' responses. It must not be joined by row order to the IRTSAT objects. No
+#' score, latent class or causal interpretation is supplied by this object.
+#' The English variable names are a presentation layer based on the source
+#' English item labels; the item dictionary records the source names and block
+#' assignments.
+#'
+#' @source
+#' SPISE / Distinction `Bretons_no_NA.xlsx`. The reconstruction script is
+#' documented in `dev/transition_reconstruction/build_spise_distinction_data.R`.
+#' The English item dictionary is
+#' `dev/transition_reconstruction/SPISE_DISTINCTION_48_ITEMS_DICTIONARY.csv`.
+#' @examples
+#' library(NaileR)
+#' data(spise_distinction_items_2025_2026, package = "NaileR")
+#'
+#' dim(spise_distinction_items_2025_2026)
+#' names(spise_distinction_items_2025_2026)[1:8]
+#' table(spise_distinction_items_2025_2026[[1]], useNA = "ifany")
+#'
+#' # The object has no group variable. It is therefore inspected as an
+#' # instrument; no profile or IRT score is invented for a CATDES example.
+"spise_distinction_items_2025_2026"
