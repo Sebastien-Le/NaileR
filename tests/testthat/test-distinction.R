@@ -28,6 +28,35 @@ test_that("Distinction dataset is complete, de-identified, and documented", {
   )))
 })
 
+test_that("Distinction open translations remove confirmed model artifacts", {
+  data(distinction, package = "NaileR")
+
+  expect_equal(
+    distinction$quality_food_open[c(181L, 403L, 591L, 596L, 680L, 757L, 1185L)],
+    c(
+      "These days, the price",
+      "/",
+      "-",
+      "Xxx",
+      "Well",
+      paste0(
+        "In my view, quality food lies in a balance between quality, ",
+        "proximity of production, quantity, and taste.\n\n",
+        "\"Chip the glasses and crack the plates.\n",
+        "Dull the knives and bend the forks.\n",
+        "That's exactly what Bilbo Baggins hates!!\"\n\nThe Hobbit"
+      ),
+      "-"
+    )
+  )
+
+  open_text <- distinction$quality_food_open[!is.na(distinction$quality_food_open)]
+  expect_false(any(grepl(
+    "Please provide the French survey response|Here is the translation of the provided French text|English translation:",
+    open_text
+  )))
+})
+
 test_that("Distinction supports offline public NaileR previews", {
   data(distinction, package = "NaileR")
 

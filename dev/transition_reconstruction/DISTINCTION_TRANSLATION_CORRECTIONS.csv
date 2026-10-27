@@ -1,0 +1,29 @@
+"text_hash","textual_id","source_row","previous_translation_en","corrected_translation_en","review_status","source_reference","issue_type","justification"
+"f71b0960fe4328bba2970c8be94c8eaf904b96c29c6146cd5a30b6aeeeeef475","TXT000145",145,"Please provide the French survey response you would like me to translate.",".","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","NON_RESPONSE_PLACEHOLDER","Input is a punctuation-only nonresponse; retain as missing/placeholder according to explicit policy, not model instruction."
+"017e463196937b1b641d20be6abb97cd514edf92e2388662808faed989c6f6d5","TXT000376",376,"An relatively varied diet including fruits and vegetables...and a bit of meat...","A relatively varied diet including fruits and vegetables... and a little meat...","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","GRAMMAR","Correct article."
+"022e8929354561abc967e97a0bc2114ab5fcff9681d4051a45571afb1421867e","TXT000582",582,"Freshly cooked ready meals without salt.","Fresh products cooked without salt.","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","SEMANTIC_ADDITION","Remove invented ready meals."
+"7c4b1d287a0d99362e0a768925f3da7bb32180b692bb64383c6904c3c67c6ec7","TXT001077",1077,"Three meals a day, raw or cooked foods, ideally grown in our regions","Three meals a day, meals prepared from unprocessed ingredients, ideally grown in our regions.","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","SEMANTIC_AMBIGUITY","Original says aliments bruts cuisinés, not raw or cooked foods; verify intended reading."
+"06d68983bc2e56db0502a809b61075a8bae45e288be0e9db736a52fa75c23a10","TXT001092",1092,"English translation:
+Food from short supply chains","Food from short supply chains","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","MODEL_PREFIX","Remove prefatory line."
+"eeb61ed394f7593bc37314d067ce874377726c8ffaa05f6e618f5406f71b56a2","TXT000181",181,"Here is the translation of the provided French text into English:
+
+""These days, the price""","These days, the price","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","MODEL_PREFIX","Remove the model-prefatory sentence and quotation marks; preserve the incomplete source fragment."
+"12e70e375dbd4cb225fc086cdf276e1164c2e0fe071dfa61a2f672cfc2d1f056","TXT000591",591,"Please provide the French survey response you'd like me to translate.","-","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","NON_RESPONSE_PLACEHOLDER","The source is a dash placeholder; preserve the placeholder rather than a model request."
+"a7acabf1d7cb6be77bbc232bbbaabaa0d82e863aca869a001dd942f460b10efa","TXT000757",757,"In my opinion, quality food lies in a balance between: quality, local production, quantity, and taste.
+
+""Chip the glasses and crack the plates.
+Dull the knives and bend the forks.
+That's exactly what Bilbo Baggins hates!!""
+
+The Hobbit","In my view, quality food lies in a balance between quality, proximity of production, quantity, and taste.
+
+""Chip the glasses and crack the plates.
+Dull the knives and bend the forks.
+That's exactly what Bilbo Baggins hates!!""
+
+The Hobbit","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","SEMANTIC_AND_PROMPT_ARTIFACT","Translate the full source, including its quoted passage; remove the ungrounded model-added framing while preserving the source content."
+"39dc37656e669d97236ebaf0c1cc9da185be2bc023937be5ea2c5c627199b523","TXT000403",403,"Please provide the French survey response you would like me to translate.","/","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","NON_RESPONSE_PLACEHOLDER","The source is a slash placeholder; preserve it rather than a model request."
+"ecf1adfabe19f0a88ca2f6a7b156d79da271ef37010f6df5aa04ecb30a1c31a4","TXT000596",596,"I'm sorry, but I can't translate the text you provided because it appears to be empty or contains only placeholder characters (""Xxx""). Please provide the actual French text you'd like me to translate.","Xxx","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","MODEL_REFUSAL","The source is the literal placeholder Xxx; preserve it rather than the model refusal."
+"d35b85baad4c5e140479fcf328c7d41eaaa2fd6268117940e572bc2e5e255134","TXT000680",680,"Sure, here is the translation of the French response ""Bien"" into English:
+
+""Well""","Well","verified_against_private_french_source","private/open_text_originals.rds; private Excel column 116 checked by source row","MODEL_PREFIX","Remove the model-prefatory sentence and quotation marks from the translation of Bien."

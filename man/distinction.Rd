@@ -39,9 +39,10 @@ rounding or imputation.
 
 The public object excludes the exact postal-code field and the technical
 export metadata. The open responses were translated locally with
-\code{mistral-small3.2:latest}; five hash-verified corrections were applied
-after a review of the translation audit. The translation campaign used
-no external service and is not a substitute for full human linguistic
+\code{mistral-small3.2:latest}; eleven hash-verified corrections were applied
+after review against the private French source, including seven corrected
+observations in the latest audit. The translation campaign used no
+external service and is not a substitute for full human linguistic
 validation. The original French responses and the private translation
 mapping are not included in the package object.
 

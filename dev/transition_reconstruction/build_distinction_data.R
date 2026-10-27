@@ -45,6 +45,13 @@ dictionary <- read.csv(
   fileEncoding = "UTF-8"
 )
 
+# CSV readers may expose multiline source text with LF line endings even when
+# the private workbook or RDS uses CRLF. Compare line-ending-normalized text
+# while preserving every substantive character for the correction itself.
+normalize_source_text <- function(x) {
+  gsub("\\r\\n?", "\n", as.character(x), perl = TRUE)
+}
+
 stopifnot(nrow(closed) == 1226L, ncol(closed) == 105L)
 open_col <- grep("^quality_food_open_fr[[:space:]]*$", names(closed))
 stopifnot(length(open_col) == 1L)
@@ -66,7 +73,10 @@ for (i in seq_len(nrow(corrections))) {
     !is.na(originals$original_fr)]
   current <- translations$translation_en[translations$text_hash == h]
   stopifnot(length(source_text) >= 1L, length(unique(source_text)) == 1L)
-  stopifnot(identical(as.character(source_text[[1L]]), corrections$original_fr[i]))
+  stopifnot(identical(
+    normalize_source_text(source_text[[1L]]),
+    normalize_source_text(corrections$original_fr[i])
+  ))
   stopifnot(length(current) == 1L)
   stopifnot(identical(as.character(current[[1L]]), corrections$current_translation_en[i]))
   translation_by_hash[[h]] <- corrections$proposed_translation_en[i]
