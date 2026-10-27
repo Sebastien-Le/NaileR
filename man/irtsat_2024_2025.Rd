@@ -32,6 +32,9 @@ order; no personal identifier is distributed. The distributed table has
 result and is not recomputed by the package. The current profile levels are
 preserved as identifiers; the four historical names are documented
 separately and are not used here to assert a verified code-to-name mapping.
+The 48-item questionnaire export is available separately as
+\code{irtsat_items_2024_2025}; it has 541 rows and must not be joined to this
+table by row order.
 }
 \examples{
 library(NaileR)

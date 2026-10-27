@@ -1050,6 +1050,9 @@
 #' result and is not recomputed by the package. The current profile levels are
 #' preserved as identifiers; the four historical names are documented
 #' separately and are not used here to assert a verified code-to-name mapping.
+#' The 48-item questionnaire export is available separately as
+#' `irtsat_items_2024_2025`; it has 541 rows and must not be joined to this
+#' table by row order.
 #'
 #' @source Local IRTSAT research workspace, de-identified from the frozen
 #' `dta_gold` and `theta` objects. The reconstruction script is documented in
@@ -1089,3 +1092,48 @@
 #' )
 #' nail_evidence(irtsat_condes)
 "irtsat_2024_2025"
+
+
+#' IRTSAT 48-item local-food instrument
+#'
+#' This object contains the 48 Likert assertions used in the IRTSAT
+#' questionnaire. The variable names and response levels are provided in
+#' English for use in NaileR examples. The original French item wording is
+#' preserved in the accompanying dictionary because it is part of the
+#' instrument documentation.
+#'
+#' @docType data
+#'
+#' @format
+#' A data frame with 541 rows and 48 ordered factor columns. The columns are
+#' arranged in six blocks of eight items: geographical origin, procurement
+#' modes, local territory and actors, environment and ecology, accessibility
+#' and social justice, and engagement and civic participation. The response
+#' levels are `Strongly disagree`, `Disagree`, `Neither agree nor disagree`,
+#' `Agree`, and `Strongly agree`. There are 14 missing item responses.
+#'
+#' @details
+#' This item-level export is intentionally separate from
+#' `irtsat_2024_2025`, the frozen 529-row profile table. No validated row key
+#' links the two exports, so this object must not be joined to the profile
+#' table by row order. Timestamp, region and complementary questionnaire
+#' fields are excluded from the distributed object. The original assertions
+#' are French questionnaire wording; the English variable names and response
+#' levels are a documented presentation layer, not a new instrument.
+#'
+#' @source
+#' IRTSAT `data_541.csv` and `typologie_consommateurs_annexe.docx`. The
+#' English variable dictionary is
+#' `dev/transition_reconstruction/IRTSAT_48_ITEMS_DICTIONARY.csv`.
+#' @examples
+#' library(NaileR)
+#' data(irtsat_items_2024_2025, package = "NaileR")
+#'
+#' dim(irtsat_items_2024_2025)
+#' table(irtsat_items_2024_2025[[1]], useNA = "ifany")
+#' names(irtsat_items_2024_2025)[1:8]
+#'
+#' # The item table has no classification or score and is therefore inspected
+#' # as an instrument; it is not passed to nail_catdes() without an external,
+#' # documented grouping variable.
+"irtsat_items_2024_2025"

@@ -28,8 +28,21 @@ irtsat_path <- Sys.getenv(
     ".RData"
   )
 )
+irtsat_items_path <- Sys.getenv(
+  "NAILER_IRTSAT_ITEMS_CSV",
+  unset = file.path(
+    "/Users/sebastienle/Documents/2024-2025",
+    "Traitement de Données Enquêtes",
+    "IRTSAT",
+    "data_541.csv"
+  )
+)
 
-stopifnot(file.exists(mashs_path), file.exists(irtsat_path))
+stopifnot(
+  file.exists(mashs_path),
+  file.exists(irtsat_path),
+  file.exists(irtsat_items_path)
+)
 
 # MASHS: the first 60 columns are questionnaire responses. The source
 # analysis used columns 1:45 as active MCA variables and columns 46:63 as
@@ -176,4 +189,123 @@ save(
   compress = "xz"
 )
 
-cat("Created mashs_food_system.rda and irtsat_2024_2025.rda\n")
+# IRTSAT item-level instrument: this is the 541-row item export used by the
+# questionnaire/IRT documentation. It is intentionally kept separate from
+# the 529-row frozen profile table because no validated row key links them.
+irtsat_items_raw <- read.csv(
+  irtsat_items_path,
+  check.names = FALSE,
+  stringsAsFactors = FALSE,
+  na.strings = c("", "NA")
+)
+stopifnot(nrow(irtsat_items_raw) == 541L, ncol(irtsat_items_raw) == 56L)
+irtsat_item_names <- c(
+  "origin_geographic_origin_attention",
+  "processed_food_origin_attention",
+  "recognize_local_label",
+  "know_local_producers_or_brands",
+  "prefer_food_within_100km",
+  "choose_local_or_france_label",
+  "avoid_imported_fruit_vegetables",
+  "effort_local_processed_food",
+  "buy_amap_farm_shop",
+  "buy_direct_from_producer",
+  "subscribe_local_producer_basket",
+  "reduced_supermarket_purchases",
+  "visit_market_weekly",
+  "prefer_small_food_shops",
+  "choose_place_near_production",
+  "know_local_market_sellers",
+  "know_local_food_actors",
+  "know_regional_food_products",
+  "informed_about_local_food_issues",
+  "know_local_food_policy",
+  "buy_from_territory_respecting_producers",
+  "willing_to_pay_more_local_producer",
+  "recommend_local_producers_products",
+  "participated_producer_support_action",
+  "know_seasonal_fruit_vegetables",
+  "choose_seasonal_food",
+  "avoid_out_of_season_imports",
+  "consult_seasonal_calendars",
+  "consider_ecological_impact",
+  "limit_overpackaged_food",
+  "prefer_organic_food",
+  "reduce_intensive_livestock_meat",
+  "local_food_affordable",
+  "adapted_purchases_without_extra_cost",
+  "know_local_affordable_solutions",
+  "easy_access_to_local_food",
+  "pay_attention_to_local_food_price",
+  "know_local_food_aid",
+  "participated_solidarity_food_shop",
+  "support_solidarity_food_schemes",
+  "participated_local_food_event",
+  "volunteer_local_food_organization",
+  "recommend_local_food_to_relatives",
+  "share_local_food_information",
+  "food_as_social_transformation_lever",
+  "vote_or_campaign_for_territorial_food",
+  "value_local_food_sovereignty",
+  "support_local_food_in_public_policies"
+)
+irtsat_item_dimensions <- rep(
+  c(
+    "Geographical origin",
+    "Procurement modes",
+    "Local territory and actors",
+    "Environment, seasonality and ecology",
+    "Accessibility and social justice",
+    "Engagement and civic participation"
+  ),
+  each = 8L
+)
+stopifnot(length(irtsat_item_names) == 48L)
+irtsat_items <- irtsat_items_raw[, 3:50, drop = FALSE]
+stopifnot(!anyDuplicated(names(irtsat_items)))
+likert_labels <- c(
+  "Pas du tout d'accord" = "Strongly disagree",
+  "Plutôt pas d'accord" = "Disagree",
+  "Ni d’accord ni pas d’accord (neutre)" = "Neither agree nor disagree",
+  "Plutôt d’accord" = "Agree",
+  "Tout à fait d’accord" = "Strongly agree"
+)
+stopifnot(all(is.na(unlist(irtsat_items)) | unlist(irtsat_items) %in% names(likert_labels)))
+for (j in seq_along(irtsat_items)) {
+  translated <- unname(likert_labels[irtsat_items[[j]]])
+  irtsat_items[[j]] <- factor(
+    translated,
+    levels = unname(likert_labels),
+    ordered = TRUE
+  )
+}
+names(irtsat_items) <- irtsat_item_names
+stopifnot(
+  nrow(irtsat_items) == 541L,
+  ncol(irtsat_items) == 48L,
+  sum(is.na(irtsat_items)) == 14L
+)
+irtsat_items_2024_2025 <- irtsat_items
+save(
+  irtsat_items_2024_2025,
+  file = file.path(repo, "data", "irtsat_items_2024_2025.rda"),
+  version = 2,
+  compress = "xz"
+)
+
+item_dictionary <- data.frame(
+  variable = irtsat_item_names,
+  dimension = irtsat_item_dimensions,
+  source_item_french = names(irtsat_items_raw)[3:50],
+  response_scale = "Strongly disagree / Disagree / Neither agree nor disagree / Agree / Strongly agree",
+  missing_values = vapply(irtsat_items, function(x) sum(is.na(x)), integer(1)),
+  stringsAsFactors = FALSE
+)
+write.csv(
+  item_dictionary,
+  file.path(repo, "dev", "transition_reconstruction", "IRTSAT_48_ITEMS_DICTIONARY.csv"),
+  row.names = FALSE,
+  fileEncoding = "UTF-8"
+)
+
+cat("Created MASHS, IRTSAT profile and IRTSAT item datasets\n")
