@@ -1706,6 +1706,212 @@ build_conclusion_condes <- function(
 #' )
 #' nail_evidence(condes_latent)
 #' cat(substr(nail_prompt(condes_latent, print = FALSE), 1, 600), "\n")
+#'
+#' # A first ACM dimension: agribusiness expectations.
+#' data(agri_studies, package = "NaileR")
+#' agri_mca <- FactoMineR::MCA(
+#'   agri_studies,
+#'   quali.sup = 39:42,
+#'   graph = FALSE
+#' )
+#' agri_work <- data.frame(
+#'   Dim1 = agri_mca$ind$coord[, 1],
+#'   agri_studies,
+#'   check.names = FALSE
+#' )
+#' agri_condes <- nail_condes(
+#'   agri_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   introduction = paste(
+#'     "Students ranked 38 statements about agribusiness studies and then",
+#'     "answered four personal questions. The first ACM dimension is a",
+#'     "constructed contrast in these reported expectations."
+#'   ),
+#'   request = paste(
+#'     "Interpret the opposition between the two ends of Dim1 using the",
+#'     "retained associations. Do not infer causes or general abilities from",
+#'     "these reported expectations."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(agri_condes)
+#' cat(substr(nail_prompt(agri_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # A second ACM dimension example: perceptions of public speaking.
+#' data(glossophobia, package = "NaileR")
+#' gloss_mca <- FactoMineR::MCA(
+#'   glossophobia,
+#'   quali.sup = 26:41,
+#'   graph = FALSE
+#' )
+#' gloss_work <- data.frame(
+#'   Dim1 = gloss_mca$ind$coord[, 1],
+#'   glossophobia,
+#'   check.names = FALSE
+#' )
+#' gloss_condes <- nail_condes(
+#'   gloss_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   introduction = paste(
+#'     "Participants ranked 25 descriptions of speaking in public and",
+#'     "answered personal questions. Dim1 is a constructed contrast in",
+#'     "these reported perceptions, not a clinical diagnosis."
+#'   ),
+#'   request = paste(
+#'     "Describe the opposition between lower and higher Dim1 values from",
+#'     "the displayed evidence, preserving uncertainty and avoiding causal",
+#'     "or psychological claims not contained in the survey."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(gloss_condes)
+#' cat(substr(nail_prompt(gloss_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # An AFC dimension: row profiles of the beard contingency table.
+#' # The profile columns are derived from the same table and are not treated
+#' # as independent individual-level measurements.
+#' data(beard_cont, package = "NaileR")
+#' beard_ca <- FactoMineR::CA(beard_cont, graph = FALSE)
+#' beard_profiles <- sweep(
+#'   as.matrix(beard_cont),
+#'   1,
+#'   rowSums(beard_cont),
+#'   "/"
+#' )
+#' beard_work <- data.frame(
+#'   Dim1 = beard_ca$row$coord[, 1],
+#'   beard_profiles,
+#'   check.names = FALSE
+#' )
+#' beard_condes <- nail_condes(
+#'   beard_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   introduction = paste(
+#'     "The rows are eight observed beard types and the columns are words",
+#'     "used to describe them. Row profiles from this same contingency table",
+#'     "are used to characterize the first correspondence dimension."
+#'   ),
+#'   request = paste(
+#'     "Describe the opposition between the two ends of the first AFC",
+#'     "dimension from the displayed row-profile evidence. Do not treat it",
+#'     "as an individual-level survey or infer causes."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(beard_condes)
+#' cat(substr(nail_prompt(beard_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # MASHS / local_food: 45 active assertions and 18 supplementary variables.
+#' data(local_food, package = "NaileR")
+#' food_mca <- FactoMineR::MCA(
+#'   local_food,
+#'   quali.sup = 46:63,
+#'   ncp = 100,
+#'   graph = FALSE
+#' )
+#' food_work <- data.frame(
+#'   Dim1 = food_mca$ind$coord[, 1],
+#'   local_food,
+#'   check.names = FALSE
+#' )
+#' food_condes <- nail_condes(
+#'   food_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   target_concept = "sustainable food-system representations",
+#'   introduction = paste(
+#'     "Participants rated 45 statements about a sustainable food system",
+#'     "and answered additional opinion and contextual questions. Dim1 is a",
+#'     "constructed contrast in declared representations, not behaviour."
+#'   ),
+#'   request = paste(
+#'     "Interpret both ends of Dim1 from the retained evidence. Distinguish",
+#'     "active statements that construct the ACM from supplementary variables",
+#'     "and do not infer causal mechanisms."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(food_condes)
+#' cat(substr(nail_prompt(food_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # IRTSAT: all 48 ordered assertions are active in this illustrative ACM.
+#' # MCA treats their levels as categorical; it is not an IRT analysis.
+#' data(irtsat_items_2024_2025, package = "NaileR")
+#' irtsat_mca <- FactoMineR::MCA(
+#'   irtsat_items_2024_2025,
+#'   ncp = 5,
+#'   graph = FALSE
+#' )
+#' irtsat_work <- data.frame(
+#'   Dim1 = irtsat_mca$ind$coord[, 1],
+#'   irtsat_items_2024_2025,
+#'   check.names = FALSE
+#' )
+#' irtsat_condes <- nail_condes(
+#'   irtsat_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   target_concept = "local-food representations",
+#'   introduction = paste(
+#'     "This 48-item instrument covers six blocks of local-food attitudes",
+#'     "and practices. The ordered Likert items are treated as categorical",
+#'     "by MCA, with no join to the separate 529-row profile table."
+#'   ),
+#'   request = paste(
+#'     "Interpret Dim1 as a descriptive contrast in the item responses.",
+#'     "Use the retained evidence, not an IRT interpretation, and do not",
+#'     "infer behaviour or causality."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(irtsat_condes)
+#' cat(substr(nail_prompt(irtsat_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # Distinction: six coherent assertion blocks, with context and open text
+#' # excluded from the active ACM. The distributed object has 47 such fields.
+#' data(distinction, package = "NaileR")
+#' distinction_active <- c(
+#'   grep("^assertion_q17_", names(distinction), value = TRUE),
+#'   grep("^assertion_q2[1-5]_", names(distinction), value = TRUE)
+#' )
+#' distinction_mca <- FactoMineR::MCA(
+#'   distinction[, distinction_active, drop = FALSE],
+#'   ncp = 5,
+#'   graph = FALSE
+#' )
+#' distinction_work <- data.frame(
+#'   Dim1 = distinction_mca$ind$coord[, 1],
+#'   distinction[, distinction_active, drop = FALSE],
+#'   check.names = FALSE
+#' )
+#' distinction_condes <- nail_condes(
+#'   distinction_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   target_concept = "food-transition representations",
+#'   introduction = paste(
+#'     "This survey records reported food, territory and food-choice",
+#'     "attitudes. The active variables cover local-food representations,",
+#'     "literacy, social context, place confidence, cooking time and health."
+#'   ),
+#'   request = paste(
+#'     "Interpret the opposition between the two ends of Dim1 from the",
+#'     "retained evidence. Keep reported attitudes distinct from observed",
+#'     "behaviour, and do not use the open response as an active ACM variable."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(distinction_condes)
+#' cat(substr(nail_prompt(distinction_condes, print = FALSE), 1, 600), "\n")
 nail_condes <- function(dataset,
                         num.var,
                         introduction = NULL,
