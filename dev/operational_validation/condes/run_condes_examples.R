@@ -312,7 +312,7 @@ stopifnot(
   !anyDuplicated(distinction_dictionary$label_en[distinction_dictionary_rows]),
   all(nzchar(distinction_dictionary$label_en[distinction_dictionary_rows])),
   all(distinction_dictionary$translation_status[distinction_dictionary_rows] %in%
-        c("proposed", "proposed_review"))
+        c("proposed", "proposed_review", "editorial_reviewed"))
 )
 distinction_assertion_crosswalk <- data.frame(
   technical_name = distinction_active,

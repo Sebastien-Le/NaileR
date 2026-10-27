@@ -169,7 +169,7 @@ test_that("Distinction semantic assertion labels preserve the statistics", {
   expect_length(unique(labels), 47L)
   expect_true(all(nzchar(labels)))
   expect_true(all(dictionary$translation_status[rows] %in%
-                    c("proposed", "proposed_review")))
+                    c("proposed", "proposed_review", "editorial_reviewed")))
   expect_false(any(labels %in% active))
 
   technical_data <- distinction[, active, drop = FALSE]
