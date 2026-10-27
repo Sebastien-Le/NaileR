@@ -501,6 +501,133 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'   1,
 #'   600
 #' ), "\n")
+#'
+#' # Car Alone: perceived benefits and constraints of individual car use.
+#' data(car_alone, package = "NaileR")
+#' car_alone_preview <- nail_textual(
+#'   dataset = car_alone,
+#'   num.var = 1,
+#'   num.text = 2,
+#'   introduction = paste(
+#'     "This survey records perceived benefits and constraints of using a car alone.",
+#'     "The four groups combine declared car use with whether sharing is perceived as restrictive."
+#'   ),
+#'   request = paste(
+#'     "Summarize what respondents literally express about the benefits and constraints",
+#'     "of car use, preserving differences between the four groups without inferring behaviour."
+#'   ),
+#'   isolate.groups = TRUE,
+#'   sample.pct = 0.5,
+#'   seed = 20261027,
+#'   text_role = "comments",
+#'   generate = FALSE
+#' )
+#' nail_evidence(car_alone_preview)
+#' nail_prompt(car_alone_preview, select = "I take my car alone, and sharing it is for me restrictive",
+#'             print = FALSE)
+#'
+#' # Atomic Habits: responses about giving up air travel and three constructed groups.
+#' data(atomic_habit_clust, package = "NaileR")
+#' atomic_plane <- atomic_habit_clust[
+#'   !is.na(atomic_habit_clust$never_plane_text) &
+#'     atomic_habit_clust$never_plane_text != "THAT",
+#'   c(32, 51),
+#'   drop = FALSE
+#' ]
+#' atomic_preview <- nail_textual(
+#'   dataset = atomic_plane,
+#'   num.var = 2,
+#'   num.text = 1,
+#'   introduction = paste(
+#'     "The survey asks respondents what benefits and constraints they associate",
+#'     "with giving up air travel. The historical value 'THAT' is excluded because",
+#'     "it is not a textual response."
+#'   ),
+#'   request = paste(
+#'     "Describe the distinct ways in which the three constructed groups discuss",
+#'     "reducing air travel. Keep perceived capacity distinct from felt constraint."
+#'   ),
+#'   isolate.groups = TRUE,
+#'   text_role = "responses",
+#'   generate = FALSE
+#' )
+#' nail_evidence(atomic_preview)
+#' nail_prompt(atomic_preview, select = "1", print = FALSE)
+#'
+#' # Rorschach: ten local prompts for the ten inkblots in panel A.
+#' data(rorschach, package = "NaileR")
+#' rorschach_A <- droplevels(rorschach[rorschach$Panel == "A", , drop = FALSE])
+#' rorschach_preview <- nail_textual(
+#'   dataset = rorschach_A,
+#'   num.var = 2,
+#'   num.text = 5,
+#'   introduction = paste(
+#'     "Participants described ten Rorschach inkblots in panel A.",
+#'     "The prompts summarize the recorded descriptions without treating them as diagnoses."
+#'   ),
+#'   request = paste(
+#'     "Describe recurring perceptions associated with each inkblot, preserving",
+#'     "variation and avoiding psychological or causal claims."
+#'   ),
+#'   isolate.groups = TRUE,
+#'   text_role = "responses",
+#'   generate = FALSE
+#' )
+#' nail_evidence(rorschach_preview)
+#' length(nail_prompt(rorschach_preview, print = FALSE))
+#'
+#' # Distinction: one global profile from 1,225 translated comments on food quality.
+#' data(distinction, package = "NaileR")
+#' distinction_text <- data.frame(
+#'   respondent_scope = factor("All respondents"),
+#'   quality_food_open = distinction$quality_food_open,
+#'   check.names = FALSE
+#' )
+#' distinction_preview <- nail_textual(
+#'   dataset = distinction_text,
+#'   num.var = 1,
+#'   num.text = 2,
+#'   introduction = paste(
+#'     "This survey includes one open question about what respondents mean by",
+#'     "food quality. The English comments are translations of the original survey",
+#'     "responses and are analysed as textual material, not as quantitative scores."
+#'   ),
+#'   request = paste(
+#'     "Describe the diversity of representations of food quality in the complete",
+#'     "corpus. Preserve tensions and minority views, and do not treat a sampled",
+#'     "preview as an exhaustive account."
+#'   ),
+#'   isolate.groups = FALSE,
+#'   sample.pct = 1,
+#'   seed = 20261027,
+#'   text_role = "comments",
+#'   generate = FALSE
+#' )
+#' nail_evidence(distinction_preview)
+#' cat(substr(nail_prompt(distinction_preview, print = FALSE), 1, 600), "\n")
+#'
+#' # Distinction: a reproducible groupwise preview by highest education.
+#' distinction_education_preview <- nail_textual(
+#'   dataset = distinction,
+#'   num.var = 4,
+#'   num.text = 105,
+#'   introduction = paste(
+#'     "The same food-quality question is compared descriptively across the",
+#'     "six observed education categories in the survey."
+#'   ),
+#'   request = paste(
+#'     "Summarize how the food-quality representations expressed in the comments",
+#'     "vary across education categories. Do not infer education effects or causality."
+#'   ),
+#'   isolate.groups = FALSE,
+#'   sample.pct = 0.1,
+#'   seed = 20261027,
+#'   text_role = "comments",
+#'   generate = FALSE
+#' )
+#' nail_evidence(distinction_education_preview)
+#' nail_prompt(distinction_education_preview, select = "Master level or higher",
+#'             print = FALSE)
 nail_textual <- function(dataset, num.var, num.text,
                          introduction = NULL,
                          request = NULL,
