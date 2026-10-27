@@ -27,7 +27,16 @@ uncertain sensory meanings are documented in the validation materials.
 The source contained \code{NR}, \code{CJ}, \code{ProductName}, ten numeric
 descriptors, and \code{Commentaire}. The comment field is not part of this QDA
 dataset. \code{Session} records the observed repetition. The local English
-labels are documented translations, not new measurements.
+labels are documented translations, not new measurements. The descriptors
+are \code{Appearance_Size}, \code{Appearance_Color}, \code{Odor_General},
+\code{Texture_Firmness}, \code{Texture_Juiciness}, \code{Texture_Melting},
+\code{Taste_Sweetness}, \code{Taste_Sourness}, \code{Flavor_Aroma}, and
+\code{Flavor_WildStrawberry}. \code{Texture_Melting} denotes the melting sensation of
+strawberry flesh in the mouth; \code{Flavor_Aroma} denotes overall aromatic
+intensity perceived in the mouth; and \code{Flavor_WildStrawberry} denotes the
+intensity of wild-strawberry-like flavor notes. A score of zero indicates
+that the sensory attribute is absent or not perceived. The upper scale
+anchor is not documented.
 }
 \examples{
 data(qda_strawberries)

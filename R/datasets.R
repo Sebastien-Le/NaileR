@@ -273,7 +273,16 @@
 #' @details The source contained `NR`, `CJ`, `ProductName`, ten numeric
 #' descriptors, and `Commentaire`. The comment field is not part of this QDA
 #' dataset. `Session` records the observed repetition. The local English
-#' labels are documented translations, not new measurements.
+#' labels are documented translations, not new measurements. The descriptors
+#' are `Appearance_Size`, `Appearance_Color`, `Odor_General`,
+#' `Texture_Firmness`, `Texture_Juiciness`, `Texture_Melting`,
+#' `Taste_Sweetness`, `Taste_Sourness`, `Flavor_Aroma`, and
+#' `Flavor_WildStrawberry`. `Texture_Melting` denotes the melting sensation of
+#' strawberry flesh in the mouth; `Flavor_Aroma` denotes overall aromatic
+#' intensity perceived in the mouth; and `Flavor_WildStrawberry` denotes the
+#' intensity of wild-strawberry-like flavor notes. A score of zero indicates
+#' that the sensory attribute is absent or not perceived. The upper scale
+#' anchor is not documented.
 #' @source Local sensory study; standardized from
 #' `local_data/qda/study_01/fraise.Rdata`.
 #' @examples
@@ -337,9 +346,16 @@
 #' quantitative odor descriptors.
 #' @details The source `Rank` column is not included in the QDA descriptors.
 #' Product names, including the accented commercial product name in the source,
-#' are preserved. The
-#' meanings of `Odor_Greedy`, `Odor_Oriental`, and `Odor_Wrapping`, as well as
-#' the scale anchors, require confirmation from the original codebook.
+#' are preserved. The 12 descriptors are `Odor_Spicy`, `Odor_Heady`,
+#' `Odor_Fruity`, `Odor_Green`, `Odor_Vanilla`, `Odor_Floral`, `Odor_Woody`,
+#' `Odor_Citrus`, `Odor_Marine`, `Odor_Gourmand`, `Odor_Oriental`, and
+#' `Odor_Enveloping`. `Odor_Gourmand` denotes a gourmand odor character,
+#' evoking sweet, confectionery, or food-like notes. `Odor_Oriental` denotes
+#' an oriental/amber fragrance character, preserving the terminology of the
+#' original study. `Odor_Enveloping` denotes an enveloping, surrounding
+#' quality of the fragrance. A score of zero indicates that the sensory
+#' attribute is absent or not perceived. The upper scale anchor is not
+#' documented.
 #' @source Local sensory study; standardized from
 #' `local_data/qda/study_04/perfumes_qda_experts.csv`.
 #' @examples
@@ -360,8 +376,15 @@
 #' descriptors covering mouthfeel, odor, and texture.
 #' @details The source `Smp.code` column is excluded from the QDA dataset. The
 #' standardized product identifiers are `DAI`, `DHL`, `HL`, `KS`, `TAKI`, and
-#' `TL3`. Some source labels remain provisional where the codebook does not
-#' resolve their exact sensory scope.
+#' `TL3`. The descriptors are `Mouthfeel_Bitterness`,
+#' `Mouthfeel_Sourness`, `Mouthfeel_Sweetness`, `Odor_Floral`,
+#' `Odor_GreenGrass`, `Odor_RipeBanana`, `Odor_SweetNote`,
+#' `Texture_Crispness`, `Texture_Firmness`, and `Texture_Juiciness`.
+#' `Odor_SweetNote` denotes a sweet-smelling odor note, distinct from sweet
+#' taste. `Texture_Crispness` denotes the crisp or crunchy texture of melon
+#' flesh and corresponds to the original French descriptor "croquant". A
+#' score of zero indicates that the sensory attribute is absent or not
+#' perceived. The upper scale anchor is not documented.
 #' @source Local sensory study; standardized from
 #' `local_data/qda/study_03/melons.Rdata`.
 #' @examples

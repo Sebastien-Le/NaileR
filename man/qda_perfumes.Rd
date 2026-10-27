@@ -23,9 +23,16 @@ Twelve commercial products were evaluated by 12 panelists over two sessions.
 \details{
 The source \code{Rank} column is not included in the QDA descriptors.
 Product names, including the accented commercial product name in the source,
-are preserved. The
-meanings of \code{Odor_Greedy}, \code{Odor_Oriental}, and \code{Odor_Wrapping}, as well as
-the scale anchors, require confirmation from the original codebook.
+are preserved. The 12 descriptors are \code{Odor_Spicy}, \code{Odor_Heady},
+\code{Odor_Fruity}, \code{Odor_Green}, \code{Odor_Vanilla}, \code{Odor_Floral}, \code{Odor_Woody},
+\code{Odor_Citrus}, \code{Odor_Marine}, \code{Odor_Gourmand}, \code{Odor_Oriental}, and
+\code{Odor_Enveloping}. \code{Odor_Gourmand} denotes a gourmand odor character,
+evoking sweet, confectionery, or food-like notes. \code{Odor_Oriental} denotes
+an oriental/amber fragrance character, preserving the terminology of the
+original study. \code{Odor_Enveloping} denotes an enveloping, surrounding
+quality of the fragrance. A score of zero indicates that the sensory
+attribute is absent or not perceived. The upper scale anchor is not
+documented.
 }
 \examples{
 data(qda_perfumes)

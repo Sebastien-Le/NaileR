@@ -24,8 +24,15 @@ repetition field is present, so no \code{Session} column was created.
 \details{
 The source \code{Smp.code} column is excluded from the QDA dataset. The
 standardized product identifiers are \code{DAI}, \code{DHL}, \code{HL}, \code{KS}, \code{TAKI}, and
-\code{TL3}. Some source labels remain provisional where the codebook does not
-resolve their exact sensory scope.
+\code{TL3}. The descriptors are \code{Mouthfeel_Bitterness},
+\code{Mouthfeel_Sourness}, \code{Mouthfeel_Sweetness}, \code{Odor_Floral},
+\code{Odor_GreenGrass}, \code{Odor_RipeBanana}, \code{Odor_SweetNote},
+\code{Texture_Crispness}, \code{Texture_Firmness}, and \code{Texture_Juiciness}.
+\code{Odor_SweetNote} denotes a sweet-smelling odor note, distinct from sweet
+taste. \code{Texture_Crispness} denotes the crisp or crunchy texture of melon
+flesh and corresponds to the original French descriptor "croquant". A
+score of zero indicates that the sensory attribute is absent or not
+perceived. The upper scale anchor is not documented.
 }
 \examples{
 data(qda_melons)
