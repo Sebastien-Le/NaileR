@@ -1,0 +1,293 @@
+# NaileR — Datasets and scientific examples register
+
+Date of review: 2026-10-27
+Reference branch: `dev-core5-condes-integration-20261015`
+Reference commit: `b257e708cd437343b35d7e3d35ed3c153905664d`
+
+This register records the datasets and examples that can support NaileR
+demonstrations. It separates technical availability from scientific review and
+publication rights. A successful data load, prompt preview, or LLM generation
+is not by itself a scientific validation.
+
+No LLM was called for this review. The six package datasets were loaded from a
+real installed NaileR package built from the reference branch. The installed
+package was checked with R 4.4.2 on macOS 26.6.2. All six objects loaded
+successfully and contained no missing values in the installed copies.
+
+## Status vocabulary
+
+The following lifecycle states are used in this document:
+
+- `identified`: a candidate is located, but its structure or provenance is not
+  sufficiently characterized;
+- `prepared`: sources, transformations, or a reproducible analysis plan are
+  available;
+- `validated_offline`: the stated offline technical checks have been executed;
+- `scientifically_reviewed`: the specified scientific interpretation has been
+  reviewed, with its limits recorded;
+- `distributed`: a dataset is present in the package `data/` directory;
+- `installed_and_tested`: the dataset was loaded from an installed package and
+  its documented access path was checked;
+- `blocked`: a provenance, privacy, rights, alignment, or scientific decision
+  prevents responsible progression.
+
+These states are not mutually exclusive. For example, a dataset can be both
+`distributed` and `installed_and_tested` while its associated scientific case
+remains only `prepared`.
+
+## Executive matrix
+
+| Study / object | Theme and observed unit | Dimensions and verified structure | Package status | NaileR candidates | Technical status | Scientific / rights status |
+|---|---|---|---|---|---|---|
+| `local_food` | Sustainable food-system representations and opinions; participants | 573 × 63; all factors; 45 acceptability statements, 14 opinion statements, 4 contextual variables; no NA | `distributed`, `installed_and_tested` | `nail_catdes_prep()`, `nail_catdes()`; possible future TEXTUAL only with an approved text corpus | C01 technical/statistical workflow validated; 314-marker reference and A/B/C invariance checked | C01 exploratory semantic review completed; not a general prompt-superiority claim. Provenance to historical files remains separate from package availability |
+| `waste` | Food-waste attitudes, self-reported habits, disposal reasons and context | 180 × 77; all factors; no NA; one constant item is removed in the historical MCA example | `distributed`, `installed_and_tested` | MCA/HCPC → `nail_catdes_prep()` / `nail_catdes()` | Dataset load verified; historical example is not yet a current offline validation case | Rights and exact questionnaire provenance require confirmation; self-reports are not observed behavior |
+| `nutriscore` | Perceptions of the Nutri-Score and eating habits | 112 × 36; all factors; no NA; documentation treats columns 17:36 as supplementary/contextual | `distributed`, `installed_and_tested` | MCA/HCPC → `nail_catdes()` | Dataset load verified; historical example is not yet a current offline validation case | Rights/provenance and question coding should be confirmed before scientific reuse |
+| `quality` | Perceived quality associated with nine food logos | 55 × 9; tibble/data.frame; nine numeric scores; ranges are observed in the package object and are not recoded | `distributed`, `installed_and_tested` | PCA/HCPC → `nail_condes()` and `nail_catdes()` | Historical MASHS pipeline is documented; current help example needs API modernization | Historical source and reuse status need explicit confirmation; no normative quality score should be requested without a validated criterion |
+| `atomic_habit` | Declared capacity and perceived restrictiveness of ecological habits, with explanations | 167 × 50; 10 binary capability factors, 10 numeric 0–5 restrictiveness variables, 10 binary variables, 10 text columns, 10 derived composite factors; no NA | `distributed`, `installed_and_tested` | MFA/HCPC upstream; `nail_textual()` and `nail_catdes_textual()` only with privacy and alignment controls | Source object loaded and structurally checked; C02 uses its first 20 variables for the statistical reference | Texts are individual responses and remain unsuitable for the shareable corpus without a privacy decision. Capability is declared, not observed behavior |
+| `atomic_habit_clust` | Same questionnaire with a published three-level constructed classification | 167 × 51; same 50 columns plus factor `clust`; group sizes 84/13/70; no NA | `distributed`, `installed_and_tested` | `nail_catdes_prep()`, `nail_catdes()`; future composition after alignment review | C02 prepared and technically validated offline; 63 selected markers and four previews are archived | Status `ready_for_validation`; historical AFM route unresolved, group 2 is small, and no semantic LLM validation is currently claimed |
+
+## Package datasets: verified structures
+
+### `local_food`
+
+The installed object is a 573 × 63 data frame with 63 factor columns and no
+missing values. Columns 1–45 are full English statements about a sustainable
+food system. Columns 46–59 are opinion or constraint statements. Columns
+60–63 are age, marital status, city size, and socio-professional category.
+The five-level response scales and the contextual factor levels are preserved
+as distributed. The package documentation describes an MCA with columns 46:63
+as supplementary variables and an HCPC classification. The C01 validation
+uses the package object and a published three-group classification; it does
+not claim that the package object is byte-identical to every historical
+questionnaire export.
+
+The appropriate interpretation is about configurations of declared
+acceptability and opinions. It must not be rewritten as a description of
+individual behavior or as a causal explanation of food-system choices.
+
+### `waste`
+
+The installed object is a 180 × 77 factor data frame with no missing values.
+The columns are full questions covering perceived environmental impact,
+disposal practices and reasons, shopping channels, information sources,
+readiness to change, and demographic/contextual variables. One historical
+item has only one observed level; the existing example removes column 14
+before MCA. This is a data-quality fact to document, not a reason to silently
+alter the distributed object.
+
+The current example proposes an ordinal grade from 0 to 10 for how wasteful a
+group is. That request is not supported by a validated statistical scale in
+the package and should be replaced in a future documentation lot by a
+descriptive, evidence-grounded request.
+
+### `nutriscore`
+
+The installed object is a 112 × 36 factor data frame with no missing values.
+The first 16 variables concern perceptions and uses of the Nutri-Score; the
+remaining variables cover demographics and eating practices. The existing
+MCA example uses columns 17:36 as supplementary variables, followed by HCPC
+and CATDES. This is a plausible pedagogical workflow, but its scientific
+interpretation remains descriptive and should preserve the distinction between
+views about the label and actual dietary behavior.
+
+### `quality`
+
+The installed object is a 55 × 9 tibble/data frame containing nine numeric
+logo scores. The observed ranges are: `AB` 3–10, `LabelRouge` 3–10,
+`FairTrade` 2–10, `BleuBlanc` 2–10, `AOC` 5–10, `PdtBretagne` 2–10,
+`ViandesFrance` 0–9, `SansOGM` 0–9, and `MedaillesAgro` 1–10. The package
+object contains no factor labels or missing values. The historical MASHS
+analysis describes a PCA, HCPC and CATDES/CONDES workflow on these nine
+ratings, with three HCPC groups of sizes 15, 8 and 32 in the saved analysis.
+
+The abbreviated column names are not full scientific definitions. The
+documentation lists the logo meanings, but the example should be checked
+against the original codebook before being presented as a fully reproducible
+scientific case.
+
+### `atomic_habit` and `atomic_habit_clust`
+
+Both objects contain the same 50 questionnaire columns in the same order.
+The first ten factors record declared ability for specific changes; columns
+11–20 are numeric restrictiveness scores on [0, 5]; columns 21–30 are binary
+restrictiveness variables; columns 31–40 are non-empty character responses;
+and columns 41–50 are derived ability/restrictiveness combinations.
+
+`atomic_habit_clust` adds the factor `clust` with levels 1, 2 and 3 and sizes
+84, 13 and 70. The C02 statistical reference intentionally uses columns 1:20
+plus `clust`; text columns, binary copies and derived composites are not
+independent statistical evidence. The group labels are identifiers for
+constructed groups, not substantive names.
+
+## Current examples and required documentation work
+
+The existing dataset help pages are useful historical starting points but are
+not yet a uniform public workflow.
+
+| Help page | Current pattern | Issue / proposed T1 action | Offline status in this review |
+|---|---|---|---|
+| `local_food` | MCA/HCPC, then `nail_catdes()` with custom context | Retain the C01 protocol parameters and use public accessors; clarify that C01 is not reproduced if parameters are simplified | Data installed; C01 case already validated offline and technically end-to-end |
+| `waste` | MCA/HCPC, then `nail_catdes()` | Remove the unsupported 0–10 “wastefulness” grading request; use descriptive group characterization and evidence inspection | Data installed; historical example not rerun in this pass |
+| `nutriscore` | MCA/HCPC, then `nail_catdes()` | Keep descriptive scope and add explicit evidence/prompt access; check current `num.var` and supplementary-variable convention | Data installed; historical example not rerun in this pass |
+| `quality` | PCA/HCPC/CONDES, then direct `ollamar::generate()` | Replace the direct backend call by `nail_condes(..., generate = FALSE/TRUE)` and public accessors in a future documentation-only lot | Data installed; historical MASHS pipeline documented locally |
+| `atomic_habit` | MFA/HCPC preparation only | Add an offline public workflow only after deciding how to handle texts and generated groups | Data installed; no semantic generation claimed |
+| `atomic_habit_clust` | Direct `FactoMineR::catdes()` in the example | Show `nail_catdes(x = ...)` or `nail_catdes_prep()` with `generate = FALSE`, while preserving the published `clust` factor | Data installed; C02 offline preparation validated |
+
+The old examples in `R/datasets.R` and the generated `.Rd` files also contain
+legacy direct-backend patterns in other datasets. Those are outside this
+initial transition consolidation unless a documentation lot explicitly
+includes them. No such files were modified in this review.
+
+## Reusable validation cases already available
+
+### C01 — `local_food`
+
+The shareable corpus is under
+`dev/operational_validation/corpus/C01_local_food/`. It contains the
+reproducible script, aggregate statistical references, prompts, responses and
+the exploratory comparison of conditions A/B/C. The technical/statistical
+checks include the 573 × 63 data, a 573 × 64 classification, three groups of
+226/188/159, 314 qualitative markers, and line-by-line reproducibility of the
+seeded HCPC assignments. One response (`G3_R01`) is truncated and its API stop
+reason was not retained. The C01 register has an internal wording
+inconsistency (`validated` in the detailed status versus `ready_for_validation`
+in a later “status unchanged” paragraph); this should be corrected in the
+corpus register before the next publication pass, not silently ignored.
+
+### C02 — `atomic_habit_clust`
+
+The shareable corpus is under
+`dev/operational_validation/corpus/C02_atomic_habit/`. The statistical table
+uses columns 1:20 plus the published `clust` factor. It contains 63 selected
+markers and the group sizes 84/13/70. The published classification is
+reproduced by two documented AFM candidates, but the historical AFM route is
+not identified. Gemini validation was blocked by quota/HTTP 429 in the logged
+campaign; no semantic quality claim is made. The raw `call$X` object and
+individual texts remain private.
+
+## Other transition-related studies
+
+The following inventory reuses the local audit reports in
+`/private/tmp/nailer-survey-audit-20261026/`. These source projects are not
+package data and are not copied into the repository by this review.
+
+| Candidate | Source and evidence | Possible NaileR use | Current status | Main blocker |
+|---|---|---|---|---|
+| 2023–2024 ProjetSystAlimED | `Base_K.xlsx`, `Base_F.xlsx`, `SystalimED.R`, `Projet_systalim_ED.Rmd`, `SystAlimED.Rdata`; MCA/HCPC/CATDES visible | `nail_catdes_prep()`/`nail_catdes()` after stabilizing the join | `identified`, potentially `blocked` | 576/586 discrepancy, duplicated IDs, 45/46 assertion discrepancy, rights/anonymization unknown |
+| 2024–2025 IRTSAT | `data_536.csv`, `analyse_irt_multidim.Rmd`, `mirt()` graded model, scores and k-means | `nail_condes()` on validated scores; `nail_catdes()` after a canonical four-group table | `identified`, `blocked` for distribution | Four profiles are the scientific decision, but the visible script uses three k-means centers; source version and diagnostics need reconciliation |
+| 2025–2026 Survey / Distinction | questionnaire XLSX, `Distinction.qmd`, related teaching materials | `nail_catdes()` on de-identified practices/attitudes; `nail_textual()` only if open text is authorized | `documented`, not shareable | Export contains identifiers/network metadata; no IRT execution was found in the Survey root |
+| 2025–2026 SPISE | `Spise/data/Bretons.xlsx` (182 × 81), GRM/mirt scripts and outputs | `nail_condes(..., interpretation_mode="latent")` on validated scores; later CATDES/composition | `prepared` locally, not distributed | Extraction rule, item dictionary, package versions, model-selection decision and rights are incomplete |
+| 2023–2024 MASHS | `quality/Analyse_logos.R`, `perception de la qualité 2024.xlsx`, saved PCA/HCPC/NaileR objects, historical reports | Reproduce the nine-logo PCA/HCPC/CONDES/CATDES example | `documented`, private source | Historical data and saved objects are local; rights and exact relation to package `quality` need confirmation |
+
+### Scientific distinctions that must remain explicit
+
+- The 2023–2024 Q-sort protocol is documented, but the executable analysis
+  found in the sources is MCA → HCPC → CATDES, not classical Q-method factor
+  extraction.
+- The 2024–2025 scientific decision is four profiles. The visible three-center
+  k-means script is a reproducibility discrepancy, not a reason to silently
+  replace the scientific decision.
+- SPISE contains executed IRT/GRM work on `Bretons.xlsx`, but the 2025–2026
+  Survey root does not provide evidence of an IRT run. Survey and SPISE are
+  related by the author's provenance decision, while `IRTSAT/data_536.csv`
+  remains a distinct corpus.
+- Bourdieu-inspired concepts are theoretical framing, not automatically
+  measured latent variables. Scores, classes, declared practices and text
+  responses must not be conflated.
+
+## Concrete lots
+
+### T1 — Stabilize the six distributed datasets
+
+Documentation-only changes in `R/datasets.R` and generated `.Rd` files:
+
+1. Align the descriptions with the verified structures above.
+2. State active/supplementary/contextual roles where they are actually known.
+3. Replace unsupported normative or causal requests, especially the waste
+   grading request.
+4. Replace direct `ollamar::generate()` in the `quality` example with the
+   public NaileR preview/accessor workflow.
+5. Keep ordinary examples offline and put real generation in `\\dontrun{}`.
+
+This lot must not alter statistical calculations or prompt templates.
+
+### T2 — Preserve operational examples
+
+Keep C01 and C02 in their separate validation directories. Version only
+shareable scripts, aggregate evidence, prompts and reports. Keep individual
+texts, raw `call$X`, keys, condition mappings and private archives outside
+Git. Historical prompts and responses must not be rewritten to make current
+labels look uniform.
+
+### T3 — Add new transition datasets only after decisions
+
+Do not add ProjetSystAlimED, IRTSAT, Survey/Distinction or SPISE to `data/`
+yet. First resolve the join/version/classification questions, de-identify
+exports, obtain a dictionary and confirm rights. A future candidate order is:
+
+1. a de-identified, documented SPISE subset if the 182-row extraction can be
+   reproduced;
+2. a canonical IRTSAT four-profile derivative once the class provenance is
+   fixed;
+3. a de-identified Survey/Distinction derivative only if open-text and
+   identifier governance permits it;
+4. ProjetSystAlimED only after the 576/586 and duplicate-ID issues are solved.
+
+### T4 — Discovery and citation
+
+After T1, add a short dataset index to the README and later prepare a focused
+transition vignette. Do not build a large vignette while the source and rights
+questions remain unresolved.
+
+## Decisions required before the next integration pass
+
+1. Confirm the distribution rights and citations for `local_food`, `waste`,
+   `nutriscore`, `quality`, `atomic_habit`, and `atomic_habit_clust`.
+2. Decide whether the current package examples should be modernized as one
+   documentation-only T1 lot.
+3. Resolve the C01 status wording inconsistency.
+4. Confirm the historical AFM route for C02, or explicitly accept that the
+   published `clust` factor is the sole reference.
+5. Decide whether individual atomic-habit texts may ever be used in a private
+   NaileR composition validation, with explicit matching and denominator rules.
+6. For IRTSAT, document the canonical source export, four-group table and
+   model-selection diagnostics.
+7. For SPISE, document the 182-row extraction, item dictionary, model versions
+   and rights.
+8. For Survey/Distinction and ProjetSystAlimED, complete de-identification and
+   join/version documentation before any package integration.
+
+## Proposed commit plan
+
+No commit or push was performed in this review. Proposed future commands are
+intentionally explicit:
+
+```sh
+git add R/datasets.R man/local_food.Rd man/waste.Rd man/nutriscore.Rd \
+  man/quality.Rd man/atomic_habit.Rd man/atomic_habit_clust.Rd
+git commit -m "docs(data): stabilize transition dataset examples"
+
+git add dev/operational_validation/corpus/C01_local_food/<selected-shareable-files>
+git commit -m "docs(validation): preserve C01 reproducibility materials"
+
+git add dev/operational_validation/corpus/C02_atomic_habit/<selected-shareable-files>
+git commit -m "docs(validation): preserve C02 preparation materials"
+```
+
+The angle-bracket paths are placeholders and must be replaced by an audited
+file list. `git add .` and directory-wide staging are deliberately excluded.
+Each lot must run `devtools::document()`, `devtools::load_all()`, offline
+examples, targeted tests, the full test suite, `git diff --check`, and a
+package check where the environment allows it.
+
+## Scope and exclusions of this first intervention
+
+- No R code, tests, package data, prompts, or source questionnaire was
+  modified.
+- No LLM or network generation was performed.
+- No private questionnaire, verbatim, API key, or external source file was
+  copied into the repository.
+- The existing tracked C02 status edit and all untracked validation/QDA
+  artifacts were preserved unchanged.
+- The present document is a decision register for the next lots; it does not
+  declare every candidate scientifically validated.
