@@ -118,27 +118,61 @@ through \code{\link[=nail_evidence]{nail_evidence()}}. The LLM-facing semantic f
 direction and row-versus-global frequency information.
 }
 \examples{
-tab <- data.frame(
-  sweet = c(30, 5, 10),
-  bitter = c(5, 30, 10),
-  neutral = c(10, 10, 30),
-  row.names = c("A", "B", "C")
-)
+# Example 1: describe eight observed beard profiles.
+data(beard_cont, package = "NaileR")
 
-preview <- nail_descfreq(
-  tab,
+beard_preview <- nail_descfreq(
+  dataset = beard_cont,
+  introduction = paste(
+    "This survey describes eight observed beard types using frequency",
+    "profiles across beard descriptors. The rows are the identifiers B1",
+    "to B8."
+  ),
+  request = paste(
+    "Describe what distinguishes each beard type from the overall",
+    "descriptor profile and propose a concise descriptive name. Base every",
+    "statement on the displayed frequency evidence; do not invent",
+    "appearance or causes."
+  ),
+  interpretation_mode = "description",
   isolate.groups = TRUE,
   generate = FALSE
 )
 
-nail_evidence(preview, select = "A")
+beard_evidence <- nail_evidence(beard_preview)
 cat(
-  substr(
-    nail_prompt(preview, select = "A", print = FALSE),
-    1, 600
-  ),
+  substr(nail_prompt(beard_preview, select = "B1", print = FALSE),
+        1, 600),
   "\n"
 )
+
+# Example 2: compare reasons for hesitating to have children by education.
+data(children, package = "FactoMineR")
+children_table <- children[1:14, 1:5] |> t() |> as.data.frame()
+rownames(children_table) <- c(
+  "No education", "Elementary school", "Middle school",
+  "High school", "University"
+)
+
+children_preview <- nail_descfreq(
+  dataset = children_table,
+  introduction = paste(
+    "This contingency table summarizes reported reasons that a woman or",
+    "couple may hesitate to have children by education level. Rows are",
+    "five education categories and columns are reasons."
+  ),
+  request = paste(
+    "Compare the relative frequency profiles across education levels,",
+    "highlighting the main differences while distinguishing statistical",
+    "associations from causal explanations."
+  ),
+  interpretation_mode = "comparison",
+  isolate.groups = FALSE,
+  generate = FALSE
+)
+
+children_evidence <- nail_evidence(children_preview)
+cat(substr(nail_prompt(children_preview, print = FALSE), 1, 600), "\n")
 
 }
 \seealso{
