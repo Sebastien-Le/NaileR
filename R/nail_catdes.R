@@ -2333,6 +2333,21 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'                        print = FALSE), 1, 800), "\n")
 #' nail_response(generated, select = generated_group, print = FALSE)
 #' }
+#'
+#' # Optional Gemini generation: one joint Iris request.
+#' # This is opt-in and requires a user-managed GEMINI_API_KEY; it is not run
+#' # by ordinary package checks. A joint call produces one response containing
+#' # the observed species together.
+#' \dontrun{
+#' iris_gemini <- nail_catdes(
+#'   iris, num.var = 5, interpretation_mode = "standard",
+#'   isolate.groups = FALSE, prompt_style = "compact",
+#'   provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+#' )
+#' nail_evidence(iris_gemini)
+#' nail_prompt(iris_gemini, print = FALSE)
+#' nail_response(iris_gemini, print = FALSE)
+#' }
 nail_catdes <- function(dataset = NULL,
                         num.var = NULL,
                         introduction = NULL,

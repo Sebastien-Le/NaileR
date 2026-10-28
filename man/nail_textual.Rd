@@ -276,6 +276,28 @@ distinction_education_preview <- nail_textual(
 nail_evidence(distinction_education_preview)
 nail_prompt(distinction_education_preview, select = "Master level or higher",
             print = FALSE)
+
+# Optional Gemini generation: one local request per Fabric group.
+# This opt-in block requires a user-managed GEMINI_API_KEY and may make
+# multiple external requests. A parsed profile is not scientific validation.
+\dontrun{
+fabric_gemini <- nail_textual(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  isolate.groups = TRUE,
+  sample.pct = 1,
+  seed = 123,
+  text_role = "responses",
+  provider = "gemini",
+  model = "gemini-2.5-flash",
+  generate = TRUE
+)
+nail_evidence(fabric_gemini)
+fabric_group <- names(nail_evidence(fabric_gemini)$groups)[[1L]]
+nail_prompt(fabric_gemini, select = fabric_group, print = FALSE)
+nail_response(fabric_gemini, select = fabric_group, print = FALSE)
+}
 }
 \seealso{
 \code{\link[=nail_textual_prep]{nail_textual_prep()}}, \code{\link[=nail_catdes_textual]{nail_catdes_textual()}},

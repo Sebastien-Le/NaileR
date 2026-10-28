@@ -1983,6 +1983,26 @@ get_prompt_qda <- function(semantic_facing_evidence,
 #' melon_evidence <- nail_evidence(melon_preview)
 #' c("DAI", "DHL", "HL", "KS", "TAKI", "TL3") %in%
 #'   names(melon_evidence$products)
+#'
+#' ## 11. Optional Gemini generation for the chocolate study
+#' # The sensory panel has six products; local generation makes one request
+#' # per product. This opt-in block requires a user-managed GEMINI_API_KEY.
+#' \dontrun{
+#' chocolate_gemini <- nail_qda(
+#'   dataset = sensochoc,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   lastvar = 18,
+#'   isolate.groups = TRUE,
+#'   provider = "gemini",
+#'   model = "gemini-2.5-flash",
+#'   generate = TRUE
+#' )
+#' nail_evidence(chocolate_gemini)
+#' chocolate_group <- names(nail_evidence(chocolate_gemini)$products)[[1L]]
+#' nail_prompt(chocolate_gemini, select = chocolate_group, print = FALSE)
+#' nail_response(chocolate_gemini, select = chocolate_group, print = FALSE)
+#' }
 nail_qda <- function(dataset, formul, firstvar,
                      lastvar = length(colnames(dataset)),
                      introduction = NULL,

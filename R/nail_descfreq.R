@@ -1445,6 +1445,27 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #' rorschach_evidence <- nail_evidence(rorschach_preview)
 #' cat(substr(nail_prompt(rorschach_preview, print = FALSE), 1, 600), "\n")
 #'
+#' # Optional Gemini generation: one comparison response for Children.
+#' # This opt-in block requires a user-managed GEMINI_API_KEY.
+#' \dontrun{
+#' children_gemini <- nail_descfreq(
+#'   dataset = children_table,
+#'   introduction = paste(
+#'     "The table records reasons for hesitating to have children",
+#'     "across five education levels."
+#'   ),
+#'   request = paste(
+#'     "Compare the retained frequency evidence across education levels.",
+#'     "Distinguish associations from causal explanations."
+#'   ),
+#'   interpretation_mode = "comparison", isolate.groups = FALSE,
+#'   provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+#' )
+#' nail_evidence(children_gemini)
+#' nail_prompt(children_gemini, print = FALSE)
+#' nail_response(children_gemini, print = FALSE)
+#' }
+#'
 #' @export
 nail_descfreq <- function(dataset,
                           introduction = NULL,

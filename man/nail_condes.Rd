@@ -385,6 +385,18 @@ distinction_condes <- nail_condes(
 )
 nail_evidence(distinction_condes)
 cat(substr(nail_prompt(distinction_condes, print = FALSE), 1, 600), "\n")
+
+# Optional Gemini generation: one response for the observed Decathlon target.
+# This opt-in block requires a user-managed GEMINI_API_KEY.
+\dontrun{
+decathlon_gemini <- nail_condes(
+  decathlon, num.var = 12, interpretation_mode = "standard",
+  provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+)
+nail_evidence(decathlon_gemini)
+nail_prompt(decathlon_gemini, print = FALSE)
+nail_response(decathlon_gemini, print = FALSE)
+}
 }
 \seealso{
 \code{\link[FactoMineR:condes]{FactoMineR::condes()}}, \code{\link[=nail_qda_space]{nail_qda_space()}}, \code{\link[=nail_evidence]{nail_evidence()}},
