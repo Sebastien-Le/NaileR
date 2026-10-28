@@ -22,7 +22,9 @@ nail_catdes(
   generate = FALSE,
   x = NULL,
   prompt_overrides = NULL,
-  ...
+  ...,
+  num.textual = NULL,
+  textual.sample = 1
 )
 }
 \arguments{
@@ -91,6 +93,17 @@ than replace a default block, first retrieve it with
 
 \item{...}{Provider-specific generation arguments passed to the selected
 backend.}
+
+\item{num.textual}{Optional column index of an individual textual-response
+variable in \code{dataset}. When supplied, the column is excluded from CATDES
+computation but retained as a canonical textual evidence source for a
+second enrichment pass. It is available only with the raw \code{dataset}
+interface; it cannot be inferred from a prepared \code{x} object.}
+
+\item{textual.sample}{Proportion in \verb{]0, 1]} of non-empty comments selected
+within each group for the enrichment pass. The complete textual registry
+and all statistical evidence remain unchanged. It has no effect when
+\code{num.textual = NULL}.}
 }
 \value{
 When \code{generate = FALSE}, the actual joint prompt when
@@ -109,6 +122,10 @@ and semantic-stage artifacts are attached as attributes, not as \code{$} fields:
 \item \code{catdes_result}: the original FactoMineR result, when available;
 \item \code{catdes_settings}: execution and interpretation settings;
 \item \code{llm_io}: the exact active prompt(s) and raw response(s).
+\item With \code{num.textual} set, \code{\link[=nail_catdes_enrichment]{nail_catdes_enrichment()}} is the public entry
+point for the complete textual registry and both generation passes;
+\code{nail_evidence()} continues to return the canonical statistical CATDES
+evidence.
 \item The default \code{output} block is a free writing instruction; it does not
 impose JSON, Quarto Markdown, or another response schema.
 }
@@ -116,6 +133,11 @@ impose JSON, Quarto Markdown, or another response schema.
 A preview has prompts but no responses. Use \code{\link[=nail_evidence]{nail_evidence()}} for evidence,
 \code{\link[=nail_prompt]{nail_prompt()}} for the active prompt(s), and \code{\link[=nail_response]{nail_response()}} after
 generation.
+
+The existing \code{\link[=nail_catdes_textual]{nail_catdes_textual()}} workflow remains available for
+compatibility. The integrated two-pass interface is additive in this
+release; migration or deprecation of the separate workflow requires a
+future explicit decision.
 }
 \description{
 Compute and interpret the statistical characteristics of an observed
@@ -163,6 +185,14 @@ Every successful return carries \code{statistical_profiles},
 \code{interpretation_evidence}, \code{semantic_facing_evidence}, \code{local_prompts},
 \code{semantic_profiles}, \code{catdes_result} when available, and \code{catdes_settings} as
 attributes.
+
+With \code{num.textual} set, \code{\link[=nail_catdes_enrichment]{nail_catdes_enrichment()}} exposes the two-pass
+artifact. In a preview, the first CATDES prompt and the selected comments are
+available, while the definitive enrichment prompt is explicitly marked as
+pending the first response. With \code{generate = TRUE}, the artifact preserves
+the first prompt/response and the second prompt/response separately. The
+first LLM interpretation is a proposal, not a replacement for the canonical
+statistical evidence.
 }
 \examples{
 # All examples below are previews: generate = FALSE never contacts an LLM.
@@ -361,9 +391,33 @@ nail_evidence(iris_gemini)
 nail_prompt(iris_gemini, print = FALSE)
 nail_response(iris_gemini, print = FALSE)
 }
+
+# 11. Prepare a two-pass CATDES enrichment without contacting an LLM.
+#     The second prompt cannot be final until the first response exists.
+data(atomic_habit_clust, package = "NaileR")
+car_enriched_preview <- nail_catdes(
+  atomic_habit_clust, num.var = 51, num.textual = 31,
+  textual.sample = 0.5, interpretation_mode = "latent",
+  isolate.groups = FALSE,
+  generate = FALSE
+)
+nail_evidence(car_enriched_preview)
+nail_prompt(car_enriched_preview, print = FALSE)
+nail_catdes_enrichment(car_enriched_preview)$second_pass$status
+
+\dontrun{
+car_enriched <- nail_catdes(
+  atomic_habit_clust, num.var = 51, num.textual = 31,
+  textual.sample = 0.5, interpretation_mode = "latent",
+  isolate.groups = FALSE,
+  provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+)
+nail_response(car_enriched, print = FALSE) # first CATDES response
+nail_catdes_enrichment(car_enriched)$second_pass$responses
+}
 }
 \seealso{
 \code{\link[=nail_catdes_prep]{nail_catdes_prep()}}, \code{\link[=nail_catdes_ground]{nail_catdes_ground()}},
 \code{\link[=nail_catdes_textual]{nail_catdes_textual()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
-\code{\link[=nail_response]{nail_response()}}
+\code{\link[=nail_response]{nail_response()}}, \code{\link[=nail_catdes_enrichment]{nail_catdes_enrichment()}}
 }

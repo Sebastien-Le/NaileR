@@ -2002,7 +2002,8 @@ validate_catdes_inputs <- function(dataset = NULL,
                                           prompt_blocks,
                                           semantic_profiles,
                                           catdes_settings,
-                                          llm_io) {
+                                          llm_io,
+                                          catdes_textual_enrichment = NULL) {
   attr(result, "statistical_profiles") <- normalized$statistical_profiles
   attr(result, "interpretation_evidence") <- interpretation_evidence
   attr(result, "semantic_facing_evidence") <- semantic_facing_evidence
@@ -2014,6 +2015,9 @@ validate_catdes_inputs <- function(dataset = NULL,
   }
   attr(result, "catdes_settings") <- catdes_settings
   attr(result, "llm_io") <- llm_io
+  if (!is.null(catdes_textual_enrichment)) {
+    attr(result, "catdes_textual_enrichment") <- catdes_textual_enrichment
+  }
   result
 }
 
@@ -2047,6 +2051,15 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   strings; this does not affect statistical evidence. To extend rather
 #'   than replace a default block, first retrieve it with
 #'   [nail_catdes_default_blocks()] and append the desired text yourself.
+#' @param num.textual Optional column index of an individual textual-response
+#'   variable in `dataset`. When supplied, the column is excluded from CATDES
+#'   computation but retained as a canonical textual evidence source for a
+#'   second enrichment pass. It is available only with the raw `dataset`
+#'   interface; it cannot be inferred from a prepared `x` object.
+#' @param textual.sample Proportion in `]0, 1]` of non-empty comments selected
+#'   within each group for the enrichment pass. The complete textual registry
+#'   and all statistical evidence remain unchanged. It has no effect when
+#'   `num.textual = NULL`.
 #' @param model Model name used by the selected provider. The default is
 #'   `"llama3"`.
 #' @param provider LLM backend, either `"ollama"` or `"gemini"`; the default
@@ -2116,6 +2129,14 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' `semantic_profiles`, `catdes_result` when available, and `catdes_settings` as
 #' attributes.
 #'
+#' With `num.textual` set, [nail_catdes_enrichment()] exposes the two-pass
+#' artifact. In a preview, the first CATDES prompt and the selected comments are
+#' available, while the definitive enrichment prompt is explicitly marked as
+#' pending the first response. With `generate = TRUE`, the artifact preserves
+#' the first prompt/response and the second prompt/response separately. The
+#' first LLM interpretation is a proposal, not a replacement for the canonical
+#' statistical evidence.
+#'
 #' @return When `generate = FALSE`, the actual joint prompt when
 #'   `isolate.groups = FALSE`, or the exact named local prompts when
 #'   `isolate.groups = TRUE`. When `generate = TRUE`, a single backend data
@@ -2132,6 +2153,10 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   * `catdes_result`: the original FactoMineR result, when available;
 #'   * `catdes_settings`: execution and interpretation settings;
 #'   * `llm_io`: the exact active prompt(s) and raw response(s).
+#'   * With `num.textual` set, [nail_catdes_enrichment()] is the public entry
+#'     point for the complete textual registry and both generation passes;
+#'     `nail_evidence()` continues to return the canonical statistical CATDES
+#'     evidence.
 #'   * The default `output` block is a free writing instruction; it does not
 #'     impose JSON, Quarto Markdown, or another response schema.
 #'
@@ -2139,9 +2164,14 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   [nail_prompt()] for the active prompt(s), and [nail_response()] after
 #'   generation.
 #'
+#' The existing [nail_catdes_textual()] workflow remains available for
+#' compatibility. The integrated two-pass interface is additive in this
+#' release; migration or deprecation of the separate workflow requires a
+#' future explicit decision.
+#'
 #' @seealso [nail_catdes_prep()], [nail_catdes_ground()],
 #'   [nail_catdes_textual()], [nail_evidence()], [nail_prompt()],
-#'   [nail_response()]
+#'   [nail_response()], [nail_catdes_enrichment()]
 #'
 #' @importFrom dplyr mutate filter arrange desc pull select slice_sample group_by n ungroup
 #' @importFrom glue glue
@@ -2348,6 +2378,30 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' nail_prompt(iris_gemini, print = FALSE)
 #' nail_response(iris_gemini, print = FALSE)
 #' }
+#'
+#' # 11. Prepare a two-pass CATDES enrichment without contacting an LLM.
+#' #     The second prompt cannot be final until the first response exists.
+#' data(atomic_habit_clust, package = "NaileR")
+#' car_enriched_preview <- nail_catdes(
+#'   atomic_habit_clust, num.var = 51, num.textual = 31,
+#'   textual.sample = 0.5, interpretation_mode = "latent",
+#'   isolate.groups = FALSE,
+#'   generate = FALSE
+#' )
+#' nail_evidence(car_enriched_preview)
+#' nail_prompt(car_enriched_preview, print = FALSE)
+#' nail_catdes_enrichment(car_enriched_preview)$second_pass$status
+#'
+#' \dontrun{
+#' car_enriched <- nail_catdes(
+#'   atomic_habit_clust, num.var = 51, num.textual = 31,
+#'   textual.sample = 0.5, interpretation_mode = "latent",
+#'   isolate.groups = FALSE,
+#'   provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+#' )
+#' nail_response(car_enriched, print = FALSE) # first CATDES response
+#' nail_catdes_enrichment(car_enriched)$second_pass$responses
+#' }
 nail_catdes <- function(dataset = NULL,
                         num.var = NULL,
                         introduction = NULL,
@@ -2365,15 +2419,30 @@ nail_catdes <- function(dataset = NULL,
                         generate = FALSE,
                         x = NULL,
                         prompt_overrides = NULL,
-                        ...) {
+                        ...,
+                        num.textual = NULL,
+                        textual.sample = 1) {
   interpretation_mode <- match.arg(interpretation_mode)
   prompt_style <- match.arg(prompt_style)
   provider <- match.arg(provider)
   prompt_overrides <- .validate_catdes_prompt_overrides(prompt_overrides)
 
-  validate_catdes_inputs(
+  textual_spec <- .validate_catdes_textual_arguments(
     dataset = dataset,
+    x = x,
     num.var = num.var,
+    num.textual = num.textual,
+    textual.sample = textual.sample
+  )
+  statistical_input <- .prepare_catdes_statistical_dataset(
+    dataset = dataset,
+    num.var = if (is.null(textual_spec)) num.var else textual_spec$num.var,
+    num.textual = if (is.null(textual_spec)) NULL else textual_spec$num.textual
+  )
+
+  validate_catdes_inputs(
+    dataset = statistical_input$dataset,
+    num.var = statistical_input$num.var,
     x = x,
     isolate.groups = isolate.groups,
     quali.sample = quali.sample,
@@ -2387,8 +2456,8 @@ nail_catdes <- function(dataset = NULL,
 
   normalized <- .normalize_nail_catdes_input(
     x = x,
-    dataset = dataset,
-    num.var = num.var,
+    dataset = statistical_input$dataset,
+    num.var = statistical_input$num.var,
     proba = proba,
     row.w = row.w
   )
@@ -2500,6 +2569,14 @@ nail_catdes <- function(dataset = NULL,
     )
   )
 
+  if (!is.null(textual_spec)) {
+    catdes_settings$textual_enrichment <- TRUE
+    catdes_settings$num_textual <- as.integer(textual_spec$num.textual)
+    catdes_settings$textual_sample <- textual_spec$textual.sample
+    catdes_settings$first_pass_llm_calls <- as.integer(llm_calls)
+    catdes_settings$second_pass_llm_calls <- 0L
+  }
+
   semantic_profiles <- .build_semantic_profiles_nail_catdes(
     local_results = NULL,
     local_prompts = local_prompts,
@@ -2514,6 +2591,17 @@ nail_catdes <- function(dataset = NULL,
     local_prompts
   } else {
     stats::setNames(list(actual_prompt), "portfolio")
+  }
+
+  textual_prepared <- if (is.null(textual_spec)) {
+    NULL
+  } else {
+    .prepare_catdes_textual_enrichment(
+      dataset = dataset,
+      num.var = textual_spec$num.var,
+      num.textual = textual_spec$num.textual,
+      textual.sample = textual_spec$textual.sample
+    )
   }
 
   llm_io <- .new_nail_llm_io(
@@ -2538,6 +2626,32 @@ nail_catdes <- function(dataset = NULL,
       actual_prompt
     }
 
+    enrichment <- if (is.null(textual_prepared)) {
+      NULL
+    } else {
+      first_responses <- if (isTRUE(isolate.groups)) {
+        stats::setNames(
+          vector("list", length(active_prompts)),
+          names(active_prompts)
+        )
+      } else {
+        list(portfolio = NULL)
+      }
+      .new_catdes_textual_enrichment(
+        textual_evidence = textual_prepared$textual_evidence,
+        interpretation_input = textual_prepared$interpretation_input,
+        selected_texts = textual_prepared$selected_texts,
+        semantic_facing_evidence = semantic_facing_evidence,
+        interpretation_evidence = interpretation_evidence,
+        num.textual = textual_spec$num.textual,
+        first_prompts = active_prompts,
+        first_responses = first_responses,
+        isolate.groups = isolate.groups,
+        textual.sample = textual_spec$textual.sample,
+        generate = FALSE
+      )
+    }
+
     return(.attach_nail_catdes_artifacts(
       result,
       normalized,
@@ -2547,7 +2661,8 @@ nail_catdes <- function(dataset = NULL,
       prompt_blocks,
       semantic_profiles,
       catdes_settings,
-      llm_io
+      llm_io,
+      catdes_textual_enrichment = enrichment
     ))
   }
 
@@ -2660,6 +2775,43 @@ nail_catdes <- function(dataset = NULL,
     )
   }
 
+  enrichment <- if (is.null(textual_prepared)) {
+    NULL
+  } else {
+    first_responses <- .catdes_textual_first_responses(
+      local_results = if (isTRUE(isolate.groups)) local_results else NULL,
+      result = result,
+      interpretation_evidence = interpretation_evidence,
+      isolate.groups = isolate.groups,
+      n_selected = n_selected
+    )
+    enrichment <- .run_catdes_textual_enrichment(
+      prepared = textual_prepared,
+      semantic_facing_evidence = semantic_facing_evidence,
+      interpretation_evidence = interpretation_evidence,
+      num.textual = textual_spec$num.textual,
+      first_prompts = active_prompts,
+      first_responses = first_responses,
+      introduction = introduction,
+      isolate.groups = isolate.groups,
+      textual.sample = textual_spec$textual.sample,
+      provider = provider,
+      model = model,
+      llm_api_options = llm_api_options
+    )
+  }
+
+  if (!is.null(enrichment)) {
+    second_status <- enrichment$second_pass$status
+    n_second_calls <- sum(second_status %in% c("generated", "generation_failed"))
+    catdes_settings$textual_enrichment <- TRUE
+    catdes_settings$num_textual <- as.integer(textual_spec$num.textual)
+    catdes_settings$textual_sample <- textual_spec$textual.sample
+    catdes_settings$first_pass_llm_calls <- as.integer(llm_calls)
+    catdes_settings$second_pass_llm_calls <- as.integer(n_second_calls)
+    catdes_settings$llm_calls <- as.integer(llm_calls + n_second_calls)
+  }
+
   .attach_nail_catdes_artifacts(
     result,
     normalized,
@@ -2669,6 +2821,7 @@ nail_catdes <- function(dataset = NULL,
     prompt_blocks,
     semantic_profiles,
     catdes_settings,
-    llm_io
+    llm_io,
+    catdes_textual_enrichment = enrichment
   )
 }
