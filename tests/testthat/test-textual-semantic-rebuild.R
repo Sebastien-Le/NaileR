@@ -52,6 +52,33 @@ mock_textual_response <- function(prompt) {
 }
 
 
+mock_joint_textual_response <- function(prompt,
+                                        ids = unique(regmatches(
+                                          prompt,
+                                          gregexpr("TXT[0-9]{6}", prompt, perl = TRUE)
+                                        )[[1L]])) {
+  ids <- ids[nzchar(ids)]
+
+  paste(
+    "Comparative textual synthesis:",
+    "The groups share a pragmatic concern with travel while differing in how they describe constraints and alternatives.",
+    "",
+    "Common themes:",
+    "travel constraints; alternatives to flying; environmental concern",
+    "",
+    "Group differences:",
+    "Group A emphasizes practical trade-offs, whereas Group B describes stronger avoidance.",
+    "",
+    "Internal tensions and limits:",
+    "The selected texts show variation within groups and do not establish motives or causality.",
+    "",
+    "Referenced text IDs:",
+    paste(head(ids, 3L), collapse = "; "),
+    sep = "\n"
+  )
+}
+
+
 test_that("textual_evidence is canonical, complete, and mechanically traceable", {
   dat <- make_textual_semantic_test_data()
 
@@ -390,7 +417,7 @@ test_that("textual default blocks validate names, duplicates, and missing values
 })
 
 
-test_that("isolate.groups = FALSE still performs local-first generation", {
+test_that("isolate.groups = FALSE performs one joint comparative generation", {
   dat <- make_textual_semantic_test_data()
   counter <- new.env(parent = emptyenv())
   counter$n <- 0L
@@ -404,7 +431,7 @@ test_that("isolate.groups = FALSE still performs local-first generation", {
       counter$n <- counter$n + 1L
       data.frame(
         model = model,
-        response = mock_textual_response(prompt),
+        response = mock_joint_textual_response(prompt),
         stringsAsFactors = FALSE
       )
     },
@@ -420,13 +447,160 @@ test_that("isolate.groups = FALSE still performs local-first generation", {
     model = "mock-model"
   )
 
-  expect_identical(counter$n, 2L)
+  expect_identical(counter$n, 1L)
   expect_true(is.data.frame(x))
 
   settings <- attr(x, "textual_settings", exact = TRUE)
-  expect_identical(settings$generation_architecture, "local_first")
-  expect_false(settings$global_synthesis_performed)
-  expect_identical(settings$llm_calls, 2L)
+  expect_identical(settings$generation_architecture, "joint")
+  expect_true(settings$global_synthesis_performed)
+  expect_identical(settings$active_scope, "portfolio")
+  expect_identical(settings$llm_calls, 1L)
+
+  profiles <- attr(x, "textual_profiles", exact = TRUE)
+  expect_identical(profiles$scope, "joint")
+  expect_identical(profiles$joint$status, "available")
+  expect_length(profiles$groups, 0L)
+  expect_identical(
+    nail_prompt(x, print = FALSE),
+    attr(x, "llm_io", exact = TRUE)$prompts$portfolio
+  )
+  expect_identical(
+    nail_response(x, select = "portfolio", print = FALSE),
+    attr(x, "llm_io", exact = TRUE)$responses$portfolio
+  )
+})
+
+
+test_that("joint and isolated modes select identical text IDs", {
+  dat <- make_textual_semantic_test_data()
+
+  local <- nail_textual(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    isolate.groups = TRUE,
+    sample.pct = 0.5,
+    seed = 123,
+    introduction = "JOINT INVARIANCE INTRO",
+    request = "JOINT INVARIANCE REQUEST",
+    generate = FALSE
+  )
+  joint <- nail_textual(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    isolate.groups = FALSE,
+    sample.pct = 0.5,
+    seed = 123,
+    introduction = "JOINT INVARIANCE INTRO",
+    request = "JOINT INVARIANCE REQUEST",
+    generate = FALSE
+  )
+
+  expect_identical(
+    attr(local, "textual_evidence", exact = TRUE),
+    attr(joint, "textual_evidence", exact = TRUE)
+  )
+  expect_identical(
+    attr(local, "interpretation_input", exact = TRUE),
+    attr(joint, "interpretation_input", exact = TRUE)
+  )
+  expect_length(nail_prompt(joint, print = FALSE), 1L)
+  expect_match(nail_prompt(joint, print = FALSE), "JOINT INVARIANCE INTRO", fixed = TRUE)
+  expect_match(nail_prompt(joint, print = FALSE), "JOINT INVARIANCE REQUEST", fixed = TRUE)
+  expect_match(nail_prompt(joint, print = FALSE), "## Group \"A\"", fixed = TRUE)
+  expect_match(nail_prompt(joint, print = FALSE), "## Group \"B\"", fixed = TRUE)
+})
+
+
+test_that("joint parsing preserves raw response and reports malformed output", {
+  dat <- make_textual_semantic_test_data()
+  responses <- list(
+    valid = mock_joint_textual_response("TXT000001 TXT000002"),
+    unstructured = "This is not the requested comparative structure.",
+    partial = paste(
+      "Comparative textual synthesis:", "A comparison.", "",
+      "Common themes:", "a theme", sep = "\n"
+    ),
+    unknown_id = sub("TXT000001", "TXT999999", mock_joint_textual_response("TXT000001"), fixed = TRUE)
+  )
+
+  run <- function(response) {
+    testthat::local_mocked_bindings(
+      .call_llm_base = function(provider,
+                                model,
+                                prompt,
+                                output,
+                                llm_api_options) {
+        data.frame(
+          model = model,
+          response = response,
+          stringsAsFactors = FALSE
+        )
+      },
+      .package = "NaileR"
+    )
+
+    nail_textual(
+      dat,
+      num.var = 1,
+      num.text = 2,
+      isolate.groups = FALSE,
+      generate = TRUE,
+      model = "mock-model"
+    )
+  }
+
+  valid <- attr(run(responses$valid), "textual_profiles", exact = TRUE)
+  expect_identical(valid$joint$status, "available")
+
+  for (case in c("unstructured", "partial", "unknown_id")) {
+    profiles <- attr(run(responses[[case]]), "textual_profiles", exact = TRUE)
+    expect_identical(profiles$joint$status, "parse_failed")
+    expect_gt(length(profiles$joint$parse_issues), 0L)
+  }
+})
+
+
+test_that("joint generation does not fabricate local profiles for empty groups", {
+  dat <- data.frame(
+    group = factor(c("A", "A", "B"), levels = c("A", "B")),
+    text = c("A response", "Another A response", ""),
+    stringsAsFactors = FALSE
+  )
+  counter <- new.env(parent = emptyenv())
+  counter$n <- 0L
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      counter$n <- counter$n + 1L
+      data.frame(
+        model = model,
+        response = mock_joint_textual_response(prompt),
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  x <- nail_textual(
+    dat,
+    num.var = 1,
+    num.text = 2,
+    isolate.groups = FALSE,
+    generate = TRUE,
+    model = "mock-model"
+  )
+
+  expect_identical(counter$n, 1L)
+  profiles <- attr(x, "textual_profiles", exact = TRUE)
+  expect_identical(profiles$scope, "joint")
+  expect_length(profiles$groups, 0L)
+  expect_true(grepl("Group \"B\"", nail_prompt(x, print = FALSE), fixed = TRUE))
 })
 
 

@@ -53,7 +53,6 @@ res_nail_textual_rorschach <- nail_textual(
 rorschach_textual_evidence <- nail_evidence(res_nail_textual_rorschach)
 rorschach_textual_prompt <- nail_prompt(
   res_nail_textual_rorschach,
-  select = "1",
   print = FALSE
 )
 cat(substr(rorschach_textual_prompt, 1, 600), "\n")

@@ -142,7 +142,7 @@ test_that("Rorschach panel A remains usable with the public TEXTUAL API", {
 
   expect_type(result, "character")
   expect_length(result, 1L)
-  expect_length(nail_prompt(result, print = FALSE), 10L)
+  expect_length(nail_prompt(result, print = FALSE), 1L)
   expect_true(all(nzchar(nail_prompt(result, print = FALSE))))
   expect_error(
     nail_response(result, print = FALSE),

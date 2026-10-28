@@ -31,13 +31,13 @@ and one textual variable.}
 
 \item{num.text}{Index of the textual variable.}
 
-\item{introduction}{Study context included in every local LLM prompt.
+\item{introduction}{Study context included in every active LLM prompt.
 A generic default is used when \code{NULL}.}
 
-\item{request}{Analytical request included in every local LLM prompt.
+\item{request}{Analytical request included in every active LLM prompt.
 A generic textual-profiling request is used when \code{NULL}.}
 
-\item{conclusion}{Output instruction appended to every local LLM prompt.
+\item{conclusion}{Output instruction appended to every active LLM prompt.
 When \code{NULL}, NaileR requests the canonical structured textual profile.
 A custom value is preserved for backward compatibility; if its output
 format is incompatible with the canonical parser, \code{textual_profiles}
@@ -49,11 +49,12 @@ may report \code{status = "parse_failed"} while preserving the raw response.}
 \item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a
 local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
-\item{isolate.groups}{Logical. Interpretation is always local-first, one
-group at a time. If \code{TRUE}, return the local prompts/results as a named
-list. If \code{FALSE}, preserve the historical outer return shape by combining
-the independent local prompts/results. No global comparative synthesis is
-performed at this stage.}
+\item{isolate.groups}{Logical. If \code{TRUE} (the default), interpret each
+group independently with one prompt and one response per group. If
+\code{FALSE}, build one comparative prompt containing the selected texts from
+all groups and make one LLM call for the joint interpretation. The joint
+mode is not a concatenation of local responses and does not create local
+profiles from a comparative response.}
 
 \item{sample.pct}{Proportion of non-empty texts shown to the LLM within
 each group. This affects only \code{interpretation_input}; the complete
@@ -70,7 +71,8 @@ registered texts or selected text IDs.}
 \code{"verbatims"}; this changes the terminology used in the prompt.}
 
 \item{generate}{Logical. If \code{FALSE}, return prompt(s) only. If \code{TRUE},
-generate one independent LLM response per group.}
+generate one independent response per group in isolated mode, or one
+comparative response in joint mode.}
 
 \item{default_blocks}{Character vector selecting optional NaileR prompt
 blocks. Allowed values are \code{"reading"}, \code{"interpretation"}, and
@@ -81,32 +83,36 @@ evidence, and output are always retained.}
 selected LLM backend.}
 }
 \value{
-When \code{generate = FALSE}, a combined local-first character preview
-when \code{isolate.groups = FALSE}, or the exact named local prompts when
-\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a combined backend data
-frame when \code{isolate.groups = FALSE}, or named local backend results when
-\code{isolate.groups = TRUE}. No global comparative synthesis is performed.
+When \code{generate = FALSE}, the single comparative prompt when
+\code{isolate.groups = FALSE}, or the exact named local prompts when
+\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a single backend result
+and comparative profile when \code{isolate.groups = FALSE}, or named local
+backend results and profiles when \code{isolate.groups = TRUE}.
 Mechanical and semantic artifacts are attached as attributes, not as \code{$}
 fields:
 \itemize{
 \item \code{textual_evidence}: the complete registered text evidence;
 \item \code{interpretation_input}: the exact text IDs shown to each group;
 \item \code{textual_prompt_blocks} and \code{local_prompts}: rendered prompt structure;
-\item \code{textual_profiles}: parsed profiles or generation-status records;
+\item \code{textual_profiles}: parsed local profiles, or one explicit comparative
+profile in joint mode;
 \item \code{textual_settings}: execution and architecture settings;
 \item \code{textual_data_summary}: the historical compatibility view;
 \item \code{llm_io}: exact local prompts and raw local responses.
 }
 
 A preview has no LLM responses. Use \code{\link[=nail_evidence]{nail_evidence()}} and \code{\link[=nail_prompt]{nail_prompt()}}
-to inspect a preview, and \code{\link[=nail_response]{nail_response()}} after generation.
+to inspect a preview, and \code{\link[=nail_response]{nail_response()}} after generation. In joint
+mode, the active prompt and response are available under the selector
+\code{"portfolio"} through the canonical accessors.
 }
 \description{
 \code{nail_textual()} registers the raw responses with stable text IDs, records
 group-level coverage and volume metrics, selects the texts shown to the
-language model, and interprets each group independently. The textual
-evidence is built mechanically in R; the LLM supplies the structured
-substantive profile and does not alter the registered evidence.
+language model, and either interprets each group independently or builds one
+comparative interpretation across all groups. The textual evidence is built
+mechanically in R; the LLM supplies the structured substantive profile and
+does not alter the registered evidence.
 }
 \details{
 \code{textual_evidence} is produced mechanically from the complete dataset before
@@ -119,8 +125,10 @@ and its interpretation coverage. Sampling never changes \code{textual_evidence}.
 With the default output instruction, each local LLM response is parsed into
 \code{textual_profiles}, which contains the core textual profile, dominant themes,
 within-group coherence (\code{strong}, \code{moderate}, \code{mixed}, or \code{weak}), internal
-diversity, and IDs of representative or tension texts. Referenced IDs must
-exist in the subset actually shown to the LLM.
+diversity, and IDs of representative or tension texts. In joint mode the
+object contains one \code{joint} comparative profile and an explicit
+\code{scope = "joint"}; it does not fabricate one profile per group. Referenced
+IDs must exist in the subset actually shown to the LLM.
 
 Every successful return carries \code{textual_evidence}, \code{interpretation_input},
 \code{textual_prompt_blocks}, \code{local_prompts}, \code{textual_profiles}, \code{textual_settings},
@@ -254,7 +262,7 @@ distinction_preview <- nail_textual(
 nail_evidence(distinction_preview)
 cat(substr(nail_prompt(distinction_preview, print = FALSE), 1, 600), "\n")
 
-# Distinction: a reproducible groupwise preview by highest education.
+# Distinction: a reproducible comparative preview across education categories.
 distinction_education_preview <- nail_textual(
   dataset = distinction,
   num.var = 4,
@@ -274,8 +282,11 @@ distinction_education_preview <- nail_textual(
   generate = FALSE
 )
 nail_evidence(distinction_education_preview)
-nail_prompt(distinction_education_preview, select = "Master level or higher",
-            print = FALSE)
+cat(substr(
+  nail_prompt(distinction_education_preview, print = FALSE),
+  1,
+  600
+), "\n")
 
 # Optional Gemini generation: one local request per Fabric group.
 # This opt-in block requires a user-managed GEMINI_API_KEY and may make

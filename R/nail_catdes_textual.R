@@ -66,6 +66,18 @@
     )
   }
 
+  if (identical(textual_profiles$scope, "joint") ||
+      identical(textual_profiles$settings$architecture, "joint")) {
+    stop(
+      paste(
+        "`textual` contains a joint comparative interpretation.",
+        "`nail_catdes_textual()` requires one parsed textual profile per group;",
+        "rerun `nail_textual()` with `isolate.groups = TRUE`."
+      ),
+      call. = FALSE
+    )
+  }
+
   if (!is.logical(isolate.groups) ||
       length(isolate.groups) != 1L ||
       is.na(isolate.groups)) {
@@ -1004,8 +1016,10 @@
 #'   `semantic_facing_evidence`. The CATDES LLM interpretation itself is
 #'   optional: mechanical CATDES facts remain the statistical anchor.
 #' @param textual A result returned by the rebuilt [nail_textual()] with
-#'   `generate = TRUE`. It must carry canonical `textual_evidence` and
-#'   successfully parsed `textual_profiles`.
+#'   `generate = TRUE`. It must carry canonical `textual_evidence` and one
+#'   successfully parsed local `textual_profiles` per group; a joint
+#'   comparative `nail_textual(isolate.groups = FALSE)` result is not a local
+#'   profile source for this function.
 #' @param introduction Optional study context added to every local prompt.
 #' @param request Optional analytical request. The default asks the LLM to use
 #'   textual evidence to confirm, clarify, nuance, or supplement the CATDES

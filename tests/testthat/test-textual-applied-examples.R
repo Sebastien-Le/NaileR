@@ -11,7 +11,7 @@ test_that("historical Fabric preview preserves groups 0 and 1", {
   evidence <- nail_evidence(result)
   expect_identical(names(evidence$groups), c("0", "1"))
   expect_equal(evidence$metadata$n_rows, 57L)
-  expect_length(nail_prompt(result, print = FALSE), 2L)
+  expect_length(nail_prompt(result, print = FALSE), 1L)
 })
 
 test_that("historical Car Alone preview uses all four observed groups", {

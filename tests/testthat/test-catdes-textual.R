@@ -310,6 +310,29 @@ test_that("nail_catdes_textual rejects unavailable textual profiles", {
 })
 
 
+test_that("nail_catdes_textual rejects joint textual profiles explicitly", {
+  obj <- build_catdes_textual_test_objects()
+
+  joint <- nail_textual(
+    dataset = obj$data[, c("group", "text")],
+    num.var = 1,
+    num.text = 2,
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+
+  expect_error(
+    nail_catdes_textual(
+      catdes = obj$catdes,
+      textual = joint,
+      generate = FALSE
+    ),
+    "joint comparative interpretation",
+    fixed = TRUE
+  )
+})
+
+
 test_that("nail_catdes_textual rejects mismatched group sets", {
   obj <- build_catdes_textual_test_objects()
 

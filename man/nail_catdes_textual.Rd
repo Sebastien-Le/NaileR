@@ -23,8 +23,10 @@ nail_catdes_textual(
 optional: mechanical CATDES facts remain the statistical anchor.}
 
 \item{textual}{A result returned by the rebuilt \code{\link[=nail_textual]{nail_textual()}} with
-\code{generate = TRUE}. It must carry canonical \code{textual_evidence} and
-successfully parsed \code{textual_profiles}.}
+\code{generate = TRUE}. It must carry canonical \code{textual_evidence} and one
+successfully parsed local \code{textual_profiles} per group; a joint
+comparative \code{nail_textual(isolate.groups = FALSE)} result is not a local
+profile source for this function.}
 
 \item{introduction}{Optional study context added to every local prompt.}
 

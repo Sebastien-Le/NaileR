@@ -391,19 +391,20 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'
 #' `nail_textual()` registers the raw responses with stable text IDs, records
 #' group-level coverage and volume metrics, selects the texts shown to the
-#' language model, and interprets each group independently. The textual
-#' evidence is built mechanically in R; the LLM supplies the structured
-#' substantive profile and does not alter the registered evidence.
+#' language model, and either interprets each group independently or builds one
+#' comparative interpretation across all groups. The textual evidence is built
+#' mechanically in R; the LLM supplies the structured substantive profile and
+#' does not alter the registered evidence.
 #'
 #' @param dataset A data frame containing at least one grouping variable
 #'   and one textual variable.
 #' @param num.var Index of the grouping variable.
 #' @param num.text Index of the textual variable.
-#' @param introduction Study context included in every local LLM prompt.
+#' @param introduction Study context included in every active LLM prompt.
 #'   A generic default is used when `NULL`.
-#' @param request Analytical request included in every local LLM prompt.
+#' @param request Analytical request included in every active LLM prompt.
 #'   A generic textual-profiling request is used when `NULL`.
-#' @param conclusion Output instruction appended to every local LLM prompt.
+#' @param conclusion Output instruction appended to every active LLM prompt.
 #'   When `NULL`, NaileR requests the canonical structured textual profile.
 #'   A custom value is preserved for backward compatibility; if its output
 #'   format is incompatible with the canonical parser, `textual_profiles`
@@ -412,11 +413,12 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'   `"llama3"`.
 #' @param provider LLM backend to use for generation. Use `"ollama"` for a
 #'   local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
-#' @param isolate.groups Logical. Interpretation is always local-first, one
-#'   group at a time. If `TRUE`, return the local prompts/results as a named
-#'   list. If `FALSE`, preserve the historical outer return shape by combining
-#'   the independent local prompts/results. No global comparative synthesis is
-#'   performed at this stage.
+#' @param isolate.groups Logical. If `TRUE` (the default), interpret each
+#'   group independently with one prompt and one response per group. If
+#'   `FALSE`, build one comparative prompt containing the selected texts from
+#'   all groups and make one LLM call for the joint interpretation. The joint
+#'   mode is not a concatenation of local responses and does not create local
+#'   profiles from a comparative response.
 #' @param sample.pct Proportion of non-empty texts shown to the LLM within
 #'   each group. This affects only `interpretation_input`; the complete
 #'   `textual_evidence` object is invariant to this option.
@@ -432,7 +434,8 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'   `"local_task"`; the default includes all three. Context, question,
 #'   evidence, and output are always retained.
 #' @param generate Logical. If `FALSE`, return prompt(s) only. If `TRUE`,
-#'   generate one independent LLM response per group.
+#'   generate one independent response per group in isolated mode, or one
+#'   comparative response in joint mode.
 #' @param ... Additional provider-specific generation arguments passed to the
 #'   selected LLM backend.
 #'
@@ -447,32 +450,37 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #' With the default output instruction, each local LLM response is parsed into
 #' `textual_profiles`, which contains the core textual profile, dominant themes,
 #' within-group coherence (`strong`, `moderate`, `mixed`, or `weak`), internal
-#' diversity, and IDs of representative or tension texts. Referenced IDs must
-#' exist in the subset actually shown to the LLM.
+#' diversity, and IDs of representative or tension texts. In joint mode the
+#' object contains one `joint` comparative profile and an explicit
+#' `scope = "joint"`; it does not fabricate one profile per group. Referenced
+#' IDs must exist in the subset actually shown to the LLM.
 #'
 #' Every successful return carries `textual_evidence`, `interpretation_input`,
 #' `textual_prompt_blocks`, `local_prompts`, `textual_profiles`, `textual_settings`,
 #' `textual_data_summary` (historical compatibility view), and canonical
 #' `llm_io` attributes.
 #'
-#' @return When `generate = FALSE`, a combined local-first character preview
-#'   when `isolate.groups = FALSE`, or the exact named local prompts when
-#'   `isolate.groups = TRUE`. When `generate = TRUE`, a combined backend data
-#'   frame when `isolate.groups = FALSE`, or named local backend results when
-#'   `isolate.groups = TRUE`. No global comparative synthesis is performed.
+#' @return When `generate = FALSE`, the single comparative prompt when
+#'   `isolate.groups = FALSE`, or the exact named local prompts when
+#'   `isolate.groups = TRUE`. When `generate = TRUE`, a single backend result
+#'   and comparative profile when `isolate.groups = FALSE`, or named local
+#'   backend results and profiles when `isolate.groups = TRUE`.
 #'   Mechanical and semantic artifacts are attached as attributes, not as `$`
 #'   fields:
 #'
 #'   * `textual_evidence`: the complete registered text evidence;
 #'   * `interpretation_input`: the exact text IDs shown to each group;
 #'   * `textual_prompt_blocks` and `local_prompts`: rendered prompt structure;
-#'   * `textual_profiles`: parsed profiles or generation-status records;
+#'   * `textual_profiles`: parsed local profiles, or one explicit comparative
+#'     profile in joint mode;
 #'   * `textual_settings`: execution and architecture settings;
 #'   * `textual_data_summary`: the historical compatibility view;
 #'   * `llm_io`: exact local prompts and raw local responses.
 #'
 #'   A preview has no LLM responses. Use [nail_evidence()] and [nail_prompt()]
-#'   to inspect a preview, and [nail_response()] after generation.
+#'   to inspect a preview, and [nail_response()] after generation. In joint
+#'   mode, the active prompt and response are available under the selector
+#'   `"portfolio"` through the canonical accessors.
 #'
 #' @seealso [nail_textual_prep()], [nail_catdes_textual()],
 #'   [nail_textual_contextualized()], [nail_evidence()], [nail_prompt()],
@@ -606,7 +614,7 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #' nail_evidence(distinction_preview)
 #' cat(substr(nail_prompt(distinction_preview, print = FALSE), 1, 600), "\n")
 #'
-#' # Distinction: a reproducible groupwise preview by highest education.
+#' # Distinction: a reproducible comparative preview across education categories.
 #' distinction_education_preview <- nail_textual(
 #'   dataset = distinction,
 #'   num.var = 4,
@@ -626,8 +634,11 @@ get_prompt_textual <- function(dataset, num.var, num.text,
 #'   generate = FALSE
 #' )
 #' nail_evidence(distinction_education_preview)
-#' nail_prompt(distinction_education_preview, select = "Master level or higher",
-#'             print = FALSE)
+#' cat(substr(
+#'   nail_prompt(distinction_education_preview, print = FALSE),
+#'   1,
+#'   600
+#' ), "\n")
 #'
 #' # Optional Gemini generation: one local request per Fabric group.
 #' # This opt-in block requires a user-managed GEMINI_API_KEY and may make
@@ -701,15 +712,19 @@ nail_textual <- function(dataset, num.var, num.text,
   }
 
   if (is.null(request)) {
-    request <- .textual_default_request(
-      prompt_style = prompt_style
-    )
+    request <- if (isTRUE(isolate.groups)) {
+      .textual_default_request(prompt_style = prompt_style)
+    } else {
+      .textual_joint_default_request(prompt_style = prompt_style)
+    }
   }
 
   canonical_output_requested <- is.null(conclusion)
 
   if (canonical_output_requested) {
-    conclusion <- .textual_canonical_conclusion()
+    conclusion <- .textual_canonical_conclusion(
+      isolate.groups = isolate.groups
+    )
   }
 
   prompt_bundles <- .build_local_textual_prompt_bundles(
@@ -732,9 +747,32 @@ nail_textual <- function(dataset, num.var, num.text,
     function(bundle) bundle$blocks
   )
 
-  combined_prompt_preview <- .combine_local_textual_prompt_preview(
+  joint_prompt_bundle <- if (!isTRUE(isolate.groups)) {
+    .build_joint_textual_prompt_bundle(
+      textual_evidence = textual_evidence,
+      interpretation_input = interpretation_input,
+      introduction = introduction,
+      request = request,
+      conclusion = conclusion,
+      prompt_style = prompt_style,
+      text_role = text_role,
+      default_blocks = default_blocks
+    )
+  } else {
+    NULL
+  }
+
+  active_prompts <- if (isTRUE(isolate.groups)) {
     local_prompts
-  )
+  } else {
+    list(portfolio = joint_prompt_bundle$prompt)
+  }
+
+  active_prompt_blocks <- if (isTRUE(isolate.groups)) {
+    prompt_blocks
+  } else {
+    list(portfolio = joint_prompt_bundle$blocks)
+  }
 
   textual_data_summary <- .build_textual_compatibility_summary(
     textual_evidence
@@ -755,30 +793,48 @@ nail_textual <- function(dataset, num.var, num.text,
     provider = provider,
     model = model,
     canonical_output_requested = canonical_output_requested,
-    generation_architecture = "local_first",
-    global_synthesis_performed = FALSE,
+    generation_architecture = if (isTRUE(isolate.groups)) {
+      "local_first"
+    } else {
+      "joint"
+    },
+    global_synthesis_performed = !isTRUE(isolate.groups),
+    active_scope = if (isTRUE(isolate.groups)) "group" else "portfolio",
     llm_calls = if (isTRUE(generate)) {
-      as.integer(n_ready_groups)
+      if (isTRUE(isolate.groups)) {
+        as.integer(n_ready_groups)
+      } else {
+        as.integer(n_ready_groups > 0L)
+      }
     } else {
       0L
     }
   )
 
-  textual_profiles <- .build_textual_profiles(
-    local_results = NULL,
-    local_prompts = local_prompts,
-    interpretation_input = interpretation_input,
-    generated = FALSE
-  )
+  textual_profiles <- if (isTRUE(isolate.groups)) {
+    .build_textual_profiles(
+      local_results = NULL,
+      local_prompts = local_prompts,
+      interpretation_input = interpretation_input,
+      generated = FALSE
+    )
+  } else {
+    .build_joint_textual_profile(
+      result = NULL,
+      prompt = joint_prompt_bundle$prompt,
+      interpretation_input = interpretation_input,
+      generated = FALSE
+    )
+  }
 
   llm_io <- .new_nail_llm_io(
     stage = "interpretation",
-    prompts = local_prompts,
+    prompts = active_prompts,
     responses = NULL,
     metadata = list(
       analysis = "nail_textual",
-      scope = "group",
-      architecture = "local_first"
+      scope = if (isTRUE(isolate.groups)) "group" else "portfolio",
+      architecture = if (isTRUE(isolate.groups)) "local_first" else "joint"
     )
   )
 
@@ -786,14 +842,14 @@ nail_textual <- function(dataset, num.var, num.text,
     result <- if (isTRUE(isolate.groups)) {
       local_prompts
     } else {
-      combined_prompt_preview
+      joint_prompt_bundle$prompt
     }
 
     return(.attach_nail_textual_artifacts(
       result = result,
       textual_evidence = textual_evidence,
       interpretation_input = interpretation_input,
-      prompt_blocks = prompt_blocks,
+      prompt_blocks = active_prompt_blocks,
       local_prompts = local_prompts,
       textual_profiles = textual_profiles,
       textual_settings = textual_settings,
@@ -816,63 +872,77 @@ nail_textual <- function(dataset, num.var, num.text,
     response
   }
 
-  local_results <- stats::setNames(
-    vector("list", length(local_prompts)),
-    names(local_prompts)
-  )
+  local_results <- NULL
+  if (isTRUE(isolate.groups)) {
+    local_results <- stats::setNames(
+      vector("list", length(local_prompts)),
+      names(local_prompts)
+    )
 
-  for (group_name in names(local_prompts)) {
-    input_group <- interpretation_input$groups[[group_name]]
+    for (group_name in names(local_prompts)) {
+      input_group <- interpretation_input$groups[[group_name]]
 
-    local_results[[group_name]] <- if (
-      identical(input_group$status, "ready")
-    ) {
-      call_llm(local_prompts[[group_name]])
+      local_results[[group_name]] <- if (
+        identical(input_group$status, "ready")
+      ) {
+        call_llm(local_prompts[[group_name]])
+      } else {
+        .textual_no_results_data_frame(
+          model = model,
+          prompt = local_prompts[[group_name]],
+          group_name = group_name
+        )
+      }
+    }
+
+    textual_profiles <- .build_textual_profiles(
+      local_results = local_results,
+      local_prompts = local_prompts,
+      interpretation_input = interpretation_input,
+      generated = TRUE
+    )
+  } else {
+    joint_result <- if (n_ready_groups > 0L) {
+      call_llm(joint_prompt_bundle$prompt)
     } else {
       .textual_no_results_data_frame(
         model = model,
-        prompt = local_prompts[[group_name]],
-        group_name = group_name
+        prompt = joint_prompt_bundle$prompt,
+        group_name = "portfolio"
       )
     }
-  }
 
-  textual_profiles <- .build_textual_profiles(
-    local_results = local_results,
-    local_prompts = local_prompts,
-    interpretation_input = interpretation_input,
-    generated = TRUE
-  )
+    local_results <- list(portfolio = joint_result)
+    textual_profiles <- .build_joint_textual_profile(
+      result = joint_result,
+      prompt = joint_prompt_bundle$prompt,
+      interpretation_input = interpretation_input,
+      generated = TRUE
+    )
+  }
 
   llm_io <- .new_nail_llm_io(
     stage = "interpretation",
-    prompts = local_prompts,
-    responses = .textual_llm_responses(
-      local_results,
-      interpretation_input
-    ),
+    prompts = active_prompts,
+    responses = if (isTRUE(isolate.groups)) {
+      .textual_llm_responses(local_results, interpretation_input)
+    } else {
+      list(portfolio = .extract_textual_backend_response(local_results$portfolio))
+    },
     metadata = list(
       analysis = "nail_textual",
-      scope = "group",
-      architecture = "local_first"
+      scope = if (isTRUE(isolate.groups)) "group" else "portfolio",
+      architecture = if (isTRUE(isolate.groups)) "local_first" else "joint"
     )
   )
 
-  result <- if (isTRUE(isolate.groups)) {
-    local_results
-  } else {
-    .combine_local_textual_results(
-      local_results = local_results,
-      combined_prompt = combined_prompt_preview,
-      model = model
-    )
-  }
+  result <- if (isTRUE(isolate.groups)) local_results else local_results$portfolio
 
   .attach_nail_textual_artifacts(
     result = result,
     textual_evidence = textual_evidence,
     interpretation_input = interpretation_input,
-    prompt_blocks = prompt_blocks,
+    prompt_blocks = active_prompt_blocks,
     local_prompts = local_prompts,
     textual_profiles = textual_profiles,
     textual_settings = textual_settings,
