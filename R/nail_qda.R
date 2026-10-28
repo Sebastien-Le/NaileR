@@ -2190,7 +2190,9 @@ nail_qda <- function(dataset, formul, firstvar,
   }
 
   if (!isolate.groups) {
-    result <- .call_llm(prompts)
+    # `prompts` is kept as a named list for the public/accessor contract,
+    # but the backend receives the single joint prompt as a character scalar.
+    result <- .call_llm(prompts[[1L]])
 
     return(
       .attach_qda_artifacts(

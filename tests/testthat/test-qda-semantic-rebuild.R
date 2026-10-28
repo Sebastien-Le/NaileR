@@ -848,6 +848,61 @@ test_that("QDA generated results expose raw LLM responses without reinterpretati
 })
 
 
+test_that("QDA joint generation sends the scalar preview prompt", {
+  args <- qda_semantic_args()
+  preview <- do.call(
+    nail_qda,
+    c(args, list(isolate.groups = FALSE, generate = FALSE))
+  )
+  preview_prompt <- nail_prompt(preview, print = FALSE)
+  preview_evidence <- nail_evidence(preview)
+  captured_prompt <- NULL
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      captured_prompt <<- prompt
+      data.frame(
+        model = model,
+        response = "RAW JOINT MOCK RESPONSE",
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  generated <- do.call(
+    nail_qda,
+    c(
+      args,
+      list(
+        isolate.groups = FALSE,
+        generate = TRUE,
+        provider = "ollama",
+        model = "mock-model"
+      )
+    )
+  )
+
+  expect_type(captured_prompt, "character")
+  expect_length(captured_prompt, 1L)
+  expect_identical(captured_prompt, preview_prompt)
+  expect_identical(nail_evidence(generated), preview_evidence)
+  expect_identical(nail_prompt(generated, print = FALSE), preview_prompt)
+  expect_identical(
+    nail_response(generated, print = FALSE),
+    "RAW JOINT MOCK RESPONSE"
+  )
+  expect_identical(
+    attr(generated, "llm_io", exact = TRUE)$responses$portfolio,
+    "RAW JOINT MOCK RESPONSE"
+  )
+})
+
+
 test_that("QDA keeps legacy compatibility artifacts for current qda_space", {
   args <- qda_semantic_args()
 
