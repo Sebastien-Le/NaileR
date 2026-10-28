@@ -13,6 +13,7 @@ test_that("CATDES textual enrichment preserves the statistical CATDES contract",
     statistical_data,
     num.var = 50,
     textual.sample = 0.1,
+    textual.seed = 777,
     interpretation_mode = "latent",
     generate = FALSE
   )
@@ -295,6 +296,206 @@ test_that("textual enrichment rejects prepared x objects and empty text columns"
   expect_error(
     nail_catdes(empty_text, num.var = 51, num.textual = 31),
     "No non-empty textual responses",
+    fixed = TRUE
+  )
+})
+
+
+.catdes_textual_selected_ids <- function(x) {
+  lapply(
+    nail_catdes_enrichment(x)$interpretation_input$groups,
+    function(group) group$selected_text_ids
+  )
+}
+
+
+test_that("textual.seed makes selected IDs reproducible without changing RNG state", {
+  data(atomic_habit_clust, package = "NaileR")
+
+  set.seed(901)
+  before <- .Random.seed
+  first <- nail_catdes(
+    atomic_habit_clust,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 0.2,
+    textual.seed = 123,
+    generate = FALSE
+  )
+  after <- .Random.seed
+  second <- nail_catdes(
+    atomic_habit_clust,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 0.2,
+    textual.seed = 123,
+    generate = FALSE
+  )
+  different <- nail_catdes(
+    atomic_habit_clust,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 0.2,
+    textual.seed = 456,
+    generate = FALSE
+  )
+
+  expect_identical(before, after)
+  expect_identical(
+    .catdes_textual_selected_ids(first),
+    .catdes_textual_selected_ids(second)
+  )
+  expect_false(identical(
+    .catdes_textual_selected_ids(first),
+    .catdes_textual_selected_ids(different)
+  ))
+  expect_identical(nail_evidence(first), nail_evidence(second))
+  expect_identical(
+    nail_catdes_enrichment(first)$textual_evidence,
+    nail_catdes_enrichment(second)$textual_evidence
+  )
+  expect_identical(
+    nail_catdes_enrichment(first)$settings$textual_seed,
+    123
+  )
+})
+
+
+test_that("preview and simulated generation share a seeded selection", {
+  data(atomic_habit_clust, package = "NaileR")
+  preview <- nail_catdes(
+    atomic_habit_clust,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 0.2,
+    textual.seed = 321,
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+  calls <- character()
+  options_seen <- list()
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider, model, prompt, output, llm_api_options) {
+      calls <<- c(calls, prompt)
+      options_seen[[length(options_seen) + 1L]] <<- llm_api_options
+      data.frame(
+        model = model,
+        response = paste("mock", length(calls)),
+        prompt = prompt,
+        done = TRUE,
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+  generated <- nail_catdes(
+    atomic_habit_clust,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 0.2,
+    textual.seed = 321,
+    isolate.groups = FALSE,
+    max_tries = 1L,
+    generate = TRUE
+  )
+
+  expect_identical(
+    .catdes_textual_selected_ids(preview),
+    .catdes_textual_selected_ids(generated)
+  )
+  expect_identical(
+    nail_catdes_enrichment(preview)$selected_texts,
+    nail_catdes_enrichment(generated)$selected_texts
+  )
+  expect_length(calls, 2L)
+  expect_true(all(vapply(options_seen, function(x) {
+    !"textual.seed" %in% names(x)
+  }, logical(1))))
+})
+
+
+test_that("seeded selection is identical in local and joint modes", {
+  data(atomic_habit_clust, package = "NaileR")
+  local <- nail_catdes(
+    atomic_habit_clust,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 0.2,
+    textual.seed = 789,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  joint <- nail_catdes(
+    atomic_habit_clust,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 0.2,
+    textual.seed = 789,
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+
+  expect_identical(
+    .catdes_textual_selected_ids(local),
+    .catdes_textual_selected_ids(joint)
+  )
+  expect_identical(nail_evidence(local), nail_evidence(joint))
+})
+
+
+test_that("textual.seed handles full samples, missing comments, and edge groups", {
+  data(atomic_habit_clust, package = "NaileR")
+
+  full <- nail_catdes(
+    atomic_habit_clust,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 1,
+    textual.seed = 12,
+    generate = FALSE
+  )
+  full_enrichment <- nail_catdes_enrichment(full)
+  expect_identical(
+    full_enrichment$interpretation_input$groups[["1"]]$selected_text_ids,
+    full_enrichment$textual_evidence$groups[["1"]]$text_ids
+  )
+
+  missing <- atomic_habit_clust
+  missing$car_alone_text[missing$clust == "1"] <- ""
+  local_missing <- nail_catdes(
+    missing,
+    num.var = 51,
+    num.textual = 31,
+    textual.sample = 0.5,
+    textual.seed = 12,
+    isolate.groups = TRUE,
+    generate = FALSE
+  )
+  missing_enrichment <- nail_catdes_enrichment(local_missing)
+  expect_identical(
+    missing_enrichment$interpretation_input$groups[["1"]]$status,
+    "no_texts"
+  )
+  expect_length(
+    missing_enrichment$interpretation_input$groups[["1"]]$selected_text_ids,
+    0L
+  )
+  expect_gt(
+    missing_enrichment$interpretation_input$groups[["2"]]$metrics$n_shown_texts,
+    0L
+  )
+
+  expect_error(
+    nail_catdes(
+      atomic_habit_clust,
+      num.var = 51,
+      num.textual = 31,
+      textual.sample = 0.5,
+      textual.seed = "not-a-seed",
+      generate = FALSE
+    ),
+    "textual.seed",
     fixed = TRUE
   )
 })

@@ -6,7 +6,8 @@
                                                x,
                                                num.var,
                                                num.textual,
-                                               textual.sample) {
+                                               textual.sample,
+                                               textual.seed) {
   if (is.null(num.textual)) {
     return(NULL)
   }
@@ -62,6 +63,21 @@
     )
   }
 
+  if (!is.null(textual.seed)) {
+    tryCatch(
+      suppressWarnings(.with_preserved_seed(textual.seed, NULL)),
+      error = function(error) {
+        stop(
+          paste0(
+            "`textual.seed` must be NULL or a value accepted by `set.seed()`. ",
+            conditionMessage(error)
+          ),
+          call. = FALSE
+        )
+      }
+    )
+  }
+
   group_values <- dataset[[num.var]]
   text_values <- as.character(dataset[[num.textual]])
   text_values[is.na(text_values)] <- ""
@@ -79,7 +95,8 @@
   list(
     num.var = num.var,
     num.textual = num.textual,
-    textual.sample = as.numeric(textual.sample)
+    textual.sample = as.numeric(textual.sample),
+    textual.seed = textual.seed
   )
 }
 
@@ -254,6 +271,7 @@
     first_responses,
     isolate.groups,
     textual.sample,
+    textual.seed,
     generate,
     second_prompts = NULL,
     second_responses = NULL,
@@ -326,6 +344,7 @@
       num_textual = as.integer(num.textual),
       textual_variable = textual_evidence$settings$text_variable,
       textual_sample = textual.sample,
+      textual_seed = textual.seed,
       isolate_groups = isolate.groups,
       architecture = if (isTRUE(isolate.groups)) "local_two_pass" else "joint_two_pass",
       generate = generate,
@@ -359,7 +378,8 @@
 .prepare_catdes_textual_enrichment <- function(dataset,
                                                num.var,
                                                num.textual,
-                                               textual.sample) {
+                                               textual.sample,
+                                               textual.seed) {
   textual_evidence <- .build_textual_evidence(
     dataset = dataset,
     num.var = num.var,
@@ -368,7 +388,7 @@
   interpretation_input <- .build_textual_interpretation_input(
     textual_evidence = textual_evidence,
     sample.pct = textual.sample,
-    seed = NULL
+    seed = textual.seed
   )
 
   list(
@@ -390,6 +410,7 @@
                                            introduction,
                                            isolate.groups,
                                            textual.sample,
+                                           textual.seed,
                                            provider,
                                            model,
                                            llm_api_options) {
@@ -504,6 +525,7 @@
     first_responses = first_responses,
     isolate.groups = isolate.groups,
     textual.sample = textual.sample,
+    textual.seed = textual.seed,
     generate = TRUE,
     second_prompts = if (length(second_prompts) > 0L) second_prompts else NULL,
     second_responses = if (length(second_responses) > 0L) second_responses else NULL,

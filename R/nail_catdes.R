@@ -2060,6 +2060,10 @@ validate_catdes_inputs <- function(dataset = NULL,
 #'   within each group for the enrichment pass. The complete textual registry
 #'   and all statistical evidence remain unchanged. It has no effect when
 #'   `num.textual = NULL`.
+#' @param textual.seed Optional seed passed to the existing TEXTUAL sampling
+#'   mechanism. With the same data, `textual.sample`, and `textual.seed`, the
+#'   selected comment IDs are reproducible without changing the user's global
+#'   random-generator state. It has no effect when `num.textual = NULL`.
 #' @param model Model name used by the selected provider. The default is
 #'   `"llama3"`.
 #' @param provider LLM backend, either `"ollama"` or `"gemini"`; the default
@@ -2384,7 +2388,8 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' data(atomic_habit_clust, package = "NaileR")
 #' car_enriched_preview <- nail_catdes(
 #'   atomic_habit_clust, num.var = 51, num.textual = 31,
-#'   textual.sample = 0.5, interpretation_mode = "latent",
+#'   textual.sample = 0.5, textual.seed = 123,
+#'   interpretation_mode = "latent",
 #'   isolate.groups = FALSE,
 #'   generate = FALSE
 #' )
@@ -2395,7 +2400,8 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' \dontrun{
 #' car_enriched <- nail_catdes(
 #'   atomic_habit_clust, num.var = 51, num.textual = 31,
-#'   textual.sample = 0.5, interpretation_mode = "latent",
+#'   textual.sample = 0.5, textual.seed = 123,
+#'   interpretation_mode = "latent",
 #'   isolate.groups = FALSE,
 #'   provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
 #' )
@@ -2421,7 +2427,8 @@ nail_catdes <- function(dataset = NULL,
                         prompt_overrides = NULL,
                         ...,
                         num.textual = NULL,
-                        textual.sample = 1) {
+                        textual.sample = 1,
+                        textual.seed = NULL) {
   interpretation_mode <- match.arg(interpretation_mode)
   prompt_style <- match.arg(prompt_style)
   provider <- match.arg(provider)
@@ -2432,7 +2439,8 @@ nail_catdes <- function(dataset = NULL,
     x = x,
     num.var = num.var,
     num.textual = num.textual,
-    textual.sample = textual.sample
+    textual.sample = textual.sample,
+    textual.seed = textual.seed
   )
   statistical_input <- .prepare_catdes_statistical_dataset(
     dataset = dataset,
@@ -2573,6 +2581,7 @@ nail_catdes <- function(dataset = NULL,
     catdes_settings$textual_enrichment <- TRUE
     catdes_settings$num_textual <- as.integer(textual_spec$num.textual)
     catdes_settings$textual_sample <- textual_spec$textual.sample
+    catdes_settings$textual_seed <- textual_spec$textual.seed
     catdes_settings$first_pass_llm_calls <- as.integer(llm_calls)
     catdes_settings$second_pass_llm_calls <- 0L
   }
@@ -2600,7 +2609,8 @@ nail_catdes <- function(dataset = NULL,
       dataset = dataset,
       num.var = textual_spec$num.var,
       num.textual = textual_spec$num.textual,
-      textual.sample = textual_spec$textual.sample
+      textual.sample = textual_spec$textual.sample,
+      textual.seed = textual_spec$textual.seed
     )
   }
 
@@ -2648,6 +2658,7 @@ nail_catdes <- function(dataset = NULL,
         first_responses = first_responses,
         isolate.groups = isolate.groups,
         textual.sample = textual_spec$textual.sample,
+        textual.seed = textual_spec$textual.seed,
         generate = FALSE
       )
     }
@@ -2795,6 +2806,7 @@ nail_catdes <- function(dataset = NULL,
       introduction = introduction,
       isolate.groups = isolate.groups,
       textual.sample = textual_spec$textual.sample,
+      textual.seed = textual_spec$textual.seed,
       provider = provider,
       model = model,
       llm_api_options = llm_api_options
@@ -2807,6 +2819,7 @@ nail_catdes <- function(dataset = NULL,
     catdes_settings$textual_enrichment <- TRUE
     catdes_settings$num_textual <- as.integer(textual_spec$num.textual)
     catdes_settings$textual_sample <- textual_spec$textual.sample
+    catdes_settings$textual_seed <- textual_spec$textual.seed
     catdes_settings$first_pass_llm_calls <- as.integer(llm_calls)
     catdes_settings$second_pass_llm_calls <- as.integer(n_second_calls)
     catdes_settings$llm_calls <- as.integer(llm_calls + n_second_calls)

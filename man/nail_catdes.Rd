@@ -24,7 +24,8 @@ nail_catdes(
   prompt_overrides = NULL,
   ...,
   num.textual = NULL,
-  textual.sample = 1
+  textual.sample = 1,
+  textual.seed = NULL
 )
 }
 \arguments{
@@ -104,6 +105,11 @@ interface; it cannot be inferred from a prepared \code{x} object.}
 within each group for the enrichment pass. The complete textual registry
 and all statistical evidence remain unchanged. It has no effect when
 \code{num.textual = NULL}.}
+
+\item{textual.seed}{Optional seed passed to the existing TEXTUAL sampling
+mechanism. With the same data, \code{textual.sample}, and \code{textual.seed}, the
+selected comment IDs are reproducible without changing the user's global
+random-generator state. It has no effect when \code{num.textual = NULL}.}
 }
 \value{
 When \code{generate = FALSE}, the actual joint prompt when
@@ -397,7 +403,8 @@ nail_response(iris_gemini, print = FALSE)
 data(atomic_habit_clust, package = "NaileR")
 car_enriched_preview <- nail_catdes(
   atomic_habit_clust, num.var = 51, num.textual = 31,
-  textual.sample = 0.5, interpretation_mode = "latent",
+  textual.sample = 0.5, textual.seed = 123,
+  interpretation_mode = "latent",
   isolate.groups = FALSE,
   generate = FALSE
 )
@@ -408,7 +415,8 @@ nail_catdes_enrichment(car_enriched_preview)$second_pass$status
 \dontrun{
 car_enriched <- nail_catdes(
   atomic_habit_clust, num.var = 51, num.textual = 31,
-  textual.sample = 0.5, interpretation_mode = "latent",
+  textual.sample = 0.5, textual.seed = 123,
+  interpretation_mode = "latent",
   isolate.groups = FALSE,
   provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
 )
