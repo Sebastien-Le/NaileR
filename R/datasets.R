@@ -1266,3 +1266,123 @@
 #' distinction_textual_prompt <- nail_prompt(distinction_textual, print = FALSE)
 #' @keywords datasets
 "distinction"
+
+
+#' Breton subset of the Distinction food-transition survey
+#'
+#' A publishable 485-respondent subset of the Distinction food, territory and
+#' food-choice survey, restricted to the administrative Brittany departments
+#' represented by postal-code prefixes 22, 29, 35 and 56. The object preserves
+#' the complete 105-column schema of [distinction], including the 47 assertion
+#' variables and the translated open-response column `quality_food_open`.
+#' The classification used in the examples is recomputed on this subset and
+#' is therefore exploratory: its group identifiers are not the identifiers of
+#' the full-sample Distinction classification.
+#'
+#' The data describe declared positions and open comments about an ideal food
+#' system. They do not measure observed behaviour and do not support causal or
+#' regional generalisations.
+#'
+#' @docType data
+#'
+#' @format
+#' A data frame with 485 rows and 105 columns. It has the same column names,
+#' order, classes and factor levels as [distinction]. The column
+#' `quality_food_open` contains 485 non-missing English translations of the
+#' open response field. The 47 active assertion columns are named
+#' `assertion_q17_*` and `assertion_q21_*` through `assertion_q25_*`.
+#'
+#' @details
+#' The object is intended for a compact, reproducible ACM--HCPC--CATDES
+#' example. The open-response column is supplementary textual evidence; it is
+#' not silently included in the CATDES calculation. The two-pass enrichment
+#' preview uses `num.textual = 48`, `textual.sample = 0.5` and
+#' `textual.seed = 123` after a derived table has been constructed with a
+#' `profile` column at position 49.
+#'
+#' @source
+#' Public teaching subset prepared from the Distinction 2025--2026 survey;
+#' administrative Brittany selection by postal-code prefixes 22, 29, 35 and
+#' 56. The source export and the processing record are not required to load
+#' this package dataset.
+#' @examples
+#' library(FactoMineR)
+#' library(NaileR)
+#' data(bretons, package = "NaileR")
+#'
+#' active_bretons <- c(
+#'   grep("^assertion_q17_", names(bretons), value = TRUE),
+#'   grep("^assertion_q2[1-5]_", names(bretons), value = TRUE)
+#' )
+#' set.seed(1)
+#' bretons_mca <- FactoMineR::MCA(
+#'   bretons[active_bretons], ncp = 10, graph = FALSE
+#' )
+#' bretons_hcpc <- FactoMineR::HCPC(
+#'   bretons_mca, nb.clust = 3, graph = FALSE
+#' )
+#' stopifnot(identical(rownames(bretons), rownames(bretons_hcpc$data.clust)))
+#'
+#' bretons_prepared <- data.frame(
+#'   bretons[active_bretons],
+#'   quality_food_open = as.character(bretons$quality_food_open),
+#'   profile = factor(bretons_hcpc$data.clust[[ncol(bretons_hcpc$data.clust)]]),
+#'   check.names = FALSE
+#' )
+#' intro_bretons <- paste(
+#'   "This exploratory survey examines declared positions about an ideal food",
+#'   "system among respondents living in administrative Brittany.",
+#'   "The groups were constructed from food-system assertions; the open",
+#'   "responses are comments about food and territory, not verified behaviour.",
+#'   "The profiles should be described as configurations of declared positions,",
+#'   "without causal or regional generalisation."
+#' )
+#' request_bretons <- paste(
+#'   "Describe the three exploratory groups using several CATDES findings",
+#'   "together when possible. Keep group identifiers and distinguish",
+#'   "statistical observations from cautious hypotheses. Do not infer causes",
+#'   "or regional differences beyond this sample."
+#' )
+#' bretons_preview <- nail_catdes(
+#'   dataset = bretons_prepared,
+#'   num.var = 49,
+#'   num.textual = 48,
+#'   textual.sample = 0.5,
+#'   textual.seed = 123,
+#'   interpretation_mode = "latent",
+#'   isolate.groups = FALSE,
+#'   drop.negative = FALSE,
+#'   introduction = intro_bretons,
+#'   request = request_bretons,
+#'   generate = FALSE
+#' )
+#' bretons_evidence <- nail_evidence(bretons_preview)
+#' bretons_prompt <- nail_prompt(bretons_preview, print = FALSE)
+#' bretons_enrichment <- nail_catdes_enrichment(bretons_preview)
+#' head(bretons_enrichment$selected_texts[, c("text_id", "group", "source_row")])
+#'
+#' \dontrun{
+#' bretons_generated <- nail_catdes(
+#'   dataset = bretons_prepared,
+#'   num.var = 49,
+#'   num.textual = 48,
+#'   textual.sample = 0.5,
+#'   textual.seed = 123,
+#'   interpretation_mode = "latent",
+#'   isolate.groups = FALSE,
+#'   drop.negative = FALSE,
+#'   introduction = intro_bretons,
+#'   request = request_bretons,
+#'   provider = "gemini",
+#'   model = "gemini-2.5-flash",
+#'   max_output_tokens = 32768L,
+#'   max_tries = 1L,
+#'   timeout = 120,
+#'   generate = TRUE
+#' )
+#' first_pass_response <- nail_response(bretons_generated, print = FALSE)
+#' enrichment_generated <- nail_catdes_enrichment(bretons_generated)
+#' second_pass_response <- enrichment_generated$second_pass$responses[["portfolio"]]
+#' }
+#' @keywords datasets
+"bretons"
