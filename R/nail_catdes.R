@@ -2408,6 +2408,63 @@ validate_catdes_inputs <- function(dataset = NULL,
 #' nail_response(car_enriched, print = FALSE) # first CATDES response
 #' nail_catdes_enrichment(car_enriched)$second_pass$responses
 #' }
+#'
+#' # 12. Two-pass textual enrichment on the public Breton subset.
+#' #     The ACM--HCPC profiles are exploratory; comments supplement, but do
+#' #     not change, the CATDES evidence. This preview never contacts an LLM.
+#' data(bretons, package = "NaileR")
+#' breton_assertions <- c(
+#'   grep("^assertion_q17_", names(bretons), value = TRUE),
+#'   grep("^assertion_q2[1-5]_", names(bretons), value = TRUE)
+#' )
+#' set.seed(1)
+#' breton_mca <- FactoMineR::MCA(bretons[breton_assertions], ncp = 10,
+#'                               graph = FALSE)
+#' breton_hcpc <- FactoMineR::HCPC(breton_mca, nb.clust = 3, graph = FALSE)
+#' stopifnot(identical(rownames(bretons), rownames(breton_hcpc$data.clust)))
+#' breton_data <- data.frame(
+#'   bretons[breton_assertions],
+#'   quality_food_open = as.character(bretons$quality_food_open),
+#'   profile = factor(breton_hcpc$data.clust[[ncol(breton_hcpc$data.clust)]]),
+#'   check.names = FALSE
+#' )
+#' intro_breton <- paste(
+#'   "This exploratory survey examines declared positions about an ideal food",
+#'   "system among respondents living in administrative Brittany.",
+#'   "The profiles describe configurations of assertions; comments are not",
+#'   "observed behaviour and do not support causal or regional generalisation."
+#' )
+#' request_breton <- paste(
+#'   "Describe the exploratory groups using several CATDES findings and, when",
+#'   "available, the selected comments. Keep group identifiers, distinguish",
+#'   "facts from hypotheses, and do not infer causes or regional differences."
+#' )
+#' breton_result <- nail_catdes(
+#'   dataset = breton_data, num.var = 49, num.textual = 48,
+#'   textual.sample = 0.5, textual.seed = 123,
+#'   interpretation_mode = "latent", isolate.groups = FALSE,
+#'   drop.negative = FALSE, introduction = intro_breton,
+#'   request = request_breton, generate = FALSE
+#' )
+#' nail_evidence(breton_result)
+#' nail_prompt(breton_result, print = FALSE)
+#' nail_catdes_enrichment(breton_result)$selected_texts[, c("text_id", "group")]
+#'
+#' \dontrun{
+#' # The second response is created only when generation is requested and
+#' # the first generation succeeds; it is not run by package checks.
+#' breton_generated <- nail_catdes(
+#'   dataset = breton_data, num.var = 49, num.textual = 48,
+#'   textual.sample = 0.5, textual.seed = 123,
+#'   interpretation_mode = "latent", isolate.groups = FALSE,
+#'   drop.negative = FALSE, introduction = intro_breton,
+#'   request = request_breton, provider = "gemini",
+#'   model = "gemini-2.5-flash", max_output_tokens = 32768L,
+#'   max_tries = 1L, timeout = 120, generate = TRUE
+#' )
+#' nail_response(breton_generated, print = FALSE)
+#' nail_catdes_enrichment(breton_generated)$second_pass$responses
+#' }
 nail_catdes <- function(dataset = NULL,
                         num.var = NULL,
                         introduction = NULL,
