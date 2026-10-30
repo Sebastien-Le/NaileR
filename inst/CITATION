@@ -1,0 +1,37 @@
+citations <- c(
+  bibentry(
+    bibtype = "InProceedings",
+    title = paste(
+      "Interpréter une variable latente avec un modèle de langage,",
+      "une application du package NaileR à la compréhension des",
+      "systèmes alimentaires durables."
+    ),
+    author = c(
+      person(given = "Nel", family = "Hervé"),
+      person(given = "Sylvie", family = "Thoby"),
+      person(given = "Sébastien", family = "Lê")
+    ),
+    booktitle = paste(
+      "Recueil des résumés, Modèles et apprentissages en sciences",
+      "humaines et sociales (MASHS 2024)"
+    ),
+    address = "Paris, France",
+    year = "2024",
+    month = "October",
+    pages = "15",
+    note = "Conference abstract",
+    url = "https://mashs2024.sciencesconf.org/data/book_mashs2024.pdf"
+  ),
+  bibentry(
+    bibtype = "Manual",
+    title = "NaileR: Evidence-First Interpretation of Statistical Profiles with AI",
+    author = c(
+      person(given = "Nel", family = "Hervé"),
+      person(given = "Sébastien", family = "Lê")
+    ),
+    year = "2026",
+    note = "R package version 2.2.0",
+    url = "https://github.com/Sebastien-Le/NaileR",
+    doi = "10.32614/CRAN.package.NaileR"
+  )
+)

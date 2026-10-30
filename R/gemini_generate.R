@@ -71,12 +71,36 @@ gemini_generate <- function(
     backoff_cap  = 8               # <- new
 ) {
   # ---- Guardrails ------------------------------------------------------------
-  if (!nzchar(api_key)) {
+  if (!is.character(api_key) || length(api_key) != 1L ||
+      is.na(api_key) || !nzchar(api_key)) {
     stop("Set GEMINI_API_KEY env var first, e.g. Sys.setenv(GEMINI_API_KEY = 'YOUR_KEY')")
   }
-  if (length(prompt) != 1L || !nzchar(prompt)) {
+  if (!is.character(prompt) || length(prompt) != 1L ||
+      is.na(prompt) || !nzchar(prompt)) {
     stop("`prompt` must be a non-empty character scalar.")
   }
+  if (!is.character(model) || length(model) != 1L ||
+      is.na(model) || !nzchar(model)) {
+    stop("`model` must be a single non-empty character string.", call. = FALSE)
+  }
+  .validate_gemini_generation_options(list(
+    api_key = api_key,
+    user_agent = user_agent,
+    base_url = base_url,
+    temperature = temperature,
+    top_p = top_p,
+    top_k = top_k,
+    max_output_tokens = max_output_tokens,
+    stop_sequences = stop_sequences,
+    system_instruction = system_instruction,
+    safety_settings = safety_settings,
+    seed = seed,
+    timeout = timeout,
+    verbose = verbose,
+    max_tries = max_tries,
+    backoff_base = backoff_base,
+    backoff_cap = backoff_cap
+  ))
 
   # Normalize model id: accept "models/xxx" or "xxx"
   model_id <- sub("^models/", "", model)

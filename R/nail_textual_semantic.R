@@ -212,25 +212,51 @@
 
   if (identical(prompt_style, "compact")) {
     return(paste(
-      "Using only the texts shown for this group, characterize its discourse.",
+      "Ground your characterization in the texts shown for this group and make its support traceable to recurring themes or texts.",
       "Identify the main recurring themes, assess whether a common interpretive",
-      "frame is present, and report meaningful internal diversity or tensions."
+      "frame is present, and report meaningful internal diversity or tensions.",
+      "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation and label it as an interpretation rather than a literal statement by respondents."
     ))
   }
 
   paste(
-    "Using only the texts shown for this group, characterize its discourse.",
+    "Ground your characterization in the texts shown for this group and make its support traceable to recurring themes or texts.",
     "Identify the core textual profile and the dominant recurring themes.",
     "Assess whether a common interpretive frame structures the responses.",
     "Distinguish a shared frame with variations from the coexistence of several",
     "different frames, and report meaningful internal diversity or tensions.",
-    "Stay close to the texts and do not infer hidden motives, personality traits,",
+    "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation and label it as an interpretation rather than a literal statement by respondents.",
+    "Do not infer hidden motives, personality traits, moral qualities,",
     "or attitudes that are not expressed in the corpus."
   )
 }
 
 
-.textual_canonical_conclusion <- function() {
+.textual_canonical_conclusion <- function(isolate.groups = TRUE) {
+  if (!isTRUE(isolate.groups)) {
+    return(paste(
+      "# Required output",
+      "",
+      "Your answer must contain exactly these fields and nothing else:",
+      "",
+      "Comparative textual synthesis:",
+      "[One concise statement describing the overall configuration across groups.]",
+      "",
+      "Common themes:",
+      "[1 to 5 short themes shared across several groups, separated by semicolons. If unclear, write: unclear.]",
+      "",
+      "Group differences:",
+      "[Describe the most informative contrasts between groups, preserving their exact identifiers.]",
+      "",
+      "Internal tensions and limits:",
+      "[Describe tensions, heterogeneity, weak documentation, or limits of the selected corpus.]",
+      "",
+      "Referenced text IDs:",
+      "[Supplied text IDs separated by semicolons. Use only IDs shown in the data.]",
+      sep = "\n"
+    ))
+  }
+
   paste(
     "# Required output",
     "",
@@ -258,8 +284,67 @@
 }
 
 
-.textual_semantic_guide <- function(prompt_style = c("detailed", "compact"),
-                                    text_role = c("responses", "comments", "verbatims")) {
+.textual_joint_default_request <- function(
+    prompt_style = c("detailed", "compact")) {
+  prompt_style <- match.arg(prompt_style)
+
+  if (identical(prompt_style, "compact")) {
+    return(paste(
+      "Using only the raw texts shown for all groups, describe the common themes and the most informative differences between the groups.",
+      "Preserve each group identifier, distinguish observations from interpretations, and mention important tensions or limits.",
+      sep = "\n"
+    ))
+  }
+
+  paste(
+    "Using only the raw texts shown for all groups, produce a comparative interpretation.",
+    "Identify themes shared across groups and the most informative differences between their textual configurations.",
+    "Preserve each group identifier and distinguish what respondents literally express from higher-level interpretations.",
+    "Report tensions, heterogeneity, weak documentation, and limits of the selected corpus when relevant.",
+    "Do not infer hidden motives, personality traits, moral qualities, or causal effects.",
+    sep = "\n"
+  )
+}
+
+
+.validate_textual_default_blocks <- function(default_blocks) {
+  allowed <- c("reading", "interpretation", "local_task")
+
+  if (!is.character(default_blocks) || anyNA(default_blocks)) {
+    stop(
+      "`default_blocks` must be a character vector without NA values.",
+      call. = FALSE
+    )
+  }
+
+  unknown <- setdiff(default_blocks, allowed)
+  if (length(unknown) > 0L) {
+    stop(
+      paste0(
+        "Unknown TEXTUAL default block(s): ",
+        paste(sprintf('"%s"', unknown), collapse = ", "),
+        ". Allowed blocks are: ",
+        paste(allowed, collapse = ", "),
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (anyDuplicated(default_blocks)) {
+    stop(
+      "`default_blocks` must not contain duplicate block names.",
+      call. = FALSE
+    )
+  }
+
+  default_blocks
+}
+
+
+.build_textual_guide_blocks <- function(
+    prompt_style = c("detailed", "compact"),
+    text_role = c("responses", "comments", "verbatims")) {
   prompt_style <- match.arg(prompt_style)
   text_role <- match.arg(text_role)
   unit <- .text_unit_word(text_role, plural = TRUE)
@@ -270,16 +355,40 @@
     "Do not assume that a statistical or observed group necessarily has a homogeneous discourse.",
     "Base the interpretation on recurring patterns across several texts.",
     "A shared discourse may consist of a common interpretive frame even when positions vary within that frame.",
+    "When several texts or themes support the same pattern, you may offer a higher-level contextual interpretation.",
+    "Distinguish that interpretation from what respondents literally expressed, and do not present it as a direct quotation or empirical fact stated by them.",
     "Do not treat the absence of a theme as evidence that the group rejects or ignores it.",
     "Do not infer hidden motives, personality traits, or moral qualities.",
     "Representative and tension texts must be referenced only by supplied text IDs."
   )
 
   if (identical(prompt_style, "compact")) {
-    core <- core[c(1, 2, 3, 4, 8)]
+    reading <- core[c(1, 2, 3, 8)]
+    interpretation <- core[4]
+  } else {
+    reading <- core[c(1, 2, 3, 8, 10)]
+    interpretation <- core[c(4, 5, 6, 7, 9)]
   }
 
-  paste(core, collapse = "\n")
+  list(
+    reading = paste(reading, collapse = "\n"),
+    interpretation = paste(interpretation, collapse = "\n")
+  )
+}
+
+
+.textual_semantic_guide <- function(prompt_style = c("detailed", "compact"),
+                                    text_role = c("responses", "comments", "verbatims")) {
+  blocks <- .build_textual_guide_blocks(
+    prompt_style = prompt_style,
+    text_role = text_role
+  )
+
+  paste(
+    blocks$reading,
+    blocks$interpretation,
+    sep = "\n"
+  )
 }
 
 
@@ -335,58 +444,244 @@
 }
 
 
+.textual_joint_data_block <- function(textual_evidence,
+                                      interpretation_input) {
+  group_names <- names(textual_evidence$groups)
+  blocks <- vapply(
+    group_names,
+    function(group_name) {
+      .textual_group_data_block(
+        textual_evidence = textual_evidence,
+        interpretation_input = interpretation_input,
+        group_name = group_name
+      )
+    },
+    character(1)
+  )
+
+  paste(
+    "## Groups and selected textual evidence",
+    paste(blocks, collapse = "\n\n---\n\n"),
+    sep = "\n\n"
+  )
+}
+
+
+.render_textual_prompt_blocks <- function(blocks) {
+  sections <- list(
+    c("# Introduction", blocks$context),
+    if (!is.null(blocks$reading)) {
+      c("## How to Read the Textual Evidence", blocks$reading)
+    },
+    c("# Overall Analytical Request", blocks$question),
+    if (!is.null(blocks$interpretation)) {
+      c("## Interpretation Rules", blocks$interpretation)
+    },
+    if (!is.null(blocks$local_task)) {
+      c("# Local Task", blocks$local_task)
+    },
+    if (!is.null(blocks$joint_task)) {
+      c("# Comparative Task", blocks$joint_task)
+    },
+    c("# Data", blocks$evidence),
+    blocks$output
+  )
+
+  sections <- Filter(
+    function(section) !is.null(section) && length(section) > 0L,
+    sections
+  )
+
+  normalize_blank_lines(
+    paste(
+      vapply(
+        sections,
+        function(section) paste(section, collapse = "\n\n"),
+        character(1)
+      ),
+      collapse = "\n\n---\n\n"
+    )
+  )
+}
+
+
+.build_joint_textual_prompt_bundle <- function(
+    textual_evidence,
+    interpretation_input,
+    introduction,
+    request,
+    conclusion,
+    prompt_style,
+    text_role,
+    default_blocks) {
+  default_blocks <- .validate_textual_default_blocks(default_blocks)
+  guide_blocks <- .build_textual_guide_blocks(
+    prompt_style = prompt_style,
+    text_role = text_role
+  )
+
+  group_names <- names(textual_evidence$groups)
+  shown_ids <- unique(unlist(
+    lapply(
+      interpretation_input$groups,
+      function(group) group$selected_text_ids
+    ),
+    use.names = FALSE
+  ))
+
+  joint_task <- paste(
+    "Interpret all groups jointly from the selected texts shown below.",
+    paste0("The groups included in this comparative pass are: ",
+           paste(sprintf('"%s"', group_names), collapse = ", "), "."),
+    "Compare only groups whose texts are displayed, preserve their identifiers, and do not turn this response into separate local profiles.",
+    "Identify common themes, contrasts, tensions, and meaningful differences in the textual configurations.",
+    "Every referenced text ID must belong to the selected texts shown below.",
+    sep = "\n"
+  )
+
+  blocks <- list(
+    context = introduction,
+    reading = if ("reading" %in% default_blocks) guide_blocks$reading else NULL,
+    question = request,
+    interpretation = if ("interpretation" %in% default_blocks) {
+      guide_blocks$interpretation
+    } else {
+      NULL
+    },
+    joint_task = if ("local_task" %in% default_blocks) joint_task else NULL,
+    evidence = .textual_joint_data_block(
+      textual_evidence = textual_evidence,
+      interpretation_input = interpretation_input
+    ),
+    output = conclusion
+  )
+
+  list(
+    blocks = blocks,
+    prompt = .render_textual_prompt_blocks(blocks),
+    selected_text_ids = shown_ids
+  )
+}
+
+
+.build_textual_prompt_bundle <- function(
+    textual_evidence,
+    interpretation_input,
+    group_name,
+    introduction,
+    request,
+    conclusion,
+    prompt_style,
+    text_role,
+    default_blocks) {
+  default_blocks <- .validate_textual_default_blocks(default_blocks)
+  guide_blocks <- .build_textual_guide_blocks(
+    prompt_style = prompt_style,
+    text_role = text_role
+  )
+
+  local_task <- if (identical(
+    interpretation_input$groups[[group_name]]$status,
+    "ready"
+  )) {
+    paste(
+      "Interpret only the group shown below.",
+      "Do not compare it with groups whose texts are not shown.",
+      "Address the overall analytical request while respecting the evidence rules."
+    )
+  } else {
+    paste(
+      "This group has no non-empty textual response.",
+      "Do not invent a textual profile for it."
+    )
+  }
+
+  blocks <- list(
+    context = introduction,
+    reading = if ("reading" %in% default_blocks) {
+      guide_blocks$reading
+    } else {
+      NULL
+    },
+    question = request,
+    interpretation = if ("interpretation" %in% default_blocks) {
+      guide_blocks$interpretation
+    } else {
+      NULL
+    },
+    local_task = if ("local_task" %in% default_blocks) {
+      local_task
+    } else {
+      NULL
+    },
+    evidence = .textual_group_data_block(
+      textual_evidence = textual_evidence,
+      interpretation_input = interpretation_input,
+      group_name = group_name
+    ),
+    output = conclusion
+  )
+
+  list(
+    blocks = blocks,
+    prompt = .render_textual_prompt_blocks(blocks)
+  )
+}
+
+
+.build_local_textual_prompt_bundles <- function(textual_evidence,
+                                                interpretation_input,
+                                                introduction,
+                                                request,
+                                                conclusion,
+                                                prompt_style,
+                                                text_role,
+                                                default_blocks) {
+  group_names <- names(textual_evidence$groups)
+  bundles <- stats::setNames(vector("list", length(group_names)), group_names)
+
+  for (g in group_names) {
+    bundles[[g]] <- .build_textual_prompt_bundle(
+      textual_evidence = textual_evidence,
+      interpretation_input = interpretation_input,
+      group_name = g,
+      introduction = introduction,
+      request = request,
+      conclusion = conclusion,
+      prompt_style = prompt_style,
+      text_role = text_role,
+      default_blocks = default_blocks
+    )
+  }
+
+  bundles
+}
+
+
 .build_local_textual_prompts <- function(textual_evidence,
                                          interpretation_input,
                                          introduction,
                                          request,
                                          conclusion,
                                          prompt_style,
-                                         text_role) {
-  group_names <- names(textual_evidence$groups)
-  prompts <- stats::setNames(vector("list", length(group_names)), group_names)
-  guide <- .textual_semantic_guide(
+                                         text_role,
+                                         default_blocks = c(
+                                           "reading",
+                                           "interpretation",
+                                           "local_task"
+                                         )) {
+  bundles <- .build_local_textual_prompt_bundles(
+    textual_evidence = textual_evidence,
+    interpretation_input = interpretation_input,
+    introduction = introduction,
+    request = request,
+    conclusion = conclusion,
     prompt_style = prompt_style,
-    text_role = text_role
+    text_role = text_role,
+    default_blocks = default_blocks
   )
 
-  for (g in group_names) {
-    local_task <- if (identical(
-      interpretation_input$groups[[g]]$status,
-      "ready"
-    )) {
-      paste(
-        "Interpret only the group shown below.",
-        "Do not compare it with groups whose texts are not shown.",
-        "Address the overall analytical request while respecting the evidence rules."
-      )
-    } else {
-      paste(
-        "This group has no non-empty textual response.",
-        "Do not invent a textual profile for it."
-      )
-    }
-
-    prompts[[g]] <- normalize_blank_lines(paste0(
-      "# Introduction\n\n",
-      introduction,
-      "\n\n---\n\n## How to Read the Textual Evidence\n\n",
-      guide,
-      "\n\n# Overall Analytical Request\n\n",
-      request,
-      "\n\n# Local Task\n\n",
-      local_task,
-      "\n\n# Data\n\n",
-      .textual_group_data_block(
-        textual_evidence = textual_evidence,
-        interpretation_input = interpretation_input,
-        group_name = g
-      ),
-      "\n\n",
-      conclusion
-    ))
-  }
-
-  prompts
+  lapply(bundles, function(bundle) bundle$prompt)
 }
 
 
@@ -562,6 +857,85 @@
 }
 
 
+.parse_joint_textual_response <- function(text, allowed_text_ids) {
+  text <- paste(text, collapse = "\n")
+  text <- gsub("\r\n", "\n", text, fixed = TRUE)
+  text <- gsub("\r", "\n", text, fixed = TRUE)
+
+  fields <- c(
+    "Comparative textual synthesis",
+    "Common themes",
+    "Group differences",
+    "Internal tensions and limits",
+    "Referenced text IDs"
+  )
+
+  get_block <- function(field) {
+    index <- match(field, fields)
+    next_fields <- if (index < length(fields)) {
+      fields[(index + 1L):length(fields)]
+    } else {
+      NULL
+    }
+
+    .extract_field_block_textual(
+      text,
+      field,
+      next_fields = next_fields
+    )
+  }
+
+  comparative_textual_synthesis <- .clean_field_textual(
+    get_block("Comparative textual synthesis")
+  )
+  common_themes <- .split_field_textual(
+    get_block("Common themes"),
+    none_words = "unclear"
+  )
+  group_differences <- .clean_field_textual(
+    get_block("Group differences")
+  )
+  internal_tensions_and_limits <- .clean_field_textual(
+    get_block("Internal tensions and limits")
+  )
+  referenced_text_ids <- .split_text_ids_textual(
+    get_block("Referenced text IDs")
+  )
+
+  issues <- character(0)
+  if (is.na(comparative_textual_synthesis)) {
+    issues <- c(issues, "missing_comparative_textual_synthesis")
+  }
+  if (length(common_themes) == 0L) {
+    issues <- c(issues, "missing_common_themes")
+  }
+  if (is.na(group_differences)) {
+    issues <- c(issues, "missing_group_differences")
+  }
+  if (is.na(internal_tensions_and_limits)) {
+    issues <- c(issues, "missing_internal_tensions_and_limits")
+  }
+  if (length(referenced_text_ids) == 0L) {
+    issues <- c(issues, "missing_referenced_text_ids")
+  }
+
+  unknown_ids <- setdiff(referenced_text_ids, allowed_text_ids)
+  if (length(unknown_ids) > 0L) {
+    issues <- c(issues, "unknown_referenced_text_ids")
+  }
+
+  list(
+    status = if (length(issues) == 0L) "available" else "parse_failed",
+    comparative_textual_synthesis = comparative_textual_synthesis,
+    common_themes = common_themes,
+    group_differences = group_differences,
+    internal_tensions_and_limits = internal_tensions_and_limits,
+    referenced_text_ids = referenced_text_ids,
+    parse_issues = unique(issues)
+  )
+}
+
+
 .empty_textual_profile <- function(status,
                                    prompt,
                                    selected_text_ids,
@@ -672,6 +1046,95 @@
 }
 
 
+.empty_joint_textual_profile <- function(status,
+                                         prompt,
+                                         selected_text_ids,
+                                         response = NULL,
+                                         backend_result = NULL,
+                                         parse_issues = character(0)) {
+  list(
+    status = status,
+    comparative_textual_synthesis = NA_character_,
+    common_themes = character(0),
+    group_differences = NA_character_,
+    internal_tensions_and_limits = NA_character_,
+    referenced_text_ids = character(0),
+    parse_issues = parse_issues,
+    selected_text_ids = selected_text_ids,
+    prompt = prompt,
+    response = response,
+    backend_result = backend_result
+  )
+}
+
+
+.build_joint_textual_profile <- function(result,
+                                         prompt,
+                                         interpretation_input,
+                                         generated) {
+  selected_text_ids <- unique(unlist(
+    lapply(
+      interpretation_input$groups,
+      function(group) group$selected_text_ids
+    ),
+    use.names = FALSE
+  ))
+  response <- .extract_textual_backend_response(result)
+
+  if (!isTRUE(generated)) {
+    profile <- .empty_joint_textual_profile(
+      status = "prompt_ready",
+      prompt = prompt,
+      selected_text_ids = selected_text_ids
+    )
+  } else if (is.null(response)) {
+    profile <- .empty_joint_textual_profile(
+      status = "generation_missing",
+      prompt = prompt,
+      selected_text_ids = selected_text_ids,
+      backend_result = result,
+      parse_issues = "missing_backend_response"
+    )
+  } else {
+    parsed <- .parse_joint_textual_response(
+      response,
+      allowed_text_ids = selected_text_ids
+    )
+    profile <- c(
+      parsed,
+      list(
+        selected_text_ids = selected_text_ids,
+        prompt = prompt,
+        response = response,
+        backend_result = result
+      )
+    )
+  }
+
+  out <- list(
+    scope = "joint",
+    groups = list(),
+    joint = profile,
+    group_names = names(interpretation_input$groups),
+    settings = list(
+      architecture = "joint",
+      global_synthesis_performed = TRUE
+    ),
+    metadata = list(
+      schema = "NaileR::textual_profiles",
+      schema_version = "0.2.0",
+      scope = "joint",
+      n_groups = as.integer(length(interpretation_input$groups)),
+      n_available = as.integer(identical(profile$status, "available")),
+      n_parse_failed = as.integer(identical(profile$status, "parse_failed"))
+    )
+  )
+
+  class(out) <- c("nail_textual_profiles", "list")
+  out
+}
+
+
 .textual_no_results_data_frame <- function(model, prompt, group_name) {
   data.frame(
     model = model,
@@ -755,6 +1218,7 @@
 .attach_nail_textual_artifacts <- function(result,
                                            textual_evidence,
                                            interpretation_input,
+                                           prompt_blocks,
                                            local_prompts,
                                            textual_profiles,
                                            textual_settings,
@@ -762,6 +1226,7 @@
                                            llm_io) {
   attr(result, "textual_evidence") <- textual_evidence
   attr(result, "interpretation_input") <- interpretation_input
+  attr(result, "textual_prompt_blocks") <- prompt_blocks
   attr(result, "local_prompts") <- local_prompts
   attr(result, "textual_profiles") <- textual_profiles
   attr(result, "textual_settings") <- textual_settings

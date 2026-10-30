@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_textual.R
 \name{nail_textual}
 \alias{nail_textual}
-\title{Interpret grouped open-ended textual responses}
+\title{Analyze open-ended responses across groups}
 \usage{
 nail_textual(
   dataset,
@@ -19,6 +19,7 @@ nail_textual(
   prompt_style = c("detailed", "compact"),
   text_role = c("responses", "comments", "verbatims"),
   generate = FALSE,
+  default_blocks = c("reading", "interpretation", "local_task"),
   ...
 )
 }
@@ -30,29 +31,31 @@ and one textual variable.}
 
 \item{num.text}{Index of the textual variable.}
 
-\item{introduction}{Study context included in every local LLM prompt.
+\item{introduction}{Study context included in every active LLM prompt.
 A generic default is used when \code{NULL}.}
 
-\item{request}{Analytical request included in every local LLM prompt.
+\item{request}{Analytical request included in every active LLM prompt.
 A generic textual-profiling request is used when \code{NULL}.}
 
-\item{conclusion}{Output instruction appended to every local LLM prompt.
+\item{conclusion}{Output instruction appended to every active LLM prompt.
 When \code{NULL}, NaileR requests the canonical structured textual profile.
 A custom value is preserved for backward compatibility; if its output
 format is incompatible with the canonical parser, \code{textual_profiles}
 may report \code{status = "parse_failed"} while preserving the raw response.}
 
-\item{model}{Model name for the selected provider (\code{"llama3"} by default
-for Ollama).}
+\item{model}{Model name for the selected provider. When omitted, the
+validated provider default is used: \code{"llama3"} for Ollama and
+\code{"gemini-2.5-flash"} for Gemini. An explicit model is always respected.}
 
 \item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a
 local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
-\item{isolate.groups}{Logical. Interpretation is always local-first, one
-group at a time. If \code{TRUE}, return the local prompts/results as a named
-list. If \code{FALSE}, preserve the historical outer return shape by combining
-the independent local prompts/results. No global comparative synthesis is
-performed at this stage.}
+\item{isolate.groups}{Logical. If \code{TRUE} (the default), interpret each
+group independently with one prompt and one response per group. If
+\code{FALSE}, build one comparative prompt containing the selected texts from
+all groups and make one LLM call for the joint interpretation. The joint
+mode is not a concatenation of local responses and does not create local
+profiles from a comparative response.}
 
 \item{sample.pct}{Proportion of non-empty texts shown to the LLM within
 each group. This affects only \code{interpretation_input}; the complete
@@ -61,28 +64,58 @@ each group. This affects only \code{interpretation_input}; the complete
 \item{seed}{Optional seed used to sample texts reproducibly without
 altering the user's RNG state.}
 
-\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
+\item{prompt_style}{Either \code{"detailed"} (default) or \code{"compact"}; this
+changes the reading and interpretation instructions without changing the
+registered texts or selected text IDs.}
 
-\item{text_role}{Either \code{"responses"}, \code{"comments"}, or \code{"verbatims"}.}
+\item{text_role}{Either \code{"responses"} (default), \code{"comments"}, or
+\code{"verbatims"}; this changes the terminology used in the prompt.}
 
 \item{generate}{Logical. If \code{FALSE}, return prompt(s) only. If \code{TRUE},
-generate one independent LLM response per group.}
+generate one independent response per group in isolated mode, or one
+comparative response in joint mode.}
+
+\item{default_blocks}{Character vector selecting optional NaileR prompt
+blocks. Allowed values are \code{"reading"}, \code{"interpretation"}, and
+\code{"local_task"}; the default includes all three. Context, question,
+evidence, and output are always retained.}
 
 \item{...}{Additional provider-specific generation arguments passed to the
-selected LLM backend.}
+selected LLM backend. Unknown or provider-incompatible options are
+rejected before a preview or generation; no option is silently discarded.}
 }
 \value{
-When \code{generate = FALSE}, a character local-first preview when
+When \code{generate = FALSE}, the single comparative prompt when
 \code{isolate.groups = FALSE}, or the exact named local prompts when
-\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a combined data frame
-when \code{isolate.groups = FALSE}, or the named local backend results when
-\code{isolate.groups = TRUE}. Canonical mechanical and semantic artifacts are
-attached as attributes in all cases.
+\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a single backend result
+and comparative profile when \code{isolate.groups = FALSE}, or named local
+backend results and profiles when \code{isolate.groups = TRUE}.
+Mechanical and semantic artifacts are attached as attributes, not as \code{$}
+fields:
+\itemize{
+\item \code{textual_evidence}: the complete registered text evidence;
+\item \code{interpretation_input}: the exact text IDs shown to each group;
+\item \code{textual_prompt_blocks} and \code{local_prompts}: rendered prompt structure;
+\item \code{textual_profiles}: parsed local profiles, or one explicit comparative
+profile in joint mode;
+\item \code{textual_settings}: execution and architecture settings;
+\item \code{textual_data_summary}: the historical compatibility view;
+\item \code{llm_io}: exact local prompts and raw local responses.
+}
+
+A preview has no LLM responses. Use \code{\link[=nail_evidence]{nail_evidence()}} and \code{\link[=nail_prompt]{nail_prompt()}}
+to inspect a preview, and \code{\link[=nail_response]{nail_response()}} after generation. In joint
+mode, the active prompt and response are available under the selector
+\code{"portfolio"} through the canonical accessors.
 }
 \description{
-Build complete mechanical textual evidence, select the subset shown to the
-language model, and interpret each group independently before any future
-cross-group synthesis.
+Use \code{nail_textual()} to explore what people say in open-ended responses or
+comments. The function registers the raw responses with stable text IDs,
+group-level coverage and volume metrics, selects the texts shown to the
+language model, and either interprets each group independently or builds one
+comparative interpretation across all groups. The textual evidence is built
+mechanically in R; the LLM supplies the structured substantive profile and
+does not alter the registered evidence.
 }
 \details{
 \code{textual_evidence} is produced mechanically from the complete dataset before
@@ -95,11 +128,233 @@ and its interpretation coverage. Sampling never changes \code{textual_evidence}.
 With the default output instruction, each local LLM response is parsed into
 \code{textual_profiles}, which contains the core textual profile, dominant themes,
 within-group coherence (\code{strong}, \code{moderate}, \code{mixed}, or \code{weak}), internal
-diversity, and IDs of representative or tension texts. Referenced IDs must
-exist in the subset actually shown to the LLM.
+diversity, and IDs of representative or tension texts. In joint mode the
+object contains one \code{joint} comparative profile and an explicit
+\code{scope = "joint"}; it does not fabricate one profile per group. Referenced
+IDs must exist in the subset actually shown to the LLM.
 
 Every successful return carries \code{textual_evidence}, \code{interpretation_input},
-\code{local_prompts}, \code{textual_profiles}, \code{textual_settings},
+\code{textual_prompt_blocks}, \code{local_prompts}, \code{textual_profiles}, \code{textual_settings},
 \code{textual_data_summary} (historical compatibility view), and canonical
 \code{llm_io} attributes.
+}
+\examples{
+## 1. Fabric: inspect comments for one fabric category
+# Question: what do respondents say about fabric category A?
+data(fabric, package = "NaileR")
+fabric_A <- fabric[fabric$Fabric == "A", , drop = FALSE]
+fabric_introduction <- paste(
+  "This dataset contains short comments about fabric category A.",
+  "Class is the grouping variable; the comments are textual responses",
+  "and are not quantitative measurements."
+)
+fabric_request <- paste(
+  "Describe recurring points in the comments within each Class group for",
+  "fabric category A. Preserve variation between respondents and do not",
+  "infer causes or behaviour."
+)
+
+textual_preview <- nail_textual(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  introduction = fabric_introduction,
+  request = fabric_request,
+  isolate.groups = TRUE,
+  sample.pct = 1,
+  seed = 123,
+  text_role = "responses",
+  generate = FALSE
+)
+
+textual_evidence <- nail_evidence(textual_preview)
+textual_prompts <- nail_prompt(textual_preview, print = FALSE)
+textual_evidence
+textual_prompts
+
+# The evidence keeps the registered text IDs and source rows. The prompts
+# use the selected comments; they do not turn comments into measurements.
+
+## 2. Fabric: compare comments across Class categories
+fabric_joint_introduction <- paste(
+  "This dataset contains short comments about ten fabric types.",
+  "Class is the grouping variable with two categories, 0 and 1."
+)
+fabric_joint_request <- paste(
+  "Compare the comments associated with Class 0 and Class 1.",
+  "Which similarities and differences appear in these two groups?",
+  "Do not infer causes or behaviour from the comments."
+)
+textual_joint <- nail_textual(
+  dataset = fabric,
+  num.var = 4,
+  num.text = 3,
+  introduction = fabric_joint_introduction,
+  request = fabric_joint_request,
+  isolate.groups = FALSE,
+  sample.pct = 1,
+  seed = 123,
+  text_role = "responses",
+  generate = FALSE
+)
+nail_evidence(textual_joint)
+nail_prompt(textual_joint, print = FALSE)
+# The joint option summarizes the same selected comments in one prompt.
+
+## 3. Car Alone: perceived benefits and constraints of individual car use.
+data(car_alone, package = "NaileR")
+car_alone_preview <- nail_textual(
+  dataset = car_alone,
+  num.var = 1,
+  num.text = 2,
+  introduction = paste(
+    "This survey records perceived benefits and constraints of using a car alone.",
+    "The four groups combine declared car use with whether sharing is perceived as restrictive."
+  ),
+  request = paste(
+    "Summarize what respondents literally express about the benefits and constraints",
+    "of car use, preserving differences between the four groups without inferring behaviour."
+  ),
+  isolate.groups = TRUE,
+  sample.pct = 0.5,
+  seed = 20261027,
+  text_role = "comments",
+  generate = FALSE
+)
+nail_evidence(car_alone_preview)
+nail_prompt(car_alone_preview, select = "I take my car alone, and sharing it is for me restrictive",
+            print = FALSE)
+
+# Atomic Habits: responses about giving up air travel and three constructed groups.
+data(atomic_habit_clust, package = "NaileR")
+atomic_plane <- atomic_habit_clust[
+  !is.na(atomic_habit_clust$never_plane_text) &
+    atomic_habit_clust$never_plane_text != "THAT",
+  c(32, 51),
+  drop = FALSE
+]
+atomic_preview <- nail_textual(
+  dataset = atomic_plane,
+  num.var = 2,
+  num.text = 1,
+  introduction = paste(
+    "The survey asks respondents what benefits and constraints they associate",
+    "with giving up air travel. The historical value 'THAT' is excluded because",
+    "it is not a textual response."
+  ),
+  request = paste(
+    "Describe the distinct ways in which the three constructed groups discuss",
+    "reducing air travel. Keep perceived capacity distinct from felt constraint."
+  ),
+  isolate.groups = TRUE,
+  text_role = "responses",
+  generate = FALSE
+)
+nail_evidence(atomic_preview)
+nail_prompt(atomic_preview, select = "1", print = FALSE)
+
+# Rorschach: ten local prompts for the ten inkblots in panel A.
+data(rorschach, package = "NaileR")
+rorschach_A <- droplevels(rorschach[rorschach$Panel == "A", , drop = FALSE])
+rorschach_preview <- nail_textual(
+  dataset = rorschach_A,
+  num.var = 2,
+  num.text = 5,
+  introduction = paste(
+    "Participants described ten Rorschach inkblots in panel A.",
+    "The prompts summarize the recorded descriptions without treating them as diagnoses."
+  ),
+  request = paste(
+    "Describe recurring perceptions associated with each inkblot, preserving",
+    "variation and avoiding psychological or causal claims."
+  ),
+  isolate.groups = TRUE,
+  text_role = "responses",
+  generate = FALSE
+)
+nail_evidence(rorschach_preview)
+length(nail_prompt(rorschach_preview, print = FALSE))
+
+# Distinction: one global profile from 1,225 translated comments on food quality.
+data(distinction, package = "NaileR")
+distinction_text <- data.frame(
+  respondent_scope = factor("All respondents"),
+  quality_food_open = distinction$quality_food_open,
+  check.names = FALSE
+)
+distinction_preview <- nail_textual(
+  dataset = distinction_text,
+  num.var = 1,
+  num.text = 2,
+  introduction = paste(
+    "This survey includes one open question about what respondents mean by",
+    "food quality. The English comments are translations of the original survey",
+    "responses and are analysed as textual material, not as quantitative scores."
+  ),
+  request = paste(
+    "Describe the diversity of representations of food quality in the complete",
+    "corpus. Preserve tensions and minority views, and do not treat a sampled",
+    "preview as an exhaustive account."
+  ),
+  isolate.groups = FALSE,
+  sample.pct = 1,
+  seed = 20261027,
+  text_role = "comments",
+  generate = FALSE
+)
+nail_evidence(distinction_preview)
+cat(substr(nail_prompt(distinction_preview, print = FALSE), 1, 600), "\n")
+
+# Distinction: a reproducible comparative preview across education categories.
+distinction_education_preview <- nail_textual(
+  dataset = distinction,
+  num.var = 4,
+  num.text = 105,
+  introduction = paste(
+    "The same food-quality question is compared descriptively across the",
+    "six observed education categories in the survey."
+  ),
+  request = paste(
+    "Summarize how the food-quality representations expressed in the comments",
+    "vary across education categories. Do not infer education effects or causality."
+  ),
+  isolate.groups = FALSE,
+  sample.pct = 0.1,
+  seed = 20261027,
+  text_role = "comments",
+  generate = FALSE
+)
+nail_evidence(distinction_education_preview)
+cat(substr(
+  nail_prompt(distinction_education_preview, print = FALSE),
+  1,
+  600
+), "\n")
+
+# Optional Gemini generation: one local request per Fabric group.
+# This opt-in block requires a user-managed GEMINI_API_KEY and may make
+# multiple external requests. A parsed profile is not scientific validation.
+\dontrun{
+fabric_gemini <- nail_textual(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  isolate.groups = TRUE,
+  sample.pct = 1,
+  seed = 123,
+  text_role = "responses",
+  provider = "gemini",
+  model = "gemini-2.5-flash",
+  generate = TRUE
+)
+nail_evidence(fabric_gemini)
+fabric_group <- names(nail_evidence(fabric_gemini)$groups)[[1L]]
+nail_prompt(fabric_gemini, select = fabric_group, print = FALSE)
+nail_response(fabric_gemini, select = fabric_group, print = FALSE)
+}
+}
+\seealso{
+\code{\link[=nail_textual_prep]{nail_textual_prep()}}, \code{\link[=nail_catdes_textual]{nail_catdes_textual()}},
+\code{\link[=nail_textual_contextualized]{nail_textual_contextualized()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

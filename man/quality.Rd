@@ -26,47 +26,58 @@ quality
 }
 \description{
 These data were collected after a study on the perception of food quality.
-Participants were given 9 French logos; they had to rate, on a scale from 0 (not at all) to 10 (absolutely), how much a product bearing them aligned with their own perception of quality.
+Participants rated nine food-related logos from 0 (not at all) to 10
+(absolutely) according to how much a product bearing each logo matched
+their own perception of quality. The scores describe perceived associations,
+not an objective or normative quality scale.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
 library(NaileR)
-data(quality)
+data(quality, package = "NaileR")
 
-colnames(quality) <- c("Agriculture biologique",
-"Label Rouge",
-"FairTrade",
-"Bleu Blanc Coeur",
-"Appelation d'origine contrôlée",
-"Produit en Bretagne",
-"Viandes de France",
-"Nourri sans OGM",
-"Médailles Agro")
+quality_pca <- FactoMineR::PCA(quality, graph = FALSE)
+quality_work <- data.frame(
+  Dim1 = quality_pca$ind$coord[, 1],
+  quality,
+  check.names = FALSE
+)
+intro_quality <- paste(
+  "Students rated nine food-related logos from 0 to 10 according to how",
+  "much each logo matched their perception of food quality.",
+  "The target below is the first PCA dimension, so it is a constructed",
+  "continuum rather than an observed quality measurement."
+)
+request_quality <- paste(
+  "Describe the configuration of logo associations along this dimension.",
+  "Distinguish statistical description from interpretation and do not turn",
+  "the dimension into a normative ranking of products or people."
+)
+quality_preview <- nail_condes(
+  dataset = quality_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "first PCA dimension",
+  introduction = intro_quality,
+  request = request_quality,
+  generate = FALSE
+)
+quality_evidence <- nail_evidence(quality_preview)
+quality_prompt <- nail_prompt(quality_preview, print = FALSE)
+cat(substr(quality_prompt, 1, 600), "\n")
 
-res_pca_quality <- FactoMineR::PCA(quality, graph = FALSE)
-quali_work <- res_pca_quality$ind$coord |> as.data.frame()
-quali_work <- quali_work[,1] |> cbind(quality)
-
-intro_quali <- "These data were collected after a study
-on the perception of food quality.
-Participants were given 9 French logos;
-they had to rate, on a scale from 0 (not at all)
-to 10 (absolutely), how much a product bearing them
-aligned with their own perception of quality."
-intro_quali <- gsub('\n', ' ', intro_quali) |>
-stringr::str_squish()
-
-res_quality <- nail_condes(quali_work, num.var = 1,
-quanti.cat = c('Higher quality', 'Lower quality', 'Neutral'),
-introduction = intro_quali, generate = FALSE)
-
-ppt <- gsub('characteristics', 'opinions', res_quality)
-
-res_quality <- ollamar::generate('llama3', ppt, output = 'df')
-res_quality$response |> cat()
+\dontrun{
+quality_generated <- nail_condes(
+  dataset = quality_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "first PCA dimension",
+  introduction = intro_quality,
+  request = request_quality,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+nail_response(quality_generated, print = FALSE)
 }
 }
 \keyword{datasets}

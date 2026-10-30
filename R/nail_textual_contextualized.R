@@ -711,13 +711,19 @@ get_prompt_textual_contextualized <- function(group_profile_summary,
 
 #' Contextualized interpretation of textual group differences
 #'
-#' This function crosses:
-#' - a structured statistical summary of each group
-#' - a structured textual summary of each group
-#' - optional representative verbatims for each group
+#' This function provides two routes. The historical route crosses a structured
+#' statistical summary, a structured textual summary, and optional
+#' representative verbatims for each group. The canonical route accepts a
+#' `nail_catdes()` result and a `nail_textual()` result and delegates to
+#' [nail_catdes_textual()], with CATDES as the statistical anchor.
 #'
-#' It can work either from precomputed objects (`nail_group_profile_prep()`,
-#' `nail_textual_prep()`) or compute them internally from the raw dataset.
+#' The historical route is selected when both `catdes` and `textual` are
+#' `NULL`. It can use precomputed objects (`nail_group_profile_prep()` and
+#' `nail_textual_prep()`) or compute them internally from `dataset` when
+#' generation is enabled. The canonical route is selected when either
+#' `catdes` or `textual` is supplied; both must then be supplied, and
+#' historical source objects or historical tuning arguments must not be mixed
+#' with them.
 #'
 #' @param group_profile_prep Optional output from `nail_group_profile_prep(generate = TRUE)`.
 #' @param textual_prep Optional output from `nail_textual_prep(generate = TRUE)`.
@@ -728,36 +734,67 @@ get_prompt_textual_contextualized <- function(group_profile_summary,
 #' @param proba Significance threshold forwarded to `nail_group_profile_prep()`.
 #' @param sample.pct.text Proportion of texts retained per group for textual prep.
 #' @param sample.pct.profile Proportion of retained descriptors kept for group profile prep.
-#' @param profile_mode `"balanced"`, `"categorical"`, or `"quantitative"`.
-#' @param prompt_style `"compact"` or `"detailed"`.
-#' @param interpretation_mode `"groupwise"` or `"comparative"`.
-#' @param include_verbatims Logical; whether to include illustrative verbatims in the final prompt.
+#' @param profile_mode `"balanced"` (default), `"categorical"`, or
+#'   `"quantitative"`; used only by the historical preparation route.
+#' @param prompt_style `"compact"` (default) or `"detailed"`; used by the
+#'   historical route and ignored by the canonical delegation.
+#' @param interpretation_mode `"groupwise"` (default) or `"comparative"`;
+#'   used by the historical route.
+#' @param include_verbatims Logical; whether to include illustrative verbatims
+#'   in the final prompt on the historical route.
 #' @param n_central_verbatims Number of central verbatims per group for fallback selection.
 #' @param n_tension_verbatims Number of tension verbatims per group for fallback selection.
 #' @param max_verbatim_chars Maximum number of characters per fallback verbatim.
 #' @param introduction Optional introduction.
 #' @param request Optional request block.
 #' @param conclusion Optional conclusion block.
-#' @param isolate.groups Logical; if TRUE, one prompt per group.
-#' @param model LLM model name for the selected provider.
+#' @param isolate.groups Logical; if `TRUE`, one prompt per group. On the
+#'   canonical route, local interpretation remains group-wise even when the
+#'   combined outer return shape is requested.
+#' @param model LLM model name for the selected provider. The default is
+#'   `"llama3"`.
 #' @param provider LLM backend to use for generation. Use `"ollama"` for a local Ollama model or `"gemini"` for Google Gemini via `GEMINI_API_KEY`.
 #' @param row.w Optional row weights forwarded to `nail_group_profile_prep()`.
-#' @param generate Logical; if FALSE, return prompt(s) only.
-#' @param catdes Optional result returned by `nail_catdes()` for the
-#'   canonical compatibility path. When supplied together with `textual`,
-#'   the call is routed through the canonical CATDES + textual workflow.
+#' @param generate Logical; if `FALSE`, return prompt(s) only. On the
+#'   historical route, supplied preparation objects must already contain
+#'   parsed summaries; with `TRUE`, they may be generated from `dataset`. On
+#'   the canonical route, this is passed to `nail_catdes_textual()`.
+#' @param catdes Optional result returned by `nail_catdes()` for the canonical
+#'   route. It must be supplied together with `textual`; supplying either
+#'   canonical input selects that route.
 #' @param textual Optional result returned by `nail_textual()` for the
-#'   canonical compatibility path. Supply it together with `catdes`.
+#'   canonical route. It must be supplied together with `catdes`.
 #' @param ... Additional provider-specific generation arguments passed to the selected LLM backend.
 #'
-#' @return If `generate = FALSE`, a prompt string or a named list of prompts.
-#' If `generate = TRUE`, a data frame or a named list of data frames.
+#' @return If `generate = FALSE`, a prompt string or a named list of prompts;
+#'   if `generate = TRUE`, a data frame or a named list of data frames. The
+#'   exact outer shape depends on the selected route and `isolate.groups`.
+#'   Historical-route summaries are attached as attributes, while the
+#'   canonical route exposes the delegated [nail_catdes_textual()] attributes.
 #'
-#' Attributes:
-#' - `group_profile_summary`
-#' - `textual_group_summary`
-#' - `representative_verbatims`
-#' - `notable_expressions`
+#' On the historical route, the result carries `group_profile_summary`,
+#' `textual_group_summary`, `representative_verbatims`, and
+#' `notable_expressions` attributes. These are the structured summaries and
+#' selected text material used by that route; a canonical `llm_io` attribute
+#' is not added by the historical implementation.
+#'
+#' On the canonical route, the result has the return shape and canonical
+#' attributes of [nail_catdes_textual()]: `contextualized_evidence`,
+#' `local_prompts`, `contextualized_profiles`, `catdes_textual_settings`, and
+#' `llm_io`. The `llm_io` artifact contains the exact contextualization prompts
+#' and, when `generate = TRUE`, the raw responses; with `generate = FALSE`, its
+#' responses remain non-generated. The wrapper additionally attaches
+#' `compatibility_route`, identifying this entry point and the delegated
+#' canonical function.
+#'
+#' The historical and canonical routes preserve their existing outer return
+#' shapes. The canonical route does not guarantee the historical summary
+#' attributes, and the historical route does not guarantee
+#' `contextualized_evidence` or `compatibility_route`.
+#'
+#' @seealso [nail_catdes_textual()], [nail_group_profile_prep()],
+#'   [nail_textual_prep()], [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
 #' @export
 nail_textual_contextualized <- function(group_profile_prep = NULL,

@@ -12,51 +12,220 @@
   match.arg(provider)
 }
 
-#' Filter supported ollamar::generate options
-#'
-#' @param extra_args A named list of extra arguments.
-#'
-#' @return A filtered named list containing only supported Ollama options.
-#' @keywords internal
-filter_ollama_options <- function(extra_args) {
-  if (is.null(extra_args) || length(extra_args) == 0) {
-    return(list())
-  }
-  if (is.null(names(extra_args))) {
-    return(list())
-  }
+# The two option sets are deliberately maintained here rather than inferred
+# from `...` at the call site.  This gives previews and generations the same
+# configuration contract and lets us distinguish an unknown option from an
+# option belonging to the other provider.
+.llm_option_names <- function(provider) {
+  provider <- .match_llm_provider(provider)
 
-  valid_ollama_opts <- c(
-    "temperature", "top_p", "top_k", "seed",
-    "system", "template", "context", "keep_alive",
-    "stream", "format"
-  )
-
-  extra_args[names(extra_args) %in% valid_ollama_opts]
-}
-
-#' Filter supported Gemini options
-#'
-#' @param extra_args A named list of extra arguments.
-#'
-#' @return A filtered named list containing only supported Gemini options.
-#' @keywords internal
-filter_gemini_options <- function(extra_args) {
-  if (is.null(extra_args) || length(extra_args) == 0) {
-    return(list())
-  }
-  if (is.null(names(extra_args))) {
-    return(list())
+  if (identical(provider, "ollama")) {
+    return(c(
+      "temperature", "top_p", "top_k", "seed",
+      "system", "template", "context", "keep_alive",
+      "stream", "format", "suffix", "images", "raw",
+      "endpoint", "host"
+    ))
   }
 
-  valid_gemini_opts <- c(
+  c(
     "api_key", "user_agent", "base_url",
     "temperature", "top_p", "top_k", "max_output_tokens",
     "stop_sequences", "system_instruction", "safety_settings", "seed",
     "timeout", "verbose", "max_tries", "backoff_base", "backoff_cap"
   )
+}
 
-  extra_args[names(extra_args) %in% valid_gemini_opts]
+.llm_all_option_names <- function() {
+  unique(c(.llm_option_names("ollama"), .llm_option_names("gemini")))
+}
+
+.validate_gemini_generation_options <- function(options) {
+  if (is.null(options) || length(options) == 0L) {
+    return(invisible(options))
+  }
+
+  stop_invalid <- function(name, requirement) {
+    stop(
+      sprintf("Gemini option `%s` %s.", name, requirement),
+      call. = FALSE
+    )
+  }
+
+  scalar_character <- function(value, name, allow_empty = FALSE) {
+    valid <- is.character(value) && length(value) == 1L && !is.na(value)
+    if (!allow_empty) valid <- valid && nzchar(value)
+    if (!valid) stop_invalid(name, "must be a single non-empty character string")
+  }
+
+  scalar_logical <- function(value, name) {
+    if (!is.logical(value) || length(value) != 1L || is.na(value)) {
+      stop_invalid(name, "must be a single non-missing logical value")
+    }
+  }
+
+  scalar_number <- function(value, name, lower = NULL, upper = NULL,
+                            integer = FALSE) {
+    valid <- is.numeric(value) && length(value) == 1L &&
+      !is.na(value) && is.finite(value)
+    if (valid && integer) valid <- value == floor(value)
+    if (valid && !is.null(lower)) valid <- value >= lower
+    if (valid && !is.null(upper)) valid <- value <= upper
+    if (!valid) stop_invalid(name, "has an invalid numeric value or range")
+  }
+
+  if (!is.null(options$api_key)) {
+    scalar_character(options$api_key, "api_key")
+  }
+  if (!is.null(options$user_agent)) {
+    scalar_character(options$user_agent, "user_agent")
+  }
+  if (!is.null(options$base_url)) {
+    scalar_character(options$base_url, "base_url")
+  }
+  if (!is.null(options$temperature)) {
+    scalar_number(options$temperature, "temperature", lower = 0, upper = 2)
+  }
+  if (!is.null(options$top_p)) {
+    scalar_number(options$top_p, "top_p", lower = 0, upper = 1)
+  }
+  if (!is.null(options$top_k)) {
+    scalar_number(options$top_k, "top_k", lower = 1, integer = TRUE)
+  }
+  if (!is.null(options$max_output_tokens)) {
+    scalar_number(
+      options$max_output_tokens,
+      "max_output_tokens",
+      lower = 1,
+      integer = TRUE
+    )
+  }
+  if (!is.null(options$stop_sequences)) {
+    valid <- is.character(options$stop_sequences) &&
+      !anyNA(options$stop_sequences)
+    if (!valid) stop_invalid("stop_sequences", "must be a character vector without NA")
+  }
+  if (!is.null(options$system_instruction)) {
+    scalar_character(options$system_instruction, "system_instruction", allow_empty = TRUE)
+  }
+  if (!is.null(options$safety_settings) && !is.list(options$safety_settings)) {
+    stop_invalid("safety_settings", "must be a list")
+  }
+  if (!is.null(options$seed)) {
+    scalar_number(options$seed, "seed", integer = TRUE)
+  }
+  if (!is.null(options$timeout)) {
+    scalar_number(options$timeout, "timeout", lower = 0)
+  }
+  if (!is.null(options$verbose)) {
+    scalar_logical(options$verbose, "verbose")
+  }
+  if (!is.null(options$max_tries)) {
+    scalar_number(options$max_tries, "max_tries", lower = 1, integer = TRUE)
+  }
+  if (!is.null(options$backoff_base)) {
+    scalar_number(options$backoff_base, "backoff_base", lower = 0)
+  }
+  if (!is.null(options$backoff_cap)) {
+    scalar_number(options$backoff_cap, "backoff_cap", lower = 0)
+  }
+
+  invisible(options)
+}
+
+.validate_llm_api_options <- function(extra_args, provider) {
+  provider <- .match_llm_provider(provider)
+
+  if (is.null(extra_args) || length(extra_args) == 0L) {
+    return(invisible(list()))
+  }
+  if (!is.list(extra_args)) {
+    stop("LLM options must be supplied as a named list.", call. = FALSE)
+  }
+
+  option_names <- names(extra_args)
+  if (is.null(option_names) || anyNA(option_names) ||
+      any(!nzchar(option_names))) {
+    stop("All LLM options supplied through `...` must be named.", call. = FALSE)
+  }
+  if (anyDuplicated(option_names)) {
+    stop(
+      sprintf(
+        "LLM option names must be unique; duplicated option(s): %s.",
+        paste(unique(option_names[duplicated(option_names)]), collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  unknown <- setdiff(option_names, .llm_all_option_names())
+  if (length(unknown) > 0L) {
+    stop(
+      sprintf(
+        "Unknown LLM option(s): %s.",
+        paste(unknown, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  incompatible <- setdiff(option_names, .llm_option_names(provider))
+  if (length(incompatible) > 0L) {
+    stop(
+      sprintf(
+        "LLM option(s) %s are not compatible with provider `%s`.",
+        paste(incompatible, collapse = ", "),
+        provider
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (identical(provider, "gemini")) {
+    .validate_gemini_generation_options(extra_args)
+  }
+
+  invisible(extra_args)
+}
+
+.default_llm_model <- function(provider) {
+  provider <- .match_llm_provider(provider)
+  if (identical(provider, "gemini")) "gemini-2.5-flash" else "llama3"
+}
+
+.resolve_llm_model <- function(model, provider, model_missing = FALSE) {
+  if (isTRUE(model_missing) || is.null(model)) {
+    return(.default_llm_model(provider))
+  }
+  model
+}
+
+#' Validate and return supported ollamar::generate options
+#'
+#' @param extra_args A named list of extra arguments.
+#'
+#' @return The validated named list containing compatible Ollama options.
+#' @keywords internal
+filter_ollama_options <- function(extra_args) {
+  if (is.null(extra_args) || length(extra_args) == 0) {
+    return(list())
+  }
+  .validate_llm_api_options(extra_args, "ollama")
+  extra_args
+}
+
+#' Validate and return supported Gemini options
+#'
+#' @param extra_args A named list of extra arguments.
+#'
+#' @return The validated named list containing compatible Gemini options.
+#' @keywords internal
+filter_gemini_options <- function(extra_args) {
+  if (is.null(extra_args) || length(extra_args) == 0) {
+    return(list())
+  }
+  .validate_llm_api_options(extra_args, "gemini")
+  extra_args
 }
 
 #' Base wrapper around ollamar::generate
@@ -75,6 +244,7 @@ filter_gemini_options <- function(extra_args) {
   if (!is.character(prompt) || length(prompt) != 1 || is.na(prompt) || !nzchar(prompt)) {
     stop("`prompt` must be a single non-empty character string.", call. = FALSE)
   }
+  .validate_llm_api_options(ollama_api_options, "ollama")
 
   call_args <- c(
     list(
@@ -121,6 +291,7 @@ filter_gemini_options <- function(extra_args) {
   if (!output %in% c("df", "text")) {
     stop("`output` must be either 'df' or 'text' for Gemini calls.", call. = FALSE)
   }
+  .validate_llm_api_options(gemini_api_options, "gemini")
 
   call_args <- c(
     list(
@@ -177,6 +348,7 @@ filter_gemini_options <- function(extra_args) {
                            output = "df",
                            llm_api_options = list()) {
   provider <- .match_llm_provider(provider)
+  .validate_llm_api_options(llm_api_options, provider)
 
   switch(
     provider,

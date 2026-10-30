@@ -5,7 +5,7 @@
 \alias{beard_cont}
 \title{Beard descriptions}
 \format{
-A contingency table (data frame) with 8 rows and 337 columns:
+A contingency table (data frame) with 8 rows and 335 columns:
 \itemize{
 \item rows are the types of beards;
 \item columns are the words used at least once to describe them.

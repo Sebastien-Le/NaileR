@@ -6,32 +6,11 @@
     product_knowledge = c("known", "unknown")) {
   product_knowledge <- match.arg(product_knowledge)
 
-  name_rule <- if (identical(product_knowledge, "known")) {
-    "descriptive_name: none"
-  } else {
-    paste(
-      "descriptive_name: <a short sensory name if justified;",
-      "otherwise none>"
-    )
-  }
-
   paste(
-    "## Reusable product interpretation metadata",
-    "After the visible answer, append one HTML comment block for each product or stimulus discussed in the evidence.",
-    "These comment blocks are for downstream reuse and are not part of the visible report.",
+    "After the visible answer, append exactly one reusable HTML comment block for each product or stimulus represented in the evidence.",
+    "The block is for downstream reuse and is not part of the visible report.",
     "Use the exact product/stimulus label shown in the evidence.",
-    "Base every field only on the sensory evidence displayed in this prompt.",
-    "",
-    "STRICT GROUNDING RULES FOR THE REUSABLE BLOCK:",
-    "- Remain strictly sensory and descriptive.",
-    "- Preserve the direction of every displayed fact. HIGHER means more of that named attribute; LOWER means less of that named attribute.",
-    "- Do not turn a LOWER attribute into a positive presence of that attribute. For example, Sticky LOWER must not become 'sticky texture'.",
-    "- Do not change the technical meaning of an attribute. For example, a sensory attribute named Melting must not be rewritten as physical 'melting point'.",
-    "- Do not infer an opposite attribute that was not measured. LOWER Sweetness means less sweet, not necessarily bitter; LOWER Sticky does not imply smooth.",
-    "- Do not introduce unsupported sensory descriptors such as velvety, creamy, tangy, rich, intense, or smooth unless they are directly supported by displayed evidence.",
-    "- Do not use evaluative, hedonic, marketing, or positioning language such as indulgent, premium, appealing, bold, unique offering, experience, desirable, or high quality.",
-    "- The distinctive_interpretation field must describe sensory distinctiveness relative to the evaluated set only.",
-    "- When a synthesis cannot be stated without adding unsupported meaning, stay close to the measured sensory attributes.",
+    "Populate the fields consistently with the visible interpretation grounded in the evidence displayed in this prompt.",
     "",
     "<!-- NAILER_PRODUCT_INTERPRETATION",
     "product: <exact label>",
@@ -39,7 +18,7 @@
     "dominant_configuration: <2 to 5 evidence-grounded sensory descriptors or short phrases separated by semicolons>",
     "secondary_configuration: <secondary evidence-grounded descriptors or short phrases separated by semicolons; write none if absent>",
     "distinctive_interpretation: <one concise strictly sensory statement of what distinguishes this item relative to the evaluated set>",
-    name_rule,
+    "descriptive_name: <short evidence-grounded descriptive name; write none only if no descriptive name is requested or no defensible name can be proposed>",
     "END_NAILER_PRODUCT_INTERPRETATION -->",
     "",
     "Repeat the complete comment block once for every product/stimulus represented in the answer.",

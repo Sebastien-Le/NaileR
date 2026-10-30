@@ -3,11 +3,12 @@
 \docType{data}
 \name{car_alone}
 \alias{car_alone}
-\title{Atomic habits survey}
+\title{Car-alone and car-sharing responses}
 \format{
+A data frame with 158 rows and 2 columns:
 \itemize{
-\item column 1, a combination of being able and feeling restrictive
-\item column 2, justify your answer
+\item \code{car_alone_capable_restrictive}: the four-level combined response; and
+\item \code{car_alone_text}: the participant's free-text explanation.
 }
 }
 \source{
@@ -17,17 +18,25 @@ Applied mathematics department, Institut Agro Rennes-Angers
 car_alone
 }
 \description{
-People think they need to make big changes to change
-the course of their lives. But in James Clear's book,
-Atomic Habits, they will discover that the smallest of changes,
-coupled with a good knowledge of psychology and neuroscience,
-can have a revolutionary effect on their lives and relationships.
-To understand this concept of atomic habits, we interviewed 167 people
-and asked them if they were able to never take their car alone again,
-to buy local products...
-We also asked them how restrictive they found this and why.
+This smaller object contains the car-alone response and the associated
+free-text explanation. The combined factor records the declared response
+about taking a car alone together with the reported restrictiveness of
+sharing a car.
 }
 \examples{
+data(car_alone, package = "NaileR")
+head(car_alone)
+
+car_alone_preview <- nail_textual(
+  dataset = car_alone,
+  num.var = 1,
+  num.text = 2,
+  isolate.groups = TRUE,
+  generate = FALSE
+)
+nail_evidence(car_alone_preview)
+nail_prompt(car_alone_preview, print = FALSE)
+
 \dontrun{
 # Processing time is often longer than ten seconds
 # because the function uses a large language model.

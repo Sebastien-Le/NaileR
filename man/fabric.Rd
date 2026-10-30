@@ -3,14 +3,14 @@
 \docType{data}
 \name{fabric}
 \alias{fabric}
-\title{Car seat fabrics}
+\title{Car-seat fabric comments}
 \format{
 A data frame with 567 rows and 4 columns:
 \itemize{
-\item The ID of the judge
-\item The product
-\item The reason why the product was liked or disliked
-\item O if the product was disliked, 1 otherwise
+\item \code{ID_judge}: the judge identifier;
+\item \code{Fabric}: the evaluated fabric (A to J);
+\item \code{Description}: the consumer's free-text reason; and
+\item \code{Class}: \code{0} for disliked and \code{1} for liked.
 }
 }
 \source{
@@ -20,52 +20,42 @@ Applied mathematics department, Institut Agro Rennes-Angers
 fabric
 }
 \description{
-This dataset was initially collected to understand the free jar data.
+Consumers evaluated car-seat fabrics and described why they liked or
+disliked them. The comments can be compared across the binary \code{Class}
+variable.
 }
 \examples{
+data(fabric, package = "NaileR")
+head(fabric)
+
+fabric_A <- droplevels(fabric[fabric$Fabric == "A", ])
+fabric_preview <- nail_textual(
+  dataset = fabric_A,
+  num.var = 4,
+  num.text = 3,
+  isolate.groups = FALSE,
+  generate = FALSE
+)
+nail_evidence(fabric_preview)
+nail_prompt(fabric_preview, print = FALSE)
+
 \dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
+# A real generation requires a configured local or remote provider.
 library(NaileR)
-data(fabric)
-
-intro_car <- "For this consumer study,
-a car seat fabric was evaluated by consumers.
-Some of them didn't like it (group '0'),
-others liked it (group '1'). The consumers
-gave their reasons for disliking or liking the fabric."
-intro_car <- gsub('\n', ' ', intro_car) |>
-stringr::str_squish()
-
-request_car <- "Based on the comments provided by the consumers,
-please explain the reasons why
-the fabric was not appreciated for group '0',
-and the reasons why the fabric was appreciated for group '1'.
-In other words, what are the drivers
-for disliking and liking this fabric."
-request_car <- gsub('\n', ' ', request_car) |>
-stringr::str_squish()
-
-fabric_A <- droplevels(fabric[fabric$Fabric=="A",])
-
-res_nail_textual_fabric <- nail_textual(fabric_A, num.var = 4,
-                                        num.text = 3,
-                                        introduction = intro_car,
-                                        request = request_car,
-                                        model = 'llama3',
-                                        isolate.groups = FALSE,
-                                        generate = FALSE)
-res_nail_textual_fabric |> cat()
-
-res_nail_textual_fabric <- nail_textual(fabric_A, num.var = 4,
-                                        num.text = 3,
-                                        introduction = intro_car,
-                                        request = request_car,
-                                        model = 'llama3',
-                                        isolate.groups = FALSE,
-                                        generate = TRUE)
-res_nail_textual_fabric$response |> cat()
+intro_car <- paste(
+  "Consumers evaluated a car-seat fabric and explained why they liked",
+  "or disliked it. The two classes record these reported evaluations."
+)
+request_car <- paste(
+  "Compare the comments for the two classes and describe the reasons",
+  "given for liking or disliking the selected fabric."
+)
+fabric_generated <- nail_textual(
+  dataset = fabric_A, num.var = 4, num.text = 3,
+  introduction = intro_car, request = request_car,
+  model = "llama3", isolate.groups = FALSE, generate = TRUE
+)
+nail_response(fabric_generated, print = FALSE)
 }
 }
 \keyword{datasets}

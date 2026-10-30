@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_condes.R
 \name{nail_condes}
 \alias{nail_condes}
-\title{Interpret a continuous variable or latent continuum}
+\title{Describe a continuous variable and its associations}
 \usage{
 nail_condes(
   dataset,
@@ -20,7 +20,6 @@ nail_condes(
   proba = 0.05,
   generate = FALSE,
   interpretation_mode = c("standard", "latent"),
-  prompt_style = c("detailed", "compact"),
   target_concept = "the target concept",
   target_label = NULL,
   ...
@@ -32,15 +31,19 @@ quantitative and/or qualitative explanatory variables.}
 
 \item{num.var}{Index of the numeric variable to characterize.}
 
-\item{introduction}{Optional contextual introduction added to the prompt.}
+\item{introduction}{Optional contextual introduction added to the prompt.
+It supplies study context but is not statistical evidence.}
 
 \item{request}{Optional analytical request sent to the LLM.}
 
 \item{conclusion}{Optional final output-instruction block.}
 
-\item{model}{Model name for the selected provider.}
+\item{model}{Model name for the selected provider. When omitted, the
+validated provider default is used: \code{"llama3"} for Ollama and
+\code{"gemini-2.5-flash"} for Gemini. An explicit model is always respected.}
 
-\item{provider}{LLM backend. Currently \code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM backend. Currently \code{"ollama"} or \code{"gemini"}; the
+default selected by \code{match.arg()} is \code{"ollama"}.}
 
 \item{quanti.threshold}{Threshold, in standard-deviation units, used to
 convert quantitative predictors into the three technical states defined
@@ -54,9 +57,9 @@ order. These labels describe predictor values, not the target variable.}
 the LLM evidence. This does not alter the canonical \code{continuous_profile}.}
 
 \item{sample.method}{Deterministic evidence-selection strategy when
-\code{sample.pct < 1}. \code{"stratified"} (default) preserves a statistical anchor
-and explores lower-ranked retained evidence; \code{"top"} retains only the
-strongest evidence.}
+\code{sample.pct < 1}. \code{"stratified"} (the default) preserves a statistical
+anchor and explores lower-ranked retained evidence; \code{"top"} retains only
+the strongest evidence. Neither option changes \code{continuous_profile}.}
 
 \item{weights}{Optional non-negative row weights passed to
 \code{\link[FactoMineR:condes]{FactoMineR::condes()}}. When supplied, quantitative predictors are also
@@ -65,12 +68,12 @@ standardized with these weights for end-profile construction.}
 \item{proba}{Significance threshold passed to \code{\link[FactoMineR:condes]{FactoMineR::condes()}}.}
 
 \item{generate}{If \code{FALSE}, build the prompt without calling an LLM. If
-\code{TRUE}, call the selected backend.}
+\code{TRUE}, call the selected backend once for the target.}
 
-\item{interpretation_mode}{Either \code{"standard"} for an observed variable or
-\code{"latent"} for a synthetic/latent continuum.}
-
-\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
+\item{interpretation_mode}{Either \code{"standard"} for an observed variable,
+whose name is preserved, or \code{"latent"} for a synthetic/latent continuum,
+whose substantive meaning and possible name are reconstructed from its
+statistical profile.}
 
 \item{target_concept}{Optional contextual concept for latent interpretation.
 It guides but does not constrain the evidence-based naming of the
@@ -80,14 +83,18 @@ continuum.}
 If \code{NULL}, the dataset column name is used. This does not alter the
 canonical target identity stored in \code{continuous_profile}.}
 
-\item{...}{Additional provider-specific generation arguments.}
+\item{...}{Additional provider-specific generation arguments. Unknown
+options and options incompatible with the selected provider are rejected
+before calculation or generation; no option is silently discarded.}
 }
 \value{
-For backward compatibility, a prompt string when
-\code{generate = FALSE}, or the backend data frame when \code{generate = TRUE}.
-Analytical artifacts are attached as attributes:
+The main return value is a character prompt when \code{generate = FALSE}
+and the backend data frame when \code{generate = TRUE}. Analytical artifacts
+are attached as attributes rather than inserted as \code{$} fields:
 \itemize{
-\item \code{continuous_profile}: canonical R-derived evidence.
+\item \code{continuous_profile}: the complete R-derived statistical profile,
+including quantitative associations, qualitative associations, end
+profiles, p-values, and stable evidence IDs.
 \item \code{interpretation_evidence}: deterministic subset shown to the LLM.
 \item \code{semantic_facing_evidence}: explicit factual statements used in the
 prompt.
@@ -99,54 +106,325 @@ statistical source of truth.
 \code{condes_result}; no second \code{condes()} analysis is performed.
 \item \code{condes_settings}: execution settings.
 }
+
+Use \code{\link[=nail_evidence]{nail_evidence()}} to inspect the profile, \code{\link[=nail_prompt]{nail_prompt()}} to retrieve
+the exact prompt, and \code{\link[=nail_response]{nail_response()}} to retrieve the raw response after
+generation. With \code{generate = FALSE}, no response is available.
 }
 \description{
-\code{nail_condes()} characterizes one continuous target using
-\code{\link[FactoMineR:condes]{FactoMineR::condes()}}. It first builds a canonical R-derived
-\code{continuous_profile}, then selects a deterministic subset of that evidence
-for semantic interpretation by the LLM.
+Use \code{nail_condes()} to describe which quantitative and qualitative variables
+are associated with one numeric target. The target may be an observed
+measurement or a score from a multivariate analysis. NaileR computes the
+statistical profile with \code{\link[FactoMineR:condes]{FactoMineR::condes()}} and prepares it for an
+optional interpretation by a language model. The model does not calculate
+or change the statistical results.
 }
 \details{
+The complete R-derived \code{continuous_profile} is kept separate from the
+deterministic subset selected for semantic interpretation by the LLM. R
+performs the statistical calculation; the LLM only interprets the displayed
+factual statements.
+
 \code{interpretation_mode = "standard"} interprets an observed continuous
 variable whose label is already meaningful. \code{interpretation_mode = "latent"}
 interprets a synthetic or latent score as a continuum whose substantive
 meaning may need to be reconstructed.
 
+The prompt is assembled from six stable top-level blocks: \code{context},
+\code{reading}, \code{question}, \code{interpretation}, \code{evidence}, and \code{output}.
+\code{introduction}, \code{request}, and \code{conclusion} customize the context, question,
+and output blocks. There is no public argument for adding or replacing the
+reading, interpretation, or evidence blocks.
+
 The canonical \code{continuous_profile} is invariant to \code{generate},
-\code{interpretation_mode}, \code{sample.pct}, \code{sample.method}, \code{prompt_style},
-\code{target_concept}, \code{target_label}, \code{introduction}, \code{request}, and
+\code{interpretation_mode}, \code{sample.pct}, \code{sample.method}, \code{target_concept},
+\code{target_label}, \code{introduction}, \code{request}, and
 \code{conclusion}. These arguments affect only the interpretation layer.
 }
 \examples{
-\dontrun{
+## 1. Decathlon: characterize an observed performance variable
+# Question: which event measurements are associated with the observed rank?
 data(decathlon, package = "FactoMineR")
-
-# Observed-variable interpretation
-x <- nail_condes(
-  decathlon,
+decathlon_introduction <- paste(
+  "This example uses observed decathlon performance variables.",
+  "Rank is the observed target; the other event variables are quantitative",
+  "measurements used to characterize its profile."
+)
+decathlon_request <- paste(
+  "Describe the quantitative associations with observed Rank values.",
+  "Use the retained evidence, distinguish observations from hypotheses,",
+  "and do not infer causes or athletic ability beyond these data."
+)
+condes_preview <- nail_condes(
+  dataset = decathlon,
   num.var = 12,
   interpretation_mode = "standard",
+  introduction = decathlon_introduction,
+  request = decathlon_request,
   generate = FALSE
 )
-nail_prompt(x)
+condes_evidence <- nail_evidence(condes_preview)
+condes_prompt <- nail_prompt(condes_preview, print = FALSE)
+condes_evidence
+condes_prompt
 
-# A synthetic dimension should use latent mode
+# The evidence is the retained quantitative profile. The prompt is the
+# exact request prepared for an optional interpretation.
+
+## 2. A constructed score should be interpreted in latent mode.
 pca <- FactoMineR::PCA(
   decathlon[, 1:10],
   scale.unit = TRUE,
   graph = FALSE
 )
-work <- data.frame(
+decathlon_dim1 <- data.frame(
   Dim1 = pca$ind$coord[, 1],
-  decathlon[, 1:10]
+  decathlon[, 1:10],
+  check.names = FALSE
 )
-dim1 <- nail_condes(
-  work,
+condes_latent <- nail_condes(
+  decathlon_dim1,
   num.var = 1,
   interpretation_mode = "latent",
   target_label = "Dim1",
   generate = FALSE
 )
-nail_prompt(dim1)
+nail_evidence(condes_latent)
+cat(substr(nail_prompt(condes_latent, print = FALSE), 1, 600), "\n")
+
+# A first ACM dimension: agribusiness expectations.
+data(agri_studies, package = "NaileR")
+agri_mca <- FactoMineR::MCA(
+  agri_studies,
+  quali.sup = 39:42,
+  graph = FALSE
+)
+agri_work <- data.frame(
+  Dim1 = agri_mca$ind$coord[, 1],
+  agri_studies,
+  check.names = FALSE
+)
+agri_condes <- nail_condes(
+  agri_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  introduction = paste(
+    "Students ranked 38 statements about agribusiness studies and then",
+    "answered four personal questions. The first ACM dimension is a",
+    "constructed contrast in these reported expectations."
+  ),
+  request = paste(
+    "Interpret the opposition between the two ends of Dim1 using the",
+    "retained associations. Do not infer causes or general abilities from",
+    "these reported expectations."
+  ),
+  generate = FALSE
+)
+nail_evidence(agri_condes)
+cat(substr(nail_prompt(agri_condes, print = FALSE), 1, 600), "\n")
+
+# A second ACM dimension example: perceptions of public speaking.
+data(glossophobia, package = "NaileR")
+gloss_mca <- FactoMineR::MCA(
+  glossophobia,
+  quali.sup = 26:41,
+  graph = FALSE
+)
+gloss_work <- data.frame(
+  Dim1 = gloss_mca$ind$coord[, 1],
+  glossophobia,
+  check.names = FALSE
+)
+gloss_condes <- nail_condes(
+  gloss_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  introduction = paste(
+    "Participants ranked 25 descriptions of speaking in public and",
+    "answered personal questions. Dim1 is a constructed contrast in",
+    "these reported perceptions, not a clinical diagnosis."
+  ),
+  request = paste(
+    "Describe the opposition between lower and higher Dim1 values from",
+    "the displayed evidence, preserving uncertainty and avoiding causal",
+    "or psychological claims not contained in the survey."
+  ),
+  generate = FALSE
+)
+nail_evidence(gloss_condes)
+cat(substr(nail_prompt(gloss_condes, print = FALSE), 1, 600), "\n")
+
+# An AFC dimension: row profiles of the beard contingency table.
+# The profile columns are derived from the same table and are not treated
+# as independent individual-level measurements.
+data(beard_cont, package = "NaileR")
+beard_ca <- FactoMineR::CA(beard_cont, graph = FALSE)
+beard_profiles <- sweep(
+  as.matrix(beard_cont),
+  1,
+  rowSums(beard_cont),
+  "/"
+)
+beard_work <- data.frame(
+  Dim1 = beard_ca$row$coord[, 1],
+  beard_profiles,
+  check.names = FALSE
+)
+beard_condes <- nail_condes(
+  beard_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  introduction = paste(
+    "The rows are eight observed beard types and the columns are words",
+    "used to describe them. Row profiles from this same contingency table",
+    "are used to characterize the first correspondence dimension."
+  ),
+  request = paste(
+    "Describe the opposition between the two ends of the first AFC",
+    "dimension from the displayed row-profile evidence. Do not treat it",
+    "as an individual-level survey or infer causes."
+  ),
+  generate = FALSE
+)
+nail_evidence(beard_condes)
+cat(substr(nail_prompt(beard_condes, print = FALSE), 1, 600), "\n")
+
+# MASHS / local_food: 45 active assertions and 18 supplementary variables.
+data(local_food, package = "NaileR")
+food_mca <- FactoMineR::MCA(
+  local_food,
+  quali.sup = 46:63,
+  ncp = 100,
+  graph = FALSE
+)
+food_work <- data.frame(
+  Dim1 = food_mca$ind$coord[, 1],
+  local_food,
+  check.names = FALSE
+)
+food_condes <- nail_condes(
+  food_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  target_concept = "sustainable food-system representations",
+  introduction = paste(
+    "Participants rated 45 statements about a sustainable food system",
+    "and answered additional opinion and contextual questions. Dim1 is a",
+    "constructed contrast in declared representations, not behaviour."
+  ),
+  request = paste(
+    "Interpret both ends of Dim1 from the retained evidence. Distinguish",
+    "active statements that construct the ACM from supplementary variables",
+    "and do not infer causal mechanisms."
+  ),
+  generate = FALSE
+)
+nail_evidence(food_condes)
+cat(substr(nail_prompt(food_condes, print = FALSE), 1, 600), "\n")
+
+# IRTSAT: all 48 ordered assertions are active in this illustrative ACM.
+# MCA treats their levels as categorical; it is not an IRT analysis.
+data(irtsat_items_2024_2025, package = "NaileR")
+irtsat_mca <- FactoMineR::MCA(
+  irtsat_items_2024_2025,
+  ncp = 5,
+  graph = FALSE
+)
+irtsat_work <- data.frame(
+  Dim1 = irtsat_mca$ind$coord[, 1],
+  irtsat_items_2024_2025,
+  check.names = FALSE
+)
+irtsat_condes <- nail_condes(
+  irtsat_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  target_concept = "local-food representations",
+  introduction = paste(
+    "This 48-item instrument covers six blocks of local-food attitudes",
+    "and practices. The ordered Likert items are treated as categorical",
+    "by MCA, with no join to the separate 529-row profile table."
+  ),
+  request = paste(
+    "Interpret Dim1 as a descriptive contrast in the item responses.",
+    "Use the retained evidence, not an IRT interpretation, and do not",
+    "infer behaviour or causality."
+  ),
+  generate = FALSE
+)
+nail_evidence(irtsat_condes)
+cat(substr(nail_prompt(irtsat_condes, print = FALSE), 1, 600), "\n")
+
+# Distinction: six coherent assertion blocks, with context and open text
+# excluded from the active ACM. The distributed object has 47 such fields.
+data(distinction, package = "NaileR")
+distinction_labels <- utils::read.csv(
+  system.file("extdata", "distinction_assertion_labels.csv", package = "NaileR"),
+  check.names = FALSE,
+  stringsAsFactors = FALSE,
+  fileEncoding = "UTF-8"
+)
+distinction_active <- c(
+  grep("^assertion_q17_", names(distinction), value = TRUE),
+  grep("^assertion_q2[1-5]_", names(distinction), value = TRUE)
+)
+distinction_rows <- match(distinction_active, distinction_labels$technical_name)
+stopifnot(
+  length(distinction_active) == 47L,
+  all(!is.na(distinction_rows)),
+  !anyDuplicated(distinction_labels$label_en[distinction_rows])
+)
+distinction_assertions <- distinction[, distinction_active, drop = FALSE]
+names(distinction_assertions) <- distinction_labels$label_en[distinction_rows]
+distinction_mca <- FactoMineR::MCA(
+  distinction_assertions,
+  ncp = 5,
+  graph = FALSE
+)
+distinction_work <- data.frame(
+  Dim1 = distinction_mca$ind$coord[, 1],
+  distinction_assertions,
+  check.names = FALSE
+)
+distinction_condes <- nail_condes(
+  distinction_work,
+  num.var = 1,
+  interpretation_mode = "latent",
+  target_label = "Dim1",
+  target_concept = "food-transition representations",
+  introduction = paste(
+    "This survey records reported food, territory and food-choice",
+    "attitudes. The active variables cover local-food representations,",
+    "literacy, social context, place confidence, cooking time and health."
+  ),
+  request = paste(
+    "Interpret the opposition between the two ends of Dim1 from the",
+    "retained evidence. Keep reported attitudes distinct from observed",
+    "behaviour, and do not use the open response as an active ACM variable."
+  ),
+  generate = FALSE
+)
+nail_evidence(distinction_condes)
+cat(substr(nail_prompt(distinction_condes, print = FALSE), 1, 600), "\n")
+
+# Optional Gemini generation: one response for the observed Decathlon target.
+# This opt-in block requires a user-managed GEMINI_API_KEY.
+\dontrun{
+decathlon_gemini <- nail_condes(
+  decathlon, num.var = 12, interpretation_mode = "standard",
+  provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+)
+nail_evidence(decathlon_gemini)
+nail_prompt(decathlon_gemini, print = FALSE)
+nail_response(decathlon_gemini, print = FALSE)
 }
+}
+\seealso{
+\code{\link[FactoMineR:condes]{FactoMineR::condes()}}, \code{\link[=nail_qda_space]{nail_qda_space()}}, \code{\link[=nail_evidence]{nail_evidence()}},
+\code{\link[=nail_prompt]{nail_prompt()}}, \code{\link[=nail_response]{nail_response()}}
 }

@@ -122,16 +122,10 @@
 .catdes_ground_resolve_backend <- function(model, provider, catdes_settings) {
   inherited_model <- if (is.list(catdes_settings)) catdes_settings$model else NULL
   inherited_provider <- if (is.list(catdes_settings)) catdes_settings$provider else NULL
+  provider_supplied <- !is.null(provider)
 
-  if (is.null(model)) {
-    model <- inherited_model
-  }
   if (is.null(provider)) {
     provider <- inherited_provider
-  }
-  if (is.null(model) || !is.character(model) || length(model) != 1L ||
-      is.na(model) || !nzchar(model)) {
-    model <- "llama3"
   }
   if (is.null(provider) || !is.character(provider) || length(provider) != 1L ||
       is.na(provider) || !nzchar(provider)) {
@@ -139,6 +133,17 @@
   }
 
   provider <- match.arg(provider, c("ollama", "gemini"))
+  if (is.null(model)) {
+    model <- if (isTRUE(provider_supplied)) {
+      .default_llm_model(provider)
+    } else {
+      inherited_model
+    }
+  }
+  if (!is.character(model) || length(model) != 1L ||
+      is.na(model) || !nzchar(model)) {
+    model <- .default_llm_model(provider)
+  }
   list(model = model, provider = provider)
 }
 
@@ -632,25 +637,37 @@
 #' `1 = semantic_pattern`, `2 = interpretation`, `3 = hypothesis`), whereas
 #' grounding describes evidential status relative to the local evidence
 #' (`supported`, `contradicted`, `insufficient`, or `mixed`).
+#' The statistical CATDES evidence and the PASS 1 response are preserved; only
+#' the optional review artifacts are added.
 #'
 #' @param x A result returned by `nail_catdes()` after local semantic profiles
 #'   have been generated. PASS 1 is never modified by this function.
 #' @param model LLM model used for the epistemic review. When `NULL`, inherit
-#'   the model recorded by `nail_catdes()`; fall back to `"llama3"`.
+#'   the model recorded by `nail_catdes()`. If `provider` is explicitly
+#'   replaced while `model` remains `NULL`, use that provider's default.
 #' @param provider LLM backend, `"ollama"` or `"gemini"`. When `NULL`, inherit
 #'   the provider recorded by `nail_catdes()`; fall back to `"ollama"`.
 #' @param generate Logical. If `FALSE` (default), build and return grounding
 #'   prompts without calling an LLM. If `TRUE`, run one independent grounding
 #'   call per group that has both a generated PASS 1 response and local
-#'   statistical evidence.
+#'   statistical evidence. Ineligible groups receive a non-grounded status and
+#'   no fabricated review response.
 #' @param ... Additional backend options forwarded to NaileR's LLM caller.
+#'   Unknown or provider-incompatible options are rejected before a preview or
+#'   generation.
 #'
 #' @return An object of class `nail_catdes_ground`. It contains a preserved
-#'   copy of the PASS 1 semantic profiles, the local grounding prompts,
+#'   copy of the PASS 1 semantic profiles, local grounding prompts,
 #'   deterministic short-to-canonical `evidence_reference_maps`, and a
 #'   `grounded_profiles` list. The input `x` is not modified. A `timing`
 #'   component records total wall-clock/CPU time and, when generation is
 #'   enabled, backend and parse/validation timing for each grounded group.
+#'   The result also carries the original evidence and CATDES settings as
+#'   attributes used by the review. Use [nail_prompt()] and [nail_response()]
+#'   to inspect the grounding interaction when generation occurred.
+#'
+#' @seealso [nail_catdes()], [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
 #' @export
 nail_catdes_ground <- function(x,
@@ -666,6 +683,8 @@ nail_catdes_ground <- function(x,
     provider = provider,
     catdes_settings = artifacts$catdes_settings
   )
+  llm_api_options <- list(...)
+  .validate_llm_api_options(llm_api_options, backend$provider)
 
   semantic_profiles <- artifacts$semantic_profiles
   semantic_facing <- artifacts$semantic_facing_evidence
@@ -750,8 +769,6 @@ nail_catdes_ground <- function(x,
   llm_calls <- 0L
 
   if (isTRUE(generate)) {
-    llm_api_options <- list(...)
-
     for (group_name in group_names[eligible]) {
       group_timer <- .catdes_ground_timer_start()
       backend_timer <- .catdes_ground_timer_start()

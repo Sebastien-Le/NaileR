@@ -310,6 +310,29 @@ test_that("nail_catdes_textual rejects unavailable textual profiles", {
 })
 
 
+test_that("nail_catdes_textual rejects joint textual profiles explicitly", {
+  obj <- build_catdes_textual_test_objects()
+
+  joint <- nail_textual(
+    dataset = obj$data[, c("group", "text")],
+    num.var = 1,
+    num.text = 2,
+    isolate.groups = FALSE,
+    generate = FALSE
+  )
+
+  expect_error(
+    nail_catdes_textual(
+      catdes = obj$catdes,
+      textual = joint,
+      generate = FALSE
+    ),
+    "joint comparative interpretation",
+    fixed = TRUE
+  )
+})
+
+
 test_that("nail_catdes_textual rejects mismatched group sets", {
   obj <- build_catdes_textual_test_objects()
 
@@ -434,6 +457,102 @@ test_that("generated CATDES textual enrichment produces structured profiles", {
     expect_true(nzchar(profile$contextualized_profile))
     expect_length(profile$parse_issues, 0L)
   }
+})
+
+
+test_that("reusing a generated CATDES interpretation emits one warning", {
+  obj <- build_catdes_textual_test_objects()
+  semantic_profiles <- attr(
+    obj$catdes,
+    "semantic_profiles",
+    exact = TRUE
+  )
+  semantic_profiles$groups$G1$status <- "generated"
+  semantic_profiles$groups$G1$response <-
+    "Generated CATDES interpretation for G1."
+  attr(obj$catdes, "semantic_profiles") <- semantic_profiles
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      data.frame(
+        model = model,
+        response = mock_contextualized_profile(prompt),
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  warnings <- character()
+  x <- withCallingHandlers(
+    nail_catdes_textual(
+      catdes = obj$catdes,
+      textual = obj$textual,
+      isolate.groups = TRUE,
+      generate = TRUE,
+      model = "mock-model"
+    ),
+    warning = function(condition) {
+      warnings <<- c(warnings, conditionMessage(condition))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  expect_length(warnings, 1L)
+  expect_match(
+    warnings[[1L]],
+    "original CATDES statistical evidence",
+    fixed = TRUE
+  )
+  expect_s3_class(
+    attr(x, "contextualized_profiles", exact = TRUE),
+    "nail_catdes_textual_profiles"
+  )
+})
+
+
+test_that("no propagation warning is emitted without a reused CATDES generation", {
+  obj <- build_catdes_textual_test_objects()
+
+  testthat::local_mocked_bindings(
+    .call_llm_base = function(provider,
+                              model,
+                              prompt,
+                              output,
+                              llm_api_options) {
+      data.frame(
+        model = model,
+        response = mock_contextualized_profile(prompt),
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "NaileR"
+  )
+
+  warnings <- character()
+  x <- withCallingHandlers(
+    nail_catdes_textual(
+      catdes = obj$catdes,
+      textual = obj$textual,
+      isolate.groups = TRUE,
+      generate = TRUE,
+      model = "mock-model"
+    ),
+    warning = function(condition) {
+      warnings <<- c(warnings, conditionMessage(condition))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  expect_length(warnings, 0L)
+  expect_s3_class(
+    attr(x, "contextualized_evidence", exact = TRUE),
+    "nail_catdes_textual_evidence"
+  )
 })
 
 

@@ -74,8 +74,8 @@
 .nail_io_from_canonical <- function(x, field) {
   io <- attr(x, "llm_io", exact = TRUE)
 
-  if (is.null(io) && is.list(x) && !is.null(x$llm_io)) {
-    io <- x$llm_io
+  if (is.null(io) && is.list(x) && "llm_io" %in% names(x)) {
+    io <- x[["llm_io"]]
   }
 
   if (is.null(io)) {
@@ -195,6 +195,18 @@
 }
 
 .nail_io_units_from_semantic_profiles <- function(x, field) {
+  catdes_settings <- attr(x, "catdes_settings", exact = TRUE)
+  if (identical(field, "prompt") &&
+      is.list(catdes_settings) &&
+      identical(catdes_settings$generation_architecture, "joint")) {
+    if (is.data.frame(x) && "prompt" %in% names(x) && nrow(x) > 0L) {
+      return(list(`1` = as.character(x$prompt[[1L]])))
+    }
+    if (is.character(x) && length(x) == 1L && !is.na(x)) {
+      return(list(`1` = x))
+    }
+  }
+
   semantic_profiles <- attr(x, "semantic_profiles", exact = TRUE)
 
   if (is.null(semantic_profiles) &&
@@ -289,6 +301,192 @@
   }
 
   NULL
+}
+
+.nail_io_units_from_catdes_enrichment <- function(x,
+                                                  field,
+                                                  select = NULL) {
+  enrichment <- attr(x, "catdes_textual_enrichment", exact = TRUE)
+  if (is.null(enrichment)) {
+    return(NULL)
+  }
+
+  second_pass <- enrichment$second_pass
+  if (!is.list(second_pass)) {
+    stop(
+      "The stored CATDES textual enrichment artifact is malformed.",
+      call. = FALSE
+    )
+  }
+
+  if (identical(field, "prompt")) {
+    prompts <- second_pass$prompts
+    if (is.null(prompts) || length(prompts) == 0L) {
+      status <- second_pass$status
+      has_generated_status <- is.character(status) &&
+        length(status) > 0L &&
+        any(!is.na(status) & nzchar(status) & status == "generated")
+      if (has_generated_status) {
+        stop(
+          paste0(
+            "The generated CATDES second-pass prompt is missing; ",
+            "nail_prompt() will not fall back to the first pass. Inspect ",
+            "nail_catdes_enrichment(x)$second_pass."
+          ),
+          call. = FALSE
+        )
+      }
+      return(NULL)
+    }
+    if (!is.list(prompts)) {
+      stop(
+        paste0(
+          "The stored CATDES second-pass prompts are malformed or invalid; ",
+          "inspect nail_catdes_enrichment(x)$second_pass."
+        ),
+        call. = FALSE
+      )
+    }
+    valid_prompts <- vapply(prompts, function(prompt) {
+      is.character(prompt) && length(prompt) == 1L &&
+        !is.na(prompt) && nzchar(trimws(prompt))
+    }, logical(1))
+    if (any(!valid_prompts)) {
+      stop(
+        paste0(
+          "The stored CATDES second-pass prompts are malformed or invalid; ",
+          "nail_prompt() will not fall back to the first pass. Inspect ",
+          "nail_catdes_enrichment(x)$second_pass."
+        ),
+        call. = FALSE
+      )
+    }
+    return(prompts)
+  }
+
+  status <- second_pass$status
+  if (!is.character(status) || length(status) == 0L) {
+    stop(
+      "The stored CATDES second-pass status is malformed.",
+      call. = FALSE
+    )
+  }
+  if (is.null(names(status)) || any(!nzchar(names(status)))) {
+    names(status) <- as.character(seq_along(status))
+  }
+
+  selected_name <- NULL
+  if (!is.null(select)) {
+    normalized_select <- .nail_io_normalize_select(select)
+    if (is.integer(normalized_select)) {
+      if (normalized_select > length(status)) {
+        stop(
+          sprintf(
+            "`select = %d` is out of range; %d response(s) are available.",
+            normalized_select,
+            length(status)
+          ),
+          call. = FALSE
+        )
+      }
+      selected_name <- names(status)[[normalized_select]]
+    } else {
+      selected_name <- normalized_select
+      if (!selected_name %in% names(status)) {
+        stop(
+          paste0(
+            "Unknown `select = \"", selected_name,
+            "\"` for the CATDES second pass. Available names are: ",
+            paste(sprintf('"%s"', names(status)), collapse = ", "),
+            "."
+          ),
+          call. = FALSE
+        )
+      }
+    }
+  }
+
+  generated_status <- !is.na(status) & nzchar(status) & status == "generated"
+  format_status <- function(value) {
+    if (length(value) != 1L || is.na(value) || !nzchar(value)) {
+      return("<missing or invalid>")
+    }
+    value
+  }
+
+  if (is.null(selected_name) && any(!generated_status)) {
+    status_text <- paste(
+      sprintf(
+        "%s=%s",
+        names(status),
+        vapply(status, format_status, character(1))
+      ),
+      collapse = ", "
+    )
+    stop(
+      paste0(
+        "The enriched CATDES interpretation is not complete; ",
+        "nail_response() will not fall back to the first pass. ",
+        "Inspect nail_catdes_enrichment(x)$second_pass. Statuses: ",
+        status_text, "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (!is.null(selected_name) &&
+      !isTRUE(generated_status[[selected_name]])) {
+    selected_status <- format_status(status[[selected_name]])
+    stop(
+      paste0(
+        "The enriched CATDES response for `", selected_name,
+        "` is unavailable (status: ", selected_status,
+        "). Inspect nail_catdes_enrichment(x)$second_pass."
+      ),
+      call. = FALSE
+    )
+  }
+
+  responses <- second_pass$responses
+  if (is.null(responses) || !is.list(responses) || length(responses) == 0L) {
+    stop(
+      "No complete enriched CATDES response is available in the second pass.",
+      call. = FALSE
+    )
+  }
+  if (is.null(names(responses)) || any(!nzchar(names(responses)))) {
+    names(responses) <- as.character(seq_along(responses))
+  }
+
+  required_names <- if (is.null(selected_name)) {
+    names(status)
+  } else {
+    selected_name
+  }
+  missing_response <- required_names[
+    !required_names %in% names(responses) |
+      vapply(
+        required_names,
+        function(name) {
+          value <- responses[[name]]
+          !is.character(value) || length(value) != 1L ||
+            is.na(value) || !nzchar(trimws(value))
+        },
+        logical(1)
+      )
+  ]
+  if (length(missing_response) > 0L) {
+    stop(
+      paste0(
+        "The enriched CATDES response is missing for: ",
+        paste(missing_response, collapse = ", "), ". Inspect ",
+        "nail_catdes_enrichment(x)$second_pass."
+      ),
+      call. = FALSE
+    )
+  }
+
+  responses
 }
 
 .nail_io_units_from_list <- function(x, field) {
@@ -494,7 +692,16 @@
 .nail_io_public <- function(x, field, select, print) {
   .nail_io_assert_print(print)
 
-  units <- .nail_io_extract_units(x, field = field)
+  enriched_units <- .nail_io_units_from_catdes_enrichment(
+    x = x,
+    field = field,
+    select = select
+  )
+  units <- if (is.null(enriched_units)) {
+    .nail_io_extract_units(x, field = field)
+  } else {
+    enriched_units
+  }
   units <- .nail_io_select_units(units, select = select, what = field)
 
   value <- if (length(units) == 1L) {
@@ -522,10 +729,12 @@
 #' displayed by default and one can be selected with `select`.
 #'
 #' `nail_response()` displays the raw response returned by the LLM for the
-#' current analytical stage. It does not validate, reinterpret, summarize, or
-#' modify that response. For example, on a result from `nail_catdes()` it shows
-#' the PASS 1 semantic response, whereas on a result from
-#' `nail_catdes_ground()` it shows the raw PASS 2 reviewer response before
+#' current public analytical stage. It does not validate, reinterpret,
+#' summarize, or modify that response. For `nail_catdes()` without a textual
+#' variable, and for a preview, this is the first-pass response or an explicit
+#' no-response error. When `num.textual` is set and both passes succeed, it is
+#' the enriched second-pass response. On a result from
+#' `nail_catdes_ground()` it remains the raw PASS 2 reviewer response before
 #' parsing and epistemic validation.
 #'
 #' @param x An object returned by a NaileR function that builds an LLM prompt
@@ -555,9 +764,12 @@
 #' structures while `nail_condes()`, `nail_qda()`, `nail_textual()`, and other
 #' analyses are progressively rebuilt around the evidence-first architecture.
 #'
-#' For `nail_catdes()`, the local semantic profiles take precedence over the
-#' historical combined outer return shape, so `nail_prompt()` exposes the
-#' actual local prompts used by the local-first architecture.
+#' For `nail_catdes()`, `nail_prompt()` exposes the actual joint prompt when
+#' `isolate.groups = FALSE`, while the named local prompts remain available
+#' when `isolate.groups = TRUE`. With successful textual enrichment, these
+#' accessors expose the second-pass prompt or response. The complete first and
+#' second passes remain available from [nail_catdes_enrichment()]. A failed or
+#' incomplete second pass is never silently replaced by the first response.
 #'
 #' @examples
 #' data(iris)

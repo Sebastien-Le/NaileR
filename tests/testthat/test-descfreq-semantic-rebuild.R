@@ -265,6 +265,26 @@ test_that("semantic-facing DESCFREQ evidence does not expose p-values or v-tests
     "relative frequency",
     fixed = TRUE
   )
+  expect_match(
+    prompt,
+    "higher-level substantive characterization",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "Build the main interpretation and any descriptive name primarily from the strongest coherent pattern.",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "Rare or sparsely represented attributes may provide secondary contextual nuance, but they should not drive the descriptive name unless supported by several convergent signals.",
+    fixed = TRUE
+  )
+  expect_match(
+    prompt,
+    "not as an additional directly observed frequency",
+    fixed = TRUE
+  )
 })
 
 

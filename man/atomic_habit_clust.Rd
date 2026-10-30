@@ -3,45 +3,70 @@
 \docType{data}
 \name{atomic_habit_clust}
 \alias{atomic_habit_clust}
-\title{Atomic habits survey}
+\title{Atomic Habits survey with constructed groups}
 \format{
-A data frame with 167 rows and 51 columns:
-\itemize{
-\item columns 1-10, do you feel able to...
-\item columns 11-20, from 0 to 5 how restrictive...
-\item columns 21-30, is it restrictive, yes or no...
-\item columns 31-40, justify your answers
-\item columns 41-50, a combination of able and restrictive
-\item column 51, cluster variable based on MFA (20 first variables)
-}
+A data frame with 167 rows and 51 columns. It contains the 50 variables
+described for \link{atomic_habit} and the additional factor \code{clust}, a
+three-level constructed group identifier.
 }
 \source{
 Applied mathematics department, Institut Agro Rennes-Angers
+The reproducible C02 preparation is documented at
+\url{https://github.com/Sebastien-Le/NaileR/tree/dev-core5-condes-integration-20261015/dev/operational_validation/corpus/C02_atomic_habit}.
 }
 \usage{
 atomic_habit_clust
 }
 \description{
-People think they need to make big changes to change
-the course of their lives. But in James Clear's book,
-Atomic Habits, they will discover that the smallest of changes,
-coupled with a good knowledge of psychology and neuroscience,
-can have a revolutionary effect on their lives and relationships.
-To understand this concept of atomic habits, we interviewed 167 people
-and asked them if they were able to never take their car alone again,
-to buy local products...
-We also asked them how restrictive they found this and why.
+This object adds a three-level classification to the questionnaire data.
+The labels identify constructed groups and are not substantive names. The
+C02 statistical preparation uses the first 20 questionnaire variables and
+this classification; textual and derived columns remain available in the
+source object but are not treated as independent CATDES evidence.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
-library(FactoMineR)
 library(NaileR)
-data(atomic_habit_clust)
+data(atomic_habit_clust, package = "NaileR")
 
-catdes(atomic_habit_clust, num.var = 51)
+# These are the 20 variables used by the C02 statistical reference plus
+# the published constructed-group identifier.
+atomic_habit_statistical <- atomic_habit_clust[, c(1:20, 51)]
+intro_atomic <- paste(
+  "The questionnaire records declared capacity and perceived",
+  "restrictiveness for everyday changes. The groups are constructed from",
+  "the response data and are identified by their original labels."
+)
+request_atomic <- paste(
+  "Describe the central configuration of the displayed evidence for each",
+  "constructed group. Preserve the group identifiers, distinguish reported",
+  "capacity from perceived constraint, and avoid causal or behavioural claims."
+)
+atomic_preview <- nail_catdes(
+  dataset = atomic_habit_statistical,
+  num.var = ncol(atomic_habit_statistical),
+  interpretation_mode = "latent",
+  introduction = intro_atomic,
+  request = request_atomic,
+  isolate.groups = FALSE,
+  drop.negative = FALSE,
+  generate = FALSE
+)
+atomic_evidence <- nail_evidence(atomic_preview)
+atomic_prompt <- nail_prompt(atomic_preview, print = FALSE)
+cat(substr(atomic_prompt, 1, 600), "\n")
+
+\dontrun{
+atomic_generated <- nail_catdes(
+  dataset = atomic_habit_statistical,
+  num.var = ncol(atomic_habit_statistical),
+  interpretation_mode = "latent",
+  introduction = intro_atomic,
+  request = request_atomic,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+nail_response(atomic_generated, print = FALSE)
 }
 }
 \keyword{datasets}

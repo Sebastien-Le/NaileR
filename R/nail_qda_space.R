@@ -567,7 +567,6 @@ validate_qda_space_inputs <- function(ncp,
     sample.method = "top",
     generate = FALSE,
     interpretation_mode = "latent",
-    prompt_style = "compact",
     target_concept =
       "the sensory continuum represented by this product-space dimension",
     target_label = dimension
@@ -700,6 +699,49 @@ validate_qda_space_inputs <- function(ncp,
   }
 
   item
+}
+
+
+.qda_space_has_reused_llm_interpretation <- function(
+    qda_space_evidence) {
+  if (is.null(qda_space_evidence) ||
+      !is.list(qda_space_evidence$axes) ||
+      length(qda_space_evidence$axes) == 0L) {
+    return(FALSE)
+  }
+
+  any(vapply(
+    qda_space_evidence$axes,
+    function(axis) {
+      products <- c(
+        axis$products$negative,
+        axis$products$positive
+      )
+
+      if (length(products) == 0L) {
+        return(FALSE)
+      }
+
+      any(vapply(
+        products,
+        function(item) {
+          interpretation <- item$interpretation
+
+          !is.null(interpretation) &&
+            identical(interpretation$status, "available") &&
+            identical(interpretation$source, "llm_pass1") &&
+            !is.null(interpretation$core_profile) &&
+            length(interpretation$core_profile) > 0L &&
+            !is.na(interpretation$core_profile[[1L]]) &&
+            nzchar(trimws(as.character(
+              interpretation$core_profile[[1L]]
+            )))
+        },
+        logical(1)
+      ))
+    },
+    logical(1)
+  ))
 }
 
 
@@ -1647,11 +1689,12 @@ build_conclusion_qda_space <- function(
 
 #' Interpret the sensory product space derived from QDA profiles
 #'
-#' `nail_qda_space()` interprets the main dimensions of the product space built
-#' from QDA adjusted means. The normal workflow is:
+#' `nail_qda_space()` computes and interprets the main dimensions of the
+#' sensory product space built from QDA adjusted means.
 #'
-#' `nail_qda()` -> optional expert revision with
-#' [nail_qda_interpretation()] -> `nail_qda_space()`.
+#' @details
+#' The usual workflow links `nail_qda()` to an optional expert revision with
+#' [nail_qda_interpretation()] and then to `nail_qda_space()`.
 #'
 #' Internally, a PCA is computed from the canonical adjusted product means.
 #' Each retained PCA dimension is then characterized by a real call to
@@ -1666,6 +1709,11 @@ build_conclusion_qda_space <- function(
 #' and the retained `product_interpretations` from [nail_qda()]. Expert-edited
 #' interpretations are therefore used automatically when present.
 #'
+#' When `generate = TRUE` and a model-assisted QDA product interpretation is
+#' reused in a product-space prompt, the function emits one non-blocking
+#' warning. The resulting axis interpretation should be confronted with the
+#' original QDA evidence and the PCA/CONDES statistical evidence.
+#'
 #' @param x Preferably an object returned by [nail_qda()]. A raw `decat` result
 #'   containing `adjmean` is accepted for compatibility, but reusable product
 #'   interpretations and canonical QDA marker evidence are then unavailable.
@@ -1673,9 +1721,10 @@ build_conclusion_qda_space <- function(
 #'   the rebuilt evidence-first implementation.
 #' @param llm_product_summaries Deprecated compatibility argument. It is ignored;
 #'   reusable product interpretations now come directly from [nail_qda()].
-#' @param ncp Number of PCA dimensions to compute.
+#' @param ncp Number of PCA dimensions to compute. The default is `2`.
 #' @param scale.unit Logical; whether sensory attributes are standardized in
-#'   the PCA. The rebuilt workflow defaults to `TRUE`.
+#'   the PCA. The rebuilt workflow defaults to `TRUE`; this changes the PCA
+#'   geometry, not the underlying QDA profiles.
 #' @param min_inertia_pct Minimum percentage of inertia required for a computed
 #'   dimension to receive a prompt.
 #' @param top_n_var Maximum number of continuous sensory associations retained
@@ -1685,34 +1734,90 @@ build_conclusion_qda_space <- function(
 #'   within each role (reinforcing, additional, conflicting).
 #' @param condes_proba Significance threshold used by the internal
 #'   [nail_condes()] characterization of each PCA dimension.
-#' @param expertise_mode Interpretation mode: `"sensory"`, `"positioning"`, or
-#'   `"hybrid"`.
+#' @param expertise_mode Interpretation mode: `"sensory"` (default),
+#'   `"positioning"`, or `"hybrid"`. This changes the requested substantive
+#'   reading of the same product-space evidence.
 #' @param introduction Optional introduction included in every axis prompt.
 #' @param request Optional analytical request included in every axis prompt.
 #' @param conclusion Optional final output-instruction block.
-#' @param model Model name for the selected provider.
-#' @param provider LLM backend: `"ollama"` or `"gemini"`.
+#' @param model Model name for the selected provider. When omitted, the
+#'   validated provider default is used: `"llama3"` for Ollama and
+#'   `"gemini-2.5-flash"` for Gemini. An explicit model is always respected.
+#' @param provider LLM backend: `"ollama"` or `"gemini"`; the default selected
+#'   by `match.arg()` is `"ollama"`.
 #' @param generate If `FALSE`, build prompts without calling the final LLM. If
 #'   `TRUE`, call the selected backend once per retained axis.
 #' @param ... Additional provider-specific arguments for the final LLM calls.
+#'   Unknown or provider-incompatible options are rejected also in preview
+#'   mode; no option is silently discarded.
 #'
-#' @return A named list of exact prompts when `generate = FALSE`, or a named
-#'   list of backend results when `generate = TRUE`.
+#' @return A named list of exact axis prompts when `generate = FALSE`, or a
+#'   named list of backend results when `generate = TRUE`. If no PCA dimension
+#'   reaches `min_inertia_pct`, the result is a short preview with an empty
+#'   retained-axis evidence object. Available analytical objects are attached
+#'   as attributes rather than added as `$` fields. Use
+#'   [nail_evidence()] and [nail_prompt()] to inspect them; generated results
+#'   additionally support [nail_response()].
 #'
 #'   Attached analytical artifacts include:
 #'
 #'   * `qda_space_evidence`: canonical product-space evidence containing the
 #'     adjusted means, PCA, eigenvalues, retained axes, latent continuous
 #'     profiles, and product evidence.
+#'   * `qda_space`: compatibility alias of `qda_space_evidence`.
 #'   * `axis_condes`: the actual preview objects returned by the internal
 #'     [nail_condes()] calls, one per retained axis.
 #'   * `product_profiles`: canonical QDA evidence when available.
 #'   * `product_interpretations`: retained model-assisted or expert-edited
 #'     product interpretations when available.
-#'   * `llm_io`: exact final prompts and raw final LLM responses for
-#'     [nail_prompt()] and [nail_response()].
+#'   * `llm_io`: exact final prompts and raw final LLM responses for retained
+#'     axes, for [nail_prompt()] and [nail_response()]. It is empty or absent
+#'     when no axis reaches `min_inertia_pct`.
+#'
+#' @seealso [nail_qda()], [nail_condes()], [nail_qda_interpretation()],
+#'   [nail_evidence()], [nail_prompt()], [nail_response()]
 #'
 #' @export
+#' @examples
+#' # Scientific context: QDA adjusted product means are summarized in a
+#' # standardized PCA space. The axis prompt describes that geometry and its
+#' # descriptive CONDES associations; it is not an independent causal test.
+#' data(chocolates, package = "SensoMineR")
+#'
+#' qda_preview <- nail_qda(
+#'   dataset = sensochoc,
+#'   formul = "~Product+Panelist",
+#'   firstvar = 5,
+#'   isolate.groups = TRUE,
+#'   sample.pct = 1,
+#'   generate = FALSE
+#' )
+#'
+#' space_preview <- nail_qda_space(
+#'   qda_preview,
+#'   ncp = 2,
+#'   introduction = paste(
+#'     "This sensory study compares chocolate products evaluated by a panel.",
+#'     "The product space describes configurations of adjusted sensory means,",
+#'     "not consumer preference or product quality."
+#'   ),
+#'   request = paste(
+#'     "Describe the retained sensory axes from the displayed PCA geometry",
+#'     "and descriptive attribute associations. Distinguish contributions,",
+#'     "cos2, QDA product markers and descriptive CONDES evidence; do not",
+#'     "infer causality, preference or an independent significance test."
+#'   ),
+#'   expertise_mode = "sensory",
+#'   generate = FALSE
+#' )
+#'
+#' qda_axis <- names(nail_evidence(space_preview)$axes)[[1L]]
+#' nail_evidence(space_preview, select = qda_axis)
+#' cat(substr(
+#'   nail_prompt(space_preview, select = qda_axis, print = FALSE),
+#'   1,
+#'   600
+#' ), "\n")
 nail_qda_space <- function(
     x,
     profile_summary = NULL,
@@ -1739,10 +1844,14 @@ nail_qda_space <- function(
     ),
     generate = FALSE,
     ...) {
+  model_missing <- missing(model)
   expertise_mode <- match.arg(
     expertise_mode
   )
   provider <- match.arg(provider)
+  model <- .resolve_llm_model(model, provider, model_missing)
+  llm_api_options <- list(...)
+  .validate_llm_api_options(llm_api_options, provider)
 
   validate_qda_space_inputs(
     ncp = ncp,
@@ -1888,6 +1997,11 @@ nail_qda_space <- function(
   qda_space_evidence <- built$evidence
   axis_condes <- built$axis_condes
 
+  reused_llm_interpretation <-
+    .qda_space_has_reused_llm_interpretation(
+      qda_space_evidence
+    )
+
   if (is.null(introduction)) {
     introduction <- paste(
       "The evidence below describes one retained dimension of a sensory product space built from adjusted product profiles.",
@@ -1959,7 +2073,17 @@ nail_qda_space <- function(
     )
   }
 
-  extra_args <- list(...)
+  if (isTRUE(reused_llm_interpretation)) {
+    warning(
+      paste(
+        "A model-assisted QDA product interpretation is being reused in",
+        "this product-space interpretation; confront the result with the",
+        "original QDA and PCA/CONDES statistical evidence to detect possible",
+        "propagation of overinterpretation."
+      ),
+      call. = FALSE
+    )
+  }
 
   call_one <- function(prompt) {
     backend <- .call_llm_base(
@@ -1968,7 +2092,7 @@ nail_qda_space <- function(
       prompt = prompt,
       output = "df",
       llm_api_options =
-        extra_args
+        llm_api_options
     )
 
     backend$prompt <- prompt

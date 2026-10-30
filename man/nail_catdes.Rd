@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_catdes.R
 \name{nail_catdes}
 \alias{nail_catdes}
-\title{Interpret a categorical variable}
+\title{Describe and interpret groups with CATDES}
 \usage{
 nail_catdes(
   dataset = NULL,
@@ -21,7 +21,11 @@ nail_catdes(
   prompt_style = c("detailed", "compact"),
   generate = FALSE,
   x = NULL,
-  ...
+  prompt_overrides = NULL,
+  ...,
+  num.textual = NULL,
+  textual.sample = 1,
+  textual.seed = NULL
 )
 }
 \arguments{
@@ -37,15 +41,19 @@ generated when \code{NULL}.}
 \item{request}{Interpretation request. A default is generated from
 \code{interpretation_mode}, \code{prompt_style}, and \code{isolate.groups} when \code{NULL}.}
 
-\item{model}{Model name used by the selected provider.}
+\item{model}{Model name used by the selected provider. When omitted, the
+validated provider default is used: \code{"llama3"} for Ollama and
+\code{"gemini-2.5-flash"} for Gemini. An explicit model is always respected.}
 
-\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}; the default
+selected by \code{match.arg()} is \code{"ollama"}.}
 
-\item{isolate.groups}{Logical. Local interpretation is always performed one
-category/group at a time. If \code{TRUE}, return the local prompts/results as a
-named list. If \code{FALSE}, preserve the historical outer return shape by
-combining the independent local prompts/results into one preview/result.
-No global comparative synthesis is performed at this stage.}
+\item{isolate.groups}{Logical. If \code{FALSE}, all categories/groups and their
+selected semantic-facing evidence are presented jointly in one prompt and
+one LLM call is made when \code{generate = TRUE}. If \code{TRUE}, each
+category/group is presented independently in its own prompt and
+interpreted separately. Isolation can be useful for long CATDES results
+or when an autonomous portrait of each group is desired.}
 
 \item{quali.sample, quanti.sample}{Numbers in \verb{[0, 1]} controlling the
 deterministic proportion of ranked qualitative or quantitative markers
@@ -62,11 +70,13 @@ object is not re-filtered.}
 
 \item{row.w}{Optional row weights used only with the raw \code{dataset} path.}
 
-\item{interpretation_mode}{Either \code{"standard"} for explicit observed
+\item{interpretation_mode}{Either \code{"standard"} (default) for explicit observed
 categories whose names and meanings must be respected, or \code{"latent"} for
 constructed groups whose common meaning may be inferred and named.}
 
-\item{prompt_style}{Either \code{"detailed"} or \code{"compact"}.}
+\item{prompt_style}{Either \code{"detailed"} (default) or \code{"compact"}; this
+changes the amount of reading and interpretation guidance, not the CATDES
+evidence.}
 
 \item{generate}{Logical. If \code{FALSE}, return the prompt(s) without contacting
 a backend. If \code{TRUE}, generate the historical backend return form.}
@@ -76,23 +86,79 @@ carrying a \code{statistical_profiles} attribute, a raw \code{\link[FactoMineR:c
 result, or a historical \code{nail_catdes()} result carrying a \code{catdes_result}
 attribute. Do not supply \code{x} together with \code{dataset}.}
 
+\item{prompt_overrides}{Optional named list replacing the approved
+\code{reading}, \code{interpretation}, and/or \code{output} blocks in full. Unspecified
+blocks keep their defaults. Values must be non-empty, non-NA character
+strings; this does not affect statistical evidence. To extend rather
+than replace a default block, first retrieve it with
+\code{\link[=nail_catdes_default_blocks]{nail_catdes_default_blocks()}} and append the desired text yourself.}
+
 \item{...}{Provider-specific generation arguments passed to the selected
-backend.}
+backend. Unknown or provider-incompatible options are rejected also in
+preview mode; no option is silently discarded. With textual enrichment,
+the validated options are used by both passes.}
+
+\item{num.textual}{Optional column index of an individual textual-response
+variable in \code{dataset}. When supplied, the column is excluded from CATDES
+computation but retained as a canonical textual evidence source for a
+second enrichment pass. It is available only with the raw \code{dataset}
+interface; it cannot be inferred from a prepared \code{x} object.}
+
+\item{textual.sample}{Proportion in \verb{]0, 1]} of non-empty comments selected
+within each group for the enrichment pass. The complete textual registry
+and all statistical evidence remain unchanged. It has no effect when
+\code{num.textual = NULL}.}
+
+\item{textual.seed}{Optional seed passed to the existing TEXTUAL sampling
+mechanism. With the same data, \code{textual.sample}, and \code{textual.seed}, the
+selected comment IDs are reproducible without changing the user's global
+random-generator state. It has no effect when \code{num.textual = NULL}.}
 }
 \value{
-When \code{generate = FALSE}, a character local-first preview when
+When \code{generate = FALSE}, the actual joint prompt when
 \code{isolate.groups = FALSE}, or the exact named local prompts when
-\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a combined data frame when
-\code{isolate.groups = FALSE}, or the named local backend results when
-\code{isolate.groups = TRUE}. Mechanical and semantic-stage artifacts are
-attached as attributes in all cases.
+\code{isolate.groups = TRUE}. When \code{generate = TRUE}, a single backend data
+frame when \code{isolate.groups = FALSE}, or the named local backend results
+when \code{isolate.groups = TRUE}. A joint result may also retain local prompts
+for audit; those prompts are not additional LLM interactions. Mechanical
+and semantic-stage artifacts are attached as attributes, not as \code{$} fields:
+\itemize{
+\item \code{statistical_profiles}: complete canonical CATDES evidence;
+\item \code{interpretation_evidence}: selected evidence with stable identifiers;
+\item \code{semantic_facing_evidence}: factual statements shown to the LLM;
+\item \code{local_prompts} and \code{catdes_prompt_blocks}: local prompt audit objects;
+\item \code{semantic_profiles}: parsed or status-bearing interpretation profiles;
+\item \code{catdes_result}: the original FactoMineR result, when available;
+\item \code{catdes_settings}: execution and interpretation settings;
+\item \code{llm_io}: the exact active prompt(s) and raw response(s).
+\item With \code{num.textual} set, \code{\link[=nail_catdes_enrichment]{nail_catdes_enrichment()}} is the public entry
+point for the complete textual registry and both generation passes;
+\code{nail_evidence()} continues to return the canonical statistical CATDES
+evidence. The enrichment artifact is also the audit route for the first
+pass when the public accessors expose a successful second pass.
+\item The default \code{output} block is a free writing instruction; it does not
+impose JSON, Quarto Markdown, or another response schema.
+}
+
+A preview has prompts but no responses. Use \code{\link[=nail_evidence]{nail_evidence()}} for evidence,
+\code{\link[=nail_prompt]{nail_prompt()}} for the active prompt(s), and \code{\link[=nail_response]{nail_response()}} after
+generation.
+
+The existing \code{\link[=nail_catdes_textual]{nail_catdes_textual()}} workflow remains available for
+compatibility. The integrated two-pass interface is additive in this
+release; migration or deprecation of the separate workflow requires a
+future explicit decision.
 }
 \description{
-Interpret the statistical characteristics of an observed categorical
-variable or of statistically constructed groups. Statistical markers are
-selected mechanically, translated by R into plain-language factual
-statements, and interpreted locally one group at a time before any future
-cross-group synthesis.
+Describe the characteristics of observed categories or statistically
+constructed groups. CATDES identifies the variables and categories
+associated with each group. Markers are computed or reused in R, selected
+mechanically, and translated into plain-language factual statements before
+the LLM is called. The LLM supplies the substantive interpretation; it does
+not recompute CATDES.
+The interpretation scope is controlled by \code{isolate.groups}: one joint
+comparative prompt by default, or one local prompt per group when isolation
+is requested.
 }
 \details{
 With raw data, \code{\link[=nail_catdes_prep]{nail_catdes_prep()}} performs the only \code{catdes()} computation
@@ -111,44 +177,334 @@ variables keep only the selected modalities. \code{p.value}, \code{v.test}, and 
 evidence identifiers remain available for audit but are not exposed to the
 semantic prompt.
 
-Every group is interpreted independently. This prevents statistical facts
-from one group being transferred to another during the first semantic pass.
-A future global synthesis can then work from the frozen local semantic
-profiles instead of from the original statistical tables.
+\code{isolate.groups} controls the LLM interpretation scope, not the statistical
+analysis. With \code{FALSE}, the model receives one joint prompt containing all
+category/group evidence and can compare the displayed profiles. With
+\code{TRUE}, each model call receives only one category/group and produces an
+autonomous portrait. In both cases, the statistical and semantic-facing
+evidence are constructed once before prompt projection.
+
+\code{prompt_overrides$interpretation} replaces the complete default
+interpretation block. It can therefore remove default scientific rules;
+NaileR does not silently append them to a custom block. The statistical
+evidence, group identity supplied by the protected task block, and
+interpretation scope remain managed separately. Users who want to preserve
+the default rules while adding guidance can retrieve the defaults with
+\code{\link[=nail_catdes_default_blocks]{nail_catdes_default_blocks()}} and build a combined override explicitly.
 
 Every successful return carries \code{statistical_profiles},
 \code{interpretation_evidence}, \code{semantic_facing_evidence}, \code{local_prompts},
 \code{semantic_profiles}, \code{catdes_result} when available, and \code{catdes_settings} as
 attributes.
+
+With \code{num.textual} set, \code{\link[=nail_catdes_enrichment]{nail_catdes_enrichment()}} exposes the two-pass
+artifact. In a preview, the first CATDES prompt and the selected comments are
+available, while the definitive enrichment prompt is explicitly marked as
+pending the first response. With \code{generate = TRUE}, the artifact preserves
+the first prompt/response and the second prompt/response separately. When
+the second pass succeeds, \code{\link[=nail_prompt]{nail_prompt()}} and \code{\link[=nail_response]{nail_response()}} expose that
+enriched second pass. If it fails or is incomplete, \code{\link[=nail_response]{nail_response()}} raises
+an explicit error rather than silently returning the first pass. The first
+LLM interpretation is a proposal, not a replacement for the canonical
+statistical evidence. The second prompt confronts that proposal with the
+selected comments; it does not retransmit the detailed CATDES evidence,
+which remains available through \code{\link[=nail_evidence]{nail_evidence()}} and the enrichment
+artifact.
 }
 \examples{
+# All examples below are previews: generate = FALSE never contacts an LLM.
+# Inspect the evidence and prompt before requesting any interpretation.
+
 data(iris)
 
-# Observed categorical variable: keep and interpret the species names.
-prompt <- nail_catdes(
-  iris,
+## 1. Iris: characterize the observed species
+# Question: which measurements differ across the observed species?
+iris_preview <- nail_catdes(
+  dataset = iris,
   num.var = 5,
   interpretation_mode = "standard",
+  isolate.groups = TRUE,
   generate = FALSE
 )
-cat(substr(prompt, 1, 700))
+iris_evidence <- nail_evidence(iris_preview)
+iris_prompt <- nail_prompt(iris_preview, print = FALSE)
+iris_evidence
+iris_prompt
 
-# Reuse the mechanical preparation without recomputing catdes().
-profiles <- nail_catdes_prep(dataset = iris, num.var = 5)
-prompt_from_profiles <- nail_catdes(
-  x = profiles,
+# The evidence is the complete canonical CATDES object. The prompt is
+# the exact request prepared for one prompt per observed species.
+
+## 2. Iris: use one joint prompt
+iris_joint <- nail_catdes(
+  dataset = iris,
+  num.var = 5,
   interpretation_mode = "standard",
+  isolate.groups = FALSE,
   generate = FALSE
 )
+nail_evidence(iris_joint)
+nail_prompt(iris_joint, print = FALSE)
+# The joint option compares the same evidence in one prompt.
 
+# 3. Compact guidance changes the prompt projection, not the evidence.
+iris_compact <- nail_catdes(
+  iris, num.var = 5, interpretation_mode = "standard",
+  isolate.groups = TRUE, prompt_style = "compact", generate = FALSE
+)
+identical(nail_evidence(iris_preview), nail_evidence(iris_compact))
+nail_prompt(iris_compact, print = FALSE)
+
+# 4. Food-waste survey: MCA/HCPC creates the groups and the public
+#    nail_catdes() entry point computes and interprets their CATDES markers.
+data(waste)
+waste <- waste[-14]
+set.seed(1)
+waste_mca <- FactoMineR::MCA(
+  waste, quali.sup = c(1, 2, 50:76), ncp = 35,
+  level.ventil = 0.05, graph = FALSE
+)
+waste_hcpc <- FactoMineR::HCPC(waste_mca, nb.clust = 3, graph = FALSE)
+waste_data <- waste_hcpc$data.clust
+waste_preview <- nail_catdes(
+  dataset = waste_data, num.var = ncol(waste_data),
+  interpretation_mode = "latent",
+  introduction = paste(
+    "This survey describes reported food-waste practices and related",
+    "attitudes. The groups were constructed from the questionnaire",
+    "responses; the interpretation should summarize displayed associations,",
+    "not explain their causes or rank participants morally."
+  ),
+  request = paste(
+    "For each constructed group, describe the coherent configuration of",
+    "reported practices and attitudes supported by the CATDES evidence.",
+    "Keep the group identifier and distinguish observations from hypotheses.",
+    "Do not infer causes or assign a normative wastefulness score."
+  ),
+  isolate.groups = TRUE, generate = FALSE
+)
+waste_group <- names(nail_evidence(waste_preview)$groups)[[1L]]
+nail_evidence(waste_preview, select = waste_group)
+cat(substr(nail_prompt(waste_preview, select = waste_group,
+                       print = FALSE), 1, 700), "\n")
+
+# 5. Sustainable food systems: declared positions, not observed behaviour.
+#    ncp = 100 matches the reference C01 MCA/HCPC protocol; changing it
+#    can change the HCPC partition and therefore does not reproduce C01.
+data(local_food)
+set.seed(1)
+food_mca <- FactoMineR::MCA(
+  local_food, quali.sup = 46:63, ncp = 100,
+  level.ventil = 0.05, graph = FALSE
+)
+food_hcpc <- FactoMineR::HCPC(food_mca, nb.clust = 3, graph = FALSE)
+food_data <- food_hcpc$data.clust
+food_preview <- nail_catdes(
+  dataset = food_data, num.var = ncol(food_data),
+  interpretation_mode = "latent",
+  introduction = paste(
+    "This survey concerns declared positions about sustainable food",
+    "systems. Participants evaluated food-system statements and reported",
+    "agreement with additional statements; the resulting groups describe",
+    "configurations of responses rather than observed behaviour."
+  ),
+  request = paste(
+    "Describe each constructed group as a configuration of declared",
+    "positions, using several CATDES findings together when possible.",
+    "Keep the group identifier, distinguish displayed facts from hypotheses,",
+    "and do not infer behaviour or causality."
+  ),
+  isolate.groups = TRUE, drop.negative = TRUE, generate = FALSE
+)
+food_group <- names(nail_evidence(food_preview)$groups)[[1L]]
+nail_evidence(food_preview, select = food_group)
+cat(substr(nail_prompt(food_preview, select = food_group,
+                       print = FALSE), 1, 700), "\n")
+
+# 6. Constructed transition groups: keep numeric identifiers in latent mode.
+data(atomic_habit_clust)
+atomic_latent <- nail_catdes(
+  atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+  isolate.groups = TRUE,
+  introduction = paste(
+    "This survey records perceived ability and perceived restrictiveness",
+    "for possible changes in everyday practices. The displayed responses",
+    "describe perceptions about these changes, not verified behaviour or",
+    "the causes of adoption."
+  ),
+  request = paste(
+    "Describe the configuration of displayed responses for each constructed",
+    "group, combining related findings where the evidence supports it.",
+    "Do not call perceived ability observed behaviour or infer causal",
+    "mechanisms from the group profile."
+  ),
+  generate = FALSE
+)
+atomic_group <- names(nail_evidence(atomic_latent)$groups)[[1L]]
+nail_evidence(atomic_latent, select = atomic_group)
+cat(substr(nail_prompt(atomic_latent, select = atomic_group,
+                       print = FALSE), 1, 700), "\n")
+
+# 7. Selection controls do not alter canonical evidence.
+atomic_full <- nail_catdes(
+  atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+  isolate.groups = TRUE, generate = FALSE
+)
+atomic_reduced <- nail_catdes(
+  atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+  isolate.groups = TRUE, quali.sample = 0.5, quanti.sample = 0.5,
+  drop.negative = TRUE, generate = FALSE
+)
+identical(nail_evidence(atomic_full), nail_evidence(atomic_reduced))
+!identical(nail_prompt(atomic_full, print = FALSE),
+           nail_prompt(atomic_reduced, print = FALSE))
+
+# 8. Reuse a prepared profile through the public preparation function.
+atomic_catdes <- FactoMineR::catdes(
+  atomic_habit_clust[, c(1:20, 51)], num.var = 21, proba = 0.05
+)
+atomic_profiles <- nail_catdes_prep(x = atomic_catdes)
+atomic_from_profiles <- nail_catdes(
+  x = atomic_profiles, interpretation_mode = "latent",
+  isolate.groups = FALSE, generate = FALSE
+)
+nail_evidence(atomic_from_profiles)
+cat(substr(nail_prompt(atomic_from_profiles, print = FALSE),
+          1, 900), "\n")
+
+# 9. Customize context, request, and one complete approved block.
+blocks <- nail_catdes_default_blocks("latent", isolate.groups = TRUE)
+customized <- nail_catdes(
+  atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+  introduction = "The study concerns perceived feasibility of food and mobility changes.",
+  request = "Summarize the displayed configuration and label it cautiously.",
+  prompt_overrides = list(
+    interpretation = paste(
+      blocks$interpretation,
+      "Keep every synthesis traceable to several displayed facts."
+    )
+  ),
+  isolate.groups = TRUE, generate = FALSE
+)
+customized_group <- names(nail_evidence(customized)$groups)[[1L]]
+cat(substr(nail_prompt(customized, select = customized_group,
+                       print = FALSE), 1, 800), "\n")
+
+# 10. Real generation is intentionally kept outside ordinary checks.
 \dontrun{
 generated <- nail_catdes(
-  iris,
-  num.var = 5,
-  provider = "ollama",
-  model = "llama3",
+  atomic_habit_clust, num.var = 51, interpretation_mode = "latent",
+  isolate.groups = TRUE, provider = "ollama", model = "llama3",
   generate = TRUE
 )
-cat(generated$response)
+generated_group <- names(nail_evidence(generated)$groups)[[1L]]
+nail_evidence(generated, select = generated_group)
+cat(substr(nail_prompt(generated, select = generated_group,
+                       print = FALSE), 1, 800), "\n")
+nail_response(generated, select = generated_group, print = FALSE)
 }
+
+# Optional Gemini generation: one joint Iris request.
+# This is opt-in and requires a user-managed GEMINI_API_KEY; it is not run
+# by ordinary package checks. A joint call produces one response containing
+# the observed species together.
+\dontrun{
+iris_gemini <- nail_catdes(
+  iris, num.var = 5, interpretation_mode = "standard",
+  isolate.groups = FALSE, prompt_style = "compact",
+  provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+)
+nail_evidence(iris_gemini)
+nail_prompt(iris_gemini, print = FALSE)
+nail_response(iris_gemini, print = FALSE)
+}
+
+# 11. Prepare a two-pass CATDES enrichment without contacting an LLM.
+#     The second prompt cannot be final until the first response exists.
+data(atomic_habit_clust, package = "NaileR")
+car_enriched_preview <- nail_catdes(
+  atomic_habit_clust, num.var = 51, num.textual = 31,
+  textual.sample = 0.5, textual.seed = 123,
+  interpretation_mode = "latent",
+  isolate.groups = FALSE,
+  generate = FALSE
+)
+nail_evidence(car_enriched_preview)
+nail_prompt(car_enriched_preview, print = FALSE)
+nail_catdes_enrichment(car_enriched_preview)$second_pass$status
+
+\dontrun{
+car_enriched <- nail_catdes(
+  atomic_habit_clust, num.var = 51, num.textual = 31,
+  textual.sample = 0.5, textual.seed = 123,
+  interpretation_mode = "latent",
+  isolate.groups = FALSE,
+  provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+)
+nail_response(car_enriched, print = FALSE) # first CATDES response
+nail_catdes_enrichment(car_enriched)$second_pass$responses
+}
+
+# 12. Two-pass textual enrichment on the public Breton subset.
+#     The ACM--HCPC profiles are exploratory; comments supplement, but do
+#     not change, the CATDES evidence. This preview never contacts an LLM.
+data(bretons, package = "NaileR")
+breton_assertions <- c(
+  grep("^assertion_q17_", names(bretons), value = TRUE),
+  grep("^assertion_q2[1-5]_", names(bretons), value = TRUE)
+)
+set.seed(1)
+breton_mca <- FactoMineR::MCA(bretons[breton_assertions], ncp = 10,
+                              graph = FALSE)
+breton_hcpc <- FactoMineR::HCPC(breton_mca, nb.clust = 3, graph = FALSE)
+stopifnot(identical(rownames(bretons), rownames(breton_hcpc$data.clust)))
+breton_data <- data.frame(
+  bretons[breton_assertions],
+  quality_food_open = as.character(bretons$quality_food_open),
+  profile = factor(breton_hcpc$data.clust[[ncol(breton_hcpc$data.clust)]]),
+  check.names = FALSE
+)
+intro_breton <- paste(
+  "This exploratory survey examines declared positions about an ideal food",
+  "system among respondents living in administrative Brittany.",
+  "The profiles describe configurations of assertions; comments are not",
+  "observed behaviour and do not support causal or regional generalisation."
+)
+request_breton <- paste(
+  "Describe the exploratory groups using several CATDES findings and, when",
+  "available, the selected comments. Keep group identifiers, distinguish",
+  "facts from hypotheses, and do not infer causes or regional differences."
+)
+breton_result <- nail_catdes(
+  dataset = breton_data, num.var = 49, num.textual = 48,
+  textual.sample = 0.5, textual.seed = 123,
+  interpretation_mode = "latent", isolate.groups = FALSE,
+  drop.negative = FALSE, introduction = intro_breton,
+  request = request_breton, generate = FALSE
+)
+nail_evidence(breton_result)
+nail_prompt(breton_result, print = FALSE)
+nail_catdes_enrichment(breton_result)$selected_texts[, c("text_id", "group")]
+
+\dontrun{
+# The second response is created only when generation is requested and
+# the first generation succeeds; it is not run by package checks.
+breton_generated <- nail_catdes(
+  dataset = breton_data, num.var = 49, num.textual = 48,
+  textual.sample = 0.5, textual.seed = 123,
+  interpretation_mode = "latent", isolate.groups = FALSE,
+  drop.negative = FALSE, introduction = intro_breton,
+  request = request_breton, provider = "gemini",
+  model = "gemini-2.5-flash", max_output_tokens = 32768L,
+  max_tries = 1L, timeout = 120, generate = TRUE
+)
+audit <- nail_catdes_enrichment(breton_generated)
+nail_response(breton_generated, print = FALSE)
+audit$first_pass$responses
+audit$second_pass$responses
+}
+}
+\seealso{
+\code{\link[=nail_catdes_prep]{nail_catdes_prep()}}, \code{\link[=nail_catdes_ground]{nail_catdes_ground()}},
+\code{\link[=nail_catdes_textual]{nail_catdes_textual()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}, \code{\link[=nail_catdes_enrichment]{nail_catdes_enrichment()}}
 }

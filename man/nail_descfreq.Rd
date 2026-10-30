@@ -2,7 +2,7 @@
 % Please edit documentation in R/nail_descfreq.R
 \name{nail_descfreq}
 \alias{nail_descfreq}
-\title{Interpret the rows of a contingency table using evidence-first frequency profiles}
+\title{Describe and compare frequency profiles}
 \usage{
 nail_descfreq(
   dataset,
@@ -27,15 +27,19 @@ nail_descfreq(
 \item{dataset}{A data frame corresponding to a contingency table. Cells must
 contain non-negative integer-like frequencies.}
 
-\item{introduction}{Optional study context included in the LLM prompt.}
+\item{introduction}{Optional study context included in the LLM prompt. It
+provides context but is not frequency evidence.}
 
 \item{request}{Optional analytical request sent to the LLM.}
 
 \item{conclusion}{Optional final output-instruction block.}
 
-\item{model}{Model name for the selected provider.}
+\item{model}{Model name for the selected provider. When omitted, the
+validated provider default is used: \code{"llama3"} for Ollama and
+\code{"gemini-2.5-flash"} for Gemini. An explicit model is always respected.}
 
-\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}.}
+\item{provider}{LLM backend, either \code{"ollama"} or \code{"gemini"}; the default
+selected by \code{match.arg()} is \code{"ollama"}.}
 
 \item{isolate.groups}{Logical. If \code{TRUE}, build one independent prompt per
 row. If \code{FALSE}, build one prompt containing all rows.}
@@ -48,11 +52,12 @@ excluded only from the prompt-selection layer.}
 
 \item{by.quali}{Optional grouping vector with one value per source row.
 Source rows sharing a level are summed before row characterization, as in
-\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}.}
+\code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}.}
 
-\item{proba}{Significance threshold passed to \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}.}
+\item{proba}{Significance threshold passed to \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}.}
 
-\item{interpretation_mode}{Either \code{"description"} or \code{"comparison"}.}
+\item{interpretation_mode}{Either \code{"description"} (describe each row) or
+\code{"comparison"} (emphasize contrasts among rows).}
 
 \item{rows_are_ordered}{Logical contextual flag indicating that row order has
 external substantive meaning. It does not alter statistical evidence.}
@@ -63,12 +68,15 @@ already have substantive meaning and should not be renamed by the LLM.}
 \item{generate}{Logical. If \code{FALSE}, build prompt(s) without contacting an
 LLM. If \code{TRUE}, call the selected backend.}
 
-\item{...}{Additional provider-specific generation arguments.}
+\item{...}{Additional provider-specific generation arguments. Unknown or
+provider-incompatible options are rejected before a preview or generation;
+no option is silently discarded.}
 }
 \value{
-For backward compatibility, a prompt string or named list of prompts
-when \code{generate = FALSE}; a model/prompt/response list or named list of such
-results when \code{generate = TRUE}.
+The main return is a prompt or named list of prompts when
+\code{generate = FALSE}, and a backend result or named list of backend results
+when \code{generate = TRUE}, according to \code{isolate.groups}. Analytical objects
+are attached as attributes, not added as \code{$} fields.
 
 Every return carries:
 \itemize{
@@ -76,19 +84,29 @@ Every return carries:
 \item \code{interpretation_evidence}: deterministic subset selected for the prompt;
 \item \code{semantic_facing_evidence}: plain-language factual evidence shown to the
 LLM;
-\item \code{descfreq_result}: the original single \code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}} result;
+\item \code{descfreq_result}: the original single \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}} result;
 \item \code{descfreq_settings}: execution and interpretation settings;
 \item \code{llm_io}: exact prompt(s) and raw LLM response(s) for \code{\link[=nail_prompt]{nail_prompt()}} and
 \code{\link[=nail_response]{nail_response()}}.
 }
+
+Use \code{\link[=nail_evidence]{nail_evidence()}} for the complete or selected frequency evidence. A
+preview contains no LLM response.
 }
 \description{
-\code{nail_descfreq()} characterizes the rows of a contingency table with
-\code{\link[FactoMineR:desfreq]{FactoMineR::descfreq()}}. It first stores complete canonical
-\code{frequency_profiles}, then selects a deterministic subset of retained
-statistical markers for semantic interpretation.
+Use \code{nail_descfreq()} to describe or compare the rows of a contingency table.
+A category is interpreted relative to the whole table, so overrepresentation
+is not an exclusive property of a row. NaileR computes row-by-column
+frequency profiles with \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}
+and prepares them for an optional interpretation by a language model.
 }
 \details{
+\code{nail_descfreq()} computes row-by-column frequency profiles for a contingency
+table with \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}. It stores the complete R-derived
+\code{frequency_profiles}, then selects a deterministic subset of retained
+statistical markers for semantic interpretation. R performs the frequency
+analysis; the LLM interprets the displayed relative patterns.
+
 The canonical evidence is invariant to \code{generate}, \code{isolate.groups},
 \code{sample.pct}, \code{drop.negative}, \code{interpretation_mode}, \code{rows_are_ordered},
 \code{explicit_row_labels}, \code{introduction}, \code{request}, and \code{conclusion}. These
@@ -109,20 +127,133 @@ through \code{\link[=nail_evidence]{nail_evidence()}}. The LLM-facing semantic f
 direction and row-versus-global frequency information.
 }
 \examples{
-tab <- data.frame(
-  sweet = c(30, 5, 10),
-  bitter = c(5, 30, 10),
-  neutral = c(10, 10, 30),
-  row.names = c("A", "B", "C")
-)
+## 1. Beards: describe eight observed frequency profiles
+# Question: which recorded descriptors characterize each beard type?
+data(beard_cont, package = "NaileR")
 
-preview <- nail_descfreq(
-  tab,
+beard_preview <- nail_descfreq(
+  dataset = beard_cont,
+  introduction = paste(
+    "This survey describes eight observed beard types using frequency",
+    "profiles across beard descriptors. The rows are the identifiers B1",
+    "to B8."
+  ),
+  request = paste(
+    "Describe what distinguishes each beard type from the overall",
+    "descriptor profile and propose a concise descriptive name. Base every",
+    "statement on the displayed frequency evidence; do not invent",
+    "appearance or causes."
+  ),
+  interpretation_mode = "description",
   isolate.groups = TRUE,
   generate = FALSE
 )
 
-nail_evidence(preview, select = "A")
-nail_prompt(preview, select = "A")
+beard_evidence <- nail_evidence(beard_preview)
+beard_prompt <- nail_prompt(beard_preview, print = FALSE)
+beard_evidence
+beard_prompt
 
+# The evidence contains the retained frequencies and statistical markers.
+# The prompts contain one request for each beard type. A generated name is
+# an interpretation of these profiles, not a factual property of a beard.
+
+## 2. Children: compare frequency profiles across education levels
+data(children, package = "FactoMineR")
+children_table <- children[1:14, 1:5] |> t() |> as.data.frame()
+rownames(children_table) <- c(
+  "No education", "Elementary school", "Middle school",
+  "High school", "University"
+)
+
+children_preview <- nail_descfreq(
+  dataset = children_table,
+  introduction = paste(
+    "This contingency table summarizes reported reasons that a woman or",
+    "couple may hesitate to have children by education level. Rows are",
+    "five education categories and columns are reasons."
+  ),
+  request = paste(
+    "Compare the relative frequency profiles across education levels,",
+    "highlighting the main differences while distinguishing statistical",
+    "associations from causal explanations."
+  ),
+  interpretation_mode = "comparison",
+  isolate.groups = FALSE,
+  generate = FALSE
+)
+
+children_evidence <- nail_evidence(children_preview)
+cat(substr(nail_prompt(children_preview, print = FALSE), 1, 600), "\n")
+
+# Example 3: build an observed-term table from Rorschach descriptions.
+# Each term is counted at most once per description; the six terms below
+# are observed in the corpus and are not selected by significance.
+data(rorschach, package = "NaileR")
+rorschach_terms <- c("animal", "bat", "black", "butterfly", "color", "red")
+rorschach_tokens <- strsplit(
+  tolower(gsub("[^a-z]+", " ", rorschach$Description)),
+  "\\\\s+"
+)
+rorschach_counts <- vapply(
+  rorschach_terms,
+  function(term) {
+    vapply(rorschach_tokens, function(tokens) as.numeric(term \%in\% tokens), numeric(1))
+  },
+  numeric(nrow(rorschach))
+)
+rorschach_table <- aggregate(
+  rorschach_counts,
+  by = list(Inkblot = rorschach$Inkblot),
+  FUN = sum
+)
+rownames(rorschach_table) <- as.character(rorschach_table$Inkblot)
+rorschach_table$Inkblot <- NULL
+rorschach_table <- rorschach_table[, colSums(rorschach_table) > 0, drop = FALSE]
+
+rorschach_preview <- nail_descfreq(
+  dataset = rorschach_table,
+  introduction = paste(
+    "Participants described ten Rorschach inkblots.",
+    "This contingency table counts six observed descriptive terms",
+    "at most once per description across the ten inkblots."
+  ),
+  request = paste(
+    "Describe the perceptual characteristics associated with each inkblot",
+    "using the retained frequency evidence. Distinguish inkblots based on",
+    "their descriptions without inferring personality or causal mechanisms."
+  ),
+  proba = 0.05,
+  interpretation_mode = "comparison",
+  isolate.groups = FALSE,
+  generate = FALSE
+)
+rorschach_evidence <- nail_evidence(rorschach_preview)
+cat(substr(nail_prompt(rorschach_preview, print = FALSE), 1, 600), "\n")
+
+# Optional Gemini generation: one comparison response for Children.
+# This opt-in block requires a user-managed GEMINI_API_KEY.
+\dontrun{
+children_gemini <- nail_descfreq(
+  dataset = children_table,
+  introduction = paste(
+    "The table records reasons for hesitating to have children",
+    "across five education levels."
+  ),
+  request = paste(
+    "Compare the retained frequency evidence across education levels.",
+    "Distinguish associations from causal explanations."
+  ),
+  interpretation_mode = "comparison", isolate.groups = FALSE,
+  provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+)
+nail_evidence(children_gemini)
+nail_prompt(children_gemini, print = FALSE)
+nail_response(children_gemini, print = FALSE)
+}
+
+}
+\seealso{
+\code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

@@ -3,15 +3,15 @@
 \docType{data}
 \name{rorschach}
 \alias{rorschach}
-\title{Rorschach inkblots}
+\title{Rorschach inkblot descriptions}
 \format{
 A data frame with 600 rows and 5 columns:
 \itemize{
-\item The Panel effect (3 panels)
-\item The Inkblot effect (10 inkblots)
-\item The Panelist effect (20 panelists par panel)
-\item The interaction Panel and Panelist
-\item The perception of the inkblot
+\item \code{Panel}: panel identifier (\code{A}, \code{B}, or \code{C});
+\item \code{Inkblot}: inkblot identifier (10 inkblots);
+\item \code{Panelist}: panelist identifier (20 panelists per panel);
+\item \code{Consumer}: panel-by-panelist identifier; and
+\item \code{Description}: the participant's free-text description.
 }
 }
 \source{
@@ -21,47 +21,42 @@ Applied mathematics department, Institut Agro Rennes-Angers
 rorschach
 }
 \description{
-This dataset was initially collected to understand the perception of the Rorschach test.
+This data frame contains free-text descriptions of ten Rorschach inkblots
+collected from three panels. It can be used to study recurring descriptions
+without treating them as measures of personality or perception ability.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
 library(NaileR)
-data(rorschach)
+data(rorschach, package = "NaileR")
 
 ### Example 1: perception of the inkblots for one panel ###
-intro_rorschach <- "For this study,
-we asked 20 people to briefly describe
-the 10 inkblots of the Rorschach test."
-intro_rorschach <- gsub('\n', ' ', intro_rorschach) |>
-stringr::str_squish()
+intro_rorschach <- paste(
+  "For this study, 20 people briefly described the 10 inkblots",
+  "in each of three panels. This preview uses panel A."
+)
 
-request_rorschach <- "Based on the comments of the 20 people,
-please give me a description of each inkblot
-in terms of how it was perceived. Tell me if it was
-a rather positive or negative perception."
-request_rorschach <- gsub('\n', ' ', request_rorschach) |>
-stringr::str_squish()
+request_rorschach <- paste(
+  "Describe recurring perceptions of each inkblot from the displayed",
+  "responses. Preserve variation in the descriptions and do not infer",
+  "personality, causes or positive/negative attitudes unless stated."
+)
 
 rorschach_A <- droplevels(rorschach[rorschach$Panel=="A",])
 
-res_nail_textual_rorschach <- nail_textual(rorschach_A, num.var = 2,
-                                           num.text = 5,
-                                           introduction = intro_rorschach,
-                                           request = request_rorschach,
-                                           model = 'llama3',
-                                           isolate.groups = FALSE,
-                                           generate = FALSE)
-res_nail_textual_rorschach |> cat()
-
-ppt <- gsub("## Group", "## Inkblot", res_nail_textual_rorschach)
-ppt |> cat()
-
-res_inkblot <- ollamar::generate(model = 'llama3', prompt = ppt,
-                                 output = "text")
-res_inkblot |> cat()
-}
+res_nail_textual_rorschach <- nail_textual(
+  rorschach_A,
+  num.var = 2,
+  num.text = 5,
+  introduction = intro_rorschach,
+  request = request_rorschach,
+  isolate.groups = FALSE,
+  generate = FALSE
+)
+rorschach_textual_evidence <- nail_evidence(res_nail_textual_rorschach)
+rorschach_textual_prompt <- nail_prompt(
+  res_nail_textual_rorschach,
+  print = FALSE
+)
+cat(substr(rorschach_textual_prompt, 1, 600), "\n")
 }
 \keyword{datasets}

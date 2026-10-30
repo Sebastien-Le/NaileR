@@ -26,13 +26,8 @@ validate_condes_inputs <- function(dataset,
                                    interpretation_mode = c(
                                      "standard",
                                      "latent"
-                                   ),
-                                   prompt_style = c(
-                                     "detailed",
-                                     "compact"
                                    )) {
   interpretation_mode <- match.arg(interpretation_mode)
-  prompt_style <- match.arg(prompt_style)
   sample.method <- match.arg(sample.method)
 
   assert_data_frame(dataset, "dataset")
@@ -1247,178 +1242,214 @@ get_bins <- function(dataset,
 
 build_guide_condes <- function(mode = c("standard", "latent"),
                                target_label = "the target variable",
-                               prompt_style = c("detailed", "compact"),
                                proba = 0.05,
                                sample.pct = 1,
                                sample.method = c("stratified", "top"),
                                quanti.threshold = 1) {
   mode <- match.arg(mode)
-  prompt_style <- match.arg(prompt_style)
   sample.method <- match.arg(sample.method)
 
-  sampling_line <- if (sample.pct >= 1) {
-    "All retained evidence is shown to the LLM."
-  } else if (identical(sample.method, "top")) {
-    paste0(
-      round(100 * sample.pct, 1),
-      "% of each eligible evidence family is shown,",
-      " using the strongest retained items."
-    )
-  } else {
-    paste0(
-      round(100 * sample.pct, 1),
-      "% of each eligible evidence family is shown,",
-      " using deterministic anchor + exploration selection."
-    )
-  }
-
-  common <- c(
-    "## How to Read the Evidence",
-    paste0(
-      "The R-derived facts below come from `FactoMineR::condes()`",
-      " under the current retention threshold (p <= ",
-      proba,
-      ")."
-    ),
-    "Continuous-variable associations are the main direct evidence for the direction of the continuum.",
-    "Global qualitative-variable associations provide complementary evidence.",
-    paste0(
-      "End profiles illustrate the two ends of the continuum.",
-      " Quantitative predictors are represented by above-average, below-average, or intermediate-value states",
-      " using a threshold of ",
-      quanti.threshold,
-      " standard-deviation unit(s); original qualitative categories are preserved."
-    ),
-    sampling_line,
-    "Do not infer causality from these associations."
-  )
-
-  if (prompt_style == "detailed") {
-    common <- c(
-      common,
-      "A positive correlation means that higher values of the predictor tend to accompany higher values of the target; a negative correlation means the opposite.",
-      "For end profiles, a negative Estimate indicates the lower end of the target and a positive Estimate indicates the higher end.",
-      "Treat smaller p.values as stronger evidence among the displayed retained results.",
-      "Interpret the pattern formed by several coherent variables rather than merely paraphrasing each line."
-    )
-  }
-
-  mode_lines <- if (mode == "standard") {
-    c(
-      paste0(
-        'The target label "', target_label,
-        '" is meaningful and refers to an observed continuous variable.'
-      ),
-      "Preserve this meaning and do not rename the target."
-    )
-  } else {
-    c(
-      paste0(
-        'The target label "', target_label,
-        '" may be a technical label for a synthetic or latent continuous score.'
-      ),
-      "Treat its two ends as opposite manifestations of one continuum and reconstruct its substantive meaning from the evidence."
-    )
-  }
-
   paste(
-    c(common, mode_lines),
-    collapse = "\n"
+    "The results come from `FactoMineR::condes()` and describe the associations of one quantitative target with other variables. R has performed the statistical calculations; interpret the displayed evidence without inventing additional findings.",
+    "For quantitative predictors, a POSITIVE correlation means that higher predictor values tend to accompany higher target values; a NEGATIVE correlation means that higher predictor values tend to accompany lower target values. The absolute correlation indicates the strength of the linear association. Interpret directions according to the meaning and orientation of each variable's scale. Higher values do not necessarily mean better outcomes.",
+    "For qualitative predictors, R\u00B2 describes the overall association between the variable and the target. It has no direction and does not identify the contribution of any particular category.",
+    "A positive or negative Estimate indicates that a category is associated with higher or lower target values, respectively, relative to the reference of the fitted one-factor model (sum-to-zero coding). Estimate is expressed in the target's units. It is not necessarily a difference from the overall sample mean or an effect adjusted for other predictors.",
+    "Derived states such as Above-average value and Below-average value come from the original quantitative predictors. They are not independent measurements. Use them to illustrate or qualify the continuous associations, not as separate confirmations.",
+    "Statistical significance does not measure association strength or substantive importance.",
+    "Preserve the meaning of variables and categories, including negations and reverse-worded labels. Use the study context to understand the measurements, without treating that context as additional statistical evidence. Do not infer causality from these associations.",
+    sep = "\n\n"
   )
 }
-
 
 build_request_condes <- function(
     mode = c("standard", "latent"),
     target_concept = "the target concept",
-    target_label = "the target variable",
-    prompt_style = c("detailed", "compact")) {
+    target_label = "the target variable") {
   mode <- match.arg(mode)
-  prompt_style <- match.arg(prompt_style)
 
   if (mode == "standard") {
-    if (prompt_style == "compact") {
-      return(
-        paste(
-          paste0(
-            'Interpret the observed continuous variable "',
-            target_label,
-            '" using only the evidence below.'
-          ),
-          "Identify the main associations and describe what characterizes its lower and higher ends.",
-          "Synthesize what the evidence adds to the understanding of the variable without renaming it.",
-          "Do not invent causal explanations.",
-          sep = "\n"
-        )
-      )
-    }
-
     return(
-      paste(
-        paste0(
-          'Using only the evidence below, interpret the observed continuous variable "',
-          target_label,
-          '".'
-        ),
-        "1. Identify the strongest and most coherent variable-level associations.",
-        "2. Translate their directions into substantive meaning.",
-        "3. Describe what characterizes the lower end of the target.",
-        "4. Describe what characterizes the higher end of the target.",
-        "5. Use the end-profile evidence to illustrate or qualify the variable-level pattern.",
-        "6. Explain what these associations add to the understanding of the target as a whole.",
-        "Do not rename the target, do not force coherence, and do not invent causal explanations.",
-        sep = "\n"
+      paste0(
+        'Interpret the observed continuous variable "',
+        target_label,
+        '".'
       )
     )
   }
 
-  concept_rule <- if (identical(
-    target_concept,
-    "the target concept"
-  )) {
-    "Prefer the simplest unifying name supported by the strongest and most coherent evidence."
+  paste0(
+    'Interpret "',
+    target_label,
+    '" as one continuous latent or synthetic dimension.'
+  )
+}
+
+
+.build_condes_interpretation <- function(
+    mode = c("standard", "latent"),
+    target_concept = "the target concept",
+    target_label = "the target variable",
+    source_target = target_label) {
+  mode <- match.arg(mode)
+
+  # The approved scientific interpretation applies to both modes.
+  core <- paste(
+    "Interpret the quantitative target by considering its statistical associations jointly, rather than describing variables one by one. Identify meaningful patterns associated with lower and higher target values, and develop a substantive synthesis of what emerges from their combination.",
+    "Use the study context to connect findings conceptually, while grounding your interpretation in the provided evidence. Do not present these connections as statistically demonstrated relationships between predictors or causal mechanisms. When the results reveal several distinct aspects of the target, describe them without forcing a single overarching interpretation.",
+    sep = "\n\n"
+  )
+
+  identity <- if (identical(mode, "standard")) {
+    paste(
+      "The target is an observed quantitative variable. Preserve its original name and measured meaning.",
+      "Interpret how the displayed associations characterize its lower and higher values. A broader substantive interpretation may emerge from these associations, but do not replace the observed variable with an inferred latent construct.",
+      sep = "\n\n"
+    )
   } else {
-    paste0(
-      'Use "', target_concept,
-      '" only as contextual guidance; do not force that label if the evidence supports a more precise or different continuum.'
+    paste(
+      "The target is a constructed quantitative dimension whose substantive meaning must be inferred from its statistical associations. Its original identifier must be preserved.",
+      "Interpret the contrast between lower and higher values to identify what the dimension represents. When the numerical orientation is arbitrary, as with a principal component, do not assume that higher values are inherently better or more desirable.",
+      "When supported by the evidence, propose a concise, meaningful name that captures the dimension's main interpretation. Keep the original identifier alongside the proposed name.",
+      "Do not force a single name or interpretation when the associations are too heterogeneous or insufficiently informative.",
+      sep = "\n\n"
     )
   }
 
-  if (prompt_style == "compact") {
-    return(
-      paste(
-        paste0(
-          'Interpret "', target_label,
-          '" as one continuous latent or synthetic dimension using only the evidence below.'
-        ),
-        "Identify the main variable-level associations, describe the two ends, and infer the common meaning that best explains their opposition.",
-        'State explicitly: "What separates the higher end from the lower end of the continuum is..."',
-        "Then propose one concise name for the continuum.",
-        concept_rule,
-        "Do not invent causal explanations.",
-        sep = "\n"
-      )
+  # Preserve the pre-existing public target_concept semantics when supplied:
+  # it is interpretive context, not a statistical fact or mandatory name.
+  if (identical(mode, "latent") &&
+      !identical(target_concept, "the target concept")) {
+    identity <- paste(
+      identity,
+      paste0(
+        'Use "', target_concept,
+        '" only as contextual guidance; do not force that label if the evidence supports a more precise or different continuum.'
+      ),
+      sep = "\n\n"
     )
   }
+
+  # A caller can provide a display label distinct from the actual R variable.
+  # Preserve both identities without changing canonical target metadata.
+  if (!identical(source_target, target_label)) {
+    identity <- paste(
+      identity,
+      paste0(
+        'Original data-variable identifier: "', source_target,
+        '". Analyst-provided display label: "', target_label,
+        '". Preserve the original identifier alongside the display label.'
+      ),
+      sep = "\n\n"
+    )
+  }
+
+  task <- paste0(
+    'Interpret the quantitative target "', target_label,
+    '" using the displayed statistical evidence and the user\'s analytical request.'
+  )
 
   paste(
-    paste0(
-      'Using only the evidence below, interpret "',
-      target_label,
-      '" as one continuous latent or synthetic dimension.'
-    ),
-    "1. Identify the strongest and most coherent variable-level associations.",
-    "2. Translate their directions into substantive meaning.",
-    "3. Describe the lower end of the continuum.",
-    "4. Describe the higher end of the continuum.",
-    "5. Use the end-profile evidence to illustrate, refine, or qualify those two ends.",
-    "6. Infer the common underlying meaning that best explains both ends as opposite manifestations of one continuum.",
-    '7. Write one sentence beginning with: "What separates the higher end from the lower end of the continuum is..."',
-    "8. Propose one concise name for the continuum and justify it from the strongest coherent evidence.",
-    "9. Mention mixed, ambiguous, or only weakly supported patterns when necessary.",
-    concept_rule,
-    "Do not simply restate the evidence line by line and do not invent causal explanations.",
-    sep = "\n"
+    core,
+    "### Target Identity",
+    identity,
+    "### Task",
+    task,
+    sep = "\n\n"
+  )
+}
+
+.build_condes_prompt_blocks <- function(context,
+                                         reading,
+                                         question,
+                                         interpretation,
+                                         evidence,
+                                         output) {
+  blocks <- list(
+    context = context,
+    reading = reading,
+    question = question,
+    interpretation = interpretation,
+    evidence = evidence,
+    output = output
+  )
+
+  expected_names <- c(
+    "context",
+    "reading",
+    "question",
+    "interpretation",
+    "evidence",
+    "output"
+  )
+
+  if (!identical(names(blocks), expected_names)) {
+    stop(
+      "Internal CONDES prompt blocks do not have the expected names.",
+      call. = FALSE
+    )
+  }
+
+  blocks
+}
+
+
+.render_condes_prompt <- function(blocks) {
+  expected_names <- c(
+    "context",
+    "reading",
+    "question",
+    "interpretation",
+    "evidence",
+    "output"
+  )
+
+  if (!is.list(blocks) || !identical(names(blocks), expected_names)) {
+    stop(
+      paste(
+        "`blocks` must be the ordered six-block CONDES prompt object",
+        "with names context, reading, question, interpretation, evidence, output."
+      ),
+      call. = FALSE
+    )
+  }
+
+  headings <- c(
+    context = "# Introduction",
+    reading = "## How to Read the Evidence",
+    question = "# Analytical Question",
+    interpretation = "## Interpretation Rules",
+    evidence = "# Data",
+    output = "# Final Output Requirements"
+  )
+
+  sections <- vapply(
+    expected_names,
+    function(name) {
+      value <- blocks[[name]]
+      if (is.null(value) || length(value) == 0L) {
+        return("")
+      }
+      if (!is.character(value) || length(value) != 1L) {
+        stop(
+          paste0(
+            "CONDES prompt block `",
+            name,
+            "` must be NULL, empty, or one character string."
+          ),
+          call. = FALSE
+        )
+      }
+      if (!nzchar(trimws(value))) {
+        return("")
+      }
+      paste(headings[[name]], value, sep = "\n\n")
+    },
+    character(1)
+  )
+
+  sections <- sections[nzchar(sections)]
+  normalize_blank_lines(
+    paste(sections, collapse = "\n\n---\n\n")
   )
 }
 
@@ -1428,41 +1459,12 @@ build_conclusion_condes <- function(
     target_label = "the target variable") {
   mode <- match.arg(mode)
 
-  if (mode == "standard") {
-    return(
-      paste(
-        "# Final Summary Task",
-        "End with:",
-        paste0(
-          '1. **Meaning of "', target_label,
-          '"** - a concise synthesis of what the evidence shows.'
-        ),
-        "2. **Lower end** - the main characteristics associated with lower values.",
-        "3. **Higher end** - the main characteristics associated with higher values.",
-        "4. **Overall interpretation** - the main coherent pattern, including any important nuance or mixed evidence.",
-        "",
-        "# Output format",
-        "Your output must be **formatted using valid Quarto Markdown**.",
-        sep = "\n"
-      )
-    )
-  }
-
   paste(
-    "# Final Summary Task",
-    "End with:",
-    "1. **Main continuum** - one concise statement of the opposition represented by the score.",
-    "2. **Lower end** - the main characteristics of one end.",
-    "3. **Higher end** - the main characteristics of the other end.",
-    '4. **What separates the ends** - one sentence beginning with "What separates the higher end from the lower end of the continuum is...".',
-    "5. **Proposed latent dimension** - one concise name and its evidence-based justification.",
-    "",
-    "# Output format",
-    "Your output must be **formatted using valid Quarto Markdown**.",
-    sep = "\n"
+    "Write a clear, substantive interpretation of the quantitative target. Present the main characteristics associated with its lower and higher values, and explain the overall contrast they suggest.",
+    "Support your interpretation with the most relevant statistical findings, while acknowledging important limitations. Favor a meaningful synthesis over repetitive numerical reporting.",
+    sep = "\n\n"
   )
 }
-
 
 # ===========================================================================
 # LLM IO and artifact attachment
@@ -1512,6 +1514,7 @@ build_conclusion_condes <- function(
                                      continuous_profile,
                                      interpretation_evidence,
                                      semantic_facing_evidence,
+                                     prompt_blocks,
                                      prompt,
                                      response,
                                      condes_result,
@@ -1535,6 +1538,7 @@ build_conclusion_condes <- function(
   attr(x, "continuous_profile") <- continuous_profile
   attr(x, "interpretation_evidence") <- interpretation_evidence
   attr(x, "semantic_facing_evidence") <- semantic_facing_evidence
+  attr(x, "condes_prompt_blocks") <- prompt_blocks
   attr(x, "condes_prompt") <- prompt
 
   # Historical raw objects retained as compatibility/direct-evidence views.
@@ -1566,31 +1570,48 @@ build_conclusion_condes <- function(
 # Main
 # ===========================================================================
 
-#' Interpret a continuous variable or latent continuum
+#' Describe a continuous variable and its associations
 #'
-#' `nail_condes()` characterizes one continuous target using
-#' [FactoMineR::condes()]. It first builds a canonical R-derived
-#' `continuous_profile`, then selects a deterministic subset of that evidence
-#' for semantic interpretation by the LLM.
+#' Use `nail_condes()` to describe which quantitative and qualitative variables
+#' are associated with one numeric target. The target may be an observed
+#' measurement or a score from a multivariate analysis. NaileR computes the
+#' statistical profile with [FactoMineR::condes()] and prepares it for an
+#' optional interpretation by a language model. The model does not calculate
+#' or change the statistical results.
+#'
+#' The complete R-derived `continuous_profile` is kept separate from the
+#' deterministic subset selected for semantic interpretation by the LLM. R
+#' performs the statistical calculation; the LLM only interprets the displayed
+#' factual statements.
 #'
 #' `interpretation_mode = "standard"` interprets an observed continuous
 #' variable whose label is already meaningful. `interpretation_mode = "latent"`
 #' interprets a synthetic or latent score as a continuum whose substantive
 #' meaning may need to be reconstructed.
 #'
+#' The prompt is assembled from six stable top-level blocks: `context`,
+#' `reading`, `question`, `interpretation`, `evidence`, and `output`.
+#' `introduction`, `request`, and `conclusion` customize the context, question,
+#' and output blocks. There is no public argument for adding or replacing the
+#' reading, interpretation, or evidence blocks.
+#'
 #' The canonical `continuous_profile` is invariant to `generate`,
-#' `interpretation_mode`, `sample.pct`, `sample.method`, `prompt_style`,
-#' `target_concept`, `target_label`, `introduction`, `request`, and
+#' `interpretation_mode`, `sample.pct`, `sample.method`, `target_concept`,
+#' `target_label`, `introduction`, `request`, and
 #' `conclusion`. These arguments affect only the interpretation layer.
 #'
 #' @param dataset A data frame containing one numeric target variable and
 #'   quantitative and/or qualitative explanatory variables.
 #' @param num.var Index of the numeric variable to characterize.
 #' @param introduction Optional contextual introduction added to the prompt.
+#'   It supplies study context but is not statistical evidence.
 #' @param request Optional analytical request sent to the LLM.
 #' @param conclusion Optional final output-instruction block.
-#' @param model Model name for the selected provider.
-#' @param provider LLM backend. Currently `"ollama"` or `"gemini"`.
+#' @param model Model name for the selected provider. When omitted, the
+#'   validated provider default is used: `"llama3"` for Ollama and
+#'   `"gemini-2.5-flash"` for Gemini. An explicit model is always respected.
+#' @param provider LLM backend. Currently `"ollama"` or `"gemini"`; the
+#'   default selected by `match.arg()` is `"ollama"`.
 #' @param quanti.threshold Threshold, in standard-deviation units, used to
 #'   convert quantitative predictors into the three technical states defined
 #'   by `quanti.cat` for end-profile construction.
@@ -1600,31 +1621,36 @@ build_conclusion_condes <- function(
 #' @param sample.pct Proportion of each eligible evidence family included in
 #'   the LLM evidence. This does not alter the canonical `continuous_profile`.
 #' @param sample.method Deterministic evidence-selection strategy when
-#'   `sample.pct < 1`. `"stratified"` (default) preserves a statistical anchor
-#'   and explores lower-ranked retained evidence; `"top"` retains only the
-#'   strongest evidence.
+#'   `sample.pct < 1`. `"stratified"` (the default) preserves a statistical
+#'   anchor and explores lower-ranked retained evidence; `"top"` retains only
+#'   the strongest evidence. Neither option changes `continuous_profile`.
 #' @param weights Optional non-negative row weights passed to
 #'   [FactoMineR::condes()]. When supplied, quantitative predictors are also
 #'   standardized with these weights for end-profile construction.
 #' @param proba Significance threshold passed to [FactoMineR::condes()].
 #' @param generate If `FALSE`, build the prompt without calling an LLM. If
-#'   `TRUE`, call the selected backend.
-#' @param interpretation_mode Either `"standard"` for an observed variable or
-#'   `"latent"` for a synthetic/latent continuum.
-#' @param prompt_style Either `"detailed"` or `"compact"`.
+#'   `TRUE`, call the selected backend once for the target.
+#' @param interpretation_mode Either `"standard"` for an observed variable,
+#'   whose name is preserved, or `"latent"` for a synthetic/latent continuum,
+#'   whose substantive meaning and possible name are reconstructed from its
+#'   statistical profile.
 #' @param target_concept Optional contextual concept for latent interpretation.
 #'   It guides but does not constrain the evidence-based naming of the
 #'   continuum.
 #' @param target_label Optional display label for the target in the prompt.
 #'   If `NULL`, the dataset column name is used. This does not alter the
 #'   canonical target identity stored in `continuous_profile`.
-#' @param ... Additional provider-specific generation arguments.
+#' @param ... Additional provider-specific generation arguments. Unknown
+#'   options and options incompatible with the selected provider are rejected
+#'   before calculation or generation; no option is silently discarded.
 #'
-#' @return For backward compatibility, a prompt string when
-#'   `generate = FALSE`, or the backend data frame when `generate = TRUE`.
-#'   Analytical artifacts are attached as attributes:
+#' @return The main return value is a character prompt when `generate = FALSE`
+#'   and the backend data frame when `generate = TRUE`. Analytical artifacts
+#'   are attached as attributes rather than inserted as `$` fields:
 #'
-#'   * `continuous_profile`: canonical R-derived evidence.
+#'   * `continuous_profile`: the complete R-derived statistical profile,
+#'     including quantitative associations, qualitative associations, end
+#'     profiles, p-values, and stable evidence IDs.
 #'   * `interpretation_evidence`: deterministic subset shown to the LLM.
 #'   * `semantic_facing_evidence`: explicit factual statements used in the
 #'     prompt.
@@ -1636,39 +1662,296 @@ build_conclusion_condes <- function(
 #'     `condes_result`; no second `condes()` analysis is performed.
 #'   * `condes_settings`: execution settings.
 #'
+#'   Use [nail_evidence()] to inspect the profile, [nail_prompt()] to retrieve
+#'   the exact prompt, and [nail_response()] to retrieve the raw response after
+#'   generation. With `generate = FALSE`, no response is available.
+#'
+#' @seealso [FactoMineR::condes()], [nail_qda_space()], [nail_evidence()],
+#'   [nail_prompt()], [nail_response()]
+#'
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' ## 1. Decathlon: characterize an observed performance variable
+#' # Question: which event measurements are associated with the observed rank?
 #' data(decathlon, package = "FactoMineR")
-#'
-#' # Observed-variable interpretation
-#' x <- nail_condes(
-#'   decathlon,
+#' decathlon_introduction <- paste(
+#'   "This example uses observed decathlon performance variables.",
+#'   "Rank is the observed target; the other event variables are quantitative",
+#'   "measurements used to characterize its profile."
+#' )
+#' decathlon_request <- paste(
+#'   "Describe the quantitative associations with observed Rank values.",
+#'   "Use the retained evidence, distinguish observations from hypotheses,",
+#'   "and do not infer causes or athletic ability beyond these data."
+#' )
+#' condes_preview <- nail_condes(
+#'   dataset = decathlon,
 #'   num.var = 12,
 #'   interpretation_mode = "standard",
+#'   introduction = decathlon_introduction,
+#'   request = decathlon_request,
 #'   generate = FALSE
 #' )
-#' nail_prompt(x)
+#' condes_evidence <- nail_evidence(condes_preview)
+#' condes_prompt <- nail_prompt(condes_preview, print = FALSE)
+#' condes_evidence
+#' condes_prompt
 #'
-#' # A synthetic dimension should use latent mode
+#' # The evidence is the retained quantitative profile. The prompt is the
+#' # exact request prepared for an optional interpretation.
+#'
+#' ## 2. A constructed score should be interpreted in latent mode.
 #' pca <- FactoMineR::PCA(
 #'   decathlon[, 1:10],
 #'   scale.unit = TRUE,
 #'   graph = FALSE
 #' )
-#' work <- data.frame(
+#' decathlon_dim1 <- data.frame(
 #'   Dim1 = pca$ind$coord[, 1],
-#'   decathlon[, 1:10]
+#'   decathlon[, 1:10],
+#'   check.names = FALSE
 #' )
-#' dim1 <- nail_condes(
-#'   work,
+#' condes_latent <- nail_condes(
+#'   decathlon_dim1,
 #'   num.var = 1,
 #'   interpretation_mode = "latent",
 #'   target_label = "Dim1",
 #'   generate = FALSE
 #' )
-#' nail_prompt(dim1)
+#' nail_evidence(condes_latent)
+#' cat(substr(nail_prompt(condes_latent, print = FALSE), 1, 600), "\n")
+#'
+#' # A first ACM dimension: agribusiness expectations.
+#' data(agri_studies, package = "NaileR")
+#' agri_mca <- FactoMineR::MCA(
+#'   agri_studies,
+#'   quali.sup = 39:42,
+#'   graph = FALSE
+#' )
+#' agri_work <- data.frame(
+#'   Dim1 = agri_mca$ind$coord[, 1],
+#'   agri_studies,
+#'   check.names = FALSE
+#' )
+#' agri_condes <- nail_condes(
+#'   agri_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   introduction = paste(
+#'     "Students ranked 38 statements about agribusiness studies and then",
+#'     "answered four personal questions. The first ACM dimension is a",
+#'     "constructed contrast in these reported expectations."
+#'   ),
+#'   request = paste(
+#'     "Interpret the opposition between the two ends of Dim1 using the",
+#'     "retained associations. Do not infer causes or general abilities from",
+#'     "these reported expectations."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(agri_condes)
+#' cat(substr(nail_prompt(agri_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # A second ACM dimension example: perceptions of public speaking.
+#' data(glossophobia, package = "NaileR")
+#' gloss_mca <- FactoMineR::MCA(
+#'   glossophobia,
+#'   quali.sup = 26:41,
+#'   graph = FALSE
+#' )
+#' gloss_work <- data.frame(
+#'   Dim1 = gloss_mca$ind$coord[, 1],
+#'   glossophobia,
+#'   check.names = FALSE
+#' )
+#' gloss_condes <- nail_condes(
+#'   gloss_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   introduction = paste(
+#'     "Participants ranked 25 descriptions of speaking in public and",
+#'     "answered personal questions. Dim1 is a constructed contrast in",
+#'     "these reported perceptions, not a clinical diagnosis."
+#'   ),
+#'   request = paste(
+#'     "Describe the opposition between lower and higher Dim1 values from",
+#'     "the displayed evidence, preserving uncertainty and avoiding causal",
+#'     "or psychological claims not contained in the survey."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(gloss_condes)
+#' cat(substr(nail_prompt(gloss_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # An AFC dimension: row profiles of the beard contingency table.
+#' # The profile columns are derived from the same table and are not treated
+#' # as independent individual-level measurements.
+#' data(beard_cont, package = "NaileR")
+#' beard_ca <- FactoMineR::CA(beard_cont, graph = FALSE)
+#' beard_profiles <- sweep(
+#'   as.matrix(beard_cont),
+#'   1,
+#'   rowSums(beard_cont),
+#'   "/"
+#' )
+#' beard_work <- data.frame(
+#'   Dim1 = beard_ca$row$coord[, 1],
+#'   beard_profiles,
+#'   check.names = FALSE
+#' )
+#' beard_condes <- nail_condes(
+#'   beard_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   introduction = paste(
+#'     "The rows are eight observed beard types and the columns are words",
+#'     "used to describe them. Row profiles from this same contingency table",
+#'     "are used to characterize the first correspondence dimension."
+#'   ),
+#'   request = paste(
+#'     "Describe the opposition between the two ends of the first AFC",
+#'     "dimension from the displayed row-profile evidence. Do not treat it",
+#'     "as an individual-level survey or infer causes."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(beard_condes)
+#' cat(substr(nail_prompt(beard_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # MASHS / local_food: 45 active assertions and 18 supplementary variables.
+#' data(local_food, package = "NaileR")
+#' food_mca <- FactoMineR::MCA(
+#'   local_food,
+#'   quali.sup = 46:63,
+#'   ncp = 100,
+#'   graph = FALSE
+#' )
+#' food_work <- data.frame(
+#'   Dim1 = food_mca$ind$coord[, 1],
+#'   local_food,
+#'   check.names = FALSE
+#' )
+#' food_condes <- nail_condes(
+#'   food_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   target_concept = "sustainable food-system representations",
+#'   introduction = paste(
+#'     "Participants rated 45 statements about a sustainable food system",
+#'     "and answered additional opinion and contextual questions. Dim1 is a",
+#'     "constructed contrast in declared representations, not behaviour."
+#'   ),
+#'   request = paste(
+#'     "Interpret both ends of Dim1 from the retained evidence. Distinguish",
+#'     "active statements that construct the ACM from supplementary variables",
+#'     "and do not infer causal mechanisms."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(food_condes)
+#' cat(substr(nail_prompt(food_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # IRTSAT: all 48 ordered assertions are active in this illustrative ACM.
+#' # MCA treats their levels as categorical; it is not an IRT analysis.
+#' data(irtsat_items_2024_2025, package = "NaileR")
+#' irtsat_mca <- FactoMineR::MCA(
+#'   irtsat_items_2024_2025,
+#'   ncp = 5,
+#'   graph = FALSE
+#' )
+#' irtsat_work <- data.frame(
+#'   Dim1 = irtsat_mca$ind$coord[, 1],
+#'   irtsat_items_2024_2025,
+#'   check.names = FALSE
+#' )
+#' irtsat_condes <- nail_condes(
+#'   irtsat_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   target_concept = "local-food representations",
+#'   introduction = paste(
+#'     "This 48-item instrument covers six blocks of local-food attitudes",
+#'     "and practices. The ordered Likert items are treated as categorical",
+#'     "by MCA, with no join to the separate 529-row profile table."
+#'   ),
+#'   request = paste(
+#'     "Interpret Dim1 as a descriptive contrast in the item responses.",
+#'     "Use the retained evidence, not an IRT interpretation, and do not",
+#'     "infer behaviour or causality."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(irtsat_condes)
+#' cat(substr(nail_prompt(irtsat_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # Distinction: six coherent assertion blocks, with context and open text
+#' # excluded from the active ACM. The distributed object has 47 such fields.
+#' data(distinction, package = "NaileR")
+#' distinction_labels <- utils::read.csv(
+#'   system.file("extdata", "distinction_assertion_labels.csv", package = "NaileR"),
+#'   check.names = FALSE,
+#'   stringsAsFactors = FALSE,
+#'   fileEncoding = "UTF-8"
+#' )
+#' distinction_active <- c(
+#'   grep("^assertion_q17_", names(distinction), value = TRUE),
+#'   grep("^assertion_q2[1-5]_", names(distinction), value = TRUE)
+#' )
+#' distinction_rows <- match(distinction_active, distinction_labels$technical_name)
+#' stopifnot(
+#'   length(distinction_active) == 47L,
+#'   all(!is.na(distinction_rows)),
+#'   !anyDuplicated(distinction_labels$label_en[distinction_rows])
+#' )
+#' distinction_assertions <- distinction[, distinction_active, drop = FALSE]
+#' names(distinction_assertions) <- distinction_labels$label_en[distinction_rows]
+#' distinction_mca <- FactoMineR::MCA(
+#'   distinction_assertions,
+#'   ncp = 5,
+#'   graph = FALSE
+#' )
+#' distinction_work <- data.frame(
+#'   Dim1 = distinction_mca$ind$coord[, 1],
+#'   distinction_assertions,
+#'   check.names = FALSE
+#' )
+#' distinction_condes <- nail_condes(
+#'   distinction_work,
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   target_label = "Dim1",
+#'   target_concept = "food-transition representations",
+#'   introduction = paste(
+#'     "This survey records reported food, territory and food-choice",
+#'     "attitudes. The active variables cover local-food representations,",
+#'     "literacy, social context, place confidence, cooking time and health."
+#'   ),
+#'   request = paste(
+#'     "Interpret the opposition between the two ends of Dim1 from the",
+#'     "retained evidence. Keep reported attitudes distinct from observed",
+#'     "behaviour, and do not use the open response as an active ACM variable."
+#'   ),
+#'   generate = FALSE
+#' )
+#' nail_evidence(distinction_condes)
+#' cat(substr(nail_prompt(distinction_condes, print = FALSE), 1, 600), "\n")
+#'
+#' # Optional Gemini generation: one response for the observed Decathlon target.
+#' # This opt-in block requires a user-managed GEMINI_API_KEY.
+#' \dontrun{
+#' decathlon_gemini <- nail_condes(
+#'   decathlon, num.var = 12, interpretation_mode = "standard",
+#'   provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+#' )
+#' nail_evidence(decathlon_gemini)
+#' nail_prompt(decathlon_gemini, print = FALSE)
+#' nail_response(decathlon_gemini, print = FALSE)
 #' }
 nail_condes <- function(dataset,
                         num.var,
@@ -1695,19 +1978,31 @@ nail_condes <- function(dataset,
                           "standard",
                           "latent"
                         ),
-                        prompt_style = c(
-                          "detailed",
-                          "compact"
-                        ),
                         target_concept = "the target concept",
                         target_label = NULL,
                         ...) {
+  model_missing <- missing(model)
+  dots_call <- match.call(expand.dots = FALSE)[["..."]]
+  if (!is.null(dots_call) &&
+      "prompt_style" %in% names(dots_call)) {
+    stop(
+      paste(
+        "`prompt_style` was removed from `nail_condes()` because the",
+        "CONDES prompt is now a single stable six-block specification.",
+        "Remove this argument from the call."
+      ),
+      call. = FALSE
+    )
+  }
+
   interpretation_mode <- match.arg(
     interpretation_mode
   )
-  prompt_style <- match.arg(prompt_style)
   provider <- match.arg(provider)
+  model <- .resolve_llm_model(model, provider, model_missing)
   sample.method <- match.arg(sample.method)
+  llm_api_options <- list(...)
+  .validate_llm_api_options(llm_api_options, provider)
 
   validate_condes_inputs(
     dataset = dataset,
@@ -1719,8 +2014,7 @@ nail_condes <- function(dataset,
     weights = weights,
     proba = proba,
     generate = generate,
-    interpretation_mode = interpretation_mode,
-    prompt_style = prompt_style
+    interpretation_mode = interpretation_mode
   )
 
   target_variable <- if (is.null(colnames(dataset))) {
@@ -1774,8 +2068,7 @@ nail_condes <- function(dataset,
     request <- build_request_condes(
       mode = interpretation_mode,
       target_concept = target_concept,
-      target_label = target_label,
-      prompt_style = prompt_style
+      target_label = target_label
     )
   }
 
@@ -1826,28 +2119,32 @@ nail_condes <- function(dataset,
     target_label = target_label
   )
 
-  guide <- build_guide_condes(
+  reading <- build_guide_condes(
     mode = interpretation_mode,
     target_label = target_label,
-    prompt_style = prompt_style,
     proba = proba,
     sample.pct = sample.pct,
     sample.method = sample.method,
     quanti.threshold = quanti.threshold
   )
 
-  prompt_introduction <- paste(
-    introduction,
-    guide,
-    sep = "\n\n---\n\n"
+  interpretation <- .build_condes_interpretation(
+    mode = interpretation_mode,
+    target_concept = target_concept,
+    target_label = target_label,
+    source_target = target_variable
   )
 
-  final_prompt <- build_standard_prompt(
-    introduction = prompt_introduction,
-    request = request,
-    data = semantic_facing_evidence$prompt_text,
-    conclusion = conclusion
+  prompt_blocks <- .build_condes_prompt_blocks(
+    context = introduction,
+    reading = reading,
+    question = request,
+    interpretation = interpretation,
+    evidence = semantic_facing_evidence$prompt_text,
+    output = conclusion
   )
+
+  final_prompt <- .render_condes_prompt(prompt_blocks)
 
   condes_settings <- list(
     num_var = as.integer(num.var),
@@ -1861,7 +2158,6 @@ nail_condes <- function(dataset,
     proba = proba,
     statistical_source = "single_condes_on_augmented_data",
     interpretation_mode = interpretation_mode,
-    prompt_style = prompt_style,
     target_concept = target_concept,
     generate = generate,
     provider = provider,
@@ -1875,6 +2171,7 @@ nail_condes <- function(dataset,
         continuous_profile = continuous_profile,
         interpretation_evidence = interpretation_evidence,
         semantic_facing_evidence = semantic_facing_evidence,
+        prompt_blocks = prompt_blocks,
         prompt = final_prompt,
         response = NULL,
         condes_result = res_cd,
@@ -1885,14 +2182,12 @@ nail_condes <- function(dataset,
     )
   }
 
-  extra_args <- list(...)
-
   res_llm <- .call_llm_base(
     provider = provider,
     model = model,
     prompt = final_prompt,
     output = "df",
-    llm_api_options = extra_args
+    llm_api_options = llm_api_options
   )
 
   res_llm$prompt <- final_prompt
@@ -1905,6 +2200,7 @@ nail_condes <- function(dataset,
     continuous_profile = continuous_profile,
     interpretation_evidence = interpretation_evidence,
     semantic_facing_evidence = semantic_facing_evidence,
+    prompt_blocks = prompt_blocks,
     prompt = final_prompt,
     response = raw_response,
     condes_result = res_cd,

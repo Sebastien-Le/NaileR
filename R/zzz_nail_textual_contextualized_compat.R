@@ -110,6 +110,7 @@ nail_textual_contextualized <- function(
     catdes = NULL,
     textual = NULL,
     ...) {
+  model_missing <- missing(model)
 
   # Record whether historical-only tuning arguments were explicitly supplied
   # before evaluating/matching them. This prevents silent ignoring on the
@@ -176,6 +177,8 @@ nail_textual_contextualized <- function(
     }
 
     provider <- match.arg(provider)
+    model <- .resolve_llm_model(model, provider, model_missing)
+    .validate_llm_api_options(list(...), provider)
 
     out <- nail_catdes_textual(
       catdes = catdes,
@@ -201,6 +204,9 @@ nail_textual_contextualized <- function(
 
   # Historical route: preserve the previous implementation and its exact
   # argument contract. No new canonical preprocessing is inserted here.
+  provider <- match.arg(provider)
+  model <- .resolve_llm_model(model, provider, model_missing)
+  .validate_llm_api_options(list(...), provider)
   .nail_textual_contextualized_legacy(
     group_profile_prep = group_profile_prep,
     textual_prep = textual_prep,

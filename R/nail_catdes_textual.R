@@ -66,6 +66,18 @@
     )
   }
 
+  if (identical(textual_profiles$scope, "joint") ||
+      identical(textual_profiles$settings$architecture, "joint")) {
+    stop(
+      paste(
+        "`textual` contains a joint comparative interpretation.",
+        "`nail_catdes_textual()` requires one parsed textual profile per group;",
+        "rerun `nail_textual()` with `isolate.groups = TRUE`."
+      ),
+      call. = FALSE
+    )
+  }
+
   if (!is.logical(isolate.groups) ||
       length(isolate.groups) != 1L ||
       is.na(isolate.groups)) {
@@ -196,6 +208,30 @@
   }
 
   as.character(response[[1L]])
+}
+
+
+.catdes_has_reused_llm_interpretation <- function(catdes) {
+  semantic_profiles <- attr(catdes, "semantic_profiles", exact = TRUE)
+
+  if (is.null(semantic_profiles) ||
+      !is.list(semantic_profiles$groups) ||
+      length(semantic_profiles$groups) == 0L) {
+    return(FALSE)
+  }
+
+  any(vapply(
+    semantic_profiles$groups,
+    function(group) {
+      response <- group$response
+      identical(group$status, "generated") &&
+        !is.null(response) &&
+        length(response) > 0L &&
+        !is.na(response[[1L]]) &&
+        nzchar(trimws(as.character(response[[1L]])))
+    },
+    logical(1)
+  ))
 }
 
 
@@ -974,13 +1010,16 @@
 #' profiles produced by [nail_textual()]. The two sources are deliberately not
 #' treated symmetrically: CATDES characterizes the group statistically, while
 #' open-ended responses provide a supplementary interpretive layer.
+#' The function does not recompute either upstream analysis.
 #'
 #' @param catdes A result returned by [nail_catdes()]. It must carry canonical
 #'   `semantic_facing_evidence`. The CATDES LLM interpretation itself is
 #'   optional: mechanical CATDES facts remain the statistical anchor.
 #' @param textual A result returned by the rebuilt [nail_textual()] with
-#'   `generate = TRUE`. It must carry canonical `textual_evidence` and
-#'   successfully parsed `textual_profiles`.
+#'   `generate = TRUE`. It must carry canonical `textual_evidence` and one
+#'   successfully parsed local `textual_profiles` per group; a joint
+#'   comparative `nail_textual(isolate.groups = FALSE)` result is not a local
+#'   profile source for this function.
 #' @param introduction Optional study context added to every local prompt.
 #' @param request Optional analytical request. The default asks the LLM to use
 #'   textual evidence to confirm, clarify, nuance, or supplement the CATDES
@@ -988,8 +1027,11 @@
 #' @param conclusion Optional output instruction. The default requests five
 #'   structured fields: statistical anchor, textual enrichment, additional
 #'   insights, internal diversity, and contextualized profile.
-#' @param model Model name for the selected provider.
-#' @param provider LLM backend, either `"ollama"` or `"gemini"`.
+#' @param model Model name for the selected provider. When omitted, the
+#'   validated provider default is used: `"llama3"` for Ollama and
+#'   `"gemini-2.5-flash"` for Gemini. An explicit model is always respected.
+#' @param provider LLM backend, either `"ollama"` or `"gemini"`; the default
+#'   selected by `match.arg()` is `"ollama"`.
 #' @param isolate.groups Logical. Contextualized interpretation is always
 #'   performed locally one group at a time. If `TRUE`, return the named local
 #'   prompts/results. If `FALSE`, preserve a combined outer return shape while
@@ -998,7 +1040,8 @@
 #'   contacting a backend. If `TRUE`, generate one independent contextualized
 #'   interpretation per group.
 #' @param ... Provider-specific generation arguments passed to the selected
-#'   backend.
+#'   backend. Unknown or provider-incompatible options are rejected also in
+#'   preview mode; no option is silently discarded.
 #'
 #' @details
 #' The function never recomputes CATDES and never re-analyzes raw textual
@@ -1014,14 +1057,104 @@
 #' tension text IDs are resolved back to exact texts through `textual_evidence`
 #' so that the final enrichment remains inspectable and grounded.
 #'
+#' When `generate = TRUE` and a generated CATDES interpretation is reused in
+#' the contextualized prompt, the function emits one non-blocking warning about
+#' possible propagation of overinterpretation. The enriched portrait should be
+#' confronted with the original CATDES statistical evidence.
+#'
 #' @return When `generate = FALSE`, a named list of local prompts when
 #'   `isolate.groups = TRUE`, otherwise a combined local-first preview. When
 #'   `generate = TRUE`, a named list of local backend results when
-#'   `isolate.groups = TRUE`, otherwise a combined data frame. All returns carry
-#'   `contextualized_evidence`, `local_prompts`, `contextualized_profiles`,
-#'   `catdes_textual_settings`, and canonical `llm_io` attributes.
+#'   `isolate.groups = TRUE`, otherwise a combined data frame. All returns
+#'   carry `contextualized_evidence`, `local_prompts`,
+#'   `contextualized_profiles`, `catdes_textual_settings`, and canonical
+#'   `llm_io` attributes. These are attributes of the returned object, not
+#'   `$` fields of a wrapper. Use [nail_evidence()], [nail_prompt()], and
+#'   [nail_response()] for public inspection; a preview has no responses.
+#'
+#' @seealso [nail_catdes()], [nail_textual()],
+#'   [nail_textual_contextualized()], [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
 #' @export
+#' @examples
+#' # This is a deterministic composition fixture. The group labels, scores,
+#' # choices and texts are constructed solely to exercise the composition
+#' # contract; they are not observations from an LLM campaign or a real study.
+#' composition_data <- data.frame(
+#'   group = factor(rep(c("G1", "G2", "G3"), each = 12)),
+#'   score = c(
+#'     9 + seq_len(12) * 0.03,
+#'     5 + seq_len(12) * 0.02,
+#'     1 + seq_len(12) * 0.01
+#'   ),
+#'   choice = factor(
+#'     rep(c("high", "middle", "low"), each = 12),
+#'     levels = c("low", "middle", "high")
+#'   ),
+#'   text = c(
+#'     paste("Mobility matters but I try to reduce unnecessary travel", seq_len(12)),
+#'     paste("I balance convenience with environmental concerns", seq_len(12)),
+#'     paste("I prefer local alternatives and rarely need long travel", seq_len(12))
+#'   ),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' catdes_preview <- nail_catdes(
+#'   composition_data[c("group", "score", "choice")],
+#'   num.var = 1,
+#'   interpretation_mode = "latent",
+#'   isolate.groups = TRUE,
+#'   generate = FALSE
+#' )
+#' textual_preview <- nail_textual(
+#'   composition_data[c("group", "text")],
+#'   num.var = 1,
+#'   num.text = 2,
+#'   isolate.groups = TRUE,
+#'   sample.pct = 1,
+#'   generate = FALSE
+#' )
+#'
+#' # The composition function requires an available structured textual profile.
+#' # This deterministic fixture stands in for a previously generated or
+#' # expert-reviewed profile, without calling an LLM.
+#' textual_profiles <- attr(textual_preview, "textual_profiles", exact = TRUE)
+#' interpretation_input <- attr(
+#'   textual_preview,
+#'   "interpretation_input",
+#'   exact = TRUE
+#' )
+#' for (group_name in names(textual_profiles$groups)) {
+#'   ids <- interpretation_input$groups[[group_name]]$selected_text_ids
+#'   textual_profiles$groups[[group_name]]$status <- "available"
+#'   textual_profiles$groups[[group_name]]$core_textual_profile <-
+#'     "The group expresses a recurring practical frame around travel choices."
+#'   textual_profiles$groups[[group_name]]$dominant_themes <-
+#'     c("practical constraints", "alternatives")
+#'   textual_profiles$groups[[group_name]]$within_group_coherence <- "moderate"
+#'   textual_profiles$groups[[group_name]]$internal_diversity <-
+#'     "Members differ in how strongly they would change their habits."
+#'   textual_profiles$groups[[group_name]]$representative_text_ids <- ids[[1L]]
+#'   textual_profiles$groups[[group_name]]$tension_text_ids <-
+#'     if (length(ids) >= 2L) ids[[2L]] else character(0)
+#'   textual_profiles$groups[[group_name]]$parse_issues <- character(0)
+#' }
+#' attr(textual_preview, "textual_profiles") <- textual_profiles
+#'
+#' enriched_preview <- nail_catdes_textual(
+#'   catdes = catdes_preview,
+#'   textual = textual_preview,
+#'   isolate.groups = TRUE,
+#'   generate = FALSE
+#' )
+#' enriched_group <- names(nail_evidence(enriched_preview)$groups)[[1L]]
+#' nail_evidence(enriched_preview, select = enriched_group)
+#' substr(
+#'   nail_prompt(enriched_preview, select = enriched_group, print = FALSE),
+#'   1,
+#'   600
+#' )
 nail_catdes_textual <- function(catdes,
                                 textual,
                                 introduction = NULL,
@@ -1032,7 +1165,11 @@ nail_catdes_textual <- function(catdes,
                                 isolate.groups = TRUE,
                                 generate = FALSE,
                                 ...) {
+  model_missing <- missing(model)
   provider <- match.arg(provider)
+  model <- .resolve_llm_model(model, provider, model_missing)
+  llm_api_options <- list(...)
+  .validate_llm_api_options(llm_api_options, provider)
 
   .validate_nail_catdes_textual_inputs(
     catdes = catdes,
@@ -1045,6 +1182,9 @@ nail_catdes_textual <- function(catdes,
     catdes = catdes,
     textual = textual
   )
+
+  reused_catdes_interpretation <-
+    .catdes_has_reused_llm_interpretation(catdes)
 
   if (is.null(introduction)) {
     introduction <- .catdes_textual_default_introduction()
@@ -1118,6 +1258,18 @@ nail_catdes_textual <- function(catdes,
       settings = settings,
       llm_io = llm_io
     ))
+  }
+
+  if (isTRUE(reused_catdes_interpretation)) {
+    warning(
+      paste(
+        "A generated CATDES interpretation is being reused in this",
+        "textual enrichment; confront the enriched portrait with the",
+        "original CATDES statistical evidence to detect possible propagation",
+        "of overinterpretation."
+      ),
+      call. = FALSE
+    )
   }
 
   llm_api_options <- list(...)

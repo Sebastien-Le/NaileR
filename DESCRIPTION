@@ -1,6 +1,6 @@
 Package: NaileR
 Title: Evidence-First Interpretation of Statistical Profiles with AI
-Version: 2.1.0
+Version: 2.2.0
 Authors@R: c(
     person("Nel", "Hervé", role = "aut"),
     person("Sébastien", "Lê", role = c("aut", "cre"),

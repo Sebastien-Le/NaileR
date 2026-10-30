@@ -14,42 +14,64 @@ Héloïse BILLES and Amélie RATEAU, students at l'Institut Agro Rennes-Angers
 waste
 }
 \description{
-These data were collected after a survey on food waste, with participants describing their habits.
+These data were collected after a survey on food waste. They combine
+questions about perceived impact, disposal practices, reasons, information
+and contextual variables. The answers are self-reports and must not be read
+as direct measurements of observed waste.
 }
 \examples{
-\dontrun{
-# Processing time is often longer than ten seconds
-# because the function uses a large language model.
-
 library(NaileR)
 library(FactoMineR)
-data(waste)
-waste <- waste[-14]
+data(waste, package = "NaileR")
 
-res_mca_waste <- MCA(waste, quali.sup = c(1,2,50:76),
-ncp = 35, level.ventil = 0.05, graph = FALSE)
-res_hcpc_waste <- HCPC(res_mca_waste, nb.clust = 3, graph = FALSE)
-don_clust_waste <- res_hcpc_waste$data.clust
+# Item 14 is constant in the distributed table and is removed only for
+# this historical MCA preparation.
+waste_active <- waste[, -14, drop = FALSE]
+waste_mca <- FactoMineR::MCA(
+  waste_active,
+  quali.sup = c(1, 2, 50:76),
+  ncp = 35,
+  level.ventil = 0.05,
+  graph = FALSE
+)
+waste_hcpc <- FactoMineR::HCPC(waste_mca, nb.clust = 3, graph = FALSE)
+waste_profiles <- waste_hcpc$data.clust
 
-intro_waste <- 'These data were collected
-after a survey on food waste,
-with participants describing their habits.'
-intro_waste <- gsub('\n', ' ', intro_waste) |>
-stringr::str_squish()
+intro_waste <- paste(
+  "This study describes self-reported views and practices related to food",
+  "waste, including disposal, information and possible reasons.",
+  "The groups are statistical profiles of the questionnaire responses;",
+  "they are not direct measurements of quantities wasted."
+)
+request_waste <- paste(
+  "Summarize the main coherent configuration of evidence for each group.",
+  "Propose a descriptive label grounded in the displayed characteristics.",
+  "Do not assign a normative score, infer unobserved behaviour, or claim",
+  "causal explanations."
+)
+waste_preview <- nail_catdes(
+  dataset = waste_profiles,
+  num.var = ncol(waste_profiles),
+  introduction = intro_waste,
+  request = request_waste,
+  drop.negative = TRUE,
+  generate = FALSE
+)
+waste_evidence <- nail_evidence(waste_preview)
+waste_prompt <- nail_prompt(waste_preview, print = FALSE)
+cat(substr(waste_prompt, 1, 600), "\n")
 
-req_waste <- 'Please summarize the characteristics of each group.
-Then, give each group a new name, based on your conclusions.
-Finally, give each group a grade between 0 and 10,
-based on how wasteful they are with food:
-0 being "not at all", 10 being "absolutely".'
-req_waste <- gsub('\n', ' ', req_waste) |>
-stringr::str_squish()
-
-res_waste <- nail_catdes(don_clust_waste,
-num.var = ncol(don_clust_waste),
-introduction = intro_waste, request = req_waste,
-drop.negative = TRUE)
-res_waste |> cat()
+\dontrun{
+waste_generated <- nail_catdes(
+  dataset = waste_profiles,
+  num.var = ncol(waste_profiles),
+  introduction = intro_waste,
+  request = request_waste,
+  provider = "ollama",
+  model = "llama3",
+  generate = TRUE
+)
+nail_response(waste_generated, print = FALSE)
 }
 }
 \keyword{datasets}

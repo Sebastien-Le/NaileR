@@ -897,9 +897,12 @@ build_request_descfreq <- function(isolate.groups = FALSE,
 
   if (isTRUE(isolate.groups)) {
     lines <- c(
-      "Using only the statistical facts below, interpret this row as a relative frequency profile.",
+      "Ground your interpretation in the statistical facts below and interpret this row as a relative frequency profile.",
       "Identify the attributes that most clearly characterize or distinguish it.",
-      "Do not infer causal explanations or properties that are not supported by the displayed frequency evidence."
+      "When several frequency patterns converge, you may synthesize them into a higher-level substantive characterization of the row.",
+      "Present that characterization as an interpretation of the profile, not as an additional directly observed frequency.",
+      "Do not invent a new empirical fact or causal explanation from the displayed frequencies.",
+      "A broader contextual extension is allowed only when it is clearly presented as an interpretation or hypothesis."
     )
 
     if (isTRUE(rows_are_ordered)) {
@@ -923,9 +926,12 @@ build_request_descfreq <- function(isolate.groups = FALSE,
 
   if (identical(interpretation_mode, "comparison")) {
     lines <- c(
-      "Using only the statistical facts below, compare the rows as relative frequency profiles.",
+      "Ground your comparison in the statistical facts below and compare the rows as relative frequency profiles.",
       "Identify the main contrasts and the attributes that distinguish the rows.",
-      "Do not interpret frequency differences as causal explanations."
+      "When several frequency patterns converge, you may synthesize them into higher-level substantive characterizations of the rows or their contrast.",
+      "Present those characterizations as interpretations of the profiles, not as additional directly observed frequencies.",
+      "Do not invent a new empirical fact or causal explanation from the displayed frequencies.",
+      "A broader contextual extension is allowed only when it is clearly presented as an interpretation or hypothesis."
     )
 
     if (isTRUE(rows_are_ordered)) {
@@ -953,9 +959,12 @@ build_request_descfreq <- function(isolate.groups = FALSE,
   }
 
   lines <- c(
-    "Using only the statistical facts below, describe each row as a relative frequency profile.",
+    "Ground your description in the statistical facts below and describe each row as a relative frequency profile.",
     "For each row, identify the main attributes that characterize or distinguish it.",
-    "Do not interpret frequency differences as causal explanations."
+    "When several frequency patterns converge, you may synthesize them into a higher-level substantive characterization of each row.",
+    "Present that characterization as an interpretation of the profile, not as an additional directly observed frequency.",
+    "Do not invent a new empirical fact or causal explanation from the displayed frequencies.",
+    "A broader contextual extension is allowed only when it is clearly presented as an interpretation or hypothesis."
   )
 
   if (isTRUE(rows_are_ordered)) {
@@ -1080,7 +1089,9 @@ build_guide_descfreq <- function(interpretation_mode = c("description", "compari
     "A higher relative frequency means that an attribute is over-represented in that row relative to the global table profile.",
     "A lower relative frequency means that an attribute is under-represented.",
     "Technical p-values and v-tests remain available in `nail_evidence()` for audit but are deliberately not used as semantic content in this prompt.",
-    "Prioritize coherent configurations of several attributes over isolated single signals."
+    "Prioritize coherent configurations of several attributes over isolated single signals.",
+    "A higher-level substantive characterization may synthesize several displayed frequency facts, but it is an interpretation of the profile rather than an additional measured frequency.",
+    "Build the main interpretation and any descriptive name primarily from the strongest coherent pattern. Rare or sparsely represented attributes may provide secondary contextual nuance, but they should not drive the descriptive name unless supported by several convergent signals."
   )
 
   if (identical(interpretation_mode, "comparison")) {
@@ -1252,12 +1263,19 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 # Main
 # ---------------------------------------------------------------------------
 
-#' Interpret the rows of a contingency table using evidence-first frequency profiles
+#' Describe and compare frequency profiles
 #'
-#' `nail_descfreq()` characterizes the rows of a contingency table with
-#' [FactoMineR::descfreq()]. It first stores complete canonical
+#' Use `nail_descfreq()` to describe or compare the rows of a contingency table.
+#' A category is interpreted relative to the whole table, so overrepresentation
+#' is not an exclusive property of a row. NaileR computes row-by-column
+#' frequency profiles with \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}
+#' and prepares them for an optional interpretation by a language model.
+#'
+#' `nail_descfreq()` computes row-by-column frequency profiles for a contingency
+#' table with \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}. It stores the complete R-derived
 #' `frequency_profiles`, then selects a deterministic subset of retained
-#' statistical markers for semantic interpretation.
+#' statistical markers for semantic interpretation. R performs the frequency
+#' analysis; the LLM interprets the displayed relative patterns.
 #'
 #' The canonical evidence is invariant to `generate`, `isolate.groups`,
 #' `sample.pct`, `drop.negative`, `interpretation_mode`, `rows_are_ordered`,
@@ -1266,11 +1284,15 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'
 #' @param dataset A data frame corresponding to a contingency table. Cells must
 #'   contain non-negative integer-like frequencies.
-#' @param introduction Optional study context included in the LLM prompt.
+#' @param introduction Optional study context included in the LLM prompt. It
+#'   provides context but is not frequency evidence.
 #' @param request Optional analytical request sent to the LLM.
 #' @param conclusion Optional final output-instruction block.
-#' @param model Model name for the selected provider.
-#' @param provider LLM backend, either `"ollama"` or `"gemini"`.
+#' @param model Model name for the selected provider. When omitted, the
+#'   validated provider default is used: `"llama3"` for Ollama and
+#'   `"gemini-2.5-flash"` for Gemini. An explicit model is always respected.
+#' @param provider LLM backend, either `"ollama"` or `"gemini"`; the default
+#'   selected by `match.arg()` is `"ollama"`.
 #' @param isolate.groups Logical. If `TRUE`, build one independent prompt per
 #'   row. If `FALSE`, build one prompt containing all rows.
 #' @param sample.pct Proportion in `[0, 1]` of eligible retained markers shown
@@ -1279,20 +1301,24 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'   excluded only from the prompt-selection layer.
 #' @param by.quali Optional grouping vector with one value per source row.
 #'   Source rows sharing a level are summed before row characterization, as in
-#'   [FactoMineR::descfreq()].
-#' @param proba Significance threshold passed to [FactoMineR::descfreq()].
-#' @param interpretation_mode Either `"description"` or `"comparison"`.
+#'   \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}.
+#' @param proba Significance threshold passed to \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}.
+#' @param interpretation_mode Either `"description"` (describe each row) or
+#'   `"comparison"` (emphasize contrasts among rows).
 #' @param rows_are_ordered Logical contextual flag indicating that row order has
 #'   external substantive meaning. It does not alter statistical evidence.
 #' @param explicit_row_labels Logical contextual flag indicating that row names
 #'   already have substantive meaning and should not be renamed by the LLM.
 #' @param generate Logical. If `FALSE`, build prompt(s) without contacting an
 #'   LLM. If `TRUE`, call the selected backend.
-#' @param ... Additional provider-specific generation arguments.
+#' @param ... Additional provider-specific generation arguments. Unknown or
+#'   provider-incompatible options are rejected before a preview or generation;
+#'   no option is silently discarded.
 #'
-#' @return For backward compatibility, a prompt string or named list of prompts
-#'   when `generate = FALSE`; a model/prompt/response list or named list of such
-#'   results when `generate = TRUE`.
+#' @return The main return is a prompt or named list of prompts when
+#'   `generate = FALSE`, and a backend result or named list of backend results
+#'   when `generate = TRUE`, according to `isolate.groups`. Analytical objects
+#'   are attached as attributes, not added as `$` fields.
 #'
 #'   Every return carries:
 #'
@@ -1300,10 +1326,13 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #'   * `interpretation_evidence`: deterministic subset selected for the prompt;
 #'   * `semantic_facing_evidence`: plain-language factual evidence shown to the
 #'     LLM;
-#'   * `descfreq_result`: the original single [FactoMineR::descfreq()] result;
+#'   * `descfreq_result`: the original single \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}} result;
 #'   * `descfreq_settings`: execution and interpretation settings;
 #'   * `llm_io`: exact prompt(s) and raw LLM response(s) for [nail_prompt()] and
 #'     [nail_response()].
+#'
+#'   Use [nail_evidence()] for the complete or selected frequency evidence. A
+#'   preview contains no LLM response.
 #'
 #' @details
 #' FactoMineR retains row-column cells using its two-sided hypergeometric test.
@@ -1320,22 +1349,134 @@ get_prompt_descfreq <- function(semantic_facing_evidence,
 #' through [nail_evidence()]. The LLM-facing semantic facts use only explicit
 #' direction and row-versus-global frequency information.
 #'
-#' @examples
-#' tab <- data.frame(
-#'   sweet = c(30, 5, 10),
-#'   bitter = c(5, 30, 10),
-#'   neutral = c(10, 10, 30),
-#'   row.names = c("A", "B", "C")
-#' )
+#' @seealso \code{\link[FactoMineR:descfreq]{FactoMineR::descfreq()}}, [nail_evidence()], [nail_prompt()],
+#'   [nail_response()]
 #'
-#' preview <- nail_descfreq(
-#'   tab,
+#' @examples
+#' ## 1. Beards: describe eight observed frequency profiles
+#' # Question: which recorded descriptors characterize each beard type?
+#' data(beard_cont, package = "NaileR")
+#'
+#' beard_preview <- nail_descfreq(
+#'   dataset = beard_cont,
+#'   introduction = paste(
+#'     "This survey describes eight observed beard types using frequency",
+#'     "profiles across beard descriptors. The rows are the identifiers B1",
+#'     "to B8."
+#'   ),
+#'   request = paste(
+#'     "Describe what distinguishes each beard type from the overall",
+#'     "descriptor profile and propose a concise descriptive name. Base every",
+#'     "statement on the displayed frequency evidence; do not invent",
+#'     "appearance or causes."
+#'   ),
+#'   interpretation_mode = "description",
 #'   isolate.groups = TRUE,
 #'   generate = FALSE
 #' )
 #'
-#' nail_evidence(preview, select = "A")
-#' nail_prompt(preview, select = "A")
+#' beard_evidence <- nail_evidence(beard_preview)
+#' beard_prompt <- nail_prompt(beard_preview, print = FALSE)
+#' beard_evidence
+#' beard_prompt
+#'
+#' # The evidence contains the retained frequencies and statistical markers.
+#' # The prompts contain one request for each beard type. A generated name is
+#' # an interpretation of these profiles, not a factual property of a beard.
+#'
+#' ## 2. Children: compare frequency profiles across education levels
+#' data(children, package = "FactoMineR")
+#' children_table <- children[1:14, 1:5] |> t() |> as.data.frame()
+#' rownames(children_table) <- c(
+#'   "No education", "Elementary school", "Middle school",
+#'   "High school", "University"
+#' )
+#'
+#' children_preview <- nail_descfreq(
+#'   dataset = children_table,
+#'   introduction = paste(
+#'     "This contingency table summarizes reported reasons that a woman or",
+#'     "couple may hesitate to have children by education level. Rows are",
+#'     "five education categories and columns are reasons."
+#'   ),
+#'   request = paste(
+#'     "Compare the relative frequency profiles across education levels,",
+#'     "highlighting the main differences while distinguishing statistical",
+#'     "associations from causal explanations."
+#'   ),
+#'   interpretation_mode = "comparison",
+#'   isolate.groups = FALSE,
+#'   generate = FALSE
+#' )
+#'
+#' children_evidence <- nail_evidence(children_preview)
+#' cat(substr(nail_prompt(children_preview, print = FALSE), 1, 600), "\n")
+#'
+#' # Example 3: build an observed-term table from Rorschach descriptions.
+#' # Each term is counted at most once per description; the six terms below
+#' # are observed in the corpus and are not selected by significance.
+#' data(rorschach, package = "NaileR")
+#' rorschach_terms <- c("animal", "bat", "black", "butterfly", "color", "red")
+#' rorschach_tokens <- strsplit(
+#'   tolower(gsub("[^a-z]+", " ", rorschach$Description)),
+#'   "\\s+"
+#' )
+#' rorschach_counts <- vapply(
+#'   rorschach_terms,
+#'   function(term) {
+#'     vapply(rorschach_tokens, function(tokens) as.numeric(term %in% tokens), numeric(1))
+#'   },
+#'   numeric(nrow(rorschach))
+#' )
+#' rorschach_table <- aggregate(
+#'   rorschach_counts,
+#'   by = list(Inkblot = rorschach$Inkblot),
+#'   FUN = sum
+#' )
+#' rownames(rorschach_table) <- as.character(rorschach_table$Inkblot)
+#' rorschach_table$Inkblot <- NULL
+#' rorschach_table <- rorschach_table[, colSums(rorschach_table) > 0, drop = FALSE]
+#'
+#' rorschach_preview <- nail_descfreq(
+#'   dataset = rorschach_table,
+#'   introduction = paste(
+#'     "Participants described ten Rorschach inkblots.",
+#'     "This contingency table counts six observed descriptive terms",
+#'     "at most once per description across the ten inkblots."
+#'   ),
+#'   request = paste(
+#'     "Describe the perceptual characteristics associated with each inkblot",
+#'     "using the retained frequency evidence. Distinguish inkblots based on",
+#'     "their descriptions without inferring personality or causal mechanisms."
+#'   ),
+#'   proba = 0.05,
+#'   interpretation_mode = "comparison",
+#'   isolate.groups = FALSE,
+#'   generate = FALSE
+#' )
+#' rorschach_evidence <- nail_evidence(rorschach_preview)
+#' cat(substr(nail_prompt(rorschach_preview, print = FALSE), 1, 600), "\n")
+#'
+#' # Optional Gemini generation: one comparison response for Children.
+#' # This opt-in block requires a user-managed GEMINI_API_KEY.
+#' \dontrun{
+#' children_gemini <- nail_descfreq(
+#'   dataset = children_table,
+#'   introduction = paste(
+#'     "The table records reasons for hesitating to have children",
+#'     "across five education levels."
+#'   ),
+#'   request = paste(
+#'     "Compare the retained frequency evidence across education levels.",
+#'     "Distinguish associations from causal explanations."
+#'   ),
+#'   interpretation_mode = "comparison", isolate.groups = FALSE,
+#'   provider = "gemini", model = "gemini-2.5-flash", generate = TRUE
+#' )
+#' nail_evidence(children_gemini)
+#' nail_prompt(children_gemini, print = FALSE)
+#' nail_response(children_gemini, print = FALSE)
+#' }
 #'
 #' @export
 nail_descfreq <- function(dataset,
@@ -1354,8 +1495,12 @@ nail_descfreq <- function(dataset,
                           explicit_row_labels = FALSE,
                           generate = FALSE,
                           ...) {
+  model_missing <- missing(model)
   interpretation_mode <- match.arg(interpretation_mode)
   provider <- match.arg(provider)
+  model <- .resolve_llm_model(model, provider, model_missing)
+  llm_api_options <- list(...)
+  .validate_llm_api_options(llm_api_options, provider)
 
   validate_descfreq_inputs(
     dataset = dataset,
@@ -1484,8 +1629,6 @@ nail_descfreq <- function(dataset,
   }
 
   n_selected <- interpretation_evidence$metadata$n_selected_evidence
-  llm_api_options <- list(...)
-
   .call_llm <- function(prompt) {
     raw <- .call_llm_base(
       provider = provider,

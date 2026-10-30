@@ -142,7 +142,6 @@ test_that("continuous_profile is invariant to interpretation options", {
         interpretation_mode = "standard",
         sample.pct = 1,
         sample.method = "top",
-        prompt_style = "detailed",
         target_label = "Observed score",
         target_concept = "observed construct",
         generate = FALSE
@@ -158,7 +157,6 @@ test_that("continuous_profile is invariant to interpretation options", {
         interpretation_mode = "latent",
         sample.pct = 0.5,
         sample.method = "stratified",
-        prompt_style = "compact",
         target_label = "Dim1",
         target_concept = "latent construct",
         generate = FALSE
@@ -181,7 +179,7 @@ test_that("continuous_profile is invariant to interpretation options", {
 })
 
 
-test_that("standard and latent prompts use different semantic tasks", {
+test_that("standard and latent prompts use approved identity and task", {
   dat <- make_condes_semantic_data()
 
   standard <- nail_condes(
@@ -199,47 +197,229 @@ test_that("standard and latent prompts use different semantic tasks", {
     generate = FALSE
   )
 
-  p_standard <- nail_prompt(
-    standard,
-    print = FALSE
+  p_standard <- nail_prompt(standard, print = FALSE)
+  p_latent <- nail_prompt(latent, print = FALSE)
+
+  expect_false(identical(p_standard, p_latent))
+  expect_match(p_standard, "The target is an observed quantitative variable", fixed = TRUE)
+  expect_match(p_standard, "Preserve its original name and measured meaning", fixed = TRUE)
+  expect_match(p_standard, "do not replace the observed variable with an inferred latent construct", fixed = TRUE)
+  expect_match(p_standard, "A broader substantive interpretation may emerge", fixed = TRUE)
+  expect_match(p_standard, "Do not infer causality from these associations", fixed = TRUE)
+
+  expect_match(p_latent, "The target is a constructed quantitative dimension", fixed = TRUE)
+  expect_match(p_latent, "When the numerical orientation is arbitrary", fixed = TRUE)
+  expect_match(p_latent, "propose a concise, meaningful name", fixed = TRUE)
+  expect_match(p_latent, "Keep the original identifier alongside the proposed name", fixed = TRUE)
+  expect_match(p_latent, 'Interpret the quantitative target "Dim1"', fixed = TRUE)
+
+  expect_false(grepl("more favorable|less favorable", p_standard, ignore.case = TRUE))
+})
+
+
+test_that("condes reading retains the approved statistical distinctions", {
+  reading <- NaileR:::build_guide_condes(mode = "standard")
+
+  expect_match(reading, "FactoMineR::condes()", fixed = TRUE)
+  expect_match(reading, "POSITIVE correlation", fixed = TRUE)
+  expect_match(reading, "absolute correlation indicates the strength of the linear association", fixed = TRUE)
+  expect_match(reading, "For qualitative predictors, R²", fixed = TRUE)
+  expect_match(reading, "sum-to-zero coding", fixed = TRUE)
+  expect_match(reading, "Estimate is expressed in the target's units", fixed = TRUE)
+  expect_match(reading, "not necessarily a difference from the overall sample mean", fixed = TRUE)
+  expect_match(reading, "They are not independent measurements", fixed = TRUE)
+  expect_match(reading, "Statistical significance does not measure association strength", fixed = TRUE)
+  expect_match(reading, "Do not infer causality from these associations", fixed = TRUE)
+  expect_false(grepl("retained evidence is shown|eligible evidence family", reading, ignore.case = TRUE))
+
+  interpretation <- NaileR:::.build_condes_interpretation(
+    mode = "standard", target_label = "Score"
   )
-  p_latent <- nail_prompt(
-    latent,
-    print = FALSE
+  expect_match(interpretation, "considering its statistical associations jointly", fixed = TRUE)
+  expect_match(interpretation, "Do not present these connections as statistically demonstrated relationships", fixed = TRUE)
+  expect_match(interpretation, 'Interpret the quantitative target "Score"', fixed = TRUE)
+})
+
+
+test_that("removed CONDES prompt_style is rejected instead of sent to the backend", {
+  dat <- make_condes_semantic_data()
+
+  expect_error(
+    nail_condes(
+      dat,
+      num.var = 1,
+      prompt_style = "detailed",
+      generate = FALSE
+    ),
+    "prompt_style.*removed"
   )
 
-  expect_false(
-    identical(
-      p_standard,
-      p_latent
+  expect_error(
+    nail_condes(
+      dat,
+      num.var = 1,
+      prompt_style = "compact",
+      generate = FALSE
+    ),
+    "prompt_style.*removed"
+  )
+})
+
+
+test_that("condes prompt blocks expose six separated responsibilities", {
+  x <- nail_condes(
+    make_condes_semantic_data(),
+    num.var = 1,
+    introduction = "CUSTOM_CONTEXT",
+    request = "CUSTOM_QUESTION",
+    conclusion = "CUSTOM_OUTPUT",
+    generate = FALSE
+  )
+
+  blocks <- attr(
+    x,
+    "condes_prompt_blocks",
+    exact = TRUE
+  )
+
+  expect_identical(
+    names(blocks),
+    c(
+      "context",
+      "reading",
+      "question",
+      "interpretation",
+      "evidence",
+      "output"
     )
   )
-
+  expect_identical(blocks$context, "CUSTOM_CONTEXT")
+  expect_identical(blocks$question, "CUSTOM_QUESTION")
+  expect_identical(blocks$output, "CUSTOM_OUTPUT")
+  expect_match(blocks$reading, "FactoMineR::condes", fixed = TRUE)
   expect_match(
-    p_standard,
-    "do not rename",
-    ignore.case = TRUE
-  )
-
-  expect_match(
-    p_latent,
-    "What separates the higher end from the lower end",
+    blocks$reading,
+    "Do not infer causality from these associations",
     fixed = TRUE
   )
-
+  expect_match(blocks$interpretation, "### Target Identity", fixed = TRUE)
+  expect_match(blocks$interpretation, "### Task", fixed = TRUE)
   expect_match(
-    p_latent,
-    "propose one concise name",
-    ignore.case = TRUE
+    blocks$evidence,
+    "correlation=",
+    fixed = TRUE
+  )
+  expect_false("local_task" %in% names(blocks))
+  expect_identical(
+    nail_prompt(x, print = FALSE),
+    NaileR:::.render_condes_prompt(blocks)
+  )
+})
+
+
+test_that("condes prompt blocks preserve statistical evidence across modes", {
+  dat <- make_condes_semantic_data()
+
+  standard <- nail_condes(
+    dat,
+    num.var = 1,
+    interpretation_mode = "standard",
+    target_label = "Shared target",
+    generate = FALSE
+  )
+  latent <- nail_condes(
+    dat,
+    num.var = 1,
+    interpretation_mode = "latent",
+    target_label = "Shared target",
+    generate = FALSE
   )
 
-  expect_false(
-    grepl(
-      "more favorable|less favorable",
-      p_standard,
-      ignore.case = TRUE
-    )
+  standard_blocks <- attr(
+    standard,
+    "condes_prompt_blocks",
+    exact = TRUE
   )
+  latent_blocks <- attr(
+    latent,
+    "condes_prompt_blocks",
+    exact = TRUE
+  )
+
+  expect_identical(standard_blocks$reading, latent_blocks$reading)
+  expect_identical(standard_blocks$evidence, latent_blocks$evidence)
+  expect_identical(
+    attr(standard, "continuous_profile", exact = TRUE),
+    attr(latent, "continuous_profile", exact = TRUE)
+  )
+  expect_identical(
+    nail_evidence(standard),
+    nail_evidence(latent)
+  )
+  expect_match(
+    standard_blocks$interpretation,
+    "Preserve its original name and measured meaning",
+    fixed = TRUE
+  )
+  expect_match(
+    latent_blocks$interpretation,
+    "Keep the original identifier alongside the proposed name",
+    fixed = TRUE
+  )
+})
+
+
+test_that("condes approved output stays editorial and user-overridable", {
+  dat <- make_condes_semantic_data()
+  x <- nail_condes(dat, num.var = 1, generate = FALSE)
+  blocks <- attr(x, "condes_prompt_blocks", exact = TRUE)
+
+  expect_match(blocks$output, "Write a clear, substantive interpretation", fixed = TRUE)
+  expect_match(blocks$output, "repetitive numerical reporting", fixed = TRUE)
+  expect_false(grepl("Quarto Markdown|# Final Summary Task", blocks$output, fixed = FALSE))
+
+  custom <- nail_condes(
+    dat, num.var = 1,
+    introduction = "EXACT_CONTEXT",
+    request = "EXACT_REQUEST",
+    conclusion = "EXACT_CONCLUSION",
+    generate = FALSE
+  )
+  b <- attr(custom, "condes_prompt_blocks", exact = TRUE)
+  expect_identical(b$context, "EXACT_CONTEXT")
+  expect_identical(b$question, "EXACT_REQUEST")
+  expect_identical(b$output, "EXACT_CONCLUSION")
+})
+
+test_that("condes retains target_concept as optional latent context", {
+  x <- nail_condes(
+    make_condes_semantic_data(),
+    num.var = 1,
+    interpretation_mode = "latent",
+    target_label = "Dim1",
+    target_concept = "Athletic performance",
+    generate = FALSE
+  )
+  p <- nail_prompt(x, print = FALSE)
+  expect_match(p, 'Use "Athletic performance" only as contextual guidance', fixed = TRUE)
+  expect_match(p, "do not force that label", fixed = TRUE)
+})
+
+
+test_that("condes retains source identifier with a custom display label", {
+  x <- nail_condes(
+    make_condes_semantic_data(),
+    num.var = 1,
+    interpretation_mode = "latent",
+    target_label = "Display dimension",
+    generate = FALSE
+  )
+  blocks <- attr(x, "condes_prompt_blocks", exact = TRUE)
+  expect_match(blocks$interpretation, 'Original data-variable identifier: "Score"', fixed = TRUE)
+  expect_match(blocks$interpretation, 'Analyst-provided display label: "Display dimension"', fixed = TRUE)
+  expect_match(blocks$interpretation, 'Interpret the quantitative target "Display dimension"', fixed = TRUE)
+  expect_identical(attr(x, "condes_settings", exact = TRUE)$target_variable, "Score")
+  expect_identical(attr(x, "condes_settings", exact = TRUE)$target_label, "Display dimension")
 })
 
 
@@ -313,6 +493,18 @@ test_that("custom introduction request and conclusion are preserved", {
     conclusion,
     fixed = TRUE
   )
+
+  blocks <- attr(
+    x,
+    "condes_prompt_blocks",
+    exact = TRUE
+  )
+  expect_identical(blocks$context, intro)
+  expect_identical(blocks$question, request)
+  expect_identical(blocks$output, conclusion)
+  expect_true(nzchar(blocks$reading))
+  expect_true(nzchar(blocks$interpretation))
+  expect_true(nzchar(blocks$evidence))
 })
 
 
@@ -469,12 +661,15 @@ test_that("weighted standardization is centered under supplied weights", {
 
 
 test_that("llm_io stores exact condes prompt and raw response", {
+  captured_prompt <- NULL
+
   testthat::local_mocked_bindings(
     .call_llm_base = function(provider,
                               model,
                               prompt,
                               output,
                               llm_api_options) {
+      captured_prompt <<- prompt
       data.frame(
         response = "RAW_CONDES_RESPONSE",
         stringsAsFactors = FALSE
@@ -506,6 +701,16 @@ test_that("llm_io stores exact condes prompt and raw response", {
   expect_identical(
     prompt,
     x$prompt[[1L]]
+  )
+  expect_identical(
+    captured_prompt,
+    prompt
+  )
+  expect_identical(
+    prompt,
+    NaileR:::.render_condes_prompt(
+      attr(x, "condes_prompt_blocks", exact = TRUE)
+    )
   )
 
   expect_identical(

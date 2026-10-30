@@ -457,6 +457,8 @@
 #'   `select` supplied, the selected group, product, row, or dimension evidence.
 #'   For textual evidence, a selected group also contains a `texts` data frame
 #'   with the exact registered texts belonging to that group.
+#'   The returned evidence is a view of the stored artifact; this accessor does
+#'   not recompute statistics or alter the analysis result.
 #'
 #' @details
 #' `nail_evidence()` never recomputes an analysis and never calls an LLM. It only

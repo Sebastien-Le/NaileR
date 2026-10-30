@@ -38,10 +38,12 @@ an analysis uses several independent LLM calls, all available prompts are
 displayed by default and one can be selected with \code{select}.
 
 \code{nail_response()} displays the raw response returned by the LLM for the
-current analytical stage. It does not validate, reinterpret, summarize, or
-modify that response. For example, on a result from \code{nail_catdes()} it shows
-the PASS 1 semantic response, whereas on a result from
-\code{nail_catdes_ground()} it shows the raw PASS 2 reviewer response before
+current public analytical stage. It does not validate, reinterpret,
+summarize, or modify that response. For \code{nail_catdes()} without a textual
+variable, and for a preview, this is the first-pass response or an explicit
+no-response error. When \code{num.textual} is set and both passes succeed, it is
+the enriched second-pass response. On a result from
+\code{nail_catdes_ground()} it remains the raw PASS 2 reviewer response before
 parsing and epistemic validation.
 
 These helpers do not rebuild prompts and do not call an LLM. They only read
@@ -57,9 +59,12 @@ Compatibility adapters remain available for current historical return
 structures while \code{nail_condes()}, \code{nail_qda()}, \code{nail_textual()}, and other
 analyses are progressively rebuilt around the evidence-first architecture.
 
-For \code{nail_catdes()}, the local semantic profiles take precedence over the
-historical combined outer return shape, so \code{nail_prompt()} exposes the
-actual local prompts used by the local-first architecture.
+For \code{nail_catdes()}, \code{nail_prompt()} exposes the actual joint prompt when
+\code{isolate.groups = FALSE}, while the named local prompts remain available
+when \code{isolate.groups = TRUE}. With successful textual enrichment, these
+accessors expose the second-pass prompt or response. The complete first and
+second passes remain available from \code{\link[=nail_catdes_enrichment]{nail_catdes_enrichment()}}. A failed or
+incomplete second pass is never silently replaced by the first response.
 }
 \examples{
 data(iris)

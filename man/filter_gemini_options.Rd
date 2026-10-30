@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils_ollama.R
 \name{filter_gemini_options}
 \alias{filter_gemini_options}
-\title{Filter supported Gemini options}
+\title{Validate and return supported Gemini options}
 \usage{
 filter_gemini_options(extra_args)
 }
@@ -10,9 +10,9 @@ filter_gemini_options(extra_args)
 \item{extra_args}{A named list of extra arguments.}
 }
 \value{
-A filtered named list containing only supported Gemini options.
+The validated named list containing compatible Gemini options.
 }
 \description{
-Filter supported Gemini options
+Validate and return supported Gemini options
 }
 \keyword{internal}

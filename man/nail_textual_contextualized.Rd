@@ -53,13 +53,17 @@ nail_textual_contextualized(
 
 \item{sample.pct.profile}{Proportion of retained descriptors kept for group profile prep.}
 
-\item{profile_mode}{\code{"balanced"}, \code{"categorical"}, or \code{"quantitative"}.}
+\item{profile_mode}{\code{"balanced"} (default), \code{"categorical"}, or
+\code{"quantitative"}; used only by the historical preparation route.}
 
-\item{prompt_style}{\code{"compact"} or \code{"detailed"}.}
+\item{prompt_style}{\code{"compact"} (default) or \code{"detailed"}; used by the
+historical route and ignored by the canonical delegation.}
 
-\item{interpretation_mode}{\code{"groupwise"} or \code{"comparative"}.}
+\item{interpretation_mode}{\code{"groupwise"} (default) or \code{"comparative"};
+used by the historical route.}
 
-\item{include_verbatims}{Logical; whether to include illustrative verbatims in the final prompt.}
+\item{include_verbatims}{Logical; whether to include illustrative verbatims
+in the final prompt on the historical route.}
 
 \item{n_central_verbatims}{Number of central verbatims per group for fallback selection.}
 
@@ -73,46 +77,76 @@ nail_textual_contextualized(
 
 \item{conclusion}{Optional conclusion block.}
 
-\item{isolate.groups}{Logical; if TRUE, one prompt per group.}
+\item{isolate.groups}{Logical; if \code{TRUE}, one prompt per group. On the
+canonical route, local interpretation remains group-wise even when the
+combined outer return shape is requested.}
 
-\item{model}{LLM model name for the selected provider.}
+\item{model}{LLM model name for the selected provider. The default is
+\code{"llama3"}.}
 
 \item{provider}{LLM backend to use for generation. Use \code{"ollama"} for a local Ollama model or \code{"gemini"} for Google Gemini via \code{GEMINI_API_KEY}.}
 
 \item{row.w}{Optional row weights forwarded to \code{nail_group_profile_prep()}.}
 
-\item{generate}{Logical; if FALSE, return prompt(s) only.}
+\item{generate}{Logical; if \code{FALSE}, return prompt(s) only. On the
+historical route, supplied preparation objects must already contain
+parsed summaries; with \code{TRUE}, they may be generated from \code{dataset}. On
+the canonical route, this is passed to \code{nail_catdes_textual()}.}
 
-\item{catdes}{Optional result returned by \code{nail_catdes()} for the
-canonical compatibility path. When supplied together with \code{textual},
-the call is routed through the canonical CATDES + textual workflow.}
+\item{catdes}{Optional result returned by \code{nail_catdes()} for the canonical
+route. It must be supplied together with \code{textual}; supplying either
+canonical input selects that route.}
 
 \item{textual}{Optional result returned by \code{nail_textual()} for the
-canonical compatibility path. Supply it together with \code{catdes}.}
+canonical route. It must be supplied together with \code{catdes}.}
 
 \item{...}{Additional provider-specific generation arguments passed to the selected LLM backend.}
 }
 \value{
-If \code{generate = FALSE}, a prompt string or a named list of prompts.
-If \code{generate = TRUE}, a data frame or a named list of data frames.
+If \code{generate = FALSE}, a prompt string or a named list of prompts;
+if \code{generate = TRUE}, a data frame or a named list of data frames. The
+exact outer shape depends on the selected route and \code{isolate.groups}.
+Historical-route summaries are attached as attributes, while the
+canonical route exposes the delegated \code{\link[=nail_catdes_textual]{nail_catdes_textual()}} attributes.
 
-Attributes:
-\itemize{
-\item \code{group_profile_summary}
-\item \code{textual_group_summary}
-\item \code{representative_verbatims}
-\item \code{notable_expressions}
-}
+On the historical route, the result carries \code{group_profile_summary},
+\code{textual_group_summary}, \code{representative_verbatims}, and
+\code{notable_expressions} attributes. These are the structured summaries and
+selected text material used by that route; a canonical \code{llm_io} attribute
+is not added by the historical implementation.
+
+On the canonical route, the result has the return shape and canonical
+attributes of \code{\link[=nail_catdes_textual]{nail_catdes_textual()}}: \code{contextualized_evidence},
+\code{local_prompts}, \code{contextualized_profiles}, \code{catdes_textual_settings}, and
+\code{llm_io}. The \code{llm_io} artifact contains the exact contextualization prompts
+and, when \code{generate = TRUE}, the raw responses; with \code{generate = FALSE}, its
+responses remain non-generated. The wrapper additionally attaches
+\code{compatibility_route}, identifying this entry point and the delegated
+canonical function.
+
+The historical and canonical routes preserve their existing outer return
+shapes. The canonical route does not guarantee the historical summary
+attributes, and the historical route does not guarantee
+\code{contextualized_evidence} or \code{compatibility_route}.
 }
 \description{
-This function crosses:
-\itemize{
-\item a structured statistical summary of each group
-\item a structured textual summary of each group
-\item optional representative verbatims for each group
-}
+This function provides two routes. The historical route crosses a structured
+statistical summary, a structured textual summary, and optional
+representative verbatims for each group. The canonical route accepts a
+\code{nail_catdes()} result and a \code{nail_textual()} result and delegates to
+\code{\link[=nail_catdes_textual]{nail_catdes_textual()}}, with CATDES as the statistical anchor.
 }
 \details{
-It can work either from precomputed objects (\code{nail_group_profile_prep()},
-\code{nail_textual_prep()}) or compute them internally from the raw dataset.
+The historical route is selected when both \code{catdes} and \code{textual} are
+\code{NULL}. It can use precomputed objects (\code{nail_group_profile_prep()} and
+\code{nail_textual_prep()}) or compute them internally from \code{dataset} when
+generation is enabled. The canonical route is selected when either
+\code{catdes} or \code{textual} is supplied; both must then be supplied, and
+historical source objects or historical tuning arguments must not be mixed
+with them.
+}
+\seealso{
+\code{\link[=nail_catdes_textual]{nail_catdes_textual()}}, \code{\link[=nail_group_profile_prep]{nail_group_profile_prep()}},
+\code{\link[=nail_textual_prep]{nail_textual_prep()}}, \code{\link[=nail_evidence]{nail_evidence()}}, \code{\link[=nail_prompt]{nail_prompt()}},
+\code{\link[=nail_response]{nail_response()}}
 }

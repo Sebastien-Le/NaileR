@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils_ollama.R
 \name{filter_ollama_options}
 \alias{filter_ollama_options}
-\title{Filter supported ollamar::generate options}
+\title{Validate and return supported ollamar::generate options}
 \usage{
 filter_ollama_options(extra_args)
 }
@@ -10,9 +10,9 @@ filter_ollama_options(extra_args)
 \item{extra_args}{A named list of extra arguments.}
 }
 \value{
-A filtered named list containing only supported Ollama options.
+The validated named list containing compatible Ollama options.
 }
 \description{
-Filter supported ollamar::generate options
+Validate and return supported ollamar::generate options
 }
 \keyword{internal}
